@@ -75,7 +75,7 @@ class MicroCondenserClass():
             ('Pressure Drop Air-side (core only)','Pa',self.Fins.dP_a),
             ('Pressure Drop Air-side (total)','Pa',self.dP_a),
             ('Subcooling','K',self.DT_sc),
-            ('circuits','-',self.Ncircuits)
+            ('Number of Circuits','-',self.Ncircuits)
         ]
         
     def Update(self,**kwargs):
@@ -280,7 +280,7 @@ class MicroCondenserClass():
         Tdew=self.Tdew
         ## Mean temperature for use in HT relationships
         Tsat_r=(Tbubble+Tdew)/2
-        
+
         h_fg = (PropsSI('H', 'T', Tdew, 'Q', 1, self.Ref) - PropsSI('H', 'T', Tbubble, 'Q', 0, self.Ref)) #J/kg
         
         # This block calculates the average frictional pressure drop griendient

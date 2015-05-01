@@ -38,6 +38,7 @@ class MicroFinInputs():
         self.Air=AirVals()
         self.Fins=FinsVals()
         self.Louvers=LouversVals()
+        
     def __repr__(self):
         string="Tubes::\n"
         for field in self.Tubes.__dict__.keys():
@@ -52,6 +53,7 @@ class MicroFinInputs():
         for field in self.Louvers.__dict__.keys():
             string+=field+": "+repr(self.Louvers.__dict__[field])+"\n"
         return string
+    
     def Validate(self):
         """
         Check that all required fields are included, and no extra fields not listed here are added
@@ -172,16 +174,15 @@ def MultiLouveredMicroFins(Inputs):
     Vdot_ha =     Inputs.Air.Vdot_ha            #Air volume flow rate, m^3/s
     p =           Inputs.Air.p                  #Air pressure, Pa
     
-    if hasattr(Inputs,'Tmean'):
+    if hasattr(Inputs.Air,'Tmean'):
         Temp = Inputs.Air.Tmean
     else:
         Temp = Inputs.Air.Tdb
     
-    if hasattr(Inputs,'RHmean'):
+    if hasattr(Inputs.Air,'RHmean'):
         RHin = Inputs.Air.RHmean
     else:
         RHin = Inputs.Air.RH
-
 
         
     # Check that cs_cp is defined, if so, set it to the value passed in

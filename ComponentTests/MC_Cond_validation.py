@@ -28,10 +28,8 @@ Fins.Fins.t=in2m(0.0045)           ##measured## #Fin thickness
 Fins.Fins.k_fin=117                #Fin thermal conductivity for pure Aluminum
     
 Fins.Air.Vdot_ha=cfm2cms(1500)     #Air volume flow rate in m^3/s
-Fins.Air.Tmean=F2K(125) 
 Fins.Air.Tdb=F2K(125)              #Air inlet temperature, K
-Fins.Air.p=101325                  #Air pressure in Pa
-Fins.Air.RHmean=0.199
+Fins.Air.p=101325                  #Air inlet pressure in Pa
 Fins.Air.RH=0.199                  #Air inlet relative humidity
 Fins.Air.FanPower=855              #Fan power, Watts
     
@@ -60,4 +58,3 @@ print 'Fraction of circuit length in twophase section is',Cond.w_2phase
 print 'Fraction of circuit length in subcooled section is',Cond.w_subcool
 for id, unit, value in Cond.OutputList():
     print str(id) + ' = ' + str(value) + ' ' + str(unit)
-print Cond.Lcircuit
