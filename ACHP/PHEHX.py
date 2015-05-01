@@ -1,5 +1,5 @@
 from __future__ import division
-from CoolProp.CoolProp import PropsSI, IsFluidType #,Help,Phase
+from CoolProp.CoolProp import PropsSI#, IsFluidType #,Help,Phase
 
 from Correlations import ShahEvaporation_Average,PHE_1phase_hdP,Cooper_PoolBoiling,TwoPhaseDensity,TrhoPhase_ph,Phase_ph,LMPressureGradientAvg,KandlikarPHE,Bertsch_MC,AccelPressureDrop,ShahCondensation_Average,LongoCondensation
 from math import pi,exp,log,sqrt,tan,cos,sin

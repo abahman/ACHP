@@ -8,14 +8,14 @@ from scipy.optimize import fsolve
 #UseIsothermCompressCorrelation(1)
 #UseIdealGasEnthalpyCorrelations(1)
 
-def IsFinsClass(Fins):
+def IsFinsClass(MicroFins):
     '''
     Returns the Fins class if Fins is an instance of the FinInputs class, False otherwise
     
     Convenience function for the Validator 
     '''
-    if isinstance(Fins,FinInputs):
-        return Fins
+    if isinstance(MicroFins,MicroFinInputs):
+        return MicroFins
     else:
         return False
     
@@ -28,7 +28,7 @@ class AirVals:
 class LouversVals:
     pass
         
-class FinInputs():
+class MicroFinInputs():
     """ 
     Empty Class for fin data
     """
@@ -199,7 +199,7 @@ def MultiLouveredMicroFins(Inputs):
     #Fin height
     sf = sqrt(b**2 + pf**2) 
     #Louver cut length
-    if hasattr(Inputs,'Llouv'):
+    if hasattr(Inputs.Louvers,'Llouv'):
         Llouv = Inputs.Louvers.Llouv
     else:
         Llouv = 0.85 *sf
@@ -358,7 +358,7 @@ def MultiLouveredMicroFins(Inputs):
         
 if __name__=='__main__':
     
-    LouversFinsTubes=FinInputs()
+    LouversFinsTubes=MicroFinInputs()
     
     LouversFinsTubes.Tubes.NTubes=61.354           #Number of tubes
     LouversFinsTubes.Tubes.Nbank=1                 #Number of banks (set to 1 for now!)

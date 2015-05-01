@@ -6,10 +6,10 @@ Created on Mar 20, 2015
 
 from CoolProp.CoolProp import PropsSI
 from MicroChannelCondenser import MicroCondenserClass
-from MicroFinCorrelations import FinInputs
+from MicroFinCorrelations import MicroFinInputs
 from convert_units import in2m, mm2m, cfm2cms, F2K, kPa2Pa, C2K
 
-Fins=FinInputs()
+Fins=MicroFinInputs()
 Fins.Tubes.NTubes=30               #Number of tubes (per bank for now!)
 Fins.Tubes.Nbank=2                 #Number of banks (set to 1 for now!)
 Fins.Tubes.Npass=2                 #Number of passes (per bank) #averaged if not even
