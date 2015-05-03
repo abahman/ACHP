@@ -80,7 +80,7 @@ class EvaporatorClass():
             ('Mass Flow rate humid Air','kg/s',self.Fins.mdot_ha),
             ('Pressure Drop Air-side','Pa',self.Fins.dP_a),
             ('Sensible Heat Ratio','-',self.SHR),
-            ('Bend Temperature profile','K',self.Tbends)
+            #('Bend Temperature profile','K',self.Tbends)
         ]
         for i in range(0,len(Output_List_default)):                             #append default parameters to output list
             Output_List.append(Output_List_default[i])
