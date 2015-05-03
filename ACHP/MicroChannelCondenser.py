@@ -255,8 +255,8 @@ class MicroCondenserClass():
         #Pressure drop calculations for superheated refrigerant
         v_r=1./rho_superheat;
         #Pressure gradient using Darcy friction factor
-        dpdz_r=-self.f_r_superheat*v_r*self.G_r**2/(2.*self.Dh) #Pressure gradient
-        self.DP_r_superheat=dpdz_r*self.Lcircuit*self.w_superheat*self.Nports
+        dpdz_r=-self.f_r_superheat*v_r*self.G_r**2/(2.*self.Dh)*self.Nports #Pressure gradient
+        self.DP_r_superheat=dpdz_r*self.Lcircuit*self.w_superheat
         self.Charge_superheat = self.w_superheat * self.V_r * rho_superheat
 
         #Latent heat needed for pseudo-quality calc
@@ -386,8 +386,8 @@ class MicroCondenserClass():
         #Pressure drop calculations for subcooled refrigerant
         v_r=1/rho_subcool
         #Pressure gradient using Darcy friction factor
-        dpdz_r=-self.f_r_subcool*v_r*self.G_r**2/(2*self.Dh)  #Pressure gradient
-        self.DP_r_subcool=dpdz_r*self.Lcircuit*self.w_subcool*self.Nports
+        dpdz_r=-self.f_r_subcool*v_r*self.G_r**2/(2*self.Dh) *self.Nports #Pressure gradient
+        self.DP_r_subcool=dpdz_r*self.Lcircuit*self.w_subcool
         
 def SampleMicroCondenser(T=95):
     Fins=MicroFinInputs()
