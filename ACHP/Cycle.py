@@ -8,7 +8,7 @@ from CoolingCoil import CoolingCoilClass #Cooling Coil
 from MultiCircuitEvaporator import MultiCircuitEvaporatorClass
 from CoaxialHX import CoaxialHXClass #Coaxial internal heat exchanger
 from PHEHX import PHEHXClass #Plate-Heat-Exchanger 
-#from LineSet import LineSetClass #Line set class
+from LineSet import LineSetClass #Line set class
 from Pump import PumpClass # Secondary loop pump class
 from scipy.optimize import brentq, fsolve,newton 
 #^^ fsolve - roots (multiple variables); brent - root of one variable fct
