@@ -35,7 +35,7 @@ def ECUCycle():
     Cycle.Mode='AC'
     Cycle.Ref='R407C'
     Cycle.TestName='ECU-18K'  #this and the two next lines can be used to specify exact test conditions
-    Cycle.TestDescription='Test#2'
+    Cycle.TestDescription='Test#6'
     Cycle.TestDetails='This is the sample cycle for the ECU18K'
     
     
@@ -84,9 +84,9 @@ def ECUCycle():
     Cycle.Condenser.Fins.Fins.k_fin=117                #Fin thermal conductivity for pure Aluminum
         
     Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(1500)     #Air volume flow rate in m^3/s
-    Cycle.Condenser.Fins.Air.Tdb=F2K(115)              #Air inlet temperature, K
+    Cycle.Condenser.Fins.Air.Tdb=F2K(75)               #Air inlet temperature, K
     Cycle.Condenser.Fins.Air.p=101325                  #Air pressure in Pa
-    Cycle.Condenser.Fins.Air.RH=0.11                   #Air inlet relative humidity
+    Cycle.Condenser.Fins.Air.RH=0.5155                 #Air inlet relative humidity
     Cycle.Condenser.Fins.Air.FanPower=855              #Fan power, Watts
         
     Cycle.Condenser.Fins.Louvers.Lalpha=25             ##estimated## #Louver angle, in degree
@@ -122,9 +122,9 @@ def ECUCycle():
     Cycle.Evaporator.Fins.Fins.k_fin=237
     
     Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(600)
-    Cycle.Evaporator.Fins.Air.Tdb=F2K(85)
+    Cycle.Evaporator.Fins.Air.Tdb=F2K(77)
     Cycle.Evaporator.Fins.Air.p=101325                                              #Evaporator Air pressure in Pa
-    Cycle.Evaporator.Fins.Air.RH=0.28
+    Cycle.Evaporator.Fins.Air.RH=0.2712
     Cycle.Evaporator.Fins.Air.FanPower=438
     
     Cycle.Evaporator.FinsType = 'WavyLouveredFins'        #WavyLouveredFins, HerringboneFins, PlainFins
@@ -177,7 +177,7 @@ def ECUCycle():
 if __name__=='__main__':
     cycle=ECUCycle()
     #Write the outputs to file
-    #Write2CSV(cycle,open('Cycle.csv','a'),append=True)
+    Write2CSV(cycle,open('Cycle.csv','w'),append=False)
     
     #append a second run with different temperauture
     ###Outdoor side###
