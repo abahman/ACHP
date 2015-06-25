@@ -30,12 +30,12 @@ def ECUCycle():
     #--------------------------------------
     Cycle.Verbosity = 0 #the idea here is to have different levels of debug output 
     Cycle.ImposedVariable = 'Subcooling' # or 'Charge'
-    Cycle.DT_sc_target = 6.0
+    Cycle.DT_sc_target = 4.638
     #Cycle.Charge_target = oz2kg(37) #37-44 ounces #kg #uncomment for use with imposed 'Charge'
     Cycle.Mode='AC'
     Cycle.Ref='R407C'
     Cycle.TestName='ECU-18K'  #this and the two next lines can be used to specify exact test conditions
-    Cycle.TestDescription='Test#6'
+    Cycle.TestDescription='Test#1'
     Cycle.TestDetails='This is the sample cycle for the ECU18K'
     
     
@@ -53,7 +53,7 @@ def ECUCycle():
             'M':M,
             'P':P,
             'Ref':Cycle.Ref, #Refrigerant
-            'fp':0.0, #Fraction of electrical power lost as heat to ambient 
+            'fp':0.15, #Fraction of electrical power lost as heat to ambient 
             'Vdot_ratio': 1.0, #Displacement Scale factor
             'Verbosity': 0, # How verbose should the debugging be [0-10]
             }
@@ -84,10 +84,10 @@ def ECUCycle():
     Cycle.Condenser.Fins.Fins.k_fin=117                #Fin thermal conductivity for pure Aluminum
         
     Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(1500)     #Air volume flow rate in m^3/s
-    Cycle.Condenser.Fins.Air.Tdb=F2K(75)               #Air inlet temperature, K
+    Cycle.Condenser.Fins.Air.Tdb=F2K(125)               #Air inlet temperature, K
     Cycle.Condenser.Fins.Air.p=101325                  #Air pressure in Pa
-    Cycle.Condenser.Fins.Air.RH=0.5155                 #Air inlet relative humidity
-    Cycle.Condenser.Fins.Air.FanPower=855              #Fan power, Watts
+    Cycle.Condenser.Fins.Air.RH=0.199                 #Air inlet relative humidity
+    Cycle.Condenser.Fins.Air.FanPower=854.9              #Fan power, Watts
         
     Cycle.Condenser.Fins.Louvers.Lalpha=25             ##estimated## #Louver angle, in degree
     Cycle.Condenser.Fins.Louvers.lp=mm2m(1.12)         ##measured## #Louver pitch
@@ -122,10 +122,10 @@ def ECUCycle():
     Cycle.Evaporator.Fins.Fins.k_fin=237
     
     Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(600)
-    Cycle.Evaporator.Fins.Air.Tdb=F2K(77)
+    Cycle.Evaporator.Fins.Air.Tdb=F2K(90)
     Cycle.Evaporator.Fins.Air.p=101325                                              #Evaporator Air pressure in Pa
-    Cycle.Evaporator.Fins.Air.RH=0.2712
-    Cycle.Evaporator.Fins.Air.FanPower=438
+    Cycle.Evaporator.Fins.Air.RH=0.5023
+    Cycle.Evaporator.Fins.Air.FanPower=392.1
     
     Cycle.Evaporator.FinsType = 'WavyLouveredFins'        #WavyLouveredFins, HerringboneFins, PlainFins
     Cycle.Evaporator.Ref=Cycle.Ref
@@ -134,7 +134,7 @@ def ECUCycle():
     params={
             'Ref': Cycle.Ref,
             'Verbosity':0,
-            'DT_sh':6, #DeltaF2K()
+            'DT_sh':6.051, #DeltaF2K()
             }
     
     Cycle.Evaporator.Update(**params)
@@ -177,7 +177,8 @@ def ECUCycle():
 if __name__=='__main__':
     cycle=ECUCycle()
     #Write the outputs to file
-    Write2CSV(cycle,open('Cycle.csv','w'),append=False)
+    #Write2CSV(cycle,open('Cycle.csv','w'),append=False)
+    #Write2CSV(cycle,open('Cycle.csv','a'),append=True)
     
     #append a second run with different temperauture
     ###Outdoor side###

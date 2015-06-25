@@ -76,7 +76,7 @@ def DXPreconditioner(Cycle,epsilon=0.96):
     DT_evap=Cycle.Evaporator.Fins.Air.Tdb-x[0]
     DT_cond=x[1]-Cycle.Condenser.Fins.Air.Tdb
     
-    return DT_evap-3, DT_cond+3
+    return DT_evap-3, DT_cond+3 #sometimes DT_evap-2, DT_cond+2 can work with no error
 
 
 def SecondaryLoopPreconditioner(Cycle,epsilon=0.9):
