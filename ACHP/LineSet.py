@@ -35,8 +35,8 @@ class LineSetClass():
             ('Reynolds # Fluid','-',self.Re_fluid),
             ('Mean HTC Fluid','W/m^2-K',self.h_fluid),
             ('Charge','kg',self.Charge),
-            ('Inlet Temperature','K',self.Tin),
-            ('Outlet Temperature','K',self.Tout)
+            ('Inlet Refrigerant Temperature','K',self.Tin),
+            ('Outlet Refrigerant Temperature','K',self.Tout)
          ]
     
     def Calculate(self):

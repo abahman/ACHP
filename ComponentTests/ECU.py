@@ -7,7 +7,7 @@ Created on Apr 29, 2015
 '''This code is for Direct Expansion in Cooling Mode of ECU 18K'''
 
 from Cycle import ECU_DXCycleClass 
-from convert_units import in2m, mm2m, cfm2cms, F2K, kPa2Pa, C2K, oz2kg, DeltaF2K
+from convert_units import in2m, mm2m, cm2m, cfm2cms, F2K, kPa2Pa, C2K, oz2kg, DeltaF2K
 from ACHPTools import Write2CSV
 
 
@@ -59,7 +59,7 @@ def ECUCycle():
             'P':P,
             'Ref':Cycle.Ref, #Refrigerant
             'fp':0.15, #Fraction of electrical power lost as heat to ambient 
-            'Vdot_ratio': 1.0, #Displacement Scale factor
+            'Vdot_ratio': 0.85, #Displacement Scale factor
             'Verbosity': 0, # How verbose should the debugging be [0-10]
             }
     
@@ -147,26 +147,41 @@ def ECUCycle():
     
     # ----------------------------------
     # ----------------------------------
-    #       Line Set Parameters
+    #       Line Set Return Parameters
     # ----------------------------------
     # ----------------------------------
-    # params={
-    #         'L':7.6,
-    #         'k_tube':0.19,
-    #         't_insul':0.02,
-    #         'k_insul':0.036,
-    #         'T_air':297,
-    #         'Ref': Cycle.Ref,
-    #         'h_air':0.0000000001,
-    #         }
-    # 
-    # Cycle.LineSetSupply.Update(**params)
-    # Cycle.LineSetReturn.Update(**params)
-    # Cycle.LineSetSupply.OD=0.009525
-    # Cycle.LineSetSupply.ID=0.007986
-    # Cycle.LineSetReturn.OD=0.01905
-    # Cycle.LineSetReturn.ID=0.017526
-    
+    params={
+            'L':in2m(55),
+            'k_tube':0.19,
+            't_insul':0.02,
+            'k_insul':0.036,
+            'T_air':F2K(125),
+            'Ref': Cycle.Ref,
+            'h_air':10, #0.0000000001 is changed to 10 assumed for forced air convection
+            }
+     
+    Cycle.LineSetReturn.Update(**params)
+    Cycle.LineSetReturn.OD=in2m(5/8)
+    Cycle.LineSetReturn.ID=in2m(5/8)-mm2m(1) #assumed the thickness is 0.0015
+
+    # ----------------------------------
+    # ----------------------------------
+    #       Line Set Supply Parameters
+    # ----------------------------------
+    # ----------------------------------
+    params={
+            'L':in2m(88),                #tube length in m
+            'k_tube':0.19,
+            't_insul':0, #no insulation
+            'k_insul':0.036,
+            'T_air':F2K(125),
+            'Ref': Cycle.Ref,
+            'h_air':10,#0.0000000001 is changed to 10 assumed for forced air convection
+            }
+     
+    Cycle.LineSetSupply.Update(**params)
+    Cycle.LineSetSupply.OD=in2m(3/8)
+    Cycle.LineSetSupply.ID=in2m(3/8)-mm2m(1) #assumed the thickness is 0.0015
     
     #Now solve
     Cycle.PreconditionedSolve()
