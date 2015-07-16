@@ -447,8 +447,7 @@ def f_h_1phase_Annulus(mdot, OD, ID, T, p, Fluid, Phase='Single'):
     Area=pi*(OD**2-ID**2)/4.0
     u=mdot/(Area*rho)
     Re=rho*u*Dh/mu
-    print OD
-    print ID
+
     # Friction factor of Churchill (Darcy Friction factor where f_laminar=64/Re)
     e_D = 0
     A = ((-2.457 * log( (7.0 / Re)**(0.9) + 0.27 * e_D)))**16
