@@ -121,11 +121,19 @@ def cm2m(cm):
 
 """##### Area ####################################"""
 def sqin2sqm(sqInch):
-    "convert sqare inches to square meters"
-    return sqInch*0.00064516
+    "convert sqaure inches to square meters"
+    return sqInch*0.00064516    
 def sqm2sqin(sqM):
-    "convert sqare inches to square meters"
+    "convert sqaure inches to square meters"
     return sqM/0.00064516
+
+"""##### Volume ####################################"""
+def cubin2cubm(cubInch):
+    "convert cubic inches to cubic meters"
+    return cubInch*1.63871e-5    
+def cubm2cubin(cubM):
+    "convert cubic meter to cubic inches"
+    return cubM*61023.7
 
 """##### Mass ####################################"""
 def kg2g(kg):
