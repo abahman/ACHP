@@ -7,7 +7,7 @@ Created on Apr 29, 2015
 '''This code is for Direct Expansion in Cooling Mode of ECU 18K'''
 
 from Cycle import ECU_DXCycleClass 
-from convert_units import in2m, mm2m, cm2m, cfm2cms, F2K, kPa2Pa, C2K, oz2kg, DeltaF2K
+from convert_units import in2m, mm2m, cm2m, cfm2cms, F2K, kPa2Pa, C2K, oz2kg, DeltaF2K, cubin2cubm
 from ACHPTools import Write2CSV
 
 
@@ -161,8 +161,8 @@ def ECUCycle():
             }
      
     Cycle.LineSetReturn.Update(**params)
-    Cycle.LineSetReturn.OD=in2m(5/8)
-    Cycle.LineSetReturn.ID=in2m(5/8)-mm2m(1) #assumed the thickness is 0.0015
+    Cycle.LineSetReturn.OD=in2m(5.0/8.0)
+    Cycle.LineSetReturn.ID=in2m(5.0/8.0)-mm2m(1) #assumed the thickness is 0.0015
 
     # ----------------------------------
     # ----------------------------------
@@ -180,8 +180,27 @@ def ECUCycle():
             }
      
     Cycle.LineSetSupply.Update(**params)
-    Cycle.LineSetSupply.OD=in2m(3/8)
-    Cycle.LineSetSupply.ID=in2m(3/8)-mm2m(1) #assumed the thickness is 0.0015
+    Cycle.LineSetSupply.OD=in2m(3.0/8.0)
+    Cycle.LineSetSupply.ID=in2m(3.0/8.0)-mm2m(1) #assumed the thickness is 0.0015
+    
+    # ----------------------------------
+    # ----------------------------------
+    #       Sight Glass + Filter Drier + MicroMotion Parameters
+    # ----------------------------------
+    # ----------------------------------
+    params={
+            'h':in2m(1.370),        #height of sight glass in m
+            'D':in2m(1.110),        #diameter of sight glass in m
+            'Ref': Cycle.Ref,
+            'V': cubin2cubm(11),    #volume of filter drier
+            'E': in2m(9.75),        #micromotion width
+            'B': in2m(5.12),        #micormotion height
+            'F': in2m(2.81),        #micormotion thickness
+            }
+     
+    Cycle.SightGlassFilterDrierMicroMotion.Update(**params)
+    Cycle.SightGlassFilterDrierMicroMotion.ID=in2m(3.0/8.0)-mm2m(1) #tube internal diameter
+    
     
     #Now solve
     Cycle.PreconditionedSolve()

@@ -10,6 +10,7 @@ from CoaxialHX import CoaxialHXClass #Coaxial internal heat exchanger
 from PHEHX import PHEHXClass #Plate-Heat-Exchanger 
 from LineSet import LineSetClass #Line set class
 from Pump import PumpClass # Secondary loop pump class
+from SightGlassFilterDrierMicroMotion import SightGlassFilterDrierMicroMotionClass
 from scipy.optimize import brentq, fsolve,newton 
 #^^ fsolve - roots (multiple variables); brent - root of one variable fct
 
@@ -757,6 +758,7 @@ class ECU_DXCycleClass():
         self.Evaporator.Fins=FinInputs()
         self.LineSetSupply=LineSetClass()
         self.LineSetReturn=LineSetClass()
+        self.SightGlassFilterDrierMicroMotion=SightGlassFilterDrierMicroMotionClass()
     def OutputList(self):
         """
             Return a list of parameters for this component for further output
@@ -868,6 +870,19 @@ class ECU_DXCycleClass():
             self.LineSetSupply.Update(**params)
             self.LineSetSupply.Calculate()
             
+            
+            #Add new components
+            params={
+                'pin':psat_cond,
+                'hin':self.Condenser.hout_r,
+                'mdot':self.Compressor.mdot_r,
+                'Ref':self.Ref
+            }
+            self.SightGlassFilterDrierMicroMotion.Update(**params)
+            self.SightGlassFilterDrierMicroMotion.Calculate()
+            
+        
+            
             params={
                 'mdot_r': self.Compressor.mdot_r,
                 'psat_r': psat_evap,
@@ -877,7 +892,7 @@ class ECU_DXCycleClass():
             self.Evaporator.Update(**params)
             self.Evaporator.Calculate()
             
-            self.Charge=self.Condenser.Charge+self.Evaporator.Charge+self.LineSetSupply.Charge+self.LineSetReturn.Charge
+            self.Charge=self.Condenser.Charge+self.Evaporator.Charge+self.LineSetSupply.Charge+self.LineSetReturn.Charge+self.SightGlassFilterDrierMicroMotion.Charge
             self.EnergyBalance=self.Compressor.CycleEnergyIn+self.Condenser.Q+self.Evaporator.Q
             
             resid=np.zeros((2))
