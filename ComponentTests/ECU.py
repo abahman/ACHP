@@ -29,9 +29,9 @@ def ECUCycle():
     #--------------------------------------
     #--------------------------------------
     Cycle.Verbosity = 0 #the idea here is to have different levels of debug output 
-    Cycle.ImposedVariable = 'Subcooling' # or 'Charge'
-    Cycle.DT_sc_target = 4.638
-    #Cycle.Charge_target = oz2kg(37) #37-44 ounces #kg #uncomment for use with imposed 'Charge'
+    Cycle.ImposedVariable = 'Charge' #'Subcooling' # or 'Charge'
+    #Cycle.DT_sc_target = 4.638
+    Cycle.Charge_target = oz2kg(37) #37-44 ounces #kg #uncomment for use with imposed 'Charge'
     Cycle.Mode='AC'
     Cycle.Ref='R407C'
     Cycle.TestName='ECU-18K'  #this and the two next lines can be used to specify exact test conditions

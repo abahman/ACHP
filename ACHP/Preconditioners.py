@@ -65,7 +65,10 @@ def DXPreconditioner(Cycle,epsilon=0.96):
             f_dry=1-(Tdewpoint-T_so_a)/(T_so_b-T_so_a)
         Qevap=f_dry*Qevap_dry+(1-f_dry)*Qevap_wet
         
-        Qcond_enthalpy=Cycle.Compressor.mdot_r*(Cycle.Compressor.hout_r-PropsSI('H','T',Tcond-Cycle.DT_sc_target,'P',pcond,Cycle.Ref)) #*1000)
+        if Cycle.ImposedVariable == 'Subcooling':
+            Qcond_enthalpy=Cycle.Compressor.mdot_r*(Cycle.Compressor.hout_r-PropsSI('H','T',Tcond-Cycle.DT_sc_target,'P',pcond,Cycle.Ref)) #*1000)
+        else:
+            Qcond_enthalpy=Cycle.Compressor.mdot_r*(Cycle.Compressor.hout_r-PropsSI('H','T',Tcond-5,'P',pcond,Cycle.Ref))
         
         resids=[Qevap+W+Qcond,Qcond+Qcond_enthalpy]#,Qevap,f_dry]
         return resids
@@ -76,7 +79,7 @@ def DXPreconditioner(Cycle,epsilon=0.96):
     DT_evap=Cycle.Evaporator.Fins.Air.Tdb-x[0]
     DT_cond=x[1]-Cycle.Condenser.Fins.Air.Tdb
     
-    return DT_evap-2, DT_cond+2 #sometimes DT_evap-2, DT_cond+2 can work with no error
+    return DT_evap-1, DT_cond+1 #sometimes DT_evap-2, DT_cond+2 can work with no error
 
 
 def SecondaryLoopPreconditioner(Cycle,epsilon=0.9):
