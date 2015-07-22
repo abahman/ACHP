@@ -85,6 +85,7 @@ class LineSetClass():
         self.Tout=self.T_air-exp(-UA/(self.mdot*cp))*(self.T_air-self.Tin)
         #Overall heat transfer rate [W] 
         self.Q=self.mdot*cp*(self.Tout-self.Tin)
+        #Outlet fluid Enthalpy
         self.hout=self.hin+self.Q/self.mdot
         
         #Pressure drop calculations for single phase refrigerant

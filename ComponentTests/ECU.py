@@ -1,3 +1,4 @@
+from __future__ import division
 '''
 Created on Apr 29, 2015
 
@@ -9,7 +10,11 @@ Created on Apr 29, 2015
 from Cycle import ECU_DXCycleClass 
 from convert_units import in2m, mm2m, cm2m, cfm2cms, F2K, kPa2Pa, C2K, oz2kg, DeltaF2K, cubin2cubm
 from ACHPTools import Write2CSV
-
+from CoolProp.Plots import PropsPlot
+from CoolProp.Plots import Ts, drawIsoLines
+from CoolProp.CoolProp import PropsSI
+import matplotlib.pyplot as plt
+import numpy
 
 def ECUCycle():
     #########################################################################
@@ -215,6 +220,7 @@ def ECUCycle():
 
 if __name__=='__main__':
     cycle=ECUCycle()
+    
     #Write the outputs to file
     Write2CSV(cycle,open('Cycle.csv','w'),append=False)
     #Write2CSV(cycle,open('Cycle.csv','a'),append=True)
@@ -247,3 +253,86 @@ if __name__=='__main__':
 #     cycle.TestDetails='Here we changed the air condition on evaporator and condeser'
 #     cycle.PreconditionedSolve()  #there seems to be a problem, somewhere
 #     Write2CSV(cycle,open('Cycle.csv','a'),append=True)
+
+
+    #plot graphs
+    #T-s diagram for R407C
+#     ts_plot_R407C = PropsPlot('R407C', 'Ts')
+#     ts_plot_R407C.title('T-s Graph for R407C')
+#     ts_plot_R407C.xlabel(r's $[{kJ}/{kg-K}]$')
+#     ts_plot_R407C.ylabel(r'T $[K]$')
+#     ts_plot_R407C.grid()
+#     ts_plot_R407C.savefig('images/R407C_Ts.pdf')
+    
+    
+    #P-h & T-s diagrams for R407C
+    ref_fluid = 'R407C'
+    
+    #Experimental results 
+    P_exp = [655.8,3108,3108,3095,3095,877.8,655.8,655.8,655.8] #in kPa
+    P_exp = numpy.array(P_exp)
+    P_exp *= 1000.0 #convert kPa to Pa
+    T_exp = [17.92,111,PropsSI('H','P',P_exp[2],'Q',1,ref_fluid),PropsSI('H','P',P_exp[3],'Q',0,ref_fluid),60.57,16.25,PropsSI('H','P',P_exp[6],'Q',1,ref_fluid),16.66,17.92] #in C    
+    T_exp = numpy.array(T_exp)
+    T_exp += 273.15 #convert C to K
+    
+    #Solve for h_exp and s_exp
+    h_exp = numpy.zeros(len(P_exp))
+    s_exp = numpy.zeros(len(P_exp))
+    for i in range(len(P_exp)):
+        h_exp[i] = PropsSI('H','P',P_exp[i],'T',T_exp[i],ref_fluid) #in J/kg
+        s_exp[i] = PropsSI('S','P',P_exp[i],'T',T_exp[i],ref_fluid) #in J/kg-K
+    
+    print h_exp
+    print s_exp
+    
+    #Model Results
+    P = [cycle.Compressor.pin_r, cycle.Compressor.pout_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Evaporator.psat_r, cycle.Evaporator.psat_r, cycle.LineSetReturn.pin, cycle.Compressor.pin_r]
+    T = [cycle.Compressor.Tin_r, cycle.Compressor.Tout_r, PropsSI('T','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('T','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.Tout_r, cycle.Evaporator.Tin_r, PropsSI('T','P',cycle.Evaporator.psat_r,'Q',1,ref_fluid), cycle.LineSetReturn.T_out, cycle.Compressor.Tin_r]
+    h = [cycle.Compressor.hin_r, cycle.Compressor.hout_r, PropsSI('H','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('H','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.hout_r, cycle.Evaporator.hin_r, PropsSI('H','P',cycle.Evaporator.psat_r,'Q',1,ref_fluid), cycle.LineSetReturn.hout, cycle.Compressor.hin_r]
+    s = [cycle.Compressor.sin_r, cycle.Compressor.sout_r, PropsSI('S','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('S','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.sout_r, cycle.Evaporator.sin_r, PropsSI('S','P',cycle.Evaporator.psat_r,'Q',1,ref_fluid), cycle.LineSetReturn.s_out, cycle.Compressor.sin_r]
+    P = numpy.array(P)
+    T = numpy.array(T)
+    h = numpy.array(h)
+    s = numpy.array(s)
+    P /= 1000.0 #convert Pa to kPa
+    T = T       #keep T in K
+    h /= 1000.0 #convert J/kg to kJ/kg
+    s /= 1000.0 #convert J/kg-K to kJ/kg-K
+    
+    
+    ph_plot_R407C = PropsPlot(ref_fluid, 'Ph')
+    ph_plot_R407C.title('$P-h$ $R407C$')
+    ph_plot_R407C.xlabel(r'$h$ $[{kJ}/{kg}]$')
+    ph_plot_R407C.ylabel(r'$P$ $[kPa]$')
+    ph_plot_R407C.axis.set_yscale('log')
+    ph_plot_R407C.grid()
+    plt.plot(h_exp,P_exp, 'bo-', label='Experimental')
+    plt.plot(h,P,'ro--', label='Model')
+    plt.legend(loc='best',fancybox=False)
+    ph_plot_R407C.savefig('images/R407C_Ph.pdf')    
+    ph_plot_R407C.show()
+    
+    ts_plot_R407C = PropsPlot(ref_fluid, 'Ts')
+    ts_plot_R407C.title('$T-s$ $R407C$')
+    ts_plot_R407C.xlabel(r'$s$ $[{kJ}/{kg-K}]$')
+    ts_plot_R407C.ylabel(r'$T$ $[K]$')
+    ts_plot_R407C.grid()
+    plt.plot(s_exp,T_exp, 'bo-', label='Experimental')
+    plt.plot(s,T,'ro--', label='Model')
+    plt.legend(loc='best',fancybox=False)
+    ts_plot_R407C.savefig('images/R407C_Ts.pdf')    
+    ts_plot_R407C.show()
+    
+    #Plot T-s and P-h diagrams in one graph
+#     ref_fluid = 'R407C'
+#     fig = pyplot.figure(1, figsize=(16, 8), dpi=100)
+#     for i, gtype in enumerate(['Ph', 'Ts']):
+#         ax = pyplot.subplot(1, 2, i+1)
+#         if gtype.startswith('P'):
+#             ax.set_yscale('log')
+#         props_plot = PropsPlot(ref_fluid, gtype, axis=ax)
+#         props_plot.title(gtype)
+#         props_plot._draw_graph()
+#     fig.set_tight_layout(True)
+#     fig.savefig('images/comined_R407C.pdf')

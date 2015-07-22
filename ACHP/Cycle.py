@@ -881,7 +881,6 @@ class ECU_DXCycleClass():
             self.SightGlassFilterDrierMicroMotion.Update(**params)
             self.SightGlassFilterDrierMicroMotion.Calculate()
             
-        
             
             params={
                 'mdot_r': self.Compressor.mdot_r,
