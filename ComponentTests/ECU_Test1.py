@@ -272,6 +272,8 @@ if __name__=='__main__':
              PropsSI('H','P',P_exp[6],'Q',1,ref_fluid), PropsSI('H','P',P_exp[7],'T',T_exp[7],ref_fluid), 
              PropsSI('H','P',P_exp[8],'T',T_exp[8],ref_fluid)]
     
+    #P_exp[5] = PropsSI('P','Q',0,'T',T_exp[5],ref_fluid)
+
     s_exp = [PropsSI('S','P',P_exp[0],'T',T_exp[0],ref_fluid), PropsSI('S','P',P_exp[1],'T',T_exp[1],ref_fluid), 
              PropsSI('S','P',P_exp[2],'Q',1,ref_fluid), PropsSI('S','P',P_exp[3],'Q',0,ref_fluid),
              PropsSI('S','P',P_exp[4],'T',T_exp[4],ref_fluid), PropsSI('S','H',h_exp[5],'P',P_exp[5],ref_fluid),
@@ -279,6 +281,7 @@ if __name__=='__main__':
              PropsSI('S','P',P_exp[8],'T',T_exp[8],ref_fluid)]
     h_exp = numpy.array(h_exp)
     s_exp = numpy.array(s_exp)
+    
             
     #convert back to original units kPa, kJ/kg and kJ/kg-K
     P_exp /= 1000.0 
@@ -301,29 +304,29 @@ if __name__=='__main__':
     s /= 1000.0 #convert J/kg-K to kJ/kg-K
 
     #Plot P-h diagram 
-#     ph_plot_R407C = PropsPlot(ref_fluid, 'Ph')
-#     ph_plot_R407C.title('$P-h$ $R407C$')
-#     ph_plot_R407C.xlabel(r'$h$ $[{kJ}/{kg}]$')
-#     ph_plot_R407C.ylabel(r'$P$ $[kPa]$')
-#     ph_plot_R407C.axis.set_yscale('log')
-#     ph_plot_R407C.grid()
-#     plt.plot(h_exp,P_exp, 'bo-', label='Experimental')
-#     plt.plot(h,P,'ro--', label='Model')
-#     plt.legend(loc='best',fancybox=False)
-#     ph_plot_R407C.savefig('images/R407C_Ph.pdf')    
-#     ph_plot_R407C.show()
-#     
-#     #Plot T-s diagram  
-#     ts_plot_R407C = PropsPlot(ref_fluid, 'Ts')
-#     ts_plot_R407C.title('$T-s$ $R407C$')
-#     ts_plot_R407C.xlabel(r'$s$ $[{kJ}/{kg-K}]$')
-#     ts_plot_R407C.ylabel(r'$T$ $[K]$')
-#     ts_plot_R407C.grid()
-#     plt.plot(s_exp,T_exp, 'bo-', label='Experimental')
-#     plt.plot(s,T,'ro--', label='Model')
-#     plt.legend(loc='best',fancybox=False)
-#     ts_plot_R407C.savefig('images/R407C_Ts.pdf')    
-#     ts_plot_R407C.show()
+    ph_plot_R407C = PropsPlot(ref_fluid, 'Ph')
+    ph_plot_R407C.title('$P-h$ $R407C$')
+    ph_plot_R407C.xlabel(r'$h$ $[{kJ}/{kg}]$')
+    ph_plot_R407C.ylabel(r'$P$ $[kPa]$')
+    ph_plot_R407C.axis.set_yscale('log')
+    ph_plot_R407C.grid()
+    plt.plot(h_exp,P_exp, 'bo-', label='Experimental')
+    plt.plot(h,P,'ro--', label='Model')
+    plt.legend(loc='best',fancybox=False)
+    ph_plot_R407C.savefig('images/R407C_Ph_Test1.pdf')    
+    ph_plot_R407C.show()
+     
+    #Plot T-s diagram  
+    ts_plot_R407C = PropsPlot(ref_fluid, 'Ts')
+    ts_plot_R407C.title('$T-s$ $R407C$')
+    ts_plot_R407C.xlabel(r'$s$ $[{kJ}/{kg-K}]$')
+    ts_plot_R407C.ylabel(r'$T$ $[K]$')
+    ts_plot_R407C.grid()
+    plt.plot(s_exp,T_exp, 'bo-', label='Experimental')
+    plt.plot(s,T,'ro--', label='Model')
+    plt.legend(loc='best',fancybox=False)
+    ts_plot_R407C.savefig('images/R407C_Ts_Test1.pdf')    
+    ts_plot_R407C.show()
     
     #Plot T-s and P-h diagrams in one graph
     fig = plt.figure(1, figsize=(16, 8), dpi=100)
@@ -344,5 +347,5 @@ if __name__=='__main__':
         props_plot.title(gtype)
         props_plot._draw_graph()
     fig.set_tight_layout(True)
-    fig.savefig('images/comined_R407C.pdf')
+    fig.savefig('images/comined_R407C_Test1.pdf')
     props_plot.show()
