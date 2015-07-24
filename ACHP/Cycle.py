@@ -808,7 +808,7 @@ class ECU_DXCycleClass():
             print 'DTevap %7.4f DTcond %7.4f,' %(DT_evap,DT_cond)
         Tdew_cond=self.Condenser.Fins.Air.Tdb+DT_cond#the values (Tin_a,..) come from line 128ff
         Tdew_evap=self.Evaporator.Fins.Air.Tdb-DT_evap
-        psat_cond=PropsSI('P','T',Tdew_cond,'Q',1,self.Ref)
+        psat_cond=PropsSI('P','T',Tdew_cond,'Q',0,self.Ref)
         psat_evap=PropsSI('P','T',Tdew_evap,'Q',1,self.Ref)
         Tbubble_evap=PropsSI('T','P',psat_evap,'Q',0,self.Ref)
         
@@ -895,7 +895,7 @@ class ECU_DXCycleClass():
             self.EnergyBalance=self.Compressor.CycleEnergyIn+self.Condenser.Q+self.Evaporator.Q
             
             resid=np.zeros((2))
-            self.DP_HighPressure=self.Condenser.DP_r+self.LineSetSupply.DP
+            self.DP_HighPressure=self.Condenser.DP_r+self.LineSetSupply.DP+self.SightGlassFilterDrierMicroMotion.DP
             self.DP_LowPressure=self.Evaporator.DP_r+self.LineSetReturn.DP
             resid[0]=self.Compressor.mdot_r*(self.LineSetReturn.hin-self.Evaporator.hout_r) #in casee without set lines >> self.Compressor.mdot_r*(self.Compressor.hin_r-self.Evaporator.hout_r)
             
@@ -925,14 +925,14 @@ class ECU_DXCycleClass():
             self.Compressor.Update(**params)
             self.Compressor.Calculate()
             
-#             params={
-#                 'pin': psat_cond,
-#                 'hin': self.Compressor.hout_r,
-#                 'mdot': self.Compressor.mdot_r,
-#                 'Ref':  self.Ref
-#             }
-#             self.LineSetSupply.Update(**params)
-#             self.LineSetSupply.Calculate()
+            params={
+                'pin': psat_cond,
+                'hin': self.Compressor.hout_r,
+                'mdot': self.Compressor.mdot_r,
+                'Ref':  self.Ref
+            }
+            self.LineSetSupply.Update(**params)
+            self.LineSetSupply.Calculate()
             
             params={
                 'mdot_r': self.Compressor.mdot_r,
@@ -943,14 +943,14 @@ class ECU_DXCycleClass():
             self.Condenser.Update(**params)
             self.Condenser.Calculate()
             
-#             params={
-#                 'pin': psat_cond,
-#                 'hin': self.Condenser.hout_r,
-#                 'mdot': self.Compressor.mdot_r,
-#                 'Ref': self.Ref
-#             }
-#             self.LineSetReturn.Update(**params)
-#             self.LineSetReturn.Calculate()
+            params={
+                'pin': psat_cond,
+                'hin': self.Condenser.hout_r,
+                'mdot': self.Compressor.mdot_r,
+                'Ref': self.Ref
+            }
+            self.LineSetReturn.Update(**params)
+            self.LineSetReturn.Calculate()
             
             params={
                 'mdot_r': self.Compressor.mdot_r,
@@ -961,7 +961,7 @@ class ECU_DXCycleClass():
             self.Evaporator.Update(**params)
             self.Evaporator.Calculate()
             
-            self.Charge=self.Condenser.Charge+self.Evaporator.Charge#+self.LineSetSupply.Charge+self.LineSetReturn.Charge
+            self.Charge=self.Condenser.Charge+self.Evaporator.Charge+self.LineSetSupply.Charge+self.LineSetReturn.Charge
             self.EnergyBalance=self.Compressor.CycleEnergyIn+self.Condenser.Q+self.Evaporator.Q
             
             resid=np.zeros((2))
@@ -978,8 +978,8 @@ class ECU_DXCycleClass():
             self.COP=-self.Condenser.Q/self.Compressor.W
             self.COSP=self.Capacity/self.Power
             self.SHR=self.Evaporator.SHR
-            self.DP_HighPressure=self.Condenser.DP_r#+self.LineSetSupply.DP
-            self.DP_LowPressure=self.Evaporator.DP_r#+self.LineSetReturn.DP
+            self.DP_HighPressure=self.Condenser.DP_r+self.LineSetSupply.DP
+            self.DP_LowPressure=self.Evaporator.DP_r+self.LineSetReturn.DP
         else:
             ValueError("DX Cycle mode must be 'AC', or 'HP'")
         if self.Verbosity>1:
