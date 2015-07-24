@@ -56,10 +56,10 @@ class SightGlassFilterDrierMicroMotionClass():
     
         #Pressure drop calculations for single phase refrigerant
         v=1./rho
-        #G=self.mdot/(pi*self.ID**2/4.0)
+        G=self.mdot/(pi*self.ID**2/4.0)
         #Pressure gradient using Darcy friction factor
-        #dpdz=-self.f_fluid*v*G**2/(2.*self.ID) #Pressure gradient
-        #self.DP=dpdz*self.L
+        dpdz=-self.f_fluid*v*G**2/(2.*self.ID) #Pressure gradient
+        self.DP=dpdz*(2*self.B+self.E + self.h) #For total length of sight glass and micromotion only)
         
         #Charge in Sight Glass [kg]
         self.SightGlassCharge = pi*self.D**2/4.0*self.h*rho
