@@ -909,7 +909,7 @@ class ECU_DXCycleClass():
             if self.Verbosity>1:
                 print resid
             
-            self.Capacity=self.Evaporator.Capacity
+            self.Capacity=self.Evaporator.Q
             self.Power=self.Compressor.W+self.Evaporator.Fins.Air.FanPower+self.Condenser.Fins.Air.FanPower
             self.COP=self.Evaporator.Q/self.Compressor.W
             self.COSP=self.Evaporator.Capacity/self.Power

@@ -63,8 +63,8 @@ def ECUCycle():
             'M':M,
             'P':P,
             'Ref':Cycle.Ref, #Refrigerant
-            'fp':0.15, #Fraction of electrical power lost as heat to ambient 
-            'Vdot_ratio': 0.85, #Displacement Scale factor
+            'fp':0, #Fraction of electrical power lost as heat to ambient 
+            'Vdot_ratio': 0.9, #Displacement Scale factor
             'Verbosity': 0, # How verbose should the debugging be [0-10]
             }
     
@@ -290,7 +290,7 @@ if __name__=='__main__':
     s_exp /= 1000.0
     
     #Model Results
-    P = [cycle.Compressor.pin_r, cycle.Compressor.pout_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Evaporator.psat_r, cycle.Evaporator.psat_r, cycle.LineSetReturn.pin, cycle.Compressor.pin_r]
+    P = [cycle.Compressor.pin_r, cycle.Compressor.pout_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r + cycle.Condenser.DP_r , cycle.Evaporator.psat_r, cycle.Evaporator.psat_r + cycle.Evaporator.DP_r, cycle.LineSetReturn.pin, cycle.Compressor.pin_r]
     T = [cycle.Compressor.Tin_r, cycle.Compressor.Tout_r, PropsSI('T','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('T','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.Tout_r, cycle.Evaporator.Tin_r, PropsSI('T','P',cycle.Evaporator.psat_r,'Q',1,ref_fluid), cycle.LineSetReturn.Tout, cycle.Compressor.Tin_r]
     h = [cycle.Compressor.hin_r, cycle.Compressor.hout_r, PropsSI('H','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('H','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.hout_r, cycle.Evaporator.hin_r, PropsSI('H','P',cycle.Evaporator.psat_r,'Q',1,ref_fluid), cycle.LineSetReturn.hout, cycle.Compressor.hin_r]
     s = [cycle.Compressor.sin_r, cycle.Compressor.sout_r, PropsSI('S','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('S','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.sout_r, cycle.Evaporator.sin_r, PropsSI('S','P',cycle.Evaporator.psat_r,'Q',1,ref_fluid), PropsSI('S','T',cycle.LineSetReturn.Tout,'P',cycle.LineSetReturn.pin,ref_fluid), cycle.Compressor.sin_r]
