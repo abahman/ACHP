@@ -36,7 +36,7 @@ def ECUCycle():
     Cycle.Verbosity = 0 #the idea here is to have different levels of debug output 
     Cycle.ImposedVariable = 'Charge' #'Subcooling' # or 'Charge'
     #Cycle.DT_sc_target = 4.638
-    Cycle.Charge_target = oz2kg(37) #37-44 ounces #kg #uncomment for use with imposed 'Charge'
+    Cycle.Charge_target = oz2kg(36.5) #37-44 ounces #kg #uncomment for use with imposed 'Charge'
     Cycle.Mode='AC'
     Cycle.Ref='R407C'
     Cycle.TestName='ECU-18K'  #this and the two next lines can be used to specify exact test conditions
@@ -93,7 +93,7 @@ def ECUCycle():
     Cycle.Condenser.Fins.Fins.t=in2m(0.0045)           ##measured## #Fin thickness
     Cycle.Condenser.Fins.Fins.k_fin=117                #Fin thermal conductivity for pure Aluminum
         
-    Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(1500)     #Air volume flow rate in m^3/s
+    Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(1400)     #Air volume flow rate in m^3/s
     Cycle.Condenser.Fins.Air.Tdb=F2K(125)               #Air inlet temperature, K
     Cycle.Condenser.Fins.Air.p=101325                  #Air pressure in Pa
     Cycle.Condenser.Fins.Air.RH=0.199                 #Air inlet relative humidity
@@ -131,7 +131,7 @@ def ECUCycle():
     Cycle.Evaporator.Fins.Fins.t=in2m(0.006)
     Cycle.Evaporator.Fins.Fins.k_fin=237
     
-    Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(600)
+    Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(300)          #reducing the flow rate from 600cfm to 300cfm
     Cycle.Evaporator.Fins.Air.Tdb=F2K(90)
     Cycle.Evaporator.Fins.Air.p=101325                                              #Evaporator Air pressure in Pa
     Cycle.Evaporator.Fins.Air.RH=0.5023
@@ -259,7 +259,7 @@ if __name__=='__main__':
     ref_fluid = 'R407C'
     
     #Experimental results 
-    P_exp = [655.8,3108.0,3108.0,3095.0,3095.0,877.8,655.8,655.8,655.8] #in kPa
+    P_exp = [655.8,3108.0,3108.0,3095.0,3095.0,877.8,655.8,655.8,655.8] #in kPa 
     P_exp = numpy.array(P_exp)
     P_exp *= 1000.0 #convert kPa to Pa
     T_exp = [17.92+273.15, 111.0+273.15, PropsSI('T','P',P_exp[2],'Q',1,ref_fluid), PropsSI('T','P',P_exp[3],'Q',0,ref_fluid), 60.57+273.15, 16.25+273.15, PropsSI('T','P',P_exp[6],'Q',1,ref_fluid), 16.66+273.15, 17.92+273.15] #in Kelvin    
@@ -304,29 +304,29 @@ if __name__=='__main__':
     s /= 1000.0 #convert J/kg-K to kJ/kg-K
 
     #Plot P-h diagram 
-    ph_plot_R407C = PropsPlot(ref_fluid, 'Ph')
-    ph_plot_R407C.title('$P-h$ $R407C$')
-    ph_plot_R407C.xlabel(r'$h$ $[{kJ}/{kg}]$')
-    ph_plot_R407C.ylabel(r'$P$ $[kPa]$')
-    ph_plot_R407C.axis.set_yscale('log')
-    ph_plot_R407C.grid()
-    plt.plot(h_exp,P_exp, 'bo-', label='Experimental')
-    plt.plot(h,P,'ro--', label='Model')
-    plt.legend(loc='best',fancybox=False)
-    ph_plot_R407C.savefig('images/R407C_Ph_Test1.pdf')    
-    ph_plot_R407C.show()
-     
-    #Plot T-s diagram  
-    ts_plot_R407C = PropsPlot(ref_fluid, 'Ts')
-    ts_plot_R407C.title('$T-s$ $R407C$')
-    ts_plot_R407C.xlabel(r'$s$ $[{kJ}/{kg-K}]$')
-    ts_plot_R407C.ylabel(r'$T$ $[K]$')
-    ts_plot_R407C.grid()
-    plt.plot(s_exp,T_exp, 'bo-', label='Experimental')
-    plt.plot(s,T,'ro--', label='Model')
-    plt.legend(loc='best',fancybox=False)
-    ts_plot_R407C.savefig('images/R407C_Ts_Test1.pdf')    
-    ts_plot_R407C.show()
+#     ph_plot_R407C = PropsPlot(ref_fluid, 'Ph')
+#     ph_plot_R407C.title('$P-h$ $R407C$')
+#     ph_plot_R407C.xlabel(r'$h$ $[{kJ}/{kg}]$')
+#     ph_plot_R407C.ylabel(r'$P$ $[kPa]$')
+#     ph_plot_R407C.axis.set_yscale('log')
+#     ph_plot_R407C.grid()
+#     plt.plot(h_exp,P_exp, 'bo-', label='Experimental')
+#     plt.plot(h,P,'ro--', label='Model')
+#     plt.legend(loc='best',fancybox=False)
+#     ph_plot_R407C.savefig('images/R407C_Ph_Test1.pdf')    
+#     ph_plot_R407C.show()
+#      
+#     #Plot T-s diagram  
+#     ts_plot_R407C = PropsPlot(ref_fluid, 'Ts')
+#     ts_plot_R407C.title('$T-s$ $R407C$')
+#     ts_plot_R407C.xlabel(r'$s$ $[{kJ}/{kg-K}]$')
+#     ts_plot_R407C.ylabel(r'$T$ $[K]$')
+#     ts_plot_R407C.grid()
+#     plt.plot(s_exp,T_exp, 'bo-', label='Experimental')
+#     plt.plot(s,T,'ro--', label='Model')
+#     plt.legend(loc='best',fancybox=False)
+#     ts_plot_R407C.savefig('images/R407C_Ts_Test1.pdf')    
+#     ts_plot_R407C.show()
     
     #Plot T-s and P-h diagrams in one graph
     fig = plt.figure(1, figsize=(16, 8), dpi=100)

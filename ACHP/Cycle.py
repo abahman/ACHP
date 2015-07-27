@@ -781,11 +781,13 @@ class ECU_DXCycleClass():
             ('Condensation temp (dew)','K',self.Tdew_cond),
             ('Evaporation temp (dew)','K',self.Tdew_evap),
             ('Condenser Subcooling','K',self.DT_sc),
+            ('Evaporator Superheat','K',self.DT_sh),
             ('Primary Ref.','-',self.Ref),
             ('COP','-',self.COP),
             ('COSP','-',self.COSP),
             ('Net Capacity','W',self.Capacity),
             ('Net Power','W',self.Power),
+            ('Mass Flow Rate','kg/s',self.mdot),
             ('SHR','-',self.SHR),
             ('Imposed Variable','-',self.ImposedVariable),
          ]
@@ -913,6 +915,9 @@ class ECU_DXCycleClass():
             self.COSP=self.Evaporator.Capacity/self.Power
             self.SHR=self.Evaporator.SHR
             self.DT_sc=self.Condenser.DT_sc
+            self.DT_sh=self.Evaporator.DT_sh_calc
+            self.mdot=self.Compressor.mdot_r
+
         
         #Cycle Solver in 'HP' model
         elif self.Mode=='HP':            
