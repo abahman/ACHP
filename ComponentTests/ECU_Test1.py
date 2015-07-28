@@ -203,7 +203,7 @@ def ECUCycle():
             'F': in2m(2.81),        #micormotion thickness
             
             'D_Micro': in2m(0.21),  #micromotion tube diameter
-            'L_micro': in2m(14.6),  #micormotion tube length
+            'L_Micro': in2m(14.6),  #micormotion tube length
             'n_Micro': 2,           #micormotion number of tubes
             }
      
