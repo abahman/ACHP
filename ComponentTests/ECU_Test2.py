@@ -40,7 +40,7 @@ def ECUCycle():
     Cycle.Mode='AC'
     Cycle.Ref='R407C'
     Cycle.TestName='ECU-18K'  #this and the two next lines can be used to specify exact test conditions
-    Cycle.TestDescription='Test#1'
+    Cycle.TestDescription='Test#2'
     Cycle.TestDetails='This is the sample cycle for the ECU18K'
     
     
@@ -94,10 +94,10 @@ def ECUCycle():
     Cycle.Condenser.Fins.Fins.k_fin=117                #Fin thermal conductivity for pure Aluminum
         
     Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(1400)     #Air volume flow rate in m^3/s
-    Cycle.Condenser.Fins.Air.Tdb=F2K(125)               #Air inlet temperature, K
+    Cycle.Condenser.Fins.Air.Tdb=F2K(115)               #Air inlet temperature, K
     Cycle.Condenser.Fins.Air.p=101325                  #Air pressure in Pa
-    Cycle.Condenser.Fins.Air.RH=0.199                 #Air inlet relative humidity
-    Cycle.Condenser.Fins.Air.FanPower=854.9              #Fan power, Watts
+    Cycle.Condenser.Fins.Air.RH=0.1103                 #Air inlet relative humidity
+    Cycle.Condenser.Fins.Air.FanPower=871.5              #Fan power, Watts
         
     Cycle.Condenser.Fins.Louvers.Lalpha=25             ##estimated## #Louver angle, in degree
     Cycle.Condenser.Fins.Louvers.lp=mm2m(1.12)         ##measured## #Louver pitch
@@ -132,10 +132,10 @@ def ECUCycle():
     Cycle.Evaporator.Fins.Fins.k_fin=237
     
     Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(300)          #reducing the flow rate from 600cfm to 300cfm
-    Cycle.Evaporator.Fins.Air.Tdb=F2K(90)
+    Cycle.Evaporator.Fins.Air.Tdb=F2K(85)
     Cycle.Evaporator.Fins.Air.p=101325                                              #Evaporator Air pressure in Pa
-    Cycle.Evaporator.Fins.Air.RH=0.5023
-    Cycle.Evaporator.Fins.Air.FanPower=392.1
+    Cycle.Evaporator.Fins.Air.RH=0.2833
+    Cycle.Evaporator.Fins.Air.FanPower=394.0
     
     Cycle.Evaporator.FinsType = 'WavyLouveredFins'        #WavyLouveredFins, HerringboneFins, PlainFins
     Cycle.Evaporator.Ref=Cycle.Ref
@@ -144,7 +144,7 @@ def ECUCycle():
     params={
             'Ref': Cycle.Ref,
             'Verbosity':0,
-            'DT_sh':6.051, #DeltaF2K()
+            'DT_sh':7.189, #DeltaF2K()
             }
     
     Cycle.Evaporator.Update(**params)
@@ -160,7 +160,7 @@ def ECUCycle():
             'k_tube':0.19,
             't_insul':0.02,
             'k_insul':0.036,
-            'T_air':F2K(125),
+            'T_air':F2K(115),
             'Ref': Cycle.Ref,
             'h_air':10, #0.0000000001 is changed to 10 assumed for forced air convection
             }
@@ -179,7 +179,7 @@ def ECUCycle():
             'k_tube':0.19,
             't_insul':0, #no insulation
             'k_insul':0.036,
-            'T_air':F2K(125),
+            'T_air':F2K(115),
             'Ref': Cycle.Ref,
             'h_air':10,#0.0000000001 is changed to 10 assumed for forced air convection
             }
@@ -201,10 +201,6 @@ def ECUCycle():
             'E': in2m(9.75),        #micromotion width
             'B': in2m(5.12),        #micormotion height
             'F': in2m(2.81),        #micormotion thickness
-            
-            'D_Micro': in2m(0.21),  #micromotion tube diameter
-            'L_micro': in2m(14.6),  #micormotion tube length
-            'n_Micro': 2,           #micormotion number of tubes
             }
      
     Cycle.SightGlassFilterDrierMicroMotion.Update(**params)
@@ -226,8 +222,8 @@ if __name__=='__main__':
     cycle=ECUCycle()
     
     #Write the outputs to file
-    Write2CSV(cycle,open('results/Cycle_Test#1.csv','w'),append=False)
-    #Write2CSV(cycle,open('Cycle.csv','a'),append=True)
+    Write2CSV(cycle,open('results/Cycle_Test#2.csv','w'),append=False)
+    #Write2CSV(cycle,open('results/Cycle_Test#2.csv','a'),append=True)
     
     #append a second run with different temperauture
     ###Outdoor side###
@@ -276,7 +272,7 @@ if __name__=='__main__':
              PropsSI('H','P',P_exp[6],'Q',1,ref_fluid), PropsSI('H','P',P_exp[7],'T',T_exp[7],ref_fluid), 
              PropsSI('H','P',P_exp[8],'T',T_exp[8],ref_fluid)]
     
-    #P_exp[5] = PropsSI('P','T',T_exp[5],'Q',0,ref_fluid)
+    #P_exp[5] = PropsSI('P','Q',0,'T',T_exp[5],ref_fluid)
 
     s_exp = [PropsSI('S','P',P_exp[0],'T',T_exp[0],ref_fluid), PropsSI('S','P',P_exp[1],'T',T_exp[1],ref_fluid), 
              PropsSI('S','P',P_exp[2],'Q',1,ref_fluid), PropsSI('S','P',P_exp[3],'Q',0,ref_fluid),
@@ -317,7 +313,7 @@ if __name__=='__main__':
 #     plt.plot(h_exp,P_exp, 'bo-', label='Experimental')
 #     plt.plot(h,P,'ro--', label='Model')
 #     plt.legend(loc='best',fancybox=False)
-#     ph_plot_R407C.savefig('images/R407C_Ph_Test1.pdf')    
+#     ph_plot_R407C.savefig('images/R407C_Ph_Test2.pdf')    
 #     ph_plot_R407C.show()
 #      
 #     #Plot T-s diagram  
@@ -329,7 +325,7 @@ if __name__=='__main__':
 #     plt.plot(s_exp,T_exp, 'bo-', label='Experimental')
 #     plt.plot(s,T,'ro--', label='Model')
 #     plt.legend(loc='best',fancybox=False)
-#     ts_plot_R407C.savefig('images/R407C_Ts_Test1.pdf')    
+#     ts_plot_R407C.savefig('images/R407C_Ts_Test2.pdf')    
 #     ts_plot_R407C.show()
     
     #Plot T-s and P-h diagrams in one graph
@@ -351,5 +347,5 @@ if __name__=='__main__':
         props_plot.title(gtype)
         props_plot._draw_graph()
     fig.set_tight_layout(True)
-    fig.savefig('images/comined_R407C_Test1.pdf')
+    fig.savefig('images/comined_R407C_Test2.pdf')
     props_plot.show()

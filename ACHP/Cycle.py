@@ -787,6 +787,7 @@ class ECU_DXCycleClass():
             ('COSP','-',self.COSP),
             ('Net Capacity','W',self.Capacity),
             ('Net Power','W',self.Power),
+            ('Compressor Power','W',self.Power_compressor),
             ('Mass Flow Rate','kg/s',self.mdot),
             ('SHR','-',self.SHR),
             ('Imposed Variable','-',self.ImposedVariable),
@@ -911,6 +912,7 @@ class ECU_DXCycleClass():
             
             self.Capacity=self.Evaporator.Q
             self.Power=self.Compressor.W+self.Evaporator.Fins.Air.FanPower+self.Condenser.Fins.Air.FanPower
+            self.Power_compressor=self.Compressor.W
             self.COP=self.Evaporator.Q/self.Compressor.W
             self.COSP=self.Evaporator.Capacity/self.Power
             self.SHR=self.Evaporator.SHR
@@ -980,6 +982,7 @@ class ECU_DXCycleClass():
             self.Capacity=-self.Condenser.Q+self.Condenser.Fins.Air.FanPower
             self.DT_sc=self.Condenser.DT_sc
             self.Power=self.Compressor.W+self.Evaporator.Fins.Air.FanPower+self.Condenser.Fins.Air.FanPower
+            self.Power_compressor=self.Compressor.W
             self.COP=-self.Condenser.Q/self.Compressor.W
             self.COSP=self.Capacity/self.Power
             self.SHR=self.Evaporator.SHR
