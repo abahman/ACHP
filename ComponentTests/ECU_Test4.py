@@ -34,9 +34,9 @@ def ECUCycle():
     #--------------------------------------
     #--------------------------------------
     Cycle.Verbosity = 0 #the idea here is to have different levels of debug output 
-    Cycle.ImposedVariable = 'Charge' #'Subcooling' # or 'Charge'
-    #Cycle.DT_sc_target = 4.638
-    Cycle.Charge_target = oz2kg(36.5) #37-44 ounces #kg #uncomment for use with imposed 'Charge'
+    Cycle.ImposedVariable = 'Subcooling' #'Subcooling' # or 'Charge'
+    Cycle.DT_sc_target = 4.748
+    #Cycle.Charge_target = oz2kg(36.5) #37-44 ounces #kg #uncomment for use with imposed 'Charge'
     Cycle.Mode='AC'
     Cycle.Ref='R407C'
     Cycle.TestName='ECU-18K'  #this and the two next lines can be used to specify exact test conditions
@@ -64,7 +64,7 @@ def ECUCycle():
             'P':P,
             'Ref':Cycle.Ref, #Refrigerant
             'fp':0, #Fraction of electrical power lost as heat to ambient 
-            'Vdot_ratio': 0.9, #Displacement Scale factor
+            'Vdot_ratio': 1, #Displacement Scale factor
             'Verbosity': 0, # How verbose should the debugging be [0-10]
             }
     
@@ -201,6 +201,10 @@ def ECUCycle():
             'E': in2m(9.75),        #micromotion width
             'B': in2m(5.12),        #micormotion height
             'F': in2m(2.81),        #micormotion thickness
+            
+            'D_Micro': in2m(0.21),  #micromotion tube diameter
+            'L_Micro': in2m(14.6),  #micormotion tube length
+            'n_Micro': 2,           #micormotion number of tubes
             }
      
     Cycle.SightGlassFilterDrierMicroMotion.Update(**params)

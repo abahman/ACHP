@@ -900,7 +900,7 @@ class ECU_DXCycleClass():
             resid=np.zeros((2))
             self.DP_HighPressure=self.Condenser.DP_r+self.LineSetSupply.DP+(-10000)#self.SightGlassFilterDrierMicroMotion.DP
             self.DP_LowPressure=self.Evaporator.DP_r+self.LineSetReturn.DP
-            resid[0]=self.Compressor.mdot_r*(self.LineSetReturn.hin-self.Evaporator.hout_r) #in casee without set lines >> self.Compressor.mdot_r*(self.Compressor.hin_r-self.Evaporator.hout_r)
+            resid[0]=self.Compressor.mdot_r*(self.LineSetReturn.hin-self.Evaporator.hout_r) #in cases without set lines >> self.Compressor.mdot_r*(self.Compressor.hin_r-self.Evaporator.hout_r)
             
             if self.ImposedVariable=='Subcooling':
                 resid[1]=self.Condenser.DT_sc-self.DT_sc_target    

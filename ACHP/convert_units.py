@@ -130,7 +130,7 @@ def sqm2sqin(sqM):
 """##### Volume ####################################"""
 def cubin2cubm(cubInch):
     "convert cubic inches to cubic meters"
-    return cubInch*1.63871e-5    
+    return cubInch/61023.7    
 def cubm2cubin(cubM):
     "convert cubic meter to cubic inches"
     return cubM*61023.7
