@@ -17,7 +17,7 @@ def DXPreconditioner(Cycle,epsilon=0.96):
         rho_air=1.1
         
         #Use fixed effectiveness to get a guess for the condenser capacity
-        Qcond=epsilon*Cycle.Condenser.Fins.Air.Vdot_ha*rho_air*(Cycle.Condenser.Fins.Air.Tdb-Tcond)*1005 #Cp_air =1005J/kg/K  #Cycle.Condenser.Fins.Air.Vdot_ha/rho_air, division is updated with *
+        Qcond=epsilon*Cycle.Condenser.Fins.Air.Vdot_ha/rho_air*(Cycle.Condenser.Fins.Air.Tdb-Tcond)*1005 #Cp_air =1005J/kg/K  #Cycle.Condenser.Fins.Air.Vdot_ha/rho_air, division is updated with *
         
         pevap=PropsSI('P','T',Tevap,'Q',1.0,Cycle.Ref)
         pcond=PropsSI('P','T',Tcond,'Q',1.0,Cycle.Ref)
@@ -29,7 +29,7 @@ def DXPreconditioner(Cycle,epsilon=0.96):
         W=Cycle.Compressor.W
         
         # Evaporator fully-dry analysis
-        Qevap_dry=epsilon*Cycle.Evaporator.Fins.Air.Vdot_ha*rho_air*(Cycle.Evaporator.Fins.Air.Tdb-Tevap)*1005      #updated
+        Qevap_dry=epsilon*Cycle.Evaporator.Fins.Air.Vdot_ha/rho_air*(Cycle.Evaporator.Fins.Air.Tdb-Tevap)*1005      #updated
         
         #Air-side heat transfer UA
         Evap=Cycle.Evaporator
@@ -52,7 +52,7 @@ def DXPreconditioner(Cycle,epsilon=0.96):
         #Evaporator is bounded by saturated air at the refrigerant temperature.
         h_ai=HAPropsSI('H','T',Cycle.Evaporator.Fins.Air.Tdb, 'P',101325, 'R', Cycle.Evaporator.Fins.Air.RH) #*1000 #[J/kg_da]
         h_s_w_o=HAPropsSI('H','T',Tevap, 'P',101325, 'R', 1.0) #*1000 #[J/kg_da]
-        Qevap_wet=epsilon*Cycle.Evaporator.Fins.Air.Vdot_ha*rho_air*(h_ai-h_s_w_o)
+        Qevap_wet=epsilon*Cycle.Evaporator.Fins.Air.Vdot_ha/rho_air*(h_ai-h_s_w_o)
         
         #Coil is either fully-wet, fully-dry or partially wet, partially dry
         if T_so_a>Tdewpoint and T_so_b>Tdewpoint:
