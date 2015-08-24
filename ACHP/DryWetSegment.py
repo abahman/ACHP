@@ -263,7 +263,7 @@ def DryWetSegment(DWS):
                 # Wet-analysis saturation enthalpy [J/kg_da]
                 h_s_s_e=hin_a+(hout_a-hin_a)/(1-exp(-Ntu_owet))
                 # Surface effective temperature [K]
-                T_s_e=HAPropsSI('T','H',h_s_s_e/1.0,'P',pin_a,'R',1.0) #h_s_s_e/1000.0 is updated by removing /1000.0
+                T_s_e=HAPropsSI('T','H',h_s_s_e,'P',pin_a,'R',1.0) #h_s_s_e/1000.0 is updated by removing /1000.0
                 # Air outlet temp based on effective temp [K]
                 Tout_a=T_s_e + (Tin_a-T_s_e)*exp(-Ntu_o)
                 #Sensible heat transfer rate [W]

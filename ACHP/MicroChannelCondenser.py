@@ -374,7 +374,7 @@ class MicroCondenserClass():
             epsilon_subcool = 1. - exp(-1. / Cr * (1. - exp(-Cr * NTU)))
         else:
             #Minimum capacitance rate on air side
-            epsilon_subcool = 1 / Cr * (1 - exp(-Cr * (1 - exp(-NTU))))
+            epsilon_subcool = 1. / Cr * (1 - exp(-Cr * (1 - exp(-NTU))))
         
         #Effectiveness for both fluids unmixed:
         #epsilon_subcool = 1 - exp(1/Cr * NTU**0.22 * (exp(-Cr*NTU**0.78)-1))

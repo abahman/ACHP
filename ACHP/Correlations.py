@@ -23,7 +23,7 @@ def Phase_ph(Ref,p,h,Tbubble,Tdew,rhosatL,rhosatV):
 
 def TrhoPhase_ph(Ref,p,h,Tbubble,Tdew,rhosatL=None,rhosatV=None):
     """
-    Convenience function to find temperature, density, and phase of fluid as a function of pressure and enthalpy
+    Convenience function to find temperature, density, phase, and quality of fluid as a function of pressure and enthalpy
     """
     #UseSaturationLUT(1)
     #h/=1000  #convert J/kg to kJ/kg since CoolProp uses kJ/kg >>> modification: CoolProp 5.x uses J/kg
@@ -418,7 +418,7 @@ def f_h_1phase_Tube(mdot,ID,T, p,Fluid,Phase='Single'):
     Convenience function to run annular model for tube.  Tube is a degenerate case of annulus with inner diameter of 0
     
     """
-    return f_h_1phase_Annulus(mdot, ID, 0.0, T, p, Fluid, Phase='Single' )
+    return f_h_1phase_Annulus(mdot, ID, 0.0, T, p, Fluid, Phase)
 
 def f_h_1phase_Annulus(mdot, OD, ID, T, p, Fluid, Phase='Single'):
     """

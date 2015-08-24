@@ -197,11 +197,7 @@ def ECUCycle():
             'h':in2m(1.370),        #height of sight glass in m
             'D':in2m(1.110),        #diameter of sight glass in m
             'Ref': Cycle.Ref,
-            'V': cubin2cubm(11),    #volume of filter drier
-            'E': in2m(9.75),        #micromotion width
-            'B': in2m(5.12),        #micormotion height
-            'F': in2m(2.81),        #micormotion thickness
-            
+            'V': cubin2cubm(16), #volume of filter drier (website = 13.74in^3 calculated) (manual = 16in^3)
             'D_Micro': in2m(0.21),  #micromotion tube diameter
             'L_Micro': in2m(14.6),  #micormotion tube length
             'n_Micro': 2,           #micormotion number of tubes
@@ -226,7 +222,7 @@ if __name__=='__main__':
     cycle=ECUCycle()
     
     #Write the outputs to file
-    Write2CSV(cycle,open('results/Cycle_Test#4.csv','w'),append=False)
+    #Write2CSV(cycle,open('results/Cycle_Test#4.csv','w'),append=False)
     #Write2CSV(cycle,open('results/Cycle_Test#4.csv','a'),append=True)
     
     #append a second run with different temperauture
@@ -263,10 +259,10 @@ if __name__=='__main__':
     ref_fluid = 'R407C'
     
     #Experimental results 
-    P_exp = [655.8,3108.0,3108.0,3095.0,3095.0,877.8,655.8,655.8,655.8] #in kPa 
+    P_exp = [502.9,2135.0,2135.0,2124.0,2124.0,758.8,502.9,502.9,502.9] #in kPa 
     P_exp = numpy.array(P_exp)
     P_exp *= 1000.0 #convert kPa to Pa
-    T_exp = [17.92+273.15, 111.0+273.15, PropsSI('T','P',P_exp[2],'Q',1,ref_fluid), PropsSI('T','P',P_exp[3],'Q',0,ref_fluid), 60.57+273.15, 16.25+273.15, PropsSI('T','P',P_exp[6],'Q',1,ref_fluid), 16.66+273.15, 17.92+273.15] #in Kelvin    
+    T_exp = [12.58+273.15,87.93+273.15,PropsSI('T','P',P_exp[2],'Q',1,ref_fluid), PropsSI('T','P',P_exp[3],'Q',0,ref_fluid),43.52+273.15, 10.7+273.15,PropsSI('T','P',P_exp[6],'Q',1,ref_fluid), 11.35+273.15, 12.58+273.15] #in Kelvin
     T_exp = numpy.array(T_exp)
     
     #Solve for h_exp and s_exp

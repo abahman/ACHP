@@ -914,7 +914,7 @@ class ECU_DXCycleClass():
             self.Power=self.Compressor.W+self.Evaporator.Fins.Air.FanPower+self.Condenser.Fins.Air.FanPower
             self.Power_compressor=self.Compressor.W
             self.COP=self.Evaporator.Q/self.Compressor.W
-            self.COSP=self.Evaporator.Capacity/self.Power
+            self.COSP=self.Capacity/self.Power
             self.SHR=self.Evaporator.SHR
             self.DT_sc=self.Condenser.DT_sc
             self.DT_sh=self.Evaporator.DT_sh_calc
