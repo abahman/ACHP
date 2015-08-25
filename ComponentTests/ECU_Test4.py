@@ -93,7 +93,7 @@ def ECUCycle():
     Cycle.Condenser.Fins.Fins.t=in2m(0.0045)           ##measured## #Fin thickness
     Cycle.Condenser.Fins.Fins.k_fin=117                #Fin thermal conductivity for pure Aluminum
         
-    Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(1400)     #Air volume flow rate in m^3/s
+    Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(1340)     #Air volume flow rate in m^3/s
     Cycle.Condenser.Fins.Air.Tdb=F2K(95)               #Air inlet temperature, K
     Cycle.Condenser.Fins.Air.p=101325                  #Air pressure in Pa
     Cycle.Condenser.Fins.Air.RH=0.3979                 #Air inlet relative humidity
@@ -120,7 +120,7 @@ def ECUCycle():
     Cycle.Evaporator.Fins.Tubes.Nbank=5
     Cycle.Evaporator.Fins.Tubes.Ltube=in2m(19)
     Cycle.Evaporator.Fins.Tubes.OD=in2m(0.31)
-    Cycle.Evaporator.Fins.Tubes.ID=Cycle.Evaporator.Fins.Tubes.OD - in2m(0.016)
+    Cycle.Evaporator.Fins.Tubes.ID=Cycle.Evaporator.Fins.Tubes.OD - 2*in2m(0.016)
     Cycle.Evaporator.Fins.Tubes.Pl=in2m(0.645669)
     Cycle.Evaporator.Fins.Tubes.Pt=in2m(1)
     Cycle.Evaporator.Fins.Tubes.Ncircuits=5
@@ -131,7 +131,7 @@ def ECUCycle():
     Cycle.Evaporator.Fins.Fins.t=in2m(0.006)
     Cycle.Evaporator.Fins.Fins.k_fin=237
     
-    Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(300)          #reducing the flow rate from 600cfm to 300cfm
+    Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(320)          #reducing the flow rate from 600cfm to 300cfm
     Cycle.Evaporator.Fins.Air.Tdb=F2K(80)
     Cycle.Evaporator.Fins.Air.p=101325                                              #Evaporator Air pressure in Pa
     Cycle.Evaporator.Fins.Air.RH=0.5107
@@ -222,7 +222,7 @@ if __name__=='__main__':
     cycle=ECUCycle()
     
     #Write the outputs to file
-    #Write2CSV(cycle,open('results/Cycle_Test#4.csv','w'),append=False)
+    Write2CSV(cycle,open('results/Cycle_Test#4.csv','w'),append=False)
     #Write2CSV(cycle,open('results/Cycle_Test#4.csv','a'),append=True)
     
     #append a second run with different temperauture
@@ -262,7 +262,7 @@ if __name__=='__main__':
     P_exp = [502.9,2135.0,2135.0,2124.0,2124.0,758.8,502.9,502.9,502.9] #in kPa 
     P_exp = numpy.array(P_exp)
     P_exp *= 1000.0 #convert kPa to Pa
-    T_exp = [12.58+273.15,87.93+273.15,PropsSI('T','P',P_exp[2],'Q',1,ref_fluid), PropsSI('T','P',P_exp[3],'Q',0,ref_fluid),43.52+273.15, 10.7+273.15,PropsSI('T','P',P_exp[6],'Q',1,ref_fluid), 11.35+273.15, 12.58+273.15] #in Kelvin
+    T_exp = [12.58+273.15,87.93+273.15,PropsSI('T','P',P_exp[2],'Q',1,ref_fluid), PropsSI('T','P',P_exp[3],'Q',0,ref_fluid),43.52+273.15, 10.7+273.15,PropsSI('T','P',P_exp[6],'Q',1,ref_fluid), 11.53+273.15, 12.58+273.15] #in Kelvin
     T_exp = numpy.array(T_exp)
     
     #Solve for h_exp and s_exp

@@ -64,7 +64,7 @@ def ECUCycle():
             'P':P,
             'Ref':Cycle.Ref, #Refrigerant
             'fp':0, #Fraction of electrical power lost as heat to ambient 
-            'Vdot_ratio': 0.9, #Displacement Scale factor
+            'Vdot_ratio': 1, #Displacement Scale factor
             'Verbosity': 0, # How verbose should the debugging be [0-10]
             }
     
@@ -120,7 +120,7 @@ def ECUCycle():
     Cycle.Evaporator.Fins.Tubes.Nbank=5
     Cycle.Evaporator.Fins.Tubes.Ltube=in2m(19)
     Cycle.Evaporator.Fins.Tubes.OD=in2m(0.31)
-    Cycle.Evaporator.Fins.Tubes.ID=Cycle.Evaporator.Fins.Tubes.OD - in2m(0.016)
+    Cycle.Evaporator.Fins.Tubes.ID=Cycle.Evaporator.Fins.Tubes.OD - 2*in2m(0.016)
     Cycle.Evaporator.Fins.Tubes.Pl=in2m(0.645669)
     Cycle.Evaporator.Fins.Tubes.Pt=in2m(1)
     Cycle.Evaporator.Fins.Tubes.Ncircuits=5
