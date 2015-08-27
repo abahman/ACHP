@@ -35,7 +35,7 @@ def ECUCycle():
     #--------------------------------------
     Cycle.Verbosity = 0 #the idea here is to have different levels of debug output 
     Cycle.ImposedVariable = 'Subcooling' #'Subcooling' # or 'Charge'
-    Cycle.DT_sc_target = 4.748
+    Cycle.DT_sc_target = 4.634
     #Cycle.Charge_target = oz2kg(36.5) #37-44 ounces #kg #uncomment for use with imposed 'Charge'
     Cycle.Mode='AC'
     Cycle.Ref='R407C'
@@ -93,11 +93,11 @@ def ECUCycle():
     Cycle.Condenser.Fins.Fins.t=in2m(0.0045)           ##measured## #Fin thickness
     Cycle.Condenser.Fins.Fins.k_fin=117                #Fin thermal conductivity for pure Aluminum
         
-    Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(1340)     #Air volume flow rate in m^3/s
+    Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(1360)     #Air volume flow rate in m^3/s
     Cycle.Condenser.Fins.Air.Tdb=F2K(95)               #Air inlet temperature, K
     Cycle.Condenser.Fins.Air.p=101325                  #Air pressure in Pa
     Cycle.Condenser.Fins.Air.RH=0.3979                 #Air inlet relative humidity
-    Cycle.Condenser.Fins.Air.FanPower=890.0              #Fan power, Watts
+    Cycle.Condenser.Fins.Air.FanPower=897.8              #Fan power, Watts
         
     Cycle.Condenser.Fins.Louvers.Lalpha=25             ##estimated## #Louver angle, in degree
     Cycle.Condenser.Fins.Louvers.lp=mm2m(1.12)         ##measured## #Louver pitch
@@ -131,11 +131,11 @@ def ECUCycle():
     Cycle.Evaporator.Fins.Fins.t=in2m(0.006)
     Cycle.Evaporator.Fins.Fins.k_fin=237
     
-    Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(320)          #reducing the flow rate from 600cfm to 300cfm
+    Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(305)          #reducing the flow rate from 600cfm to 300cfm
     Cycle.Evaporator.Fins.Air.Tdb=F2K(80)
     Cycle.Evaporator.Fins.Air.p=101325                                              #Evaporator Air pressure in Pa
     Cycle.Evaporator.Fins.Air.RH=0.5107
-    Cycle.Evaporator.Fins.Air.FanPower=396.7
+    Cycle.Evaporator.Fins.Air.FanPower=402.1
     
     Cycle.Evaporator.FinsType = 'WavyLouveredFins'        #WavyLouveredFins, HerringboneFins, PlainFins
     Cycle.Evaporator.Ref=Cycle.Ref
@@ -144,7 +144,7 @@ def ECUCycle():
     params={
             'Ref': Cycle.Ref,
             'Verbosity':0,
-            'DT_sh':9.488, #DeltaF2K()
+            'DT_sh':8.984, #DeltaF2K()
             }
     
     Cycle.Evaporator.Update(**params)

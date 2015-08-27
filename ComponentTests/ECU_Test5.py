@@ -34,9 +34,9 @@ def ECUCycle():
     #--------------------------------------
     #--------------------------------------
     Cycle.Verbosity = 0 #the idea here is to have different levels of debug output 
-    Cycle.ImposedVariable = 'Charge' #'Subcooling' # or 'Charge'
-    #Cycle.DT_sc_target = 4.638
-    Cycle.Charge_target = oz2kg(36.5) #37-44 ounces #kg #uncomment for use with imposed 'Charge'
+    Cycle.ImposedVariable = 'Subcooling' #'Subcooling' # or 'Charge'
+    Cycle.DT_sc_target = 5.643
+    #Cycle.Charge_target = oz2kg(36.5) #37-44 ounces #kg #uncomment for use with imposed 'Charge'
     Cycle.Mode='AC'
     Cycle.Ref='R407C'
     Cycle.TestName='ECU-18K'  #this and the two next lines can be used to specify exact test conditions
@@ -93,7 +93,7 @@ def ECUCycle():
     Cycle.Condenser.Fins.Fins.t=in2m(0.0045)           ##measured## #Fin thickness
     Cycle.Condenser.Fins.Fins.k_fin=117                #Fin thermal conductivity for pure Aluminum
         
-    Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(1400)     #Air volume flow rate in m^3/s
+    Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(1300)     #Air volume flow rate in m^3/s
     Cycle.Condenser.Fins.Air.Tdb=F2K(85)               #Air inlet temperature, K
     Cycle.Condenser.Fins.Air.p=101325                  #Air pressure in Pa
     Cycle.Condenser.Fins.Air.RH=0.2833                 #Air inlet relative humidity
@@ -197,10 +197,10 @@ def ECUCycle():
             'h':in2m(1.370),        #height of sight glass in m
             'D':in2m(1.110),        #diameter of sight glass in m
             'Ref': Cycle.Ref,
-            'V': cubin2cubm(11),    #volume of filter drier
-            'E': in2m(9.75),        #micromotion width
-            'B': in2m(5.12),        #micormotion height
-            'F': in2m(2.81),        #micormotion thickness
+            'V': cubin2cubm(16),    #volume of filter drier (website = 13.74in^3 calculated) (manual = 16in^3)
+            'D_Micro': in2m(0.21),  #micromotion tube diameter
+            'L_Micro': in2m(14.6),  #micormotion tube length
+            'n_Micro': 2,           #micormotion number of tubes
             }
      
     Cycle.SightGlassFilterDrierMicroMotion.Update(**params)
@@ -259,10 +259,10 @@ if __name__=='__main__':
     ref_fluid = 'R407C'
     
     #Experimental results 
-    P_exp = [655.8,3108.0,3108.0,3095.0,3095.0,877.8,655.8,655.8,655.8] #in kPa 
+    P_exp = [407.7,1843.0,1843.0,1833.0,1833.0,627.5,407.7,407.7,407.7] #in kPa 
     P_exp = numpy.array(P_exp)
     P_exp *= 1000.0 #convert kPa to Pa
-    T_exp = [17.92+273.15, 111.0+273.15, PropsSI('T','P',P_exp[2],'Q',1,ref_fluid), PropsSI('T','P',P_exp[3],'Q',0,ref_fluid), 60.57+273.15, 16.25+273.15, PropsSI('T','P',P_exp[6],'Q',1,ref_fluid), 16.66+273.15, 17.92+273.15] #in Kelvin    
+    T_exp = [8.574+273.15, 85.15+273.15, PropsSI('T','P',P_exp[2],'Q',1,ref_fluid), PropsSI('T','P',P_exp[3],'Q',0,ref_fluid), 36.29+273.15, 4.47+273.15, PropsSI('T','P',P_exp[6],'Q',1,ref_fluid), 7.187+273.15, 8.574+273.15] #in Kelvin    
     T_exp = numpy.array(T_exp)
     
     #Solve for h_exp and s_exp
