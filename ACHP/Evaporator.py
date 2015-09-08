@@ -80,6 +80,7 @@ class EvaporatorClass():
             ('Mass Flow rate dry Air','kg/s',self.Fins.mdot_da),
             ('Mass Flow rate humid Air','kg/s',self.Fins.mdot_ha),
             ('Pressure Drop Air-side','Pa',self.Fins.dP_a),
+            ('Superheat','K',self.DT_sh_calc),
             ('Sensible Heat Ratio','-',self.SHR),
             #('Bend Temperature profile','K',self.Tbends)
         ]
@@ -356,7 +357,11 @@ class EvaporatorClass():
         #Pressure gradient using Darcy friction factor
         dpdz_r=-self.f_r_superheat*v_r*self.G_r**2/(2*self.ID)  #Pressure gradient
         self.DP_r_superheat=dpdz_r*self.Lcircuit*self.w_superheat
-        
+        print ""
+        #print "DT_super=", self.DT_sh_calc
+        print "x_in=",self.xin_r
+        print "x_2ph=", self.xout_2phase
+        print ""
         #Set values
         self.Q_superheat=DWS.Q
         self.Q_sensible_superheat=DWS.Q_sensible

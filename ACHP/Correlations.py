@@ -23,7 +23,7 @@ def Phase_ph(Ref,p,h,Tbubble,Tdew,rhosatL,rhosatV):
 
 def TrhoPhase_ph(Ref,p,h,Tbubble,Tdew,rhosatL=None,rhosatV=None):
     """
-    Convenience function to find temperature, density, phase, and quality of fluid as a function of pressure and enthalpy
+    Convenience function to find temperature, density, and phase of fluid as a function of pressure and enthalpy
     """
     #UseSaturationLUT(1)
     #h/=1000  #convert J/kg to kJ/kg since CoolProp uses kJ/kg >>> modification: CoolProp 5.x uses J/kg
@@ -431,6 +431,11 @@ def f_h_1phase_Annulus(mdot, OD, ID, T, p, Fluid, Phase='Single'):
         k = PropsSI('L', 'T', T, 'Q', 1, Fluid) #W/m-K
         rho = PropsSI('D', 'T', T, 'Q', 1, Fluid) #kg/m^3
     elif Phase =="SatLiq":
+        mu = PropsSI('V', 'T', T, 'Q', 0, Fluid) #kg/m-s
+        cp = PropsSI('C', 'T', T, 'Q', 0, Fluid) #J/kg-K
+        k = PropsSI('L', 'T', T, 'Q', 0, Fluid) #W/m-K
+        rho = PropsSI('D', 'T', T, 'Q', 0, Fluid) #kg/m^3
+    elif Phase == "TwoPhase": #This is only to avoid error in LineSet due to twophase (low quality ~=zero) at the inlet of liquid line 
         mu = PropsSI('V', 'T', T, 'Q', 0, Fluid) #kg/m-s
         cp = PropsSI('C', 'T', T, 'Q', 0, Fluid) #J/kg-K
         k = PropsSI('L', 'T', T, 'Q', 0, Fluid) #W/m-K
