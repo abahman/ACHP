@@ -35,7 +35,7 @@ def ECUCycle():
     #--------------------------------------
     Cycle.Verbosity = 0 #the idea here is to have different levels of debug output 
     Cycle.ImposedVariable = 'Subcooling' #'Subcooling' # or 'Charge'
-    Cycle.DT_sc_target = 5#4.801
+    Cycle.DT_sc_target = 4.801
     #Cycle.Charge_target = oz2kg(36.5) #37-44 ounces #kg #uncomment for use with imposed 'Charge'
     Cycle.Mode='AC'
     Cycle.Ref='R407C'
@@ -63,7 +63,7 @@ def ECUCycle():
             'M':M,
             'P':P,
             'Ref':Cycle.Ref, #Refrigerant
-            'fp':0, #Fraction of electrical power lost as heat to ambient 
+            'fp':0.12, #Fraction of electrical power lost as heat to ambient 
             'Vdot_ratio': 1, #Displacement Scale factor
             'Verbosity': 0, # How verbose should the debugging be [0-10]
             }
@@ -93,7 +93,7 @@ def ECUCycle():
     Cycle.Condenser.Fins.Fins.t=in2m(0.0045)           ##measured## #Fin thickness
     Cycle.Condenser.Fins.Fins.k_fin=117                #Fin thermal conductivity for pure Aluminum
         
-    Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(1580)     #Air volume flow rate in m^3/s
+    Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(1500)     #Air volume flow rate in m^3/s
     Cycle.Condenser.Fins.Air.Tdb=F2K(75)               #Air inlet temperature, K
     Cycle.Condenser.Fins.Air.p=101325                  #Air pressure in Pa
     Cycle.Condenser.Fins.Air.RH=0.5155                 #Air inlet relative humidity
@@ -259,41 +259,42 @@ if __name__=='__main__':
     ref_fluid = 'R407C'
     
     #Experimental results 
-    P_exp = [655.8,3108.0,3108.0,3095.0,3095.0,877.8,655.8,655.8,655.8] #in kPa 
+    P_exp = [423.4,1639.0,1639.0,1624.0,1624.0,637.3,423.4,423.4,423.4,423.4] #in kPa 
     P_exp = numpy.array(P_exp)
     P_exp *= 1000.0 #convert kPa to Pa
-    T_exp = [17.92+273.15, 111.0+273.15, PropsSI('T','P',P_exp[2],'Q',1,ref_fluid), PropsSI('T','P',P_exp[3],'Q',0,ref_fluid), 60.57+273.15, 16.25+273.15, PropsSI('T','P',P_exp[6],'Q',1,ref_fluid), 16.66+273.15, 17.92+273.15] #in Kelvin    
+    T_exp = [7.556+273.15, 73.63+273.15, PropsSI('T','P',P_exp[2],'Q',1,ref_fluid), PropsSI('T','P',P_exp[3],'Q',0,ref_fluid), 32.18+273.15, 4.761+273.15,0+273.15, PropsSI('T','P',P_exp[6],'Q',1,ref_fluid), 6.396+273.15, 7.556+273.15] #in Kelvin    
     T_exp = numpy.array(T_exp)
     
     #Solve for h_exp and s_exp
     h_exp = [PropsSI('H','P',P_exp[0],'T',T_exp[0],ref_fluid), PropsSI('H','P',P_exp[1],'T',T_exp[1],ref_fluid), 
              PropsSI('H','P',P_exp[2],'Q',1,ref_fluid), PropsSI('H','P',P_exp[3],'Q',0,ref_fluid),
-             PropsSI('H','P',P_exp[4],'T',T_exp[4],ref_fluid), PropsSI('H','P',P_exp[4],'T',T_exp[4],ref_fluid),
-             PropsSI('H','P',P_exp[6],'Q',1,ref_fluid), PropsSI('H','P',P_exp[7],'T',T_exp[7],ref_fluid), 
-             PropsSI('H','P',P_exp[8],'T',T_exp[8],ref_fluid)]
+             PropsSI('H','P',P_exp[4],'T',T_exp[4],ref_fluid), PropsSI('H','P',P_exp[4],'T',T_exp[4],ref_fluid),PropsSI('H','P',P_exp[4],'T',T_exp[4],ref_fluid),
+             PropsSI('H','P',P_exp[7],'Q',1,ref_fluid), PropsSI('H','P',P_exp[8],'T',T_exp[8],ref_fluid), 
+             PropsSI('H','P',P_exp[9],'T',T_exp[9],ref_fluid)]
     
-    #P_exp[5] = PropsSI('P','Q',0,'T',T_exp[5],ref_fluid)
+    #Recalculate the temperature at inlet of Evap
+    T_exp[6] = PropsSI('T','P',P_exp[6],'H',h_exp[6],ref_fluid)
 
     s_exp = [PropsSI('S','P',P_exp[0],'T',T_exp[0],ref_fluid), PropsSI('S','P',P_exp[1],'T',T_exp[1],ref_fluid), 
              PropsSI('S','P',P_exp[2],'Q',1,ref_fluid), PropsSI('S','P',P_exp[3],'Q',0,ref_fluid),
-             PropsSI('S','P',P_exp[4],'T',T_exp[4],ref_fluid), PropsSI('S','H',h_exp[5],'P',P_exp[5],ref_fluid),
-             PropsSI('S','P',P_exp[6],'Q',1,ref_fluid), PropsSI('S','P',P_exp[7],'T',T_exp[7],ref_fluid), 
-             PropsSI('S','P',P_exp[8],'T',T_exp[8],ref_fluid)]
+             PropsSI('S','P',P_exp[4],'T',T_exp[4],ref_fluid), PropsSI('S','H',h_exp[5],'P',P_exp[5],ref_fluid),PropsSI('S','H',h_exp[6],'P',P_exp[6],ref_fluid),
+             PropsSI('S','P',P_exp[7],'Q',1,ref_fluid), PropsSI('S','P',P_exp[8],'T',T_exp[8],ref_fluid), 
+             PropsSI('S','P',P_exp[9],'T',T_exp[9],ref_fluid)]
     h_exp = numpy.array(h_exp)
     s_exp = numpy.array(s_exp)
     
             
     #convert back to original units kPa, kJ/kg and kJ/kg-K
-    P_exp /= 1000.0 
+    P_exp /= 1000.0
     T_exp = T_exp #keep T in K
     h_exp /= 1000.0
     s_exp /= 1000.0
     
     #Model Results
-    P = [cycle.Compressor.pin_r, cycle.Compressor.pout_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r + cycle.Condenser.DP_r , cycle.Evaporator.psat_r, cycle.Evaporator.psat_r + cycle.Evaporator.DP_r, cycle.LineSetReturn.pin, cycle.Compressor.pin_r]
-    T = [cycle.Compressor.Tin_r, cycle.Compressor.Tout_r, PropsSI('T','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('T','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.Tout_r, cycle.Evaporator.Tin_r, PropsSI('T','P',cycle.Evaporator.psat_r,'Q',1,ref_fluid), cycle.LineSetReturn.Tout, cycle.Compressor.Tin_r]
-    h = [cycle.Compressor.hin_r, cycle.Compressor.hout_r, PropsSI('H','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('H','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.hout_r, cycle.Evaporator.hin_r, PropsSI('H','P',cycle.Evaporator.psat_r,'Q',1,ref_fluid), cycle.LineSetReturn.hout, cycle.Compressor.hin_r]
-    s = [cycle.Compressor.sin_r, cycle.Compressor.sout_r, PropsSI('S','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('S','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.sout_r, cycle.Evaporator.sin_r, PropsSI('S','P',cycle.Evaporator.psat_r,'Q',1,ref_fluid), PropsSI('S','T',cycle.LineSetReturn.Tout,'P',cycle.LineSetReturn.pin,ref_fluid), cycle.Compressor.sin_r]
+    P = [cycle.Compressor.pin_r, cycle.Compressor.pout_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Evaporator.psat_r, cycle.Compressor.pin_r, cycle.Compressor.pin_r]
+    h = [cycle.Compressor.hin_r, cycle.Compressor.hout_r, PropsSI('H','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('H','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.hout_r, cycle.Evaporator.hin_r, PropsSI('H','P',cycle.Compressor.pin_r,'Q',1,ref_fluid), cycle.Compressor.hin_r]
+    T = [cycle.Compressor.Tin_r, cycle.Compressor.Tout_r, PropsSI('T','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('T','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.Tout_r, cycle.Evaporator.Tin_r, PropsSI('T','P',cycle.Compressor.pin_r,'Q',1,ref_fluid), cycle.Compressor.Tin_r]
+    s = [cycle.Compressor.sin_r, cycle.Compressor.sout_r, PropsSI('S','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('S','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.sout_r, cycle.Evaporator.sin_r, PropsSI('S','P',cycle.Compressor.pin_r,'Q',1,ref_fluid), cycle.Compressor.sin_r]
     P = numpy.array(P)
     T = numpy.array(T)
     h = numpy.array(h)
@@ -336,11 +337,13 @@ if __name__=='__main__':
             ax.set_yscale('log')
             plt.grid()
             plt.plot(h_exp,P_exp, 'bo-', label='Experimental')
+            plt.errorbar(h_exp,P_exp, yerr=0.08*P_exp)
             plt.plot(h,P,'ro--', label='Model')
             plt.legend(loc='best',fancybox=False)
         if gtype.startswith('T'):
             plt.grid()
             plt.plot(s_exp,T_exp, 'bo-', label='Experimental')
+            plt.errorbar(s_exp,T_exp, yerr=0.005*T_exp)
             plt.plot(s,T,'ro--', label='Model')
             plt.legend(loc='best',fancybox=False)
         props_plot = PropsPlot(ref_fluid, gtype, axis=ax)

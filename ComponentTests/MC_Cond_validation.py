@@ -28,19 +28,19 @@ Fins.Fins.t=in2m(0.0045)           ##measured## #Fin thickness
 Fins.Fins.k_fin=117                #Fin thermal conductivity for pure Aluminum
     
 Fins.Air.Vdot_ha=cfm2cms(1500)     #Air volume flow rate in m^3/s
-Fins.Air.Tdb=F2K(125)              #Air inlet temperature, K
+Fins.Air.Tdb=F2K(75)              #Air inlet temperature, K
 Fins.Air.p=101325                  #Air inlet pressure in Pa
-Fins.Air.RH=0.199                  #Air inlet relative humidity
-Fins.Air.FanPower=855              #Fan power, Watts
+Fins.Air.RH=0.5155                  #Air inlet relative humidity
+Fins.Air.FanPower=670.2              #Fan power, Watts
     
 Fins.Louvers.Lalpha=25             ##estimated## #Louver angle, in degree
 Fins.Louvers.lp=mm2m(1.12)         ##measured## #Louver pitch
 
 params={
         'Ref': 'R407C',
-        'mdot_r': 0.04472,
-        'Tin_r': C2K(110),
-        'psat_r': kPa2Pa(3108), 
+        'mdot_r': 0.0335,
+        'Tin_r': C2K(73.63),
+        'psat_r': kPa2Pa(1639), 
         'Fins': Fins,
         'Verbosity':0
         }

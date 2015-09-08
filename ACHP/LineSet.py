@@ -2,6 +2,7 @@ from __future__ import division
 from CoolProp.CoolProp import PropsSI#, IsFluidType
 from Correlations import f_h_1phase_Tube,TrhoPhase_ph
 from math import log,pi,exp
+from convert_units import F2K, kPa2Pa, in2m,mm2m
 
 class LineSetClass():
     def __init__(self,**kwargs):
@@ -52,13 +53,14 @@ class LineSetClass():
         self.Tin,self.rhoin,self.Phasein=TrhoPhase_ph(self.Ref,self.pin,self.hin,self.Tbubble,self.Tdew)
         ###Solver shows TwoPhase in the first iteration, the following if statement just to avoid ValueError with CoolProp for pseudo-pure refrigerants
         if self.Phasein =='TwoPhase':
-            self.f_fluid, self.h_fluid, self.Re_fluid=f_h_1phase_Tube(self.mdot, self.ID, self.Tin-1, self.pin, self.Ref)
+            print "Cauation::two phase at the inlet of LineSet during iterartion"
+            self.f_fluid, self.h_fluid, self.Re_fluid=f_h_1phase_Tube(self.mdot, self.ID, self.Tin-1, self.pin, self.Ref, self.Phasein)
             # Specific heat capacity [J/kg-K]                        
-            cp=PropsSI('C','T',self.Tin-1,'P',self.pin,self.Ref)
+            cp=PropsSI('C','T',self.Tin-1,'Q',0,self.Ref)
             # Density [kg/m^3]
-            rho=PropsSI('D','T',self.Tin-1, 'P', self.pin, self.Ref)
+            rho=PropsSI('D','T',self.Tin-1, 'Q',0, self.Ref)
         else: #Single phase
-            self.f_fluid, self.h_fluid, self.Re_fluid=f_h_1phase_Tube(self.mdot, self.ID, self.Tin, self.pin, self.Ref)
+            self.f_fluid, self.h_fluid, self.Re_fluid=f_h_1phase_Tube(self.mdot, self.ID, self.Tin, self.pin, self.Ref, self.Phasein)
             # Specific heat capacity [J/kg-K]                        
             cp=PropsSI('C','T',self.Tin,'P',self.pin,self.Ref) #*1000
             # Density [kg/m^3]
@@ -102,22 +104,22 @@ class LineSetClass():
 if __name__=='__main__':
     
     kwargs={
-            'L':7.6,
+            'L':in2m(88),
             'k_tube':0.19,
-            't_insul':0.02,
+            't_insul':0.0,
             'k_insul':0.036,
-            'T_air':297,
-            'Ref': 'R410A',
-            'h_air':0.0000000001,
-            'pin': 500000,           #Pressure of the fluid at the inlet i.e 500kPa
-            'hin': PropsSI('H','P',500000,'T',PropsSI('T','P',500000,'Q',0,'R410A')-10,'R410A'),    #Enthalpy of the fluid at the inlet i.e subcooled 10K below bubble
-            'mdot': 0.03             #fluid mass flow rate
+            'T_air':F2K(75),
+            'Ref': 'R407C',
+            'h_air':10,
+            'pin': kPa2Pa(1639),           #Pressure of the fluid at the inlet i.e 500kPa
+            'hin': PropsSI('H','P',kPa2Pa(1639),'T',305.75,'R407C'),    #Enthalpy of the fluid at the inlet i.e subcooled 10K below bubble
+            'mdot': 0.0335             #fluid mass flow rate
             }
     
 
     LineSetSupply = LineSetClass(**kwargs)
-    LineSetSupply.OD=0.009525
-    LineSetSupply.ID=0.007986
+    LineSetSupply.OD=in2m(3.0/8.0)
+    LineSetSupply.ID=in2m(3.0/8.0)-mm2m(1)
     LineSetSupply.Calculate()
     
 

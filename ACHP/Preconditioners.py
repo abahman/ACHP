@@ -23,7 +23,7 @@ def DXPreconditioner(Cycle,epsilon=0.96):
         Qcond=epsilon*Cycle.Condenser.Fins.Air.Vdot_ha*rho_air*(Cycle.Condenser.Fins.Air.Tdb-Tcond)*Cp_air #Cp_air =1005J/kg/K  #Cycle.Condenser.Fins.Air.Vdot_ha/rho_air, division is updated with *
         
         pevap=PropsSI('P','T',Tevap,'Q',1.0,Cycle.Ref)
-        pcond=PropsSI('P','T',Tcond,'Q',0.0,Cycle.Ref)
+        pcond=(PropsSI('P','T',Tcond,'Q',0.0,Cycle.Ref)+PropsSI('P','T',Tcond,'Q',1.0,Cycle.Ref))/2
         Cycle.Compressor.pin_r=pevap
         Cycle.Compressor.pout_r=pcond
         Cycle.Compressor.Tin_r=Tevap+Cycle.Evaporator.DT_sh
@@ -89,7 +89,7 @@ def DXPreconditioner(Cycle,epsilon=0.96):
     DT_evap=Cycle.Evaporator.Fins.Air.Tdb-x[0]
     DT_cond=x[1]-Cycle.Condenser.Fins.Air.Tdb
     
-    return DT_evap-2.5, DT_cond+3 #sometimes DT_evap-2, DT_cond+2 can work with no error
+    return DT_evap-4, DT_cond+10#sometimes DT_evap-2, DT_cond+2 can work with no error
 
 
 def SecondaryLoopPreconditioner(Cycle,epsilon=0.9):

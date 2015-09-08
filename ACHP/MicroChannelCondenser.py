@@ -179,8 +179,12 @@ class MicroCondenserClass():
         
         self.sin_r=PropsSI('S','T',self.Tin_r,'P',self.psat_r,self.Ref)
         if self.existsSubcooled==True:
-            self.hout_r=PropsSI('H','T',self.Tout_r,'P',self.psat_r,self.Ref)
-            self.sout_r=PropsSI('S','T',self.Tout_r,'P',self.psat_r,self.Ref)
+            try: # try to avoid error due to pesuod-pure refrigerant, except set to saturated liquid
+                self.hout_r=PropsSI('H','T',self.Tout_r,'P',self.psat_r,self.Ref)
+                self.sout_r=PropsSI('S','T',self.Tout_r,'P',self.psat_r,self.Ref)
+            except:  
+                self.hout_r=PropsSI('H','T',self.Tout_r,'Q',0,self.Ref)
+                self.sout_r=PropsSI('S','T',self.Tout_r,'Q',0,self.Ref)
         else:
             self.Tout_r=self.xout_2phase*self.Tdew+(1-self.xout_2phase)*self.Tbubble
             self.hout_r=PropsSI('H','T',self.Tbubble,'Q',0,self.Ref)+self.xout_2phase*(PropsSI('H','T',self.Tdew,'Q',1,self.Ref)-PropsSI('H','T',self.Tbubble,'Q',0,self.Ref))
@@ -297,7 +301,7 @@ class MicroCondenserClass():
         
         self.h_r_2phase=h_r_2phase
 
-        UA_overall = 1 / (1 / (self.Fins.eta_a * self.Fins.h_a * self.Fins.A_a) + 1 / (self.h_r_2phase * self.A_r_wetted) + self.Rw);
+        UA_overall = 1. / (1. / (self.Fins.eta_a * self.Fins.h_a * self.Fins.A_a) + 1. / (self.h_r_2phase * self.A_r_wetted) + self.Rw);
         self.epsilon_2phase=1-exp(-UA_overall/(self.mdot_da*self.Fins.cp_da));
         self.w_2phase=-self.mdot_r*h_fg*(1.0-xout_r_2phase)/(self.mdot_da*self.Fins.cp_da*(self.Tin_a-Tsat_r)*self.epsilon_2phase);
 
@@ -374,8 +378,9 @@ class MicroCondenserClass():
             epsilon_subcool = 1. - exp(-1. / Cr * (1. - exp(-Cr * NTU)))
         else:
             #Minimum capacitance rate on air side
-            epsilon_subcool = 1 / Cr * (1 - exp(-Cr * (1 - exp(-NTU))))
-        
+            epsilon_subcool = 1. / Cr * (1. - exp(-Cr * (1. - exp(-NTU))))
+        if epsilon_subcool<=0:
+            epsilon_subcool=0.0
         #Effectiveness for both fluids unmixed:
         #epsilon_subcool = 1 - exp(1/Cr * NTU**0.22 * (exp(-Cr*NTU**0.78)-1))
         
@@ -385,8 +390,15 @@ class MicroCondenserClass():
         self.Q_subcool=-epsilon_subcool*Cmin*(Tbubble-self.Tin_a)
         self.DT_sc=-self.Q_subcool/(self.mdot_r*cp_r)
         self.Tout_r=Tbubble-self.DT_sc
-        
-        rho_subcool=PropsSI('D', 'T', (Tbubble + self.Tout_r) / 2, 'P', self.psat_r, self.Ref)
+        print "x_2ph= ",self.xout_2phase
+        print "w_sub=",self.w_subcool
+        print"epsilon=",epsilon_subcool
+        print "DT_sc=",self.DT_sc
+        try:
+            rho_subcool=PropsSI('D', 'T', (Tbubble + self.Tout_r) / 2.0, 'P', self.psat_r, self.Ref)
+        except:
+            rho_subcool=PropsSI('D', 'T', (Tbubble + self.Tout_r) / 2.0, 'Q', 0, self.Ref)
+
         self.Charge_subcool = self.w_subcool * self.V_r * rho_subcool
     
         #Pressure drop calculations for subcooled refrigerant

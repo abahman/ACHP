@@ -6,16 +6,21 @@ Created on Mar 15, 2015
 
 from Compressor import CompressorClass
 from CoolProp.CoolProp import PropsSI
+from convert_units import C2K
 
 kwds={
-      'M':[217.3163128,5.094492028,-0.593170311,4.38E-02,-2.14E-02,1.04E-02,7.90E-05,-5.73E-05,1.79E-04,-8.08E-05],
-      'P':[-561.3615705,-15.62601841,46.92506685,-0.217949552,0.435062616,-0.442400826,2.25E-04,2.37E-03,-3.32E-03,2.50E-03],
-      'Ref':'R134a',
-      'Tin_r':280,
-      'pin_r':PropsSI('P','T',279,'Q',1,'R134a'),
-      'pout_r':PropsSI('P','T',315,'Q',1,'R134a'),
-      'fp':0.15, #Fraction of electrical power lost as heat to ambient
-      'Vdot_ratio': 1.0 #Displacement Scale factor
+      'M':[207.31295549477,4.29717231652541,-2.28622302529118,
+           0.0347908258163747,-0.0201167288696277,0.0259153689666968,
+           9.13169535150059e-5,-6.23623656573478e-5,1.20986974937733e-4,
+           -1.07540716639383e-4],
+      'P':[-511.9893727,-1.867619312,32.35057515,-0.0573,0.0718,-0.2478335,
+           -0.000762,0.00116,-0.000798,0.00129],
+      'Ref':'R407C',
+      'Tin_r':C2K(7.556),
+      'pin_r':423.4*1000,
+      'pout_r':1639*1000,
+      'fp':0.1, #Fraction of electrical power lost as heat to ambient
+      'Vdot_ratio': 1 #Displacement Scale factor
       }
 Comp=CompressorClass(**kwds)
 Comp.Calculate()
@@ -27,5 +32,5 @@ print 'Discharge Refrigerant Temperature is: ' + str(Comp.Tout_r) + ' K'
 print ' '
 
 '''to print all the output, uncomment the next 2 lines'''
-# for id, unit, value in Comp.OutputList():                
-#     print str(id) + ' = ' + str(value) + ' ' + str(unit)
+for id, unit, value in Comp.OutputList():
+    print str(id) + ' = ' + str(value) + ' ' + str(unit)
