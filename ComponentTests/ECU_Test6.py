@@ -64,7 +64,7 @@ def ECUCycle():
             'P':P,
             'Ref':Cycle.Ref, #Refrigerant
             'fp':0.12, #Fraction of electrical power lost as heat to ambient 
-            'Vdot_ratio': 1, #Displacement Scale factor
+            'Vdot_ratio': 1.0, #Displacement Scale factor
             'Verbosity': 0, # How verbose should the debugging be [0-10]
             }
     
@@ -93,7 +93,7 @@ def ECUCycle():
     Cycle.Condenser.Fins.Fins.t=in2m(0.0045)           ##measured## #Fin thickness
     Cycle.Condenser.Fins.Fins.k_fin=117                #Fin thermal conductivity for pure Aluminum
         
-    Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(1500)     #Air volume flow rate in m^3/s
+    Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(1380)     #Air volume flow rate in m^3/s
     Cycle.Condenser.Fins.Air.Tdb=F2K(75)               #Air inlet temperature, K
     Cycle.Condenser.Fins.Air.p=101325                  #Air pressure in Pa
     Cycle.Condenser.Fins.Air.RH=0.5155                 #Air inlet relative humidity
@@ -162,7 +162,7 @@ def ECUCycle():
             'k_insul':0.036,
             'T_air':F2K(75),
             'Ref': Cycle.Ref,
-            'h_air':10, #0.0000000001 is changed to 10 assumed for forced air convection
+            'h_air':0.0000000001, #0.0000000001 is changed to 10 assumed for forced air convection
             }
      
     Cycle.LineSetReturn.Update(**params)

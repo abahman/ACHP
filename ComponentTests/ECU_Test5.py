@@ -93,7 +93,7 @@ def ECUCycle():
     Cycle.Condenser.Fins.Fins.t=in2m(0.0045)           ##measured## #Fin thickness
     Cycle.Condenser.Fins.Fins.k_fin=117                #Fin thermal conductivity for pure Aluminum
         
-    Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(1400)     #Air volume flow rate in m^3/s
+    Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(1380)     #Air volume flow rate in m^3/s
     Cycle.Condenser.Fins.Air.Tdb=F2K(85)               #Air inlet temperature, K
     Cycle.Condenser.Fins.Air.p=101325                  #Air pressure in Pa
     Cycle.Condenser.Fins.Air.RH=0.2833                 #Air inlet relative humidity
@@ -131,7 +131,7 @@ def ECUCycle():
     Cycle.Evaporator.Fins.Fins.t=in2m(0.006)
     Cycle.Evaporator.Fins.Fins.k_fin=237
     
-    Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(320)          #reducing the flow rate from 600cfm to 300cfm
+    Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(370)          #reducing the flow rate from 600cfm to 300cfm
     Cycle.Evaporator.Fins.Air.Tdb=F2K(75)
     Cycle.Evaporator.Fins.Air.p=101325                                              #Evaporator Air pressure in Pa
     Cycle.Evaporator.Fins.Air.RH=0.3144
@@ -162,7 +162,7 @@ def ECUCycle():
             'k_insul':0.036,
             'T_air':F2K(85),
             'Ref': Cycle.Ref,
-            'h_air':10, #0.0000000001 is changed to 10 assumed for forced air convection
+            'h_air':0.0000000001, #0.0000000001 is changed to 10 assumed for forced air convection
             }
      
     Cycle.LineSetReturn.Update(**params)
