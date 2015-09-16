@@ -2,6 +2,10 @@
 Created on Sep 10, 2015
 
 @author: ammarbahman
+
+Note: you need to have all the test results CSV files executed before run this file.
+It will update all the plots based on the latest results from the CSV file.
+
 '''
 
 import numpy as np
