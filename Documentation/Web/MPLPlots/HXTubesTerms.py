@@ -12,7 +12,7 @@ fig=pylab.figure()
 
 ## Actually make the set of tubes
 nR=2
-nC=3
+nC=1
 offset = 0.5
 r=0.25
 for i in range(nR):
@@ -28,20 +28,26 @@ for i in range(nR):
 
 
 ##Dimension lines
-pylab.plot(np.r_[0,0],np.r_[1,2],'k')
-pylab.plot(np.r_[1,1],np.r_[1+offset,2],'k')
-pylab.text(0.5,2,'Longitudinal\nSpacing\n$p_l$',ha='center',va='center')
-pylab.gca().add_patch(FancyArrowPatch((0,1.8),(1,1.8),arrowstyle='<|-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
+pylab.plot(np.r_[-.25,-.25],np.r_[1,1.5],'k')
+pylab.plot(np.r_[0.25,0.25],np.r_[1,1.5],'k')
+pylab.text(0,1.5,'Tube\nDepth\n$T_d$',ha='center',va='center')
+pylab.gca().add_patch(FancyArrowPatch((-0.25,1.3),(0.25,1.3),arrowstyle='<|-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
 
-pylab.plot(np.r_[-0.5,0],np.r_[1,1],'k')
-pylab.plot(np.r_[-0.5,0],np.r_[0,0],'k')
-pylab.text(-0.6,0.5,'Transverse\nSpacing\n$p_t$',ha='center',va='center')
-pylab.gca().add_patch(FancyArrowPatch((-0.3,0),(-0.3,1),arrowstyle='<|-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
+pylab.plot(np.r_[-0.5,0],np.r_[0.75,0.75],'k')
+pylab.plot(np.r_[-0.5,0],np.r_[0.25,0.25],'k')
+pylab.text(-0.6,0.5,'Tube\nSpacing\n$b$',ha='center',va='center')
+pylab.gca().add_patch(FancyArrowPatch((-0.3,0.25),(-0.3,0.75),arrowstyle='<|-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
+
+pylab.plot(np.r_[0.5,0],np.r_[0.25,0.25],'k')
+pylab.plot(np.r_[0.5,0],np.r_[-0.25,-0.25],'k')
+pylab.text(0.6,0.0,'Major\nDiameter\n$H_T$',ha='center',va='center')
+pylab.gca().add_patch(FancyArrowPatch((0.3,-0.25),(0.3,0.25),arrowstyle='<|-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
 
 #Airflow arrow
-pylab.gca().add_patch(FancyArrowPatch((1.75,0.5),(3,0.5),arrowstyle='-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
-pylab.text(2.25,0.5,'Airflow\nDirection',ha='center',va='center')
+pylab.gca().add_patch(FancyArrowPatch((0,0.5),(1.25,0.5),arrowstyle='-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
+pylab.text(0.5,0.5,'Airflow\nDirection',ha='center',va='center')
 
 pylab.gca().axis('equal')
 pylab.gca().axis('off')
+pylab.savefig('images/HXTubesTerms.pdf')
 pylab.show()
