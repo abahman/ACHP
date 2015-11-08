@@ -29,9 +29,9 @@ for i in range(nR):
         xv,yv=circle(x,y,r)
         #pylab.plot(xv,yv,'b')
 
-
+#plot lower tube
 verts1 = [
-    (0.24, 0.05),  # P0
+    (0.24, 0.05),  # P0: draw the outer tube line
     (0.3, 0.05), # P1
     (0.3, -0.05), # P2
     (0.24, -0.05), # P3
@@ -39,46 +39,268 @@ verts1 = [
     (-0.3, -0.05), # P5
     (-0.3, 0.05), # P6
     (-0.24, 0.05), ## P7
-    (0.24, 0.05),  # to close the loop , please ignored because it is the same as the first point
-    ]
-
-verts2 = [
-    (0.22, 0.035),  # P0
+    (0.24, 0.05),  # end: close the loop
+    (0.22, 0.035),  # P0 : start of the first port on the right
     (0.28, 0.035), # P1
     (0.28, -0.035), # P2
     (0.22, -0.035), # P3
-    (-0.22, -0.035), # P4
-    (-0.28, -0.035), # P5
-    (-0.28, 0.035), # P6
-    (-0.22, 0.035), ## P7
-    (0.22, 0.035),  # to close the loop , please ignored because it is the same as the first point
+    (0.15, -0.035), # P4
+    (0.15, 0.035), # P5
+    (0.22, 0.035), # closepoly 
+    (-0.22, -0.035), # P0 : draw the port on the left
+    (-0.28, -0.035), # P1
+    (-0.28, 0.035), # P2
+    (-0.22, 0.035), # P3
+    (-0.15,0.035), # P4
+    (-0.15,-0.035), # P5
+    (-0.22,-0.035),  # closepoly
+    (0.13, 0.035), # draw the rectangle on the right
+    (0.13, -0.035),
+    (0.01,-0.035),
+    (0.01,0.035),
+    (0.13,0.035),
+    (-0.13, 0.035), #draw the revtangle on the left
+    (-0.13, -0.035),
+    (-0.01,-0.035),
+    (-0.01,0.035),
+    (-0.13,0.035),
+    ]
+#code of plot lower tube
+codes1 = [Path.MOVETO, # draw the outter line tube
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.LINETO,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CLOSEPOLY, #end
+         Path.MOVETO, #first port on the right
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.LINETO,
+         Path.LINETO,
+         Path.CLOSEPOLY, #end of plot
+         Path.MOVETO, #start ro draw the port on the left
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.LINETO,
+         Path.LINETO,
+         Path.CLOSEPOLY, #end of plot
+         Path.MOVETO, #start to draw the rectangle on the right
+         Path.LINETO,
+         Path.LINETO,
+         Path.LINETO,
+         Path.CLOSEPOLY, #end
+         Path.MOVETO, # start to plot rectangle on the left
+         Path.LINETO,
+         Path.LINETO,
+         Path.LINETO,
+         Path.CLOSEPOLY, #end
+         ]
+
+#plot upper tube
+verts2 = [
+    (0.24, 0.555),  # P0 : draw the outer tube of the upper tube
+    (0.3, 0.555), # P1
+    (0.3, 0.455), # P2
+    (0.24, 0.455), # P3
+    (-0.24, 0.455), # P4
+    (-0.3, 0.455), # P5
+    (-0.3, 0.555), # P6
+    (-0.24, 0.555), ## P7
+    (0.24, 0.555),  # to close the loop , please ignored because it is the same as the first point
+    (0.22, 0.54),  # P0 : start of the first port on the right
+    (0.28, 0.54), # P1
+    (0.28, 0.47), # P2
+    (0.22, 0.47), # P3
+    (0.15, 0.47), # P4
+    (0.15, 0.54), # P5
+    (0.22, 0.54), # closepoly 
+    (-0.22, 0.47), # P0 : draw the port on the left
+    (-0.28, 0.47), # P1
+    (-0.28, 0.54), # P2
+    (-0.22, 0.54), # P3
+    (-0.15,0.54), # P4
+    (-0.15,0.47), # P5
+    (-0.22,0.47),  # closepoly
+    (0.13, 0.54), # draw the rectangle on the right
+    (0.13, 0.47),
+    (0.01, 0.47),
+    (0.01, 0.54),
+    (0.13, 0.54),
+    (-0.13, 0.54), #draw the revtangle on the left
+    (-0.13, 0.47),
+    (-0.01, 0.47),
+    (-0.01, 0.54),
+    (-0.13, 0.54), 
     ]
 
+#code of plot upper tube
+codes2 = [Path.MOVETO, #draw the outer tube of the upper tube
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.LINETO,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CLOSEPOLY,
+         Path.MOVETO, #first port on the right
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.LINETO,
+         Path.LINETO,
+         Path.CLOSEPOLY, #end of plot
+         Path.MOVETO, #start to draw the port on the left
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.LINETO,
+         Path.LINETO,
+         Path.CLOSEPOLY, #end of plot
+         Path.MOVETO, #start to draw the rectangle on the right
+         Path.LINETO,
+         Path.LINETO,
+         Path.LINETO,
+         Path.CLOSEPOLY, #end
+         Path.MOVETO, # start to plot rectangle on the left
+         Path.LINETO,
+         Path.LINETO,
+         Path.LINETO,
+         Path.CLOSEPOLY, #end
+         ]
+
+#plot the red fin
 verts3 = [
-    (0.24, 1.05),  # P0
-    (0.3, 1.05), # P1
-    (0.3, 0.95), # P2
-    (0.24, 0.95), # P3
-    (-0.24, 0.95), # P4
-    (-0.3, 0.95), # P5
-    (-0.3, 1.05), # P6
-    (-0.24, 1.05), ## P7
-    (0.24, 1.05),  # to close the loop , please ignored because it is the same as the first point
+    (0.28, 0.45),  # P0 : draw the red rectangle
+    (0.28, 0.055), # P1
+    (-0.28, 0.055), # P2
+    (-0.28, 0.45), # P3
+    (0.28, 0.45), # close loop
+    
+    (0.2, 0.4),  # P0 : draw the 1st vertical louver fins from right
+    (0.2, 0.41), # P1
+    (0.22, 0.41), # P2
+    (0.22, 0.4), # P3
+    (0.22, 0.1), # P4
+    (0.22, 0.09), # P5
+    (0.2, 0.09), # P6
+    (0.2, 0.1), ## P7
+    (0.2, 0.4), #close loop
+    
+    (0.16, 0.4),  # P0 : draw the 2nd vertical louver fins from right
+    (0.16, 0.41), # P1
+    (0.14, 0.41), # P2
+    (0.14, 0.4), # P3
+    (0.14, 0.1), # P4
+    (0.14, 0.09), # P5
+    (0.16, 0.09), # P6
+    (0.16, 0.1), ## P7
+    (0.16, 0.4), #close loop
+    
+    (0.1, 0.4),  # P0 : draw the 3rd vertical louver fins from right
+    (0.1, 0.41), # P1
+    (0.08, 0.41), # P2
+    (0.08, 0.4), # P3
+    (0.08, 0.1), # P4
+    (0.08, 0.09), # P5
+    (0.1, 0.09), # P6
+    (0.1, 0.1), ## P7
+    (0.1, 0.4), #close loop
+    
+    (-0.2, 0.4),  # P0 : draw the 1st vertical louver fins from left
+    (-0.2, 0.41), # P1
+    (-0.22, 0.41), # P2
+    (-0.22, 0.4), # P3
+    (-0.22, 0.1), # P4
+    (-0.22, 0.09), # P5
+    (-0.2, 0.09), # P6
+    (-0.2, 0.1), ## P7
+    (-0.2, 0.4), #close loop
+    
+    (-0.16, 0.4),  # P0 : draw the 2nd vertical louver fins from left
+    (-0.16, 0.41), # P1
+    (-0.14, 0.41), # P2
+    (-0.14, 0.4), # P3
+    (-0.14, 0.1), # P4
+    (-0.14, 0.09), # P5
+    (-0.16, 0.09), # P6
+    (-0.16, 0.1), ## P7
+    (-0.16, 0.4), #close loop
+    
+    (-0.1, 0.4),  # P0 : draw the 3rd vertical louver fins from left
+    (-0.1, 0.41), # P1
+    (-0.08, 0.41), # P2
+    (-0.08, 0.4), # P3
+    (-0.08, 0.1), # P4
+    (-0.08, 0.09), # P5
+    (-0.1, 0.09), # P6
+    (-0.1, 0.1), ## P7
+    (-0.1, 0.4), #close loop
     ]
 
-verts4 = [
-    (0.22, 1.035),  # P0
-    (0.28, 1.035), # P1
-    (0.28, 0.965), # P2
-    (0.22, 0.965), # P3
-    (-0.22, 0.965), # P4
-    (-0.28, 0.965), # P5
-    (-0.28, 1.035), # P6
-    (-0.22, 1.035), ## P7
-    (0.22, 1.035),  # to close the loop , please ignored because it is the same as the first point
-    ]
-
-codes = [Path.MOVETO,
+#code to plot red fin
+codes3 = [Path.MOVETO, #draw the outer tube of the upper tube
+         Path.LINETO,
+         Path.LINETO,
+         Path.LINETO,
+         Path.CLOSEPOLY,
+         
+         Path.MOVETO, #draw first vertical louver fins from right
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.LINETO,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CLOSEPOLY,
+         
+         Path.MOVETO, #draw 2nd vertical louver fins from right
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.LINETO,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CLOSEPOLY,
+         
+         Path.MOVETO, #draw 3rd vertical louver fins from right
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.LINETO,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CLOSEPOLY,
+         
+         Path.MOVETO, #draw first vertical louver fins from left
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.LINETO,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CLOSEPOLY,
+         
+         Path.MOVETO, #draw 2nd vertical louver fins from left
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.LINETO,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CURVE4,
+         Path.CLOSEPOLY,
+         
+         Path.MOVETO, #draw 3rd vertical louver fins from left
          Path.CURVE4,
          Path.CURVE4,
          Path.CURVE4,
@@ -89,35 +311,32 @@ codes = [Path.MOVETO,
          Path.CLOSEPOLY,
          ]
 
-path1 = Path(verts1, codes)
-path2 = Path(verts2, codes)
-path3 = Path(verts3, codes)
-path4 = Path(verts4, codes)
+path1 = Path(verts1, codes1)
+path2 = Path(verts2, codes2)
+path3 = Path(verts3, codes3)
 ax = fig.add_subplot(111)
-patch = patches.PathPatch(path1, facecolor='none',edgecolor='blue', lw=0.8)
+patch1 = patches.PathPatch(path1, facecolor='none',edgecolor='blue', lw=0.8)
 patch2 = patches.PathPatch(path2, facecolor='none',edgecolor='blue', lw=0.8)
-patch3 = patches.PathPatch(path3, facecolor='none',edgecolor='blue', lw=0.8)
-patch4 = patches.PathPatch(path4, facecolor='none',edgecolor='blue', lw=0.8)
+patch3 = patches.PathPatch(path3, facecolor='none',edgecolor='red', lw=0.8)
 
-ax.add_patch(patch)
+ax.add_patch(patch1)
 ax.add_patch(patch2)
 ax.add_patch(patch3)
-ax.add_patch(patch4)
 
 #Uncomment the next two line to see the point's path used
 #xs, ys = zip(*verts1)
 #pylab.plot(xs, ys, 'x--', lw=0.8, color='black', ms=10)
 
 ##Dimension lines
-pylab.plot(np.r_[-.3,-.3],np.r_[1,1.5],'k')
-pylab.plot(np.r_[0.3,0.3],np.r_[1,1.5],'k')
-pylab.text(0,1.4,'Tube\nDepth\n$T_d$',ha='center',va='center')
-pylab.gca().add_patch(FancyArrowPatch((-0.3,1.25),(0.3,1.25),arrowstyle='<|-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
+pylab.plot(np.r_[-.3,-.3],np.r_[0.5,0.95],'k')
+pylab.plot(np.r_[0.3,0.3],np.r_[0.5,0.95],'k')
+pylab.text(0,0.85,'Tube\nDepth\n$T_d$',ha='center',va='center')
+pylab.gca().add_patch(FancyArrowPatch((-0.3,0.7),(0.3,0.7),arrowstyle='<|-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
 
-pylab.plot(np.r_[-0.7,-0.3],np.r_[0.95,0.95],'k')
+pylab.plot(np.r_[-0.7,-0.3],np.r_[0.45,0.45],'k')
 pylab.plot(np.r_[-0.7,-0.3],np.r_[0.05,0.05],'k')
-pylab.text(-0.75,0.5,'Tube\nSpacing\n$b$',ha='center',va='center')
-pylab.gca().add_patch(FancyArrowPatch((-0.5,0.05),(-0.5,0.95),arrowstyle='<|-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
+pylab.text(-0.75,0.25,'Tube\nSpacing\n$b$',ha='center',va='center')
+pylab.gca().add_patch(FancyArrowPatch((-0.5,0.05),(-0.5,0.45),arrowstyle='<|-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
 
 pylab.plot(np.r_[0.5,0.3],np.r_[0.05,0.05],'k')
 pylab.plot(np.r_[0.5,0.3],np.r_[-0.05,-0.05],'k')
@@ -126,8 +345,8 @@ pylab.gca().add_patch(FancyArrowPatch((0.4,0.05),(0.4,0.2),arrowstyle='<|-',fc='
 pylab.gca().add_patch(FancyArrowPatch((0.4,-0.2),(0.4,-0.05),arrowstyle='-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
 
 #Airflow arrow
-pylab.gca().add_patch(FancyArrowPatch((0.4,0.5),(1.25,0.5),arrowstyle='-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
-pylab.text(0.8,0.5,'Airflow\nDirection',ha='center',va='center')
+pylab.gca().add_patch(FancyArrowPatch((0.4,0.25),(1.25,0.25),arrowstyle='-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
+pylab.text(0.8,0.25,'Airflow\nDirection',ha='center',va='center')
 
 pylab.gca().axis('equal')
 pylab.gca().axis('off')
