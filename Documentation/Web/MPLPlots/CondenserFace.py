@@ -32,4 +32,5 @@ pylab.gca().add_patch(FancyArrowPatch((0,h/12.0),(-w/10.,h/12.0-(-w/10.)*sin(th)
     
 pylab.gca().axis('equal')
 pylab.gca().axis('off')
+pylab.savefig('images/CondenserFace.pdf')
 pylab.show()
