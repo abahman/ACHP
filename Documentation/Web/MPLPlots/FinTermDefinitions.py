@@ -333,7 +333,7 @@ yy=-0.5
 #pylab.plot(np.r_[xxx,xxx],np.r_[0.1,yy],'b')
 pylab.plot(np.r_[xxx-0.02,xxx+0.016],np.r_[yy-0.01,yy+0.06],'b')
 pylab.plot(np.r_[xxx-0.02,xxx+0.05],np.r_[yy-0.01,yy-0.01],'b')
-pylab.text(xxx,yy-0.07,'$L_{alpha}$',ha='right',va='center')
+pylab.text(xxx+0.05,yy-0.07,'$L_{alpha}$',ha='right',va='center')
 #
 #Label for delta
 h=-0.5
@@ -342,6 +342,14 @@ pylab.plot(np.r_[xx,xx],np.r_[h,h+0.01],'b')
 pylab.plot(np.r_[xx-0.05,xx+0.05],np.r_[h,h],'b')
 pylab.plot(np.r_[xx-0.05,xx+0.05],np.r_[h+0.01,h+0.01],'b')
 pylab.text(xx+0.01,h+0.04,'$\delta$',ha='left',va='center') 
+#
+#Label for lh
+h=-0.5
+xx=-0.36
+pylab.plot(np.r_[xx,xx],np.r_[h,h+0.05],'b')
+pylab.plot(np.r_[xx-0.05,xx+0.05],np.r_[h,h],'b')
+pylab.plot(np.r_[xx-0.05,xx+0.05],np.r_[h+0.05,h+0.05],'b')
+pylab.text(xx-0.05,h+0.025,'$l_h$',ha='right',va='center') 
 # #Label for s
 # xxx=4
 # pylab.plot(np.r_[xxx,xxx],np.r_[0.1,2*(h-0.1)],'b')
