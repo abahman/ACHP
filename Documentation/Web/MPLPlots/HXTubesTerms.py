@@ -14,19 +14,19 @@ def circle(x,y,r):
 fig=pylab.figure()
 
 ## Actually make the set of tubes
-nR=2
-nC=1
-offset = 0.5
-r=0.25
-for i in range(nR):
-    for j in range(nC):
-        if j%2==0:
-            x=j
-            y=i
-        else:
-            x=j
-            y=i+offset
-        xv,yv=circle(x,y,r)
+# nR=2
+# nC=1
+# offset = 0.5
+# r=0.25
+# for i in range(nR):
+#     for j in range(nC):
+#         if j%2==0:
+#             x=j
+#             y=i
+#         else:
+#             x=j
+#             y=i+offset
+#         xv,yv=circle(x,y,r)
         #pylab.plot(xv,yv,'b')
 
 #plot lower tube
@@ -344,9 +344,21 @@ pylab.text(0.7,0.0,'Major\nDiameter\n$H_t$',ha='center',va='center')
 pylab.gca().add_patch(FancyArrowPatch((0.4,0.05),(0.4,0.2),arrowstyle='<|-',fc='k',ec='k',mutation_scale=20,lw=0.8))
 pylab.gca().add_patch(FancyArrowPatch((0.4,-0.2),(0.4,-0.05),arrowstyle='-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
 
+pylab.plot(np.r_[-0.5,-0.3],np.r_[-0.035,-0.035],'k')
+pylab.plot(np.r_[-0.5,-0.3],np.r_[-0.05,-0.05],'k')
+pylab.text(-0.75,-0.1,'Tube Wall\nThickness\n$t_w$',ha='center',va='center')
+pylab.gca().add_patch(FancyArrowPatch((-0.4,-0.045),(-0.4,0.05),arrowstyle='<|-',fc='k',ec='k',mutation_scale=20,lw=0.8))
+pylab.gca().add_patch(FancyArrowPatch((-0.4,-0.135),(-0.4,-0.04),arrowstyle='-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
+
+pylab.plot(np.r_[0.145,0.145],np.r_[-0.065,-0.2],'k')
+pylab.plot(np.r_[0.13,0.13],np.r_[-0.065,-0.2],'k')
+pylab.text(0.1,-0.35,'Port Wall\nThickness\n$t_{wp}$',ha='center',va='center')
+pylab.gca().add_patch(FancyArrowPatch((0.135,-0.135),(0.275,-0.135),arrowstyle='<|-',fc='k',ec='k',mutation_scale=20,lw=0.8))
+pylab.gca().add_patch(FancyArrowPatch((0.0,-0.135),(0.14,-0.135),arrowstyle='-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
+
 #Airflow arrow
-pylab.gca().add_patch(FancyArrowPatch((0.4,0.25),(1.25,0.25),arrowstyle='-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
-pylab.text(0.8,0.25,'Airflow\nDirection',ha='center',va='center')
+pylab.gca().add_patch(FancyArrowPatch((0.75,0.25),(1.25,0.25),arrowstyle='-|>',fc='k',ec='k',mutation_scale=20,lw=0.8))
+pylab.text(1,0.25,'Airflow\nDirection',ha='center',va='center')
 
 pylab.gca().axis('equal')
 pylab.gca().axis('off')
