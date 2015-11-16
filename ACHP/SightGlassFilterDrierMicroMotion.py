@@ -73,4 +73,4 @@ class SightGlassFilterDrierMicroMotionClass():
         #Charge in MicroMotion [kg]
         self.MicroMotionCharge= self.n_Micro*pi*self.D_Micro**2/4.0*self.L_Micro*rho
         #Total Chnarge [kg]
-        self.Charge= 2*self.SightGlassCharge + self.FilterDrierCharge + self.MicroMotionCharge #multiply sight glass by 2 because we have 2 SG
+        self.Charge= 2*self.SightGlassCharge + self.FilterDrierCharge #+ self.MicroMotionCharge #multiply sight glass by 2 because we have 2 SG
