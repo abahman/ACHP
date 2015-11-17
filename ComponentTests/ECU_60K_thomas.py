@@ -34,9 +34,9 @@ def ECUCycle():
     #--------------------------------------
     #--------------------------------------
     Cycle.Verbosity = 0 #the idea here is to have different levels of debug output 
-    Cycle.ImposedVariable = 'Charge' #'Subcooling' # or 'Charge'
-    #Cycle.DT_sc_target = 4.638
-    Cycle.Charge_target = oz2kg(85) #37-44 ounces #kg #uncomment for use with imposed 'Charge'
+    Cycle.ImposedVariable = 'Subcooling' #'Subcooling' # or 'Charge'
+    Cycle.DT_sc_target = 5
+    #Cycle.Charge_target = oz2kg(85) #37-44 ounces #kg #uncomment for use with imposed 'Charge'
     Cycle.Mode='AC'
     Cycle.Ref='R407C'
     Cycle.TestName='ECU-60K'  #this and the two next lines can be used to specify exact test conditions
@@ -72,7 +72,7 @@ def ECUCycle():
     #      Condenser parameters
     #--------------------------------------
     #--------------------------------------
-    Cycle.Condenser.Fins.Tubes.NTubes=60               #Number of tubes (per bank for now!)
+    Cycle.Condenser.Fins.Tubes.NTubes=52               #Number of tubes (per bank for now!)
     Cycle.Condenser.Fins.Tubes.Nbank=2                 #Number of banks (set to 1 for now!)
     Cycle.Condenser.Fins.Tubes.Npass=2                 #Number of passes (per bank) #averaged if not even
     Cycle.Condenser.Fins.Tubes.Nports=11               #Number of rectangular ports
@@ -140,7 +140,7 @@ def ECUCycle():
     params={
             'Ref': Cycle.Ref,
             'Verbosity':0,
-            'DT_sh':10, #DeltaF2K()
+            'DT_sh':6, #DeltaF2K()
             }
     
     Cycle.Evaporator.Update(**params)
@@ -152,7 +152,7 @@ def ECUCycle():
     # ----------------------------------
     # ----------------------------------
     params={
-            'L':in2m(55),
+            'L':in2m(85),
             'k_tube':0.19,
             't_insul':0.02,
             'k_insul':0.036,
@@ -171,7 +171,7 @@ def ECUCycle():
     # ----------------------------------
     # ----------------------------------
     params={
-            'L':in2m(88),                #tube length in m
+            'L':in2m(183),                #tube length in m
             'k_tube':0.19,
             't_insul':0, #no insulation
             'k_insul':0.036,
