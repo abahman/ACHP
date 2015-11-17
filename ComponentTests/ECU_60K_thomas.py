@@ -59,7 +59,7 @@ def ECUCycle():
             'M':M,
             'P':P,
             'Ref':Cycle.Ref, #Refrigerant
-            'fp':0.0, #Fraction of electrical power lost as heat to ambient 
+            'fp':0.1, #Fraction of electrical power lost as heat to ambient 
             'Vdot_ratio': 1, #Displacement Scale factor
             'Verbosity': 0, # How verbose should the debugging be [0-10]
             }
@@ -72,7 +72,7 @@ def ECUCycle():
     #      Condenser parameters
     #--------------------------------------
     #--------------------------------------
-    Cycle.Condenser.Fins.Tubes.NTubes=30               #Number of tubes (per bank for now!)
+    Cycle.Condenser.Fins.Tubes.NTubes=60               #Number of tubes (per bank for now!)
     Cycle.Condenser.Fins.Tubes.Nbank=2                 #Number of banks (set to 1 for now!)
     Cycle.Condenser.Fins.Tubes.Npass=2                 #Number of passes (per bank) #averaged if not even
     Cycle.Condenser.Fins.Tubes.Nports=11               #Number of rectangular ports
@@ -117,8 +117,8 @@ def ECUCycle():
     Cycle.Evaporator.Fins.Tubes.Ltube=in2m(25)
     Cycle.Evaporator.Fins.Tubes.OD=in2m(0.5)
     Cycle.Evaporator.Fins.Tubes.ID=Cycle.Evaporator.Fins.Tubes.OD - 2*in2m(0.019)
-    Cycle.Evaporator.Fins.Tubes.Pl=in2m(0.645669)
-    Cycle.Evaporator.Fins.Tubes.Pt=in2m(1)
+    Cycle.Evaporator.Fins.Tubes.Pl=in2m(1.082)
+    Cycle.Evaporator.Fins.Tubes.Pt=in2m(1.25)
     Cycle.Evaporator.Fins.Tubes.Ncircuits=6
     
     Cycle.Evaporator.Fins.Fins.FPI=12
@@ -127,9 +127,9 @@ def ECUCycle():
     Cycle.Evaporator.Fins.Fins.t=in2m(0.0075)
     Cycle.Evaporator.Fins.Fins.k_fin=237
     
-    Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(2000)          #reducing the flow rate from 600cfm to 300cfm
+    Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(2000)          
     Cycle.Evaporator.Fins.Air.Tdb=F2K(90)
-    Cycle.Evaporator.Fins.Air.p=101325                                              #Evaporator Air pressure in Pa
+    Cycle.Evaporator.Fins.Air.p=101325                       #Evaporator Air pressure in Pa
     Cycle.Evaporator.Fins.Air.RH=0.5023
     Cycle.Evaporator.Fins.Air.FanPower=820
     
