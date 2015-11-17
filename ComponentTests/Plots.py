@@ -43,7 +43,7 @@ COPS = COPS.astype(np.float)
 #plots
 #Plot mass flow rate comparison
 plt.plot(T_env,m_dot_exp,'-ob',label='Experimental')
-plt.errorbar(T_env,m_dot_exp, yerr=0.1*m_dot_exp)
+plt.errorbar(T_env,m_dot_exp, yerr=0.002)
 plt.plot(T_env,m_dot,'--or',label='Model')
 plt.ylim(0.02,0.05)
 plt.xlim(70,130)
@@ -55,7 +55,7 @@ plt.savefig('images/comparison_massflow.pdf')
 plt.show()
 #Plot Capacity comparison
 plt.plot(T_env,capacity_exp,'-ob',label='Experimental')
-plt.errorbar(T_env,capacity_exp, yerr=0.1341*capacity_exp)
+plt.errorbar(T_env,capacity_exp, yerr=0.05051*capacity_exp)
 plt.plot(T_env,capacity,'--or',label='Model')
 plt.ylim(4000,7000)
 plt.xlim(70,130)
@@ -91,7 +91,7 @@ plt.savefig('images/comparison_compressor_power.pdf')
 plt.show()
 #Plot COPS comparison
 plt.plot(T_env,COPS_exp,'-ob',label='Experimental')
-plt.errorbar(T_env,COPS_exp, yerr=0.04616*COPS_exp)
+plt.errorbar(T_env,COPS_exp, yerr=0.03598*COPS_exp)
 plt.plot(T_env,COPS,'--or',label='Model')
 plt.ylim(1,2.4)
 plt.xlim(70,130)
@@ -107,7 +107,7 @@ for i, gtype in enumerate(['Mass', 'Capacity', 'Power', 'Compressor', 'COPS']):
     ax = plt.subplot(3, 2, i+1)
     if gtype.startswith('Mass'):
         plt.plot(T_env,m_dot_exp,'-ob',label='Experimental')
-        plt.errorbar(T_env,m_dot_exp, yerr=0.1*m_dot_exp)
+        plt.errorbar(T_env,m_dot_exp, yerr=0.002)
         plt.plot(T_env,m_dot,'--or',label='Model')
         plt.ylim(0.02,0.05)
         plt.xlim(70,130)
@@ -117,7 +117,7 @@ for i, gtype in enumerate(['Mass', 'Capacity', 'Power', 'Compressor', 'COPS']):
         #plt.title('Mass flowrate Comparison')
     if gtype.startswith('Capacity'):
         plt.plot(T_env,capacity_exp,'-ob',label='Experimental')
-        plt.errorbar(T_env,capacity_exp, yerr=0.1341*capacity_exp)
+        plt.errorbar(T_env,capacity_exp, yerr=0.05051*capacity_exp)
         plt.plot(T_env,capacity,'--or',label='Model')
         plt.ylim(4000,7000)
         plt.xlim(70,130)
@@ -147,7 +147,7 @@ for i, gtype in enumerate(['Mass', 'Capacity', 'Power', 'Compressor', 'COPS']):
         #plt.title('Compressor Power Comparison')
     if gtype.startswith('COPS'):
         plt.plot(T_env,COPS_exp,'-ob',label='Experimental')
-        plt.errorbar(T_env,COPS_exp, yerr=0.04616*COPS_exp)
+        plt.errorbar(T_env,COPS_exp, yerr=0.03598*COPS_exp)
         plt.plot(T_env,COPS,'--or',label='Model')
         plt.ylim(1,2.4)
         plt.xlim(70,130)
