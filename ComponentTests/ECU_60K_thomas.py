@@ -122,8 +122,8 @@ def ECUCycle():
     Cycle.Evaporator.Fins.Tubes.Ncircuits=6
     
     Cycle.Evaporator.Fins.Fins.FPI=12
-    Cycle.Evaporator.Fins.Fins.Pd=in2m(1.0/16.0)
-    Cycle.Evaporator.Fins.Fins.xf=in2m(1.0/4.0/2.0)
+    Cycle.Evaporator.Fins.Fins.Pd=in2m(1.0/16.0/2)
+    Cycle.Evaporator.Fins.Fins.xf=in2m(1.0/4.0)
     Cycle.Evaporator.Fins.Fins.t=in2m(0.0075)
     Cycle.Evaporator.Fins.Fins.k_fin=237
     
