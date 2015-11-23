@@ -16,6 +16,9 @@ from CoolProp.CoolProp import PropsSI
 import matplotlib.pyplot as plt
 import numpy
 
+
+plt.rc('font',family='serif',size =11.0)
+
 def ECUCycle():
     #########################################################################
     ######################     CYCLE INITIALIZATION    ######################
@@ -305,29 +308,29 @@ if __name__=='__main__':
     s /= 1000.0 #convert J/kg-K to kJ/kg-K
 
     #Plot P-h diagram 
-#     ph_plot_R407C = PropsPlot(ref_fluid, 'Ph')
-#     ph_plot_R407C.title('$P-h$ $R407C$')
-#     ph_plot_R407C.xlabel(r'$h$ $[{kJ}/{kg}]$')
-#     ph_plot_R407C.ylabel(r'$P$ $[kPa]$')
-#     ph_plot_R407C.axis.set_yscale('log')
-#     ph_plot_R407C.grid()
-#     plt.plot(h_exp,P_exp, 'bo-', label='Experimental')
-#     plt.plot(h,P,'ro--', label='Model')
-#     plt.legend(loc='best',fancybox=False)
-#     ph_plot_R407C.savefig('images/R407C_Ph_Test1.pdf')    
-#     ph_plot_R407C.show()
-#      
-#     #Plot T-s diagram  
-#     ts_plot_R407C = PropsPlot(ref_fluid, 'Ts')
-#     ts_plot_R407C.title('$T-s$ $R407C$')
-#     ts_plot_R407C.xlabel(r'$s$ $[{kJ}/{kg-K}]$')
-#     ts_plot_R407C.ylabel(r'$T$ $[K]$')
-#     ts_plot_R407C.grid()
-#     plt.plot(s_exp,T_exp, 'bo-', label='Experimental')
-#     plt.plot(s,T,'ro--', label='Model')
-#     plt.legend(loc='best',fancybox=False)
-#     ts_plot_R407C.savefig('images/R407C_Ts_Test1.pdf')    
-#     ts_plot_R407C.show()
+    ph_plot_R407C = PropsPlot(ref_fluid, 'Ph')
+    ph_plot_R407C.xlabel(r'$h$ $[\mathrm{kJ/kg}]$')
+    ph_plot_R407C.ylabel(r'$P$ $[\mathrm{kPa}]$')
+    ph_plot_R407C.axis.set_yscale('log')
+    ph_plot_R407C.grid()
+    plt.plot(h_exp,P_exp, 'bo-', label='Experimental')
+    plt.errorbar(h_exp,P_exp, yerr=0.08*P_exp)
+    plt.plot(h,P,'ro--', label='Model')
+    plt.legend(loc='best',fancybox=False)
+    ph_plot_R407C.savefig('images/R407C_Ph_Test1.pdf')    
+    ph_plot_R407C.show()
+      
+    #Plot T-s diagram  
+    ts_plot_R407C = PropsPlot(ref_fluid, 'Ts')
+    ts_plot_R407C.xlabel(r'$s$ $[\mathrm{kJ/kg-K}]$')
+    ts_plot_R407C.ylabel(r'$T$ $[\mathrm{K}]$')
+    ts_plot_R407C.grid()
+    plt.plot(s_exp,T_exp, 'bo-', label='Experimental')
+    plt.errorbar(s_exp,T_exp, yerr=0.005*T_exp)
+    plt.plot(s,T,'ro--', label='Model')
+    plt.legend(loc='best',fancybox=False)
+    ts_plot_R407C.savefig('images/R407C_Ts_Test1.pdf')    
+    ts_plot_R407C.show()
     
     #Plot T-s and P-h diagrams in one graph
     fig = plt.figure(1, figsize=(16, 8), dpi=100)
