@@ -1,10 +1,10 @@
 '''
-Created on Sep 10, 2015
+Created on Jan 5, 2016
 
 @author: ammarbahman
 
-Note: you need to have all the test results CSV files executed before run this file.
-It will update all the plots based on the latest results from the CSV file.
+Note: you need to have all the test data CSV files executed before run this file.
+This will calculate and plot the baseline results COP, cooling capacity .. etc.
 
 '''
 import numpy as np
@@ -23,12 +23,8 @@ compressor_power_exp = np.array([3049,2591,2252,2030,1779,1582])
 COPS_exp = np.array([1.298,1.300,1.459,1.746,1.800,2.129])
 charge_exp = np.array([1.2,1.2,1.2,1.2,1.2,1.2])
 #Import data from CSV file
-data1 = csv2rec('results/Cycle_Test#1.csv',delimiter=',')
-data2 = csv2rec('results/Cycle_Test#2.csv',delimiter=',')
-data3 = csv2rec('results/Cycle_Test#3.csv',delimiter=',')
-data4 = csv2rec('results/Cycle_Test#4.csv',delimiter=',')
-data5 = csv2rec('results/Cycle_Test#5.csv',delimiter=',')
-data6 = csv2rec('results/Cycle_Test#6.csv',delimiter=',')
+data1 = csv2rec('60K_results/ECU_60K_Test4.csv',delimiter=',')
+
 #Arrange data in Numpy array for the 6 different tests
 m_dot = np.array([data1[2][14],data2[2][14],data3[2][14],data4[2][14],data5[2][14],data6[2][14]])
 capacity = np.array([data1[2][11],data2[2][11],data3[2][11],data4[2][11],data5[2][11],data6[2][11]])
