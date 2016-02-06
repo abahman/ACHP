@@ -58,7 +58,7 @@ y = np.array([20.625,16.875,13.125,9.375,5.625,1.875])
 
 X, Y = np.meshgrid(x, y)
 #===============================================================================
-# Tempearture profile for All tests
+# velocity profile for All tests
 #===============================================================================
 Test =['1','2','3','4','5','6','B','C']
 
@@ -102,7 +102,7 @@ for i in range(len(Test)):
     # for i in range(len(x)):
     #     for j in range(len(y)):
     #         plt.plot(x[i],y[j],'ko')
-    #         plt.annotate(T[j,i], (x[i],y[j]))
+    #         plt.annotate(T_data[j,i], (x[i],y[j]))
           
     plt.savefig('temp_profile/temp_profile_test'+Test[i]+'.pdf')
     plt.show()
@@ -112,7 +112,7 @@ for i in range(len(Test)):
 #===============================================================================
 fig = plt.figure(1, figsize=(15, 5))
 for i in range(len(Test)):
-    
+    ax = plt.subplot(2, 4, i+1)
     im = plt.imshow(T_data[i], interpolation='bicubic',extent=[0, 24.875, 0, 22.5],
                 vmax=22, vmin=4)
     cbar = plt.colorbar()
@@ -132,7 +132,7 @@ for i in range(len(Test)):
     # for i in range(len(x)):
     #     for j in range(len(y)):
     #         plt.plot(x[i],y[j],'ko')
-    #         plt.annotate(T[j,i], (x[i],y[j]))
+    #         plt.annotate(T_data[j,i], (x[i],y[j]))
 fig.set_tight_layout(True)
 plt.savefig('temp_profile/temp_profile_combined.pdf')
 plt.show()

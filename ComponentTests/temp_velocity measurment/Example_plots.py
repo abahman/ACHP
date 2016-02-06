@@ -171,23 +171,22 @@ import numpy as np
 
 fig = plt.figure()
 ax = fig.gca(projection='3d')
-X = np.arange(-5, 5, 0.25)
-Y = np.arange(-5, 5, 0.25)
-X, Y = np.meshgrid(X, Y)
-R = np.sqrt(X**2 + Y**2)
-Z = np.sin(R)
-surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm,
+x = np.array([6.219,12.438,18.657])
+y = np.array([20.625,16.875,13.125,9.375,5.625,1.875])
+X, Y = np.meshgrid(x, y)
+Z = np.matrix([[15.68,15.79,14.86],[15.64,16.08,15.95],[14.6,14.83,14.57],
+                [14.7,14.86,14.65],[13.63,13.67,13.75],[11.92,12.3,12.6]])
+
+surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.jet,
         linewidth=0, antialiased=False)
-ax.set_zlim(-1.01, 1.01)
+ax.set_zlim(4, 22)
 
 ax.zaxis.set_major_locator(LinearLocator(10))
 ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
 
-fig.colorbar(surf, shrink=0.5, aspect=5)
+fig.colorbar(surf)
 
 plt.show()
-
-
 
 #===============================================================================
 # END OF EXMAPLES
