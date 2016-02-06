@@ -82,9 +82,10 @@ TC = np.matrix([[13.07,12.27,12.12],[13.94,14.49,15.14],[11.04,12.17,12.34],
 T_data = [T1,T2,T3,T4,T5,T6,TB,TC]
 
 for i in range(len(Test)):
+    plt.figure()
     im = plt.imshow(T_data[i], interpolation='bicubic',extent=[0, 24.875, 0, 22.5],
                 vmax=22, vmin=4)
-    cbar = plt.colorbar(im)
+    cbar = plt.colorbar()
     cbar.ax.set_ylabel(r'Temperature [\textdegree C]')
     plt.ylim(0,22.5)
     plt.xlim(0,24.875)
@@ -94,14 +95,44 @@ for i in range(len(Test)):
               [r'$0$', r'$5$', r'$10$', r'$15$', r'$20$', r'$22.5$'])
     plt.xlabel('Evaporator width [in]')
     plt.ylabel('Evaporator height [in]')
-    #plt.title('Temperature profile of Test'Test)
-    
-    
+    plt.title('Temperature profile of Test '+Test[i])
+      
+      
     ### TO SHOW the values with the measurment grid on the plot
     # for i in range(len(x)):
     #     for j in range(len(y)):
     #         plt.plot(x[i],y[j],'ko')
     #         plt.annotate(T[j,i], (x[i],y[j]))
-        
+          
     plt.savefig('temp_profile/temp_profile_test'+Test[i]+'.pdf')
     plt.show()
+
+#===============================================================================
+# TO SHOW all plots in one Figure
+#===============================================================================
+fig = plt.figure(1, figsize=(15, 5))
+for i in range(len(Test)):
+    
+    im = plt.imshow(T_data[i], interpolation='bicubic',extent=[0, 24.875, 0, 22.5],
+                vmax=22, vmin=4)
+    cbar = plt.colorbar()
+    cbar.ax.set_ylabel(r'Temperature [\textdegree C]')
+    plt.ylim(0,22.5)
+    plt.xlim(0,24.875)
+    plt.xticks([0, 5, 10, 15, 20, 24.875],
+              [r'$0$', r'$5$', r'$10$', r'$15$', r'$20$', r'$24.875$'])
+    plt.yticks([0, 5, 10, 15, 20, 22.5],
+              [r'$0$', r'$5$', r'$10$', r'$15$', r'$20$', r'$22.5$'])
+    plt.xlabel('Evaporator width [in]')
+    plt.ylabel('Evaporator height [in]')
+    plt.title('Temperature profile of Test '+Test[i])
+  
+       
+    ### TO SHOW the values with the measurment grid on the plot
+    # for i in range(len(x)):
+    #     for j in range(len(y)):
+    #         plt.plot(x[i],y[j],'ko')
+    #         plt.annotate(T[j,i], (x[i],y[j]))
+fig.set_tight_layout(True)
+plt.savefig('temp_profile/temp_profile_combined.pdf')
+plt.show()
