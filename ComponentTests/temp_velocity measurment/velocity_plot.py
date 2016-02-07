@@ -113,59 +113,70 @@ V5 = (V5_max+V5_min)/2
 VFan = (VFan_max+VFan_min)/2
 
 V_data = [V4,V5,VFan]
+average = V4.mean(1)
 
-for i in range(len(Test)):
-    plt.figure()
-    im = plt.imshow(V_data[i], interpolation='bicubic',extent=[0, 24.875, 0, 22.5],
-                vmax=6, vmin=0)
-    cbar = plt.colorbar()
-    cbar.ax.set_ylabel(r'Velocity [m/s]')
-    plt.ylim(0,22.5)
-    plt.xlim(0,24.875)
-    plt.xticks([0, 5, 10, 15, 20, 24.875],
-              [r'$0$', r'$5$', r'$10$', r'$15$', r'$20$', r'$24.875$'])
-    plt.yticks([0, 4, 8, 12, 16, 20, 22.5],
-              [r'$0$', r'$4$', r'$8$', r'$12$',r'$16$', r'$20$', r'$22.5$'])
-    plt.xlabel('Evaporator width [in]')
-    plt.ylabel('Evaporator height [in]')
-    plt.title('Velocity profile of Test '+Test[i])
-      
- 
-    ### TO SHOW the values with the measurment grid on the plot
-#     for k in range(len(x)):
-#         for j in range(len(y)):
-#             plt.plot(x[k],y[j],'ko')
-#             plt.annotate(V_data[i][j,k], (x[k],y[j]))
-          
-    plt.savefig('velocity_profile/velocity_profile_test'+Test[i]+'.pdf')
-    plt.show()
+plt.figure()
+plt.plot(average,y)
+plt.ylim(0,22.5)
+plt.xlim(0,6)
+plt.yticks([0, 4, 8, 12, 16, 20, 22.5],
+           [r'$0$', r'$4$', r'$8$', r'$12$',r'$16$', r'$20$', r'$22.5$'])
+plt.xlabel('Velocity [m/s]')
+plt.ylabel('Evaporator height [in]')
+plt.show()
+
+# for i in range(len(Test)):
+#     plt.figure()
+#     im = plt.imshow(V_data[i], interpolation='bicubic',extent=[0, 24.875, 0, 22.5],
+#                 vmax=6, vmin=0)
+#     cbar = plt.colorbar()
+#     cbar.ax.set_ylabel(r'Velocity [m/s]')
+#     plt.ylim(0,22.5)
+#     plt.xlim(0,24.875)
+#     plt.xticks([0, 5, 10, 15, 20, 24.875],
+#               [r'$0$', r'$5$', r'$10$', r'$15$', r'$20$', r'$24.875$'])
+#     plt.yticks([0, 4, 8, 12, 16, 20, 22.5],
+#               [r'$0$', r'$4$', r'$8$', r'$12$',r'$16$', r'$20$', r'$22.5$'])
+#     plt.xlabel('Evaporator width [in]')
+#     plt.ylabel('Evaporator height [in]')
+#     plt.title('Velocity profile of Test '+Test[i])
+#       
+#  
+#     ### TO SHOW the values with the measurment grid on the plot
+# #     for k in range(len(x)):
+# #         for j in range(len(y)):
+# #             plt.plot(x[k],y[j],'ko')
+# #             plt.annotate(V_data[i][j,k], (x[k],y[j]))
+#           
+#     plt.savefig('velocity_profile/velocity_profile_test'+Test[i]+'.pdf')
+#     plt.show()
 
 #===============================================================================
 # TO SHOW all plots in one Figure
 #===============================================================================
-fig = plt.figure(1, figsize=(12.5, 3))
-for i in range(len(Test)):
-    ax = plt.subplot(1, 3, i+1)
-    im = plt.imshow(V_data[i], interpolation='bicubic',extent=[0, 24.875, 0, 22.5],
-                vmax=6, vmin=0)
-    cbar = plt.colorbar()
-    cbar.ax.set_ylabel(r'Velocity [m/s]')
-    plt.ylim(0,22.5)
-    plt.xlim(0,24.875)
-    plt.xticks([0, 5, 10, 15, 20, 24.875],
-              [r'$0$', r'$5$', r'$10$', r'$15$', r'$20$', r'$24.875$'])
-    plt.yticks([0, 4, 8, 12, 16, 20, 22.5],
-              [r'$0$', r'$4$', r'$8$', r'$12$',r'$16$', r'$20$', r'$22.5$'])
-    plt.xlabel('Evaporator width [in]')
-    plt.ylabel('Evaporator height [in]')
-    plt.title('Velocity profile of Test '+Test[i])
-   
-        
-    ### TO SHOW the values with the measurment grid on the plot
-    # for k in range(len(x)):
-    #     for j in range(len(y)):
-    #         plt.plot(x[k],y[j],'ko')
-    #         plt.annotate(V_data[i][j,k], (x[k],y[j]))
-fig.set_tight_layout(True)
-plt.savefig('velocity_profile/velocity_profile_combined.pdf')
-plt.show()
+# fig = plt.figure(1, figsize=(12.5, 3))
+# for i in range(len(Test)):
+#     ax = plt.subplot(1, 3, i+1)
+#     im = plt.imshow(V_data[i], interpolation='bicubic',extent=[0, 24.875, 0, 22.5],
+#                 vmax=6, vmin=0)
+#     cbar = plt.colorbar()
+#     cbar.ax.set_ylabel(r'Velocity [m/s]')
+#     plt.ylim(0,22.5)
+#     plt.xlim(0,24.875)
+#     plt.xticks([0, 5, 10, 15, 20, 24.875],
+#               [r'$0$', r'$5$', r'$10$', r'$15$', r'$20$', r'$24.875$'])
+#     plt.yticks([0, 4, 8, 12, 16, 20, 22.5],
+#               [r'$0$', r'$4$', r'$8$', r'$12$',r'$16$', r'$20$', r'$22.5$'])
+#     plt.xlabel('Evaporator width [in]')
+#     plt.ylabel('Evaporator height [in]')
+#     plt.title('Velocity profile of Test '+Test[i])
+#    
+#         
+#     ### TO SHOW the values with the measurment grid on the plot
+#     # for k in range(len(x)):
+#     #     for j in range(len(y)):
+#     #         plt.plot(x[k],y[j],'ko')
+#     #         plt.annotate(V_data[i][j,k], (x[k],y[j]))
+# fig.set_tight_layout(True)
+# plt.savefig('velocity_profile/velocity_profile_combined.pdf')
+# plt.show()
