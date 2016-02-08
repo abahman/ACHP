@@ -163,31 +163,61 @@ Note: this file plots the countor of velocity profile in 60K ECU
 # plt.savefig('quiver.pdf')
 # plt.show()
 
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import cm
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
+# from mpl_toolkits.mplot3d import Axes3D
+# from matplotlib import cm
+# from matplotlib.ticker import LinearLocator, FormatStrFormatter
+# import matplotlib.pyplot as plt
+# import numpy as np
+# 
+# fig = plt.figure()
+# ax = fig.gca(projection='3d')
+# x = np.array([6.219,12.438,18.657])
+# y = np.array([20.625,16.875,13.125,9.375,5.625,1.875])
+# X, Y = np.meshgrid(x, y)
+# Z = np.matrix([[15.68,15.79,14.86],[15.64,16.08,15.95],[14.6,14.83,14.57],
+#                 [14.7,14.86,14.65],[13.63,13.67,13.75],[11.92,12.3,12.6]])
+# 
+# surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.jet,
+#         linewidth=0, antialiased=False)
+# ax.set_zlim(4, 22)
+# 
+# ax.zaxis.set_major_locator(LinearLocator(10))
+# ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+# 
+# fig.colorbar(surf)
+# 
+# plt.show()
+
+
+import scipy
 import matplotlib.pyplot as plt
 import numpy as np
 
-fig = plt.figure()
-ax = fig.gca(projection='3d')
-x = np.array([6.219,12.438,18.657])
-y = np.array([20.625,16.875,13.125,9.375,5.625,1.875])
-X, Y = np.meshgrid(x, y)
-Z = np.matrix([[15.68,15.79,14.86],[15.64,16.08,15.95],[14.6,14.83,14.57],
-                [14.7,14.86,14.65],[13.63,13.67,13.75],[11.92,12.3,12.6]])
+x = scipy.array([ 21.308,17.933,14.265,11.25,8.235,4.568,1.193])
+y = scipy.array([3.9875,2.885,3.37916667,3.84916667,4.11666667,3.82416667,4.02833333])
+result = scipy.poly1d([0.0]) #setting result = 0
 
-surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.jet,
-        linewidth=0, antialiased=False)
-ax.set_zlim(4, 22)
+for i in range(0,len(x)): #number of polynomials L_k(x).
+    temp_numerator = scipy.poly1d([1.0]) # resets temp_numerator such that a new numerator can be created for each i.
+    denumerator = 1.0 #resets denumerator such that a new denumerator can be created for each i.
+    for j in range(0,len(x)):
+        if i != j:
+            temp_numerator *= scipy.poly1d([1.0,-x[j]]) #finds numerator for L_i
+            denumerator *= x[i]-x[j] #finds denumerator for L_i
+    result += (temp_numerator/denumerator) * y[i] #linear combination
 
-ax.zaxis.set_major_locator(LinearLocator(10))
-ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+print("The result is: ")
+print(result)
 
-fig.colorbar(surf)
-
+x_val = np.arange(min(x),max(x)+1, 0.1) #generates x values we would like to evaluate.
+plt.xlabel('x'); plt.ylabel('p(x)')
+plt.grid(True)
+for i in range(0,len(x)):
+    plt.plot([x[i]],[y[i]],'ro') #plot the points
+plt.plot(x_val, result(x_val)) #result(x_val) gives the value of our Lagrange polynomial.
+plt.axis([min(x)-1, max(x)+1, min(y)-1, max(y)+1])
 plt.show()
-
+print result(x_val)
 #===============================================================================
 # END OF EXMAPLES
 #===============================================================================
