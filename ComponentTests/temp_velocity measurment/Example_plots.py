@@ -114,39 +114,39 @@ Note: this file plots the countor of velocity profile in 60K ECU
 # show()
 
 
-# import numpy as np
-# import matplotlib.cm as cm
-# import matplotlib.mlab as mlab
-# import matplotlib.pyplot as plt
-# 
-# delta = 0.025
-# x = y = np.arange(-3.0, 3.0, delta)
-# X, Y = np.meshgrid(x, y)
-# Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-# Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
-# Z = Z2 - Z1  # difference of Gaussians
-# 
-# im = plt.imshow(Z, interpolation='bilinear', cmap=cm.RdYlGn,
-#                 origin='lower', extent=[-3, 3, -3, 3],
-#                 vmax=abs(Z).max(), vmin=-abs(Z).max())
-# plt.savefig('countor.pdf')
-# plt.show()
-
-
-# from scipy.interpolate import griddata
-# import matplotlib.pyplot as plt
-# np.random.seed(0)
-# 
-# x = np.random.normal(size=200)
-# y = np.random.normal(size=200)
-# v = np.sqrt(x**2+y**2)
-# 
-# xg, yg = np.mgrid[x.min():x.max():100j, y.min():y.max():100j]
-# vg = griddata((x, y), v, (xg, yg), method='cubic')
-# plt.contourf(xg, yg, vg)
-# plt.scatter(x, y, c=v)
-# plt.savefig('countor_scatter.pdf')
-# plt.show()
+import numpy as np
+import matplotlib.cm as cm
+import matplotlib.mlab as mlab
+import matplotlib.pyplot as plt
+ 
+delta = 0.025
+x = y = np.arange(-3.0, 3.0, delta)
+X, Y = np.meshgrid(x, y)
+Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
+Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+Z = Z2 - Z1  # difference of Gaussians
+ 
+im = plt.imshow(Z, interpolation='bilinear', cmap=cm.RdYlGn,
+                origin='lower', extent=[-3, 3, -3, 3],
+                vmax=abs(Z).max(), vmin=-abs(Z).max())
+plt.savefig('countor.pdf')
+plt.show()
+ 
+ 
+from scipy.interpolate import griddata
+import matplotlib.pyplot as plt
+np.random.seed(0)
+ 
+x = np.random.normal(size=200)
+y = np.random.normal(size=200)
+v = np.sqrt(x**2+y**2)
+ 
+xg, yg = np.mgrid[x.min():x.max():100j, y.min():y.max():100j]
+vg = griddata((x, y), v, (xg, yg), method='cubic')
+plt.contourf(xg, yg, vg)
+plt.scatter(x, y, c=v)
+plt.savefig('countor_scatter.pdf')
+plt.show()
 
 # import pylab as plt
 # 
