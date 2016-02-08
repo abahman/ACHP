@@ -196,7 +196,7 @@ for i in range(len(Test)):
     #plt.savefig('velocity_profile/velocity_curve_test'+Test[i]+'.pdf')
     #plt.show()
 fig.set_tight_layout(True)
-leg = ax.legend(bbox_to_anchor=(-2.5, 0.05), loc='lower left', borderaxespad=0.)
+leg = ax.legend(bbox_to_anchor=(-2.54, 0.03), loc='lower left', borderaxespad=0.)
 leg.get_frame().set_alpha(0.7)
 plt.savefig('velocity_profile/velocity_curve_combined.pdf')
 plt.show()    

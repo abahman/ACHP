@@ -217,7 +217,7 @@ for i in range(0,len(x)):
 plt.plot(x_val, result(x_val)) #result(x_val) gives the value of our Lagrange polynomial.
 plt.axis([min(x)-1, max(x)+1, min(y)-1, max(y)+1])
 plt.show()
-print result(x_val)
+
 #===============================================================================
 # END OF EXMAPLES
 #===============================================================================
