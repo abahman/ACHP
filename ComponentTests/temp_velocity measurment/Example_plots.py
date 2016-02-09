@@ -152,19 +152,22 @@ Note: this file plots the countor of velocity profile in 60K ECU
 
 
 # import pylab as plt
-# 
+# import plotly.plotly as py
+#  
 # x=[12, 13, 14, 15, 16] # x-axis coordinates
 # y=[14, 15, 16, 17, 18] # y-axis coordinates
-# 
+#  
 # v_x=[6, 6, 6, 6, 6] # x-component of velocity
 # v_y=[1,4,3,2,1]     # y-component of velocity
-# 
+#  
+# fig = plt.figure()
 # plt.quiver(x,y,v_x,v_y)
 # plt.xlim(11,17)
 # plt.ylim(13,19)
-# 
-# plt.savefig('quiver.pdf')
+#  
+# # plt.savefig('quiver.pdf')
 # plt.show()
+# #plot_url = py.plot_mpl(fig)
 
 # from mpl_toolkits.mplot3d import Axes3D
 # from matplotlib import cm
