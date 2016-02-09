@@ -266,12 +266,15 @@ for i in range(len(Test)):
     ax = plt.subplot(1, 3, i+1)
     #using gausian filter (very useful to filter the data)
     #V_data[i] = ndimage.gaussian_filter(V_data[i], sigma=1, order=0)
-    
+    vv = np.linspace(0.0, 6.0, 100, endpoint=True)
+    vv2 = np.linspace(0.0, 6.0, 10, endpoint=True)
     #im = plt.imshow(V_data[i], interpolation='bicubic',extent=[0, 24.875, 0, 22.5], vmax=6, vmin=0)
-    CS = plt.contour(V_data[i], extent=[0, 24.875, 0, 22.5],vmax=6, vmin=0,linewidths=0.5, colors='k')
+    CS = plt.contour(V_data[i],extent=[0, 24.875, 0, 22.5],vmax=6, vmin=0,linewidths=0.5, colors='k')
+    
+    im = plt.contourf(V_data[i],vv,rasterized=True, extent=[0, 24.875, 0, 22.5],vmax=6, vmin=0)  
+    
     plt.clabel(CS,inline=1, fontsize=5,fmt='%1.1f')
-    im = plt.contourf(V_data[i],120,rasterized=True, extent=[0, 24.875, 0, 22.5],vmax=6, vmin=0)  
-    cbar = plt.colorbar(im)
+    cbar = plt.colorbar(ticks=vv2,format='%1.1f')
     cbar.ax.set_ylabel(r'Velocity [m/s]')
     plt.ylim(0,22.5)
     plt.xlim(0,24.875)
