@@ -114,39 +114,42 @@ Note: this file plots the countor of velocity profile in 60K ECU
 # show()
 
 
-import numpy as np
-import matplotlib.cm as cm
-import matplotlib.mlab as mlab
-import matplotlib.pyplot as plt
+# import numpy as np
+# import matplotlib.cm as cm
+# import matplotlib.mlab as mlab
+# import matplotlib.pyplot as plt
+#  
+# delta = 0.025
+# x = y = np.arange(-3.0, 3.0, delta)
+# X, Y = np.meshgrid(x, y)
+# Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
+# Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+# Z = Z2 - Z1  # difference of Gaussians
+#  
+# im = plt.imshow(Z, interpolation='bilinear', cmap=cm.RdYlGn,
+#                 origin='lower', extent=[-3, 3, -3, 3],
+#                 vmax=abs(Z).max(), vmin=-abs(Z).max())
+# plt.savefig('countor.pdf')
+# plt.show()
  
-delta = 0.025
-x = y = np.arange(-3.0, 3.0, delta)
-X, Y = np.meshgrid(x, y)
-Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
-Z = Z2 - Z1  # difference of Gaussians
- 
-im = plt.imshow(Z, interpolation='bilinear', cmap=cm.RdYlGn,
-                origin='lower', extent=[-3, 3, -3, 3],
-                vmax=abs(Z).max(), vmin=-abs(Z).max())
-plt.savefig('countor.pdf')
-plt.show()
- 
- 
-from scipy.interpolate import griddata
-import matplotlib.pyplot as plt
-np.random.seed(0)
- 
-x = np.random.normal(size=200)
-y = np.random.normal(size=200)
-v = np.sqrt(x**2+y**2)
- 
-xg, yg = np.mgrid[x.min():x.max():100j, y.min():y.max():100j]
-vg = griddata((x, y), v, (xg, yg), method='cubic')
-plt.contourf(xg, yg, vg)
-plt.scatter(x, y, c=v)
-plt.savefig('countor_scatter.pdf')
-plt.show()
+
+# import numpy as np 
+# from scipy.interpolate import griddata
+# import matplotlib.pyplot as plt
+# np.random.seed(0)
+#  
+# x = np.random.normal(size=200)
+# y = np.random.normal(size=200)
+# v = np.sqrt(x**2+y**2)
+#  
+# xg, yg = np.mgrid[x.min():x.max():100j, y.min():y.max():100j]
+# vg = griddata((x, y), v, (xg, yg), method='cubic')
+# plt.contourf(xg, yg, vg)
+# plt.scatter(x, y, c=v)
+# plt.savefig('countor_scatter.pdf')
+# plt.show()
+
+
 
 # import pylab as plt
 # 
@@ -189,34 +192,52 @@ plt.show()
 # plt.show()
 
 
-import scipy
-import matplotlib.pyplot as plt
-import numpy as np
+# import scipy
+# import matplotlib.pyplot as plt
+# import numpy as np
+# 
+# x = scipy.array([ 21.308,17.933,14.265,11.25,8.235,4.568,1.193])
+# y = scipy.array([3.9875,2.885,3.37916667,3.84916667,4.11666667,3.82416667,4.02833333])
+# result = scipy.poly1d([0.0]) #setting result = 0
+# 
+# for i in range(0,len(x)): #number of polynomials L_k(x).
+#     temp_numerator = scipy.poly1d([1.0]) # resets temp_numerator such that a new numerator can be created for each i.
+#     denumerator = 1.0 #resets denumerator such that a new denumerator can be created for each i.
+#     for j in range(0,len(x)):
+#         if i != j:
+#             temp_numerator *= scipy.poly1d([1.0,-x[j]]) #finds numerator for L_i
+#             denumerator *= x[i]-x[j] #finds denumerator for L_i
+#     result += (temp_numerator/denumerator) * y[i] #linear combination
+# 
+# print("The result is: ")
+# print(result)
+# 
+# x_val = np.arange(min(x),max(x)+1, 0.1) #generates x values we would like to evaluate.
+# plt.xlabel('x'); plt.ylabel('p(x)')
+# plt.grid(True)
+# for i in range(0,len(x)):
+#     plt.plot([x[i]],[y[i]],'ro') #plot the points
+# plt.plot(x_val, result(x_val)) #result(x_val) gives the value of our Lagrange polynomial.
+# plt.axis([min(x)-1, max(x)+1, min(y)-1, max(y)+1])
+# plt.show()
 
-x = scipy.array([ 21.308,17.933,14.265,11.25,8.235,4.568,1.193])
-y = scipy.array([3.9875,2.885,3.37916667,3.84916667,4.11666667,3.82416667,4.02833333])
-result = scipy.poly1d([0.0]) #setting result = 0
 
-for i in range(0,len(x)): #number of polynomials L_k(x).
-    temp_numerator = scipy.poly1d([1.0]) # resets temp_numerator such that a new numerator can be created for each i.
-    denumerator = 1.0 #resets denumerator such that a new denumerator can be created for each i.
-    for j in range(0,len(x)):
-        if i != j:
-            temp_numerator *= scipy.poly1d([1.0,-x[j]]) #finds numerator for L_i
-            denumerator *= x[i]-x[j] #finds denumerator for L_i
-    result += (temp_numerator/denumerator) * y[i] #linear combination
+# import plotly.plotly as py
+# import plotly.graph_objs as go
+# 
+# data = [
+#     go.Contour(
+#         z=[[10, 10.625, 12.5, 15.625, 20],
+#            [5.625, 6.25, 8.125, 11.25, 15.625],
+#            [2.5, 3.125, 5., 8.125, 12.5],
+#            [0.625, 1.25, 3.125, 6.25, 10.625],
+#            [0, 0.625, 2.5, 5.625, 10]],
+#         x=[-9, -6, -5 , -3, -1],
+#         y=[0, 1, 4, 5, 7]
+#     )
+# ]
+# plot_url = py.plot(data, filename='simple-contour-x-y')
 
-print("The result is: ")
-print(result)
-
-x_val = np.arange(min(x),max(x)+1, 0.1) #generates x values we would like to evaluate.
-plt.xlabel('x'); plt.ylabel('p(x)')
-plt.grid(True)
-for i in range(0,len(x)):
-    plt.plot([x[i]],[y[i]],'ro') #plot the points
-plt.plot(x_val, result(x_val)) #result(x_val) gives the value of our Lagrange polynomial.
-plt.axis([min(x)-1, max(x)+1, min(y)-1, max(y)+1])
-plt.show()
 
 #===============================================================================
 # END OF EXMAPLES
