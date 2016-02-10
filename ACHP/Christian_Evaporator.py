@@ -1,12 +1,12 @@
 from __future__ import division #Make integer 3/2 give 1.5 in python 2.x
 from math import pi,log,exp
-from CoolProp.CoolProp import Props#,UseSaturationLUT
-from CoolProp.HumidAirProp import HAProps
+from CoolProp.CoolProp import PropsSI#,UseSaturationLUT
+from CoolProp.HumidAirProp import HAPropsSI
 from Correlations import f_h_1phase_Tube,ShahEvaporation_Average, LockhartMartinelli,LMPressureGradientAvg,AccelPressureDrop,TwoPhaseDensity
 from scipy.optimize import brentq #solver to find roots (zero points) of functions
 from scipy.interpolate import interp1d
 #import numpy as np
-from FinCorrelations import WavyLouveredFins,FinInputs,IsFinsClass
+from FinCorrelations import WavyLouveredFins,FinInputs,IsFinsClass, HerringboneFins, PlainFins
 from DryWetSegment import DWSVals, DryWetSegment
 from ACHPTools import ValidateFields
 import numpy as np
@@ -92,7 +92,13 @@ class EvaporatorClass():
         
     def AirSideCalcs(self):
         self.Fins.h_a_tuning= self.h_a_tuning #pass tuning factor
-        WavyLouveredFins(self.Fins)
+                #Update with user FinType
+        if self.FinsType == 'WavyLouveredFins':
+            WavyLouveredFins(self.Fins)
+        elif self.FinsType == 'HerringboneFins':
+            HerringboneFins(self.Fins)
+        elif self.FinsType == 'PlainFins':
+            PlainFins(self.Fins)
     
     def Initialize(self):
         #Input validation the first call of Initialize
@@ -136,16 +142,24 @@ class EvaporatorClass():
         down on computational work. 
         """
         ## Bubble and dew temperatures (same for fluids without glide) 
-        self.Tbubble_r=Props('T','P',self.psat_r,'Q',0,self.Ref)
-        self.Tdew_r=Props('T','P',self.psat_r,'Q',1,self.Ref)
+        self.Tbubble_r=PropsSI('T','P',self.psat_r,'Q',0,self.Ref)
+        self.Tdew_r=PropsSI('T','P',self.psat_r,'Q',1,self.Ref)
         ## Mean temperature for use in HT relationships
         self.Tsat_r=(self.Tbubble_r+self.Tdew_r)/2
         # Latent heat
-        self.h_fg=(Props('H','T',self.Tdew_r,'Q',1.0,self.Ref)-Props('H','T',self.Tbubble_r,'Q',0.0,self.Ref))*1000. #[J/kg]
+        self.h_fg=(PropsSI('H','T',self.Tdew_r,'Q',1.0,self.Ref)-PropsSI('H','T',self.Tbubble_r,'Q',0.0,self.Ref)) #[J/kg]
         
         self.Fins.Air.RHmean=self.Fins.Air.RH
         self.Fins.h_tp_tuning= self.h_tp_tuning #pass tuning factor
-        WavyLouveredFins(self.Fins)
+        
+        #Update with user FinType
+        if self.FinsType == 'WavyLouveredFins':
+            WavyLouveredFins(self.Fins)
+        elif self.FinsType == 'HerringboneFins':
+            HerringboneFins(self.Fins)
+        elif self.FinsType == 'PlainFins':
+            PlainFins(self.Fins)
+            
         self.mdot_ha=self.Fins.mdot_ha #[kg_ha/s]
         self.mdot_da=self.Fins.mdot_da #[kg_da/s]
 
@@ -164,16 +178,16 @@ class EvaporatorClass():
             self.psat_r=self.pin_r+DP_guess/2.0  #assume pressure drop in evaporator is linear
             self.Calculate()
             if printDP_iteration: print "x2 guess",DP_guess,
-            return self.DP_r_2phase/1000.0+DP_guess
+            return self.DP_r_2phase+DP_guess
         self.Calculate()  #calculate normal evaporator to obtain guess for pressure drop
-        DP_guess=self.DP_r_2phase/1000.0
+        DP_guess=self.DP_r_2phase
         from scipy.optimize import fminbound
         lower_fminbound=max(DP_guess*1.5,50-self.pin_r)  #ensure that no negative pressures occur during solving process
         if printDP: print "DP_2Pguess is",DP_guess," with 2-phase fraction ",self.w_2phase,"bounds",lower_fminbound,(DP_guess*1.5,50-self.pin_r),self.mdot_r
         fminbound(objective_evaporator2p,lower_fminbound,0.0)
         #fsolve(objective_evaporator2p, DP_guess)
         #brentq(objective_evaporator2p,DP_guess,0.0)
-        if printDP: print "DP_2Pacrtual is",self.DP_r_2phase/1000.0," with 2-phase fraction ",self.w_2phase
+        if printDP: print "DP_2Pacrtual is",self.DP_r_2phase," with 2-phase fraction ",self.w_2phase
         
         #second treat superheated section, if applicable
         if self.existsSuperheat==True:
@@ -181,16 +195,16 @@ class EvaporatorClass():
                 #function for solving heat transfer of single phase section correctly
                 if printDP_iteration: print "x1",DP_guess,
                 
-                self.psat_r=self.pin_r+self.DP_r_2phase/1000.0+DP_guess/2.0   #assuming linear profile of pressure drop
+                self.psat_r=self.pin_r+self.DP_r_2phase+DP_guess/2.0   #assuming linear profile of pressure drop
     
                 #need to repeat some part of the initialize functions
                 ## Bubble and dew temperatures (same for fluids without glide) 
-                self.Tbubble_r=Props('T','P',self.psat_r,'Q',0,self.Ref)
-                self.Tdew_r=Props('T','P',self.psat_r,'Q',1,self.Ref)
+                self.Tbubble_r=PropsSI('T','P',self.psat_r,'Q',0,self.Ref)
+                self.Tdew_r=PropsSI('T','P',self.psat_r,'Q',1,self.Ref)
                 ## Mean temperature for use in HT relationships
                 self.Tsat_r=(self.Tbubble_r+self.Tdew_r)/2
                 # Latent heat
-                self.h_fg=(Props('H','T',self.Tdew_r,'Q',1.0,self.Ref)-Props('H','T',self.Tbubble_r,'Q',0.0,self.Ref))*1000. #[J/kg]
+                self.h_fg=(PropsSI('H','T',self.Tdew_r,'Q',1.0,self.Ref)-PropsSI('H','T',self.Tbubble_r,'Q',0.0,self.Ref)) #[J/kg]
                 
                 #need to repeat part of the calculate function; already know length of two phase section...
                 if self.w_2phase>=0.0:  #already know outlet quality from finding the 2-phase pressure drop
@@ -203,51 +217,51 @@ class EvaporatorClass():
                     self.DP_r_2phase=0.0
                     self.xout_2phase=99  #EES-style
                     self.Tout_a_2phase=self.Tin_a  #since we have no two-phase capacity
-                    T_inlet_r=Props('T','H',self.hin_r/1000.0, 'P', self.psat_r, self.Ref) #calculated inlet temperature based on enthalpy
+                    T_inlet_r=PropsSI('T','H',self.hin_r, 'P', self.psat_r, self.Ref) #calculated inlet temperature based on enthalpy
                     if self.Tin_a<T_inlet_r: 
-                        print "Evap: inlet air temperature smaller than refrigerant temperature",self.Tin_a,"<",T_inlet_r,"self.hin_r/1000.0",self.hin_r/1000.0,"self.psat_r",self.psat_r
+                        print "Evap: inlet air temperature smaller than refrigerant temperature",self.Tin_a,"<",T_inlet_r,"self.hin_r",self.hin_r,"self.psat_r",self.psat_r
                         raise ValueError
                 if self.cp_r_iter: #solve for proper cp
                     #print "using iteration to find better estimate for cp_r"
                     try:
                         def objective_cp(x0):
-                            self.cp_r=1000.0*(Props('C','T',self.Tdew_r+x0*0.3333, 'P', self.psat_r, self.Ref)+Props('C','T',self.Tdew_r+x0, 'P', self.psat_r, self.Ref)+Props('C','T',self.Tdew_r+1.66667*x0, 'P', self.psat_r, self.Ref))/3.0  #average value
+                            self.cp_r=(PropsSI('C','T',self.Tdew_r+x0*0.3333, 'P', self.psat_r, self.Ref)+PropsSI('C','T',self.Tdew_r+x0, 'P', self.psat_r, self.Ref)+PropsSI('C','T',self.Tdew_r+1.66667*x0, 'P', self.psat_r, self.Ref))/3.0  #average value
                             self._Superheat_Forward(1-self.w_2phase)
                             return self.Tdew_r+2*x0-self.Tout_r
                         brentq(objective_cp,0,50)
                     except:
                             #if above approach does not work, do not iterate.
-                            self.cp_r=1000.0*Props('C','T',self.Tdew_r+3, 'P', self.psat_r, self.Ref)
+                            self.cp_r=PropsSI('C','T',self.Tdew_r+3, 'P', self.psat_r, self.Ref)
                             print "warning-cp_r iter in Evaporator did not work. using non-iteratively solved value for superheat instead", self.cp_r,self.w_2phase
                             self._Superheat_Forward(1-self.w_2phase,T_inlet_r)
                 else: #use fixed point cp assuming 6K superheat
-                    self.cp_r=1000.0*Props('C','T',self.Tdew_r+3, 'P', self.psat_r, self.Ref)
+                    self.cp_r=PropsSI('C','T',self.Tdew_r+3, 'P', self.psat_r, self.Ref)
                     self._Superheat_Forward(1-self.w_2phase,T_inlet_r)
-                return DP_guess-self.DP_r_superheat/1000.0
+                return DP_guess-self.DP_r_superheat
             #####actually solve objective function
-            DP_guess=self.DP_r_superheat/1000.0
-            lower_fminbound=max(DP_guess*1.1,50-self.pin_r-self.DP_r_2phase/1000.0)  #ensure that no negative pressures occur during solving process
-            if printDP: print "DP_1Pguess is",DP_guess, lower_fminbound,(DP_guess*1.5,10-self.pin_r-self.DP_r_2phase/1000.0)
+            DP_guess=self.DP_r_superheat
+            lower_fminbound=max(DP_guess*1.1,50-self.pin_r-self.DP_r_2phase)  #ensure that no negative pressures occur during solving process
+            if printDP: print "DP_1Pguess is",DP_guess, lower_fminbound,(DP_guess*1.5,10-self.pin_r-self.DP_r_2phase)
             try:
                 fminbound(objective_evaporator1p,lower_fminbound,0.0)
             except:
                 print "fminbound failed, trying fsolve instead"
                 fsolve(objective_evaporator1p, DP_guess/3.0)
-            if printDP: print "DP_1Pacrtual is",self.DP_r_superheat/1000.0,"resulting in an outlet pressure of",self.pin_r+(self.DP_r_superheat+self.DP_r_2phase)/1000.0
+            if printDP: print "DP_1Pacrtual is",self.DP_r_superheat,"resulting in an outlet pressure of",self.pin_r+(self.DP_r_superheat+self.DP_r_2phase)
         
         #update values
         self.psat_r=self.pin_r #back to original values
         #need to repeat some part of the initialize functions
         ## Bubble and dew temperatures (same for fluids without glide) 
-        self.Tbubble_r=Props('T','P',self.psat_r,'Q',0,self.Ref)
-        self.Tdew_r=Props('T','P',self.psat_r+self.DP_r_2phase/1000.0,'Q',1.0,self.Ref)  #consider pressure drop
+        self.Tbubble_r=PropsSI('T','P',self.psat_r,'Q',0,self.Ref)
+        self.Tdew_r=PropsSI('T','P',self.psat_r+self.DP_r_2phase,'Q',1.0,self.Ref)  #consider pressure drop
         ## Mean temperature for use in HT relationships
         self.Tsat_r=(self.Tbubble_r+self.Tdew_r)/2
         # Input and output thermodynamic properties
-        ssatL=Props('S','T',self.Tbubble_r,'Q',0,self.Ref)*1000
-        ssatV=Props('S','T',self.Tdew_r,'Q',1,self.Ref)*1000
-        hsatL=Props('H','T',self.Tbubble_r,'Q',0,self.Ref)*1000
-        hsatV=Props('H','T',self.Tdew_r,'Q',1,self.Ref)*1000
+        ssatL=PropsSI('S','T',self.Tbubble_r,'Q',0,self.Ref)
+        ssatV=PropsSI('S','T',self.Tdew_r,'Q',1,self.Ref)
+        hsatL=PropsSI('H','T',self.Tbubble_r,'Q',0,self.Ref)
+        hsatV=PropsSI('H','T',self.Tdew_r,'Q',1,self.Ref)
         self.h_fg=hsatV-hsatL  #not considered in heat transfer calculations to prevent instability
         
         ##below as in normal Calculate function, but considering pressure drop
@@ -263,7 +277,7 @@ class EvaporatorClass():
         self.Tout_a=self.w_superheat*self.Tout_a_superheat+self.w_2phase*self.Tout_a_2phase
         
         self.DP_r=self.DP_r_superheat+self.DP_r_2phase
-        self.pout_r=max(self.pin_r+self.DP_r/1000.0,10.0)  #pressure drop negative and in Pa; limit to a positive pressure to avoid problems during solving process
+        self.pout_r=max(self.pin_r+self.DP_r,10.0)  #pressure drop negative and in Pa; limit to a positive pressure to avoid problems during solving process
         
         #Outlet enthalpy obtained from energy balance
         self.hout_r=self.hin_r+self.Q/self.mdot_r
@@ -271,20 +285,20 @@ class EvaporatorClass():
         #Outlet superheat an temperature (in case of two phase)
         if self.existsSuperheat:  #neglecting change in pressure for superheat calculation...
             try:
-                self.Tout_r=newton(lambda T: Props('H','T',T,'P',self.pout_r,self.Ref)-self.hout_r/1000.0,Props('T','P',self.pout_r,'Q',1.0,self.Ref))
-                self.sout_r=Props('S','T',self.Tout_r,'P',self.pout_r,self.Ref)*1000.0
+                self.Tout_r=newton(lambda T: PropsSI('H','T',T,'P',self.pout_r,self.Ref)-self.hout_r,PropsSI('T','P',self.pout_r,'Q',1.0,self.Ref))
+                self.sout_r=PropsSI('S','T',self.Tout_r,'P',self.pout_r,self.Ref)
                 self.DT_sh_calc=self.Tout_r-self.Tdew_r
             except:
-                print "Evap.Calculate_PD() self.pout_r",self.pout_r,"self.pin_r",self.pin_r,  "Props('H','Q',1.0,'P',self.pout_r,self.Ref),self.hout_r/1000.0",Props('H','Q',1.0,'P',self.pout_r,self.Ref),self.hout_r/1000.0
+                print "Evap.Calculate_PD() self.pout_r",self.pout_r,"self.pin_r",self.pin_r,  "PropsSI('H','Q',1.0,'P',self.pout_r,self.Ref),self.hout_r/1000.0",PropsSI('H','Q',1.0,'P',self.pout_r,self.Ref),self.hout_r
                 raise()
         else:
             xout_r=(self.hout_r-hsatL)/(hsatV-hsatL)
             self.sout_r=ssatV*xout_r+(1-xout_r)*ssatL
-            self.DT_sh_calc=(self.hout_r-hsatV)/(Props('C','T',self.Tdew_r,'Q',1,self.Ref)*1000.0) #continous superheat
+            self.DT_sh_calc=(self.hout_r-hsatV)/(PropsSI('C','T',self.Tdew_r,'Q',1,self.Ref)) #continous superheat
             try:  #this statement is necessary, due to inaccuracies in the calculation of the quality
-                self.Tout_r=Props('T','P',self.pout_r,'Q',xout_r,self.Ref) #saturated temperature at outlet quality
+                self.Tout_r=PropsSI('T','P',self.pout_r,'Q',xout_r,self.Ref) #saturated temperature at outlet quality
             except:
-                self.Tout_r=Props('T','P',self.pout_r,'Q',1.0,self.Ref) #saturated temperature at outlet quality
+                self.Tout_r=PropsSI('T','P',self.pout_r,'Q',1.0,self.Ref) #saturated temperature at outlet quality
                 if xout_r>1.0001:
                     print "in Evaporator - outlet quality ",xout_r,"larger than one - is this a mistake?"
 
@@ -300,20 +314,24 @@ class EvaporatorClass():
         self.Initialize()
         
         # Input and output thermodynamic properties
-        ssatL=Props('S','T',self.Tbubble_r,'Q',0,self.Ref)*1000
-        ssatV=Props('S','T',self.Tdew_r,'Q',1,self.Ref)*1000
-        hsatL=Props('H','T',self.Tbubble_r,'Q',0,self.Ref)*1000
-        hsatV=Props('H','T',self.Tdew_r,'Q',1,self.Ref)*1000
+        ssatL=PropsSI('S','T',self.Tbubble_r,'Q',0,self.Ref)
+        ssatV=PropsSI('S','T',self.Tdew_r,'Q',1,self.Ref)
+        hsatL=PropsSI('H','T',self.Tbubble_r,'Q',0,self.Ref)
+        hsatV=PropsSI('H','T',self.Tdew_r,'Q',1,self.Ref)
         
         #Must give enthalpy and pressure as inputs
         #print "in evaporator-enthalpies","hin_r,hsatL,hsatV",self.hin_r,hsatL,hsatV,"self.Tbubble_r,self.psat_r",self.Tbubble_r,self.psat_r
         #print "self.__dict__ in Evaporator.py",self.__dict__
         #print "hin_r in Evaporator.py",self.hin_r
-        self.xin_r=(self.hin_r-hsatL)/(hsatV-hsatL)
-        self.sin_r=self.xin_r*ssatV+(1-self.xin_r)*ssatL
-        self.hin_r=self.xin_r*hsatV+(1-self.xin_r)*hsatL
-        self.Tin_r=self.xin_r*self.Tdew_r+(1-self.xin_r)*self.Tbubble_r
-        
+        if hasattr(self,'hin_r'):
+            self.xin_r=(self.hin_r-hsatL)/(hsatV-hsatL)
+            self.sin_r=self.xin_r*ssatV+(1-self.xin_r)*ssatL
+            self.Tin_r=self.xin_r*self.Tdew_r+(1-self.xin_r)*self.Tbubble_r
+        elif hasattr(self,'xin_r'): #if given quality and pressure as inputs
+            self.hin_r=self.xin_r*hsatV+(1-self.xin_r)*hsatL
+            self.sin_r=self.xin_r*ssatV+(1-self.xin_r)*ssatL
+            self.Tin_r=self.xin_r*self.Tdew_r+(1-self.xin_r)*self.Tbubble_r
+            
         #Begin by assuming that you go all the way to saturated vapor at least
         self.xout_2phase=1.0
         if self.Tin_a<(self.Tin_r+0.3):
@@ -398,26 +416,26 @@ class EvaporatorClass():
                 self.xout_2phase=99  #EES-style
                 self.Tout_a_2phase=self.Tin_a  #since we have no two-phase capacity
                 self.omega_out_2phase=0.0
-                T_inlet_r=Props('T','H',self.hin_r/1000.0, 'P', self.psat_r, self.Ref) #calculated inlet temperature based on enthalpy
+                T_inlet_r=PropsSI('T','H',self.hin_r, 'P', self.psat_r, self.Ref) #calculated inlet temperature based on enthalpy
                 if self.Tin_a<T_inlet_r: 
-                    print "Evap: inlet air temperature smaller than refrigerant temperature, two phase doesn't exist",self.Tin_a,"<",T_inlet_r,"self.hin_r/1000.0",self.hin_r/1000.0,"self.psat_r",self.psat_r
+                    print "Evap: inlet air temperature smaller than refrigerant temperature, two phase doesn't exist",self.Tin_a,"<",T_inlet_r,"self.hin_r",self.hin_r,"self.psat_r",self.psat_r
                     raise ValueError
             if self.cp_r_iter: #solve for proper cp
                 print "using iteration to find better estimate for cp_r"
                 try:
                     def objective_cp(x0):
-                        self.cp_r=1000.0*(Props('C','T',self.Tdew_r+x0*0.3333, 'P', self.psat_r, self.Ref)+Props('C','T',self.Tdew_r+x0, 'P', self.psat_r, self.Ref)+Props('C','T',self.Tdew_r+1.66667*x0, 'P', self.psat_r, self.Ref))/3.0  #average value
+                        self.cp_r=(PropsSI('C','T',self.Tdew_r+x0*0.3333, 'P', self.psat_r, self.Ref)+PropsSI('C','T',self.Tdew_r+x0, 'P', self.psat_r, self.Ref)+PropsSI('C','T',self.Tdew_r+1.66667*x0, 'P', self.psat_r, self.Ref))/3.0  #average value
                         self._Superheat_Forward(1-self.w_2phase)
                         return self.Tdew_r-2*x0-self.Tout_r
                     brentq_result=brentq(objective_cp,0,50)
                     print "accuracy of cp-iteration loop of evaporator -objective_cp(brentq_result)",objective_cp(brentq_result),brentq_result, -(self.Tdew_r-self.Tout_r)/2.0,self.cp_r
                 except:
                         #if above approach does not work, do not iterate.
-                        self.cp_r=1000.0*Props('C','T',self.Tdew_r+3, 'P', self.psat_r, self.Ref)
+                        self.cp_r=PropsSI('C','T',self.Tdew_r+3, 'P', self.psat_r, self.Ref)
                         print "warning-cp_r iter in Evaporator did not work. using non-iteratively solved value for superheat instead", self.cp_r,self.w_2phase
                         self._Superheat_Forward(1-self.w_2phase,T_inlet_r)
             else: #use fixed point cp assuming 6K superheat
-                self.cp_r=1000.0*Props('C','T',self.Tdew_r+3, 'P', self.psat_r, self.Ref)
+                self.cp_r=PropsSI('C','T',self.Tdew_r+3, 'P', self.psat_r, self.Ref)
                 self._Superheat_Forward(1-self.w_2phase,T_inlet_r)
             
         self.Q=self.Q_superheat+self.Q_2phase
@@ -434,9 +452,9 @@ class EvaporatorClass():
         #Average air outlet values (area fraction weighted average, neglecting influence of different air mass flowrate due to viscosity/density changes with change of omega or temperature)
         self.Tout_a=self.w_superheat*self.Tout_a_superheat+self.w_2phase*self.Tout_a_2phase
         self.omega_out=self.w_superheat*self.omega_out_superheat+self.w_2phase*self.omega_out_2phase
-        self.Fins.Air.RH_out=HAProps('R','T',self.Tout_a,'P',101.325,'W',self.omega_out)  #neglect pressure drop across evaporator
+        self.Fins.Air.RH_out=HAPropsSI('R','T',self.Tout_a,'P',101325,'W',self.omega_out)  #neglect pressure drop across evaporator
         self.DP_r=self.DP_r_superheat+self.DP_r_2phase
-        self.pout_r=self.psat_r+self.DP_r/1000.0  #pressure drop negative and in Pa
+        self.pout_r=self.psat_r+self.DP_r  #pressure drop negative and in Pa
         
         #limit minimum outlset pressure
         if self.pout_r<10:
@@ -446,16 +464,17 @@ class EvaporatorClass():
         #Outlet enthalpy obtained from energy balance
         self.hout_r=self.hin_r+self.Q/self.mdot_r
         
-        #print "debug Evaporator - self.hin_r,",self.hin_r/1000.0,self.hout_r/1000.0," self.Tin_a", self.Fins.Air.Tdb,"self.Fins.mdot_ha",self.Fins.mdot_ha
+        #print "debug Evaporator - self.hin_r,",self.hin_r,self.hout_r," self.Tin_a", self.Fins.Air.Tdb,"self.Fins.mdot_ha",self.Fins.mdot_ha
         
         #Outlet superheat an temperature (in case of two phase)
         if existsSuperheat:
             try:
-                self.Tout_r=newton(lambda T: Props('H','T',T,'P',self.pout_r,self.Ref)-self.hout_r/1000.0,Props('T','P',self.pout_r,'Q',1.0,self.Ref))
+                self.Tout_r=PropsSI('T','P',self.pout_r,'H',self.hout_r,self.Ref) 
+                #self.Tout_r=newton(lambda T: PropsSI('H','T',T,'P',self.pout_r,self.Ref)-self.hout_r,PropsSI('T','P',self.pout_r,'Q',1.0,self.Ref))
             except:
                 print "problem iwith calculating Tout_r in evaporator.py"
-                print "self.hout_r/1000.0",self.hout_r/1000.0,"self.hin_r/1000.0",self.hin_r/1000.0,"Props('H','Q',1.0,'P',self.pout_r,self.Ref)",Props('H','Q',1.0,'P',self.pout_r,self.Ref),"self.pout_r",self.pout_r,"self.psat_r",self.psat_r,"self.mdot_r",self.mdot_r,"self.xin_r",self.xin_r
-                print "Props('H','Q',0.0,'P',self.pout_r,self.Ref)",Props('H','Q',0.0,'P',self.pout_r,self.Ref),"self.Tin_a,self.Tsat_r",self.Tin_a,self.Tsat_r,"self.DP_r/1000.0",self.DP_r/1000.0,self.Q,self.Q_superheat,self.Q_2phase,existsSuperheat,self.w_2phase
+                print "self.hout_r",self.hout_r,"self.hin_r",self.hin_r,"PropsSI('H','Q',1.0,'P',self.pout_r,self.Ref)",PropsSI('H','Q',1.0,'P',self.pout_r,self.Ref),"self.pout_r",self.pout_r,"self.psat_r",self.psat_r,"self.mdot_r",self.mdot_r,"self.xin_r",self.xin_r
+                print "PropsSI('H','Q',0.0,'P',self.pout_r,self.Ref)",PropsSI('H','Q',0.0,'P',self.pout_r,self.Ref),"self.Tin_a,self.Tsat_r",self.Tin_a,self.Tsat_r,"self.DP_r",self.DP_r,self.Q,self.Q_superheat,self.Q_2phase,existsSuperheat,self.w_2phase
                 print self.Fins.cp_da
                 print "neglecting pressure drop in sh-section for normal evaproator (no issue for Calcuilate_PD, since result will be overwritten)"
                 if self.w_2phase<1e-11:
@@ -465,14 +484,14 @@ class EvaporatorClass():
                     #recalculate Outlet enthalpy obtained from energy balance
                     self.hout_r=self.hin_r+self.Q/self.mdot_r
                     print "self.hout_r",self.hout_r
-                self.Tout_r=newton(lambda T: Props('H','T',T,'P',self.psat_r,self.Ref)-self.hout_r/1000.0,Props('T','P',self.psat_r,'Q',1.0,self.Ref))
-                self.sout_r=Props('S','T',self.Tout_r,'P',self.pin_r,self.Ref)*1000.0
+                self.Tout_r=newton(lambda T: PropsSI('H','T',T,'P',self.psat_r,self.Ref)-self.hout_r,PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref))
+                self.sout_r=PropsSI('S','T',self.Tout_r,'P',self.pin_r,self.Ref)
             self.DT_sh_calc=self.Tout_r-self.Tdew_r
         else:
             xout_r=(self.hout_r-hsatL)/(hsatV-hsatL)
             self.sout_r=ssatV*xout_r+(1-xout_r)*ssatL
-            self.DT_sh_calc=(self.hout_r-hsatV)/(Props('C','T',self.Tdew_r,'Q',1,self.Ref)*1000.0) #continuous superheat
-            self.Tout_r=Props('T','P',self.pout_r,'Q',xout_r,self.Ref) #saturated temperature at outlet quality
+            self.DT_sh_calc=(self.hout_r-hsatV)/(PropsSI('C','T',self.Tdew_r,'Q',1,self.Ref)) #continuous superheat
+            self.Tout_r=PropsSI('T','P',self.pout_r,'Q',xout_r,self.Ref) #saturated temperature at outlet quality
 
         self.hmean_r=self.w_2phase*self.h_r_2phase+self.w_superheat*self.h_r_superheat
         self.UA_r=self.hmean_r*self.A_r_wetted
@@ -503,6 +522,7 @@ class EvaporatorClass():
     
         # Store temporary values to be passed to DryWetSegment
         DWS.Fins=self.Fins
+        DWS.FinsType = self.FinsType
         DWS.A_a=self.Fins.A_a*w_2phase
         DWS.cp_da=self.Fins.cp_da
         DWS.eta_a=self.Fins.eta_a
@@ -531,7 +551,7 @@ class EvaporatorClass():
             raise ValueError('Q_target in Evaporator must be positive')
         
         # Average Refrigerant heat transfer coefficient
-        DWS.h_r=ShahEvaporation_Average(self.xin_r,self.xout_2phase,self.Ref,self.G_r,self.ID,self.Tsat_r,Q_target/DWS.A_r,self.Tbubble_r,self.Tdew_r,h_tp_tuning=0.7)
+        DWS.h_r=ShahEvaporation_Average(self.xin_r,self.xout_2phase,self.Ref,self.G_r,self.ID,self.psat_r,Q_target/DWS.A_r,self.Tbubble_r,self.Tdew_r)
         if DWS.h_r<=0.0001:
             print 'something is wrong with the refrigerant side HT-coefficient as requested by Evaporator.py, inputs are\n',self.xin_r,self.xout_2phase,self.Ref,self.G_r,self.ID,self.Tsat_r,Q_target/DWS.A_r,self.Tbubble_r,self.Tdew_r
         
@@ -573,6 +593,7 @@ class EvaporatorClass():
         DWS.mdot_da=self.mdot_da*w_superheat
         DWS.pin_a=self.Fins.Air.p
         DWS.Fins=self.Fins
+        DWS.FinsType = self.FinsType
     
         # Inputs on the air side to two phase region are inlet air again
         DWS.Tin_a=self.Tin_a
@@ -595,7 +616,7 @@ class EvaporatorClass():
         #Run DryWetSegment
         DryWetSegment(DWS)
         try:
-            rho_superheat=Props('D','T',(DWS.Tout_r+self.Tdew_r)/2.0, 'P', self.psat_r, self.Ref)
+            rho_superheat=PropsSI('D','T',(DWS.Tout_r+self.Tdew_r)/2.0, 'P', self.psat_r, self.Ref)
             #members = [attr for attr in dir(DWS()) if not callable(attr) and not attr.startswith("__")]
             #print members
         except:
@@ -632,9 +653,9 @@ if __name__=='__main__':
         import numpy as np
         import pylab as pylab
         Tdew=260
-        lower_value=Props('H','T',Tdew,'Q',0.01,Ref)*1000
-        #lower_value=Props('H','P',Props('P','T',Tdew,'Q',1.0,'R410A'),'T',299,Ref)*1000
-        upper_value=Props('H','P',Props('P','T',Tdew,'Q',1.0,Ref),'T',299.79999,Ref)*1000
+        lower_value=PropsSI('H','T',Tdew,'Q',0.0,Ref)
+        #lower_value=PropsSI('H','P',PropsSI('P','T',Tdew,'Q',1.0,'R410A'),'T',299,Ref)*1000
+        upper_value=PropsSI('H','P',PropsSI('P','T',Tdew,'Q',1.0,Ref),'T',299.79999,Ref)
         for hin_r in np.linspace(lower_value,upper_value,20):  
             FinsTubes=FinInputs()
         
@@ -656,15 +677,16 @@ if __name__=='__main__':
             FinsTubes.Air.Vdot_ha=0.5663
             FinsTubes.Air.Tmean=299.8
             FinsTubes.Air.Tdb=299.8
-            FinsTubes.Air.p=101.325
+            FinsTubes.Air.p=101325
             FinsTubes.Air.RH=0.51
             FinsTubes.Air.RHmean=0.51
             FinsTubes.Air.FanPower=438
                 
             kwargs={'Ref': Ref,
                     'mdot_r':  0.0708,
-                    'psat_r':  Props('P','T',Tdew,'Q',1.0,Ref),
+                    'psat_r':  PropsSI('P','T',Tdew,'Q',1.0,Ref),
                     'Fins': FinsTubes,
+                    'FinsType': 'WavyLouveredFins',
                     'hin_r':hin_r,
                     'Verbosity':0
             }
@@ -726,16 +748,17 @@ if __name__=='__main__':
             FinsTubes.Air.Vdot_ha=0.5663
             FinsTubes.Air.Tmean=299.8
             FinsTubes.Air.Tdb=299.8
-            FinsTubes.Air.p=101.325
+            FinsTubes.Air.p=101325
             FinsTubes.Air.RH=0.51
             FinsTubes.Air.RHmean=0.51
             FinsTubes.Air.FanPower=438
                 
             kwargs={'Ref': 'R410A',
                     'mdot_r':  0.0708,
-                    'psat_r':  Props('P','T',Tdew,'Q',1.0,'R410A'),
+                    'psat_r':  PropsSI('P','T',Tdew,'Q',1.0,'R410A'),
                     'Fins': FinsTubes,
-                    'hin_r':Props('H','T',Tdew,'Q',0.15,'R410A')*1000,
+                    'FinsType': 'WavyLouveredFins',
+                    'hin_r':PropsSI('H','T',Tdew,'Q',0.15,'R410A'),
                     'Verbosity':0
             }
             
@@ -755,7 +778,7 @@ if __name__=='__main__':
         #determine time used for calculation
         import time
         num_runs=100
-        Evap.psat_r=Props('P','T',260,'Q',1.0,'R410A')
+        Evap.psat_r=PropsSI('P','T',260,'Q',1.0,'R410A')
         start_time = time.clock()
         for i in range(10):
             Evap.Calculate_PD()
