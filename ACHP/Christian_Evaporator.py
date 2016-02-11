@@ -67,7 +67,7 @@ class EvaporatorClass():
             ('Outlet air temp','K',self.Tout_a),
             ('Evaporator P_sat in','kPa',self.psat_r),
             ('Evaporator inlet quality','-',self.xin_r),
-            ('Evaporator ref. flowrate','g/s',self.mdot_r*1000.0),
+            ('Evaporator ref. flowrate','kg/s',self.mdot_r),
             ('Pressure Drop Total','Pa',self.DP_r),
             ('Pressure Drop Superheat','Pa',self.DP_r_superheat),
             ('Pressure Drop Two-Phase','Pa',self.DP_r_2phase),
@@ -108,6 +108,7 @@ class EvaporatorClass():
                        ('Ref',str,None,None),
                        ('psat_r',float,1e-6,100000),
                        ('Fins',IsFinsClass,None,None),
+                       ('FinsType',str,None,None),
                        ('hin_r',float,-100000,10000000),
                        ('mdot_r',float,0.000001,10),
                        ]
@@ -204,7 +205,7 @@ class EvaporatorClass():
                 ## Mean temperature for use in HT relationships
                 self.Tsat_r=(self.Tbubble_r+self.Tdew_r)/2
                 # Latent heat
-                self.h_fg=(PropsSI('H','T',self.Tdew_r,'Q',1.0,self.Ref)-PropsSI('H','T',self.Tbubble_r,'Q',0.0,self.Ref)) #[J/kg]
+                self.h_fg=PropsSI('H','T',self.Tdew_r,'Q',1.0,self.Ref)-PropsSI('H','T',self.Tbubble_r,'Q',0.0,self.Ref) #[J/kg]
                 
                 #need to repeat part of the calculate function; already know length of two phase section...
                 if self.w_2phase>=0.0:  #already know outlet quality from finding the 2-phase pressure drop
@@ -285,11 +286,12 @@ class EvaporatorClass():
         #Outlet superheat an temperature (in case of two phase)
         if self.existsSuperheat:  #neglecting change in pressure for superheat calculation...
             try:
-                self.Tout_r=newton(lambda T: PropsSI('H','T',T,'P',self.pout_r,self.Ref)-self.hout_r,PropsSI('T','P',self.pout_r,'Q',1.0,self.Ref))
+                self.Tout_r=PropsSI('T','P',self.pout_r,'H',self.hout_r,self.Ref)
+                #self.Tout_r=newton(lambda T: PropsSI('H','T',T,'P',self.pout_r,self.Ref)-self.hout_r,PropsSI('T','P',self.pout_r,'Q',1.0,self.Ref))
                 self.sout_r=PropsSI('S','T',self.Tout_r,'P',self.pout_r,self.Ref)
                 self.DT_sh_calc=self.Tout_r-self.Tdew_r
             except:
-                print "Evap.Calculate_PD() self.pout_r",self.pout_r,"self.pin_r",self.pin_r,  "PropsSI('H','Q',1.0,'P',self.pout_r,self.Ref),self.hout_r/1000.0",PropsSI('H','Q',1.0,'P',self.pout_r,self.Ref),self.hout_r
+                print "Evap.Calculate_PD() self.pout_r",self.pout_r,"self.pin_r",self.pin_r,  "PropsSI('H','Q',1.0,'P',self.pout_r,self.Ref),self.hout_r",PropsSI('H','Q',1.0,'P',self.pout_r,self.Ref),self.hout_r
                 raise()
         else:
             xout_r=(self.hout_r-hsatL)/(hsatV-hsatL)
@@ -307,7 +309,7 @@ class EvaporatorClass():
         self.UA_a=self.Fins.h_a*self.Fins.A_a*self.Fins.eta_a
         
         #Build a vector of temperatures at each point where there is a phase transition along the averaged circuit
-            #this is not updated or supported at this point
+            #NOTE: this is not updated or supported at this point!
         
     def Calculate(self):
         #calculate evaporator without consideration of pressure drop for HT
@@ -323,7 +325,7 @@ class EvaporatorClass():
         #print "in evaporator-enthalpies","hin_r,hsatL,hsatV",self.hin_r,hsatL,hsatV,"self.Tbubble_r,self.psat_r",self.Tbubble_r,self.psat_r
         #print "self.__dict__ in Evaporator.py",self.__dict__
         #print "hin_r in Evaporator.py",self.hin_r
-        if hasattr(self,'hin_r'):
+        if hasattr(self,'hin_r'):  #if give enthalpy and pressure as inputs
             self.xin_r=(self.hin_r-hsatL)/(hsatV-hsatL)
             self.sin_r=self.xin_r*ssatV+(1-self.xin_r)*ssatL
             self.Tin_r=self.xin_r*self.Tdew_r+(1-self.xin_r)*self.Tbubble_r
@@ -457,9 +459,9 @@ class EvaporatorClass():
         self.pout_r=self.psat_r+self.DP_r  #pressure drop negative and in Pa
         
         #limit minimum outlset pressure
-        if self.pout_r<10:
+        if self.pout_r<10000:
             print "warning - outlet pressure in evaporator too low - limiting to allow for solver to find correct value"
-            self.pout_r=30#kPa
+            self.pout_r=30000#Pa
         
         #Outlet enthalpy obtained from energy balance
         self.hout_r=self.hin_r+self.Q/self.mdot_r
@@ -476,7 +478,7 @@ class EvaporatorClass():
                 print "self.hout_r",self.hout_r,"self.hin_r",self.hin_r,"PropsSI('H','Q',1.0,'P',self.pout_r,self.Ref)",PropsSI('H','Q',1.0,'P',self.pout_r,self.Ref),"self.pout_r",self.pout_r,"self.psat_r",self.psat_r,"self.mdot_r",self.mdot_r,"self.xin_r",self.xin_r
                 print "PropsSI('H','Q',0.0,'P',self.pout_r,self.Ref)",PropsSI('H','Q',0.0,'P',self.pout_r,self.Ref),"self.Tin_a,self.Tsat_r",self.Tin_a,self.Tsat_r,"self.DP_r",self.DP_r,self.Q,self.Q_superheat,self.Q_2phase,existsSuperheat,self.w_2phase
                 print self.Fins.cp_da
-                print "neglecting pressure drop in sh-section for normal evaproator (no issue for Calcuilate_PD, since result will be overwritten)"
+                print "neglecting pressure drop in sh-section for normal evaproator (no issue for Calculate_PD, since result will be overwritten)"
                 if self.w_2phase<1e-11:
                     print "neglecting capacity of two phase section, since likely not converged properly due to small fraction of two-phase area (self.w_2phase=",self.w_2phase
                     self.Q_2phase=0.0
@@ -512,6 +514,7 @@ class EvaporatorClass():
         Nbends=1+self.Lcircuit/self.Ltube
         #x-position of each point
         xv=np.linspace(0,1,Nbends)
+        
         self.Tbends=interp1d(x,Tv)(xv)
         
         self.existsSuperheat=existsSuperheat  #needed for Calculate_PD()
@@ -572,7 +575,7 @@ class EvaporatorClass():
         #Frictional pressure drop component
         DP_frict=LMPressureGradientAvg(self.xin_r,self.xout_2phase,self.Ref,self.G_r,self.ID,self.Tbubble_r,self.Tdew_r)*self.Lcircuit*w_2phase
         #Accelerational pressure drop component    
-        DP_accel=AccelPressureDrop(self.xin_r,self.xout_2phase,self.Ref,self.G_r,self.Tbubble_r,self.Tdew_r)
+        DP_accel=AccelPressureDrop(self.xin_r,self.xout_2phase,self.Ref,self.G_r,self.Tbubble_r,self.Tdew_r)*self.Lcircuit*w_2phase
         self.DP_r_2phase=DP_frict+DP_accel;
         
         if self.Verbosity>7:
@@ -641,8 +644,8 @@ class EvaporatorClass():
         self.omega_out_superheat=DWS.omega_out
         
 if __name__=='__main__':
-    #This code runs if this file is run by itself, but otherwise doesn't run3
-    if True:
+    #This code runs if this file is run by itself, but otherwise doesn't run
+    if 0:
         Ref='R410a'
         TT=[]
         Q=[]
@@ -710,16 +713,22 @@ if __name__=='__main__':
         pylab.plot(TT,Q,'x-',label='total')
         pylab.plot(TT,QQ,'x-',label='2-phase')
         pylab.legend()
+        pylab.xlabel('Inlet Enthalpy [J/kg]')
+        pylab.ylabel('Capacity [W]')
         pylab.figure()
         pylab.plot(TT,hh,'o-',label='HTC 2-phase')
         pylab.legend()
+        pylab.xlabel('Inlet Enthalpy [J/kg]')
+        pylab.ylabel('2ph Heat Transfer Coefficient [W/m$^2$-K]')
         pylab.figure()
         pylab.plot(TT,T_outa,'o-',label='Tout_a')
         pylab.legend()
+        pylab.xlabel('Inlet Enthalpy [J/kg]')
+        pylab.ylabel('Outlet Air Temp [K]')
         pylab.show()
 
 #########################################################################
-    if False: #run a change-in-dewpoint temperature study
+    if 1: #run a change-in-dewpoint temperature study
         TT=[]
         Q=[]
         ff=[]
@@ -758,7 +767,7 @@ if __name__=='__main__':
                     'psat_r':  PropsSI('P','T',Tdew,'Q',1.0,'R410A'),
                     'Fins': FinsTubes,
                     'FinsType': 'WavyLouveredFins',
-                    'hin_r':PropsSI('H','T',Tdew,'Q',0.15,'R410A'),
+                    'hin_r':PropsSI('H','P',PropsSI('P','T',Tdew,'Q',1.0,'R410A'),'Q',0.15,'R410A'),
                     'Verbosity':0
             }
             
@@ -779,18 +788,26 @@ if __name__=='__main__':
         import time
         num_runs=100
         Evap.psat_r=PropsSI('P','T',260,'Q',1.0,'R410A')
+        
         start_time = time.clock()
         for i in range(10):
             Evap.Calculate_PD()
-        print time.clock() - start_time, "seconds to run calculate_PD(0)"
+        print time.clock() - start_time, "seconds to run calculate_PD function"
         print Evap.OutputList()
-        start_time = time.clock()
-        for i in range(10):
-            Evap.Calculate()
-        print time.clock() - start_time, "seconds to run normale calculate fct"
-        print Evap.OutputList()
-        pylab.plot(TT,QQ,TT,Q,'x-',label=['2-phase','total'])
+        
+#         start_time = time.clock()
+#         for i in range(10):
+#             Evap.Calculate()
+#         print time.clock() - start_time, "seconds to run normal calculate function"
+#         print Evap.OutputList()
+        
+        pylab.plot(TT,QQ,TT,Q,'x-')
+        pylab.legend(['2-phase','total'])
+        pylab.xlabel('Ref. Inlet Dew Temperature [K]')
+        pylab.ylabel('Capacity [W]')
+        pylab.figure()
+        pylab.plot(TT,hh,'o-',label='HTC 2-phase')
         pylab.legend()
-        pylab.show()
-        pylab.plot(TT,hh)
+        pylab.xlabel('Ref. Inlet Dew Temperature [K]')
+        pylab.ylabel('2ph Heat Transfer Coefficient [W/m$^2$-K]')
         pylab.show()
