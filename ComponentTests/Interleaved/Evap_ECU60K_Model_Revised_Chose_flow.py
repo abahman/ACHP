@@ -200,10 +200,49 @@ class MCE_N(EvaporatorClass):
             Output_List_tot.append(('Epsilon_md','-',self.md_Epsilon))
         else:
             Output_List_tot.append(('Epsilon_md','-','-999'))
-        Output_List_tot=Output_List_tot+[('Q Total','W',self.Q),('m_dot Total','kg/s',self.mdot_r_tot),('h_out Total','kJ/kg',self.hout_r/1000.0)]
+        Output_List_tot=Output_List_tot+[('Q Total','W',self.Q),('m_dot Total','kg/s',self.mdot_r_tot),('h_out Total','J/kg',self.hout_r)]
         for i in range(0,len(Output_list)):                             #append default parameters to output list
             Output_List_tot.append(Output_list[i])
         return Output_List_tot
+    
+    #Ammar: I added this functio nfor 60K ECU
+    def Evaporator_60K_Fins(self):
+        #define parameters for evaporator as used in 60K
+        Evaporator=EvaporatorClass()
+        Evaporator.Fins=FinInputs()
+         
+        #--------------------------------------
+        #--------------------------------------
+        #           Evaporator
+        #           -> see Condenser and GUI for explanations
+        #--------------------------------------
+        #--------------------------------------
+        Evaporator.Fins.Tubes.NTubes_per_bank=6 #3 #8 (each cell 1 tube)
+        Evaporator.Fins.Tubes.Nbank=3#2.5 #4(half of actual number for a single cell)
+        Evaporator.Fins.Tubes.Ncircuits=1#8 (each cell is part of 1 circuit)
+        Evaporator.Fins.Tubes.Ltube=in2m(25) #in2m(19)#measured fin pack length
+        Evaporator.Fins.Tubes.OD=in2m(0.5) #0.007874 #measured
+        Evaporator.Fins.Tubes.ID=Evaporator.Fins.Tubes.OD - 2*in2m(0.019)#0.007874-0.001 #guess of 1 mm for wall thickness
+        Evaporator.Fins.Tubes.Pl=in2m(1.082)#0.0164      #distance between center of tubes in flow direction (measured)
+        Evaporator.Fins.Tubes.Pt=in2m(1.25)#0.0254
+             
+        Evaporator.Fins.Fins.FPI=12#10
+        Evaporator.Fins.Fins.Pd=in2m(1.0/16.0/2)#0.001435  #fins are basically flat; measured Pd in wrong direction (wavyness perpendicular to airflow direction)
+        Evaporator.Fins.Fins.xf=in2m(1.0/4.0)#0.003175 
+        Evaporator.Fins.Fins.t=in2m(0.0075)#0.0001524   #tuned; measurement with callipper, confirmed withmicrometer screw (0.0078inch=0.00019812m)
+        Evaporator.Fins.Fins.k_fin=237 #Thermal conductivity of fin material, aluminum, from wikipedia (replace with other source)
+         
+        Evaporator.Fins.Air.Vdot_ha=(1/6)*cfm2cms(2000)#(1/5)*cfm2cms(600.0) #4440rated cfm >set manually in liquid_receiver_cycle
+        #Evaporator.Fins.Air.Tmean=C2K(2.0)  #this is not actually used
+        Evaporator.Fins.Air.Tdb=F2K(90)#C2K(31.94)
+        Evaporator.Fins.Air.p=101325      #Air pressure
+        #################################
+        Evaporator.Fins.Air.RH=0.5023#0.4923  #0.48
+        Evaporator.Fins.Air.RHmean=0.5023#0.4923 #0.48
+        #################################
+        Evaporator.Fins.Air.FanPower=820#393#378  #W, average from clean coil hybrid measurements
+        
+        return Evaporator.Fins
     
     def Evaporator_18K_Fins(self):
         #define parameters for evaporator as used in 18K
