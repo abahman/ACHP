@@ -1207,36 +1207,50 @@ def airside_maldistribution_study(evap_type='LRCS',MD_Type=None,MD_severity=None
         airside_maldistributions=[0,0.05,0.1,0.2,0.3,0.4,0.5]
         MD_severity=airside_maldistributions
         for i in range(len(airside_maldistributions)):
-           airside_maldistributions[i]=np.linspace(1.+airside_maldistributions[i],1.-airside_maldistributions[i],num_evaps)
+            airside_maldistributions[i]=np.linspace(1.+airside_maldistributions[i],1.-airside_maldistributions[i],num_evaps)
         filenameMDair =evap_type+'-NCircuit_airMD_linear.csv'
-###########################
-    elif MD_Type=="36K":  #see D:\Purdue\Thesis\Tex-document\source files and links\interleaved circuitry\LRCS\maldistribution profiles.xlsx
-        Original_Profile=np.array([0.0135415976822403,0.0221506896994024,0.0369272399580833,0.111895731459975,0.106096750782192,0.265750418904745,0.196007841404425,0.247629730108938])*8.0  #different definition compared to normal ACHP MCE
-        #Original_Profile=np.array([0.11482602,0.104035698,0.091155398,0.076185154,0.133324145,0.140278695,0.156926708,0.183268184])*8.0  #different definition compared to normal ACHP MCE
-        #Original_Profile=np.array([0.1425512,0.1513153,0.1100230,0.0780403,0.0820702,0.1202301,0.1631706,0.1525993])*8.0
-        Original_Profile=np.array([0.0994045,0.1984615,0.1868156,0.1811249,0.1740281,0.1201654,0.0298098,0.0101902])*8.0    #111414
-        #Original_Profile=np.array([0.125,0.125,0.125,0.125,0.125,0.125,0.125,0.125])*8.0
-        #MD_severity=[0,0.05,0.1,0.2,0.3,0.4,0.5]
-        #MD_severity=[0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
-        MD_severity=[1.0]
-        airside_maldistributions=maldistribution_scaler(Original_Profile,severity=MD_severity,parametric_study=True)
-        num_evaps=8 #number of evaporators
-        filenameMDair =evap_type+'-8Circuit_airMD_type_xinye.csv'
-###############################
-    elif MD_Type=="18K":  #see D:\Purdue\Thesis\Tex-document\source files and links\interleaved circuitry\LRCS\maldistribution profiles.xlsx
-        #Original_Profile=np.array([0.101853644,0.141104443,0.09926435,0.105120511,0.12965831,0.121091859,0.107709805,0.122422805,0.071774272])*9.0
-        #Original_Profile=np.array([0.208968102,0.186853962,0.227785303,0.203150503,0.17324213])*5.0
-        Original_Profile=np.array([0.153699354,0.246305539,0.197249951,0.253914660,0.148830495])*5.0 ##Update on 021915
+    ###########################
+    
+#     elif MD_Type=="36K":  #see D:\Purdue\Thesis\Tex-document\source files and links\interleaved circuitry\LRCS\maldistribution profiles.xlsx
+#         Original_Profile=np.array([0.0135415976822403,0.0221506896994024,0.0369272399580833,0.111895731459975,0.106096750782192,0.265750418904745,0.196007841404425,0.247629730108938])*8.0  #different definition compared to normal ACHP MCE
+#         #Original_Profile=np.array([0.11482602,0.104035698,0.091155398,0.076185154,0.133324145,0.140278695,0.156926708,0.183268184])*8.0  #different definition compared to normal ACHP MCE
+#         #Original_Profile=np.array([0.1425512,0.1513153,0.1100230,0.0780403,0.0820702,0.1202301,0.1631706,0.1525993])*8.0
+#         Original_Profile=np.array([0.0994045,0.1984615,0.1868156,0.1811249,0.1740281,0.1201654,0.0298098,0.0101902])*8.0    #11/14/14
+#         #Original_Profile=np.array([0.125,0.125,0.125,0.125,0.125,0.125,0.125,0.125])*8.0
+#         #MD_severity=[0,0.05,0.1,0.2,0.3,0.4,0.5]
+#         #MD_severity=[0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+#         MD_severity=[1.0]
+#         airside_maldistributions=maldistribution_scaler(Original_Profile,severity=MD_severity,parametric_study=True)
+#         num_evaps=8 #number of evaporators
+#         filenameMDair =evap_type+'-8Circuit_airMD_type_xinye.csv'
+#     ###############################
+#     
+#     elif MD_Type=="18K":  #see D:\Purdue\Thesis\Tex-document\source files and links\interleaved circuitry\LRCS\maldistribution profiles.xlsx
+#         #Original_Profile=np.array([0.101853644,0.141104443,0.09926435,0.105120511,0.12965831,0.121091859,0.107709805,0.122422805,0.071774272])*9.0
+#         #Original_Profile=np.array([0.208968102,0.186853962,0.227785303,0.203150503,0.17324213])*5.0
+#         Original_Profile=np.array([0.153699354,0.246305539,0.197249951,0.253914660,0.148830495])*5.0 ##Update on 02/19/15
+#         MD_severity=[0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0] 
+#         #MD_severity=[1.0]
+#         airside_maldistributions=maldistribution_scaler(Original_Profile,severity=MD_severity,parametric_study=True)
+#         num_evaps=5 #number of updated evaporators
+#         #num_evaps=9 #number of updated evaporators
+#         filenameMDair =evap_type+'-5Circuit_airMD_type_xinye.csv' 
+#         #filenameMDair =evap_type+'-9Circuit_airMD_type_xinye.csv'
+#     ###############################
+
+    elif MD_Type=="60K":
+        Original_Profile=np.array([0.15,0.25,0.10,0.25,0.15,0.10])*6.0 ##Update on 02/19/16
         MD_severity=[0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0] 
         #MD_severity=[1.0]
         airside_maldistributions=maldistribution_scaler(Original_Profile,severity=MD_severity,parametric_study=True)
-        num_evaps=5 #number of updated evaporators
-        #num_evaps=9 #number of updated evaporators
-        filenameMDair =evap_type+'-5Circuit_airMD_type_xinye.csv' 
-        #filenameMDair =evap_type+'-9Circuit_airMD_type_xinye.csv'
+        num_evaps=6 #number of updated evaporator circuits
+        filenameMDair =evap_type+'-6Circuit_airMD_type_Ammar.csv'
+    ###############################
+    
     elif MD_Type=='custom':
         print "using custum maldistribution as passed in"
-    Target_SH=5.0
+    
+    Target_SH=12.78 #from Test 4 baseline  
 
     evap=MCE_N()
     #evap.Target_SH=Target_SH
@@ -1300,7 +1314,7 @@ def airside_maldistribution_study(evap_type='LRCS',MD_Type=None,MD_severity=None
     print "capacity-non-interleaved",Q_noninterleaved,"capacity, interleaved",Q_interleaved,"ratio",(Q_interleaved/Q_noninterleaved),"performance improvement over non-interleaved",((Q_interleaved-Q_noninterleaved)/Q_noninterleaved)*100,'%'
     print "capacity-non-interleaved",Q_noninterleaved,"capacity, hybrid",Q_hybrid,"ratio",(Q_hybrid/Q_noninterleaved),"performance improvement over non-interleaved",((Q_hybrid-Q_noninterleaved)/Q_noninterleaved)*100,'%'
     print "Capacity of basecase without maldistribution",Q_base,"performance degradation caused by maldistribution",((Q_base-Q_noninterleaved)/Q_base)*100
-    plt.show()
+    #plt.show() #Ammar: there is no plot command here !!?
 
 
 def sh_equalizer_tester(evap_type='LRCS',num_evaps=8,md_type='linear',Target_SH=5.0,MD_severity=[0.2]):
@@ -1352,10 +1366,12 @@ if __name__=='__main__':
         flow_maldistribution_profiles_tester()
         #air_temp_maldistribution_profiles_tester()
     if 0: #run parametric study for 2-circuit cases only
-        airside_maldistribution_study(evap_type='18K',MD_Type=None,Hybrid='adjust_superheat_iter',adjust_area_fraction_iternum=30)  #this runs the 2-circuit case with the only possible maldistribution for that case (code is ugly...)
+        #airside_maldistribution_study(evap_type='18K',MD_Type=None,Hybrid='adjust_superheat_iter',adjust_area_fraction_iternum=30)  #this runs the 2-circuit case with the only possible maldistribution for that case (code is ugly...)
+        airside_maldistribution_study(evap_type='60K',MD_Type=None,Hybrid='adjust_superheat_iter',adjust_area_fraction_iternum=30)
     if 0: #run parametric studies
+        airside_maldistribution_study(evap_type='60K',MD_Type="60K")
         #airside_maldistribution_study(evap_type='36K',MD_Type="36K")
-        airside_maldistribution_study(evap_type='18K',MD_Type="18K")
+        #airside_maldistribution_study(evap_type='18K',MD_Type="18K")
         #refside_maldistribution_study(evap_type='LRCS')
         #airside_temp_maldistribution_study(evap_type='RAC',MD_Type="RAC_Temp")
         #refside_maldistribution_study(evap_type='RAC')
@@ -1367,15 +1383,19 @@ if __name__=='__main__':
     if 1: #run different flow distribution profiles for LRCS
         MD_severity=[0,0.1,0.2,0.3,0.4,0.5]
         #MD_severity=[0.5]
-        for md_type in ["18K"]:
+        for md_type in ["60K"]:
+        #for md_type in ["18K"]:
         #for md_type in ['pyramid']:
         #for md_type in ['linear','Halflinear A','Halflinear B']:
-            maldistributions=flow_maldistribution_profiles(5,md_type,severity=MD_severity,parametric_study=True,custom=False,profile=np.array(range(5)))
+            maldistributions=flow_maldistribution_profiles(6,md_type,severity=MD_severity,parametric_study=True,custom=False,profile=np.array(range(6)))
+            #maldistributions=flow_maldistribution_profiles(5,md_type,severity=MD_severity,parametric_study=True,custom=False,profile=np.array(range(5)))
             #print maldistributions[1][1],md_type
             if 0:
-                sh_equalizer_tester(evap_type='LRCS',num_evaps=8,md_type=md_type,Target_SH=5.0,MD_severity=MD_severity)
+                sh_equalizer_tester(evap_type='60K',num_evaps=6,md_type=md_type,Target_SH=12.78,MD_severity=MD_severity)
+                #sh_equalizer_tester(evap_type='LRCS',num_evaps=8,md_type=md_type,Target_SH=5.0,MD_severity=MD_severity)
             if 1:
-                airside_maldistribution_study(evap_type='18K',MD_Type=md_type,MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=5,filenameMDair=md_type+'18K_xinye of 4 conditions'+'.csv')
+                airside_maldistribution_study(evap_type='60K',MD_Type=md_type,MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=6,filenameMDair=md_type+'60K_Ammar of 4 conditions'+'.csv')
+                #airside_maldistribution_study(evap_type='18K',MD_Type=md_type,MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=5,filenameMDair=md_type+'18K_xinye of 4 conditions'+'.csv')
                 #airside_maldistribution_study(evap_type='36K',MD_Type=md_type,MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=8,filenameMDair=md_type+'36K_xinye of 4 conditions'+'.csv')
         
     #plt.show() #show plots, if any
