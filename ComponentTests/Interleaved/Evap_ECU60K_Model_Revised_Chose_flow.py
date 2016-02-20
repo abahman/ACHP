@@ -219,7 +219,7 @@ class MCE_N(EvaporatorClass):
         #--------------------------------------
         Evaporator.Fins.Tubes.NTubes_per_bank=6 #3 #8 (each cell 1 tube)
         Evaporator.Fins.Tubes.Nbank=3#2.5 #4(half of actual number for a single cell)
-        Evaporator.Fins.Tubes.Ncircuits=1#8 (each cell is part of 1 circuit)
+        Evaporator.Fins.Tubes.Ncircuits=6#8 (each cell is part of 1 circuit)
         Evaporator.Fins.Tubes.Ltube=in2m(25) #in2m(19)#measured fin pack length
         Evaporator.Fins.Tubes.OD=in2m(0.5) #0.007874 #measured
         Evaporator.Fins.Tubes.ID=Evaporator.Fins.Tubes.OD - 2*in2m(0.019)#0.007874-0.001 #guess of 1 mm for wall thickness
@@ -234,13 +234,13 @@ class MCE_N(EvaporatorClass):
          
         Evaporator.Fins.Air.Vdot_ha=(1/6)*cfm2cms(1711)#(1/5)*cfm2cms(600.0) #4440rated cfm >set manually in liquid_receiver_cycle
         #Evaporator.Fins.Air.Tmean=C2K(2.0)  #this is not actually used
-        Evaporator.Fins.Air.Tdb=F2K(90)#C2K(31.94)
+        Evaporator.Fins.Air.Tdb=C2K(28.36)#F2K(90)
         Evaporator.Fins.Air.p=101325      #Air pressure
         #################################
-        Evaporator.Fins.Air.RH=0.5023#0.4923  #0.48
-        Evaporator.Fins.Air.RHmean=0.5023#0.4923 #0.48
+        Evaporator.Fins.Air.RH=0.4624#0.4923  #0.48
+        Evaporator.Fins.Air.RHmean=0.4624#0.4923 #0.48
         #################################
-        Evaporator.Fins.Air.FanPower=820#393#378  #W, average from clean coil hybrid measurements
+        Evaporator.Fins.Air.FanPower=758.1#393#378  #W, average from clean coil hybrid measurements
         
         return Evaporator.Fins
     
@@ -333,13 +333,13 @@ class MCE_N(EvaporatorClass):
         
         if evap_type=='60K':
             self.Ref='R407c'
-            self.psat_r=507500
+            self.psat_r=485200
             if hasattr(self,'mdot_r'):
                 self.mdot_r=self.mdot_r/float(self.num_evaps) #internally using individual circuit average flowrate
             else:
                 self.mdot_r=(0.1204)/(6.0)*1.0  #later on add handling to automatically get back to flowrate of one circuit from total flowrate
             self.mdot_r_=self.mdot_r*1.0   #used as backup if first value in superheat iteration does not converge
-            self.hin_r=PropsSI('H','P', 507500,'Q',0.3259,self.Ref) #from baseline results Test 4 at state 9
+            self.hin_r=PropsSI('H','P', 2152000,'T',43.23+273.12,self.Ref) #from baseline results Test 4 at state 7 (isenthalpic process to 9)
             self.Verbosity=0
             self.cp_r_iter=False  #iterate for CP in evaporator
             self.FinsType = 'WavyLouveredFins'
@@ -1028,7 +1028,7 @@ class MCE_N(EvaporatorClass):
 ############################################## Related Function  ################################################      
 
             
-def flow_maldistribution_profiles(num_evaps,type,severity=[0,0.05,0.1,0.2,0.3,0.4,0.5],parametric_study=False,custom=False,profile=np.array(range(5))):
+def flow_maldistribution_profiles(num_evaps,type,severity=[0,0.05,0.1,0.2,0.3,0.4,0.5],parametric_study=False,custom=False,profile=np.array(range(6))):
     """
     generates a scaled maldistribution profile, returns an array with the distribution factors
     to be used on air or refrigerant side for flowdistribution
@@ -1086,19 +1086,19 @@ def flow_maldistribution_profiles(num_evaps,type,severity=[0,0.05,0.1,0.2,0.3,0.
 def flow_maldistribution_profiles_tester():
     #tester)
     from matplotlib import rc
-    font = {'family' : 'sans-serif'}
+    font = {'family' : 'serif'}
         #'weight' : 'bold',
         #'size'   : 'larger'}
 
     rc('font', **font)  # pass in the font dict as kwargs
     
     for severity in [0.8,[0,0.05,0.1,0.2,0.3,0.4,0.5]]:
-        for num_evaps in [7,8]:
+        for num_evaps in [5,6]:
             for type in ['linear','pyramid','Halflinear A','Halflinear B']:
                 fig=plt.figure()
                 ax = fig.add_subplot(111)
                 plt.rc('text', usetex=True)
-                use_fontsize=21
+                use_fontsize=11
                 plt.rcParams['font.size']=use_fontsize 
                 plt.rc('legend',**{'fontsize':use_fontsize})
                 try:
@@ -1118,7 +1118,7 @@ def flow_maldistribution_profiles_tester():
                     if type=='linear':type='Linear' #capitalize..
                     #plt.plot(range(num_evaps),profiles,'o',ls='-',label=type+r', $\varepsilon$ = '+str(np.round(dim_md[0],2)))#+" sev= "+str(severity)) #x=circuit
                     plt.plot(profiles,range(num_evaps),'o',ls='-',label=type+r', $\varepsilon$ = '+str(np.round(dim_md[0],2)))#+" sev= "+str(severity))  #y=circuit
-                plt.legend(loc='best',fancybox=True)#,title='LEGEND')
+                plt.legend(loc='best',fancybox=False)#,title='LEGEND')
                 plt.xlim(0,2)
                 plt.ylim(num_evaps-0.8,-0.2)
                 for label in ax.xaxis.get_ticklabels():label.set_fontsize(use_fontsize)# label is a Text instance #label.set_color('red')#label.set_rotation(45)
@@ -1131,9 +1131,9 @@ def flow_maldistribution_profiles_tester():
                 labels = [str(item) for item in ax.xaxis.get_majorticklocs()]
                 #labels[0]='0'
                 ax.set_xticklabels(labels)
-                plt.savefig(str(num_evaps)+type+str(np.round(dim_md[0],2))+'.png',bbox_inches='tight',dpi=600)
+                plt.savefig(str(num_evaps)+type+str(np.round(dim_md[0],2))+'.pdf',bbox_inches='tight')
         plt.close('all')
-        plt.show()
+        #plt.show()
 
     
 def dim_md_calc_array(m_dot):
@@ -1317,13 +1317,13 @@ def airside_maldistribution_study(evap_type='LRCS',MD_Type=None,MD_severity=None
     #plt.show() #Ammar: there is no plot command here !!?
 
 
-def sh_equalizer_tester(evap_type='LRCS',num_evaps=8,md_type='linear',Target_SH=5.0,MD_severity=[0.2]):
+def sh_equalizer_tester(evap_type='LRCS',num_evaps=6,md_type='linear',Target_SH=12.78,MD_severity=[0.2]):
     #test if superheat equalizer works
     if len(MD_severity)>1:
         parametric_study=True
     else:
         parametric_study=False
-    maldistributions=flow_maldistribution_profiles(num_evaps,md_type,severity=MD_severity,parametric_study=parametric_study,custom=False,profile=np.array(range(5)))
+    maldistributions=flow_maldistribution_profiles(num_evaps,md_type,severity=MD_severity,parametric_study=parametric_study,custom=False,profile=np.array(range(6)))
     Append=False
     for i_iternum in [10]:
         for i_MD in range(len(MD_severity)):
@@ -1365,7 +1365,7 @@ if __name__=='__main__':
     if 0: #test profiles
         flow_maldistribution_profiles_tester()
         #air_temp_maldistribution_profiles_tester()
-    if 0: #run parametric study for 2-circuit cases only
+    if 0: #run parametric study for 2-circuit cases only ... and 6 circuits
         #airside_maldistribution_study(evap_type='18K',MD_Type=None,Hybrid='adjust_superheat_iter',adjust_area_fraction_iternum=30)  #this runs the 2-circuit case with the only possible maldistribution for that case (code is ugly...)
         airside_maldistribution_study(evap_type='60K',MD_Type=None,Hybrid='adjust_superheat_iter',adjust_area_fraction_iternum=30)
     if 0: #run parametric studies
@@ -1378,8 +1378,8 @@ if __name__=='__main__':
         #airside_maldistribution_study(evap_type='RAC',MD_Type="RAC_avg")
         #combined_maldistribution_study(evap_type='RAC',MD_Type='RAC_combined')
     if 0: #test superheat equalizer
-        sh_equalizer_tester()
-        
+        #sh_equalizer_tester()
+        sh_equalizer_tester(evap_type='60K',num_evaps=6,md_type='60K') #NOT WORKING NOW >>> ERROR
     if 1: #run different flow distribution profiles for LRCS
         MD_severity=[0,0.1,0.2,0.3,0.4,0.5]
         #MD_severity=[0.5]
