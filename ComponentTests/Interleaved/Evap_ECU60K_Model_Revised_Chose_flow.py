@@ -329,17 +329,17 @@ class MCE_N(EvaporatorClass):
                     
                     """
         if not hasattr(self,'num_evaps'):
-            self.num_evaps=2 #number of evaporators
+            self.num_evaps=6 #Ammar: number of evaporators circuits, set to 6 in case I foget it as input
         
         if evap_type=='60K':
             self.Ref='R407c'
-            self.psat_r=656000
+            self.psat_r=507500
             if hasattr(self,'mdot_r'):
                 self.mdot_r=self.mdot_r/float(self.num_evaps) #internally using individual circuit average flowrate
             else:
-                self.mdot_r=(0.09709)/(6.0)*1.0  #later on add handling to automatically get back to flowrate of one circuit from total flowrate
+                self.mdot_r=(0.1204)/(6.0)*1.0  #later on add handling to automatically get back to flowrate of one circuit from total flowrate
             self.mdot_r_=self.mdot_r*1.0   #used as backup if first value in superheat iteration does not converge
-            self.hin_r=PropsSI('H','P', 387700,'Q',0.2779,self.Ref) #from baseline results Test 4 at state 9
+            self.hin_r=PropsSI('H','P', 507500,'Q',0.3259,self.Ref) #from baseline results Test 4 at state 9
             self.Verbosity=0
             self.cp_r_iter=False  #iterate for CP in evaporator
             self.FinsType = 'WavyLouveredFins'
@@ -437,8 +437,8 @@ class MCE_N(EvaporatorClass):
                 float(self.maldistributed[i])
                 air_flow_rat=self.maldistributed
             except: #no airside maldistribution
-                 air_flow_rat=np.linspace(1.0,1.0,self.num_evaps)
-                 print "invalid vector for aiside maldistribution, proceeding without maldistribution"
+                air_flow_rat=np.linspace(1.0,1.0,self.num_evaps)
+                print "invalid vector for aiside maldistribution, proceeding without maldistribution"
             print "This print is in hasattr,maldistributed: using air flow maldistribution, volumetric version",air_flow_rat,"air_flow_rat"
             print " "
             print "This print is after interleaved part::" 
@@ -858,7 +858,7 @@ class MCE_N(EvaporatorClass):
         else:  #just calculate the normal output values
             #import solver and solve
             from scipy.optimize import fsolve
-            if self.same_direction_flow:  
+            if self.same_direction_flow:
                 actual_hinB = self.EvapsA[i].hout_r
             else:
                 actual_hinA=fsolve(residual, guess_value)
@@ -1201,7 +1201,7 @@ def make_name(startstring,maldistribution,endstring):
         6) The end of this part are: calculation input part for uniform flow, baseline flow, interleave flow and bybrid flow.
     
                     """
-def airside_maldistribution_study(evap_type='LRCS',MD_Type=None,MD_severity=None,airside_maldistributions=None,num_evaps=2,filenameMDair='debug.csv',Hybrid='equal_flow',adjust_area_fraction_iternum=10):
+def airside_maldistribution_study(evap_type='LRCS',MD_Type=None,MD_severity=None,airside_maldistributions=None,num_evaps=6,filenameMDair='debug.csv',Hybrid='equal_flow',adjust_area_fraction_iternum=10):
     #run different airside flow maldistributions to check effect on performance
     if MD_Type==None:
         airside_maldistributions=[0,0.05,0.1,0.2,0.3,0.4,0.5]
