@@ -134,6 +134,8 @@ V_data = [V4,V5,VFan]
 
 average = [V4.mean(1), V5.mean(1), VFan.mean(1)]
 grid_y = np.arange(0, 22.6, 0.1)
+grid_100 = np.arange(0,22.6,0.0223) #this grid(array) is used to get velocity percentages on each circuit-- now there are 1000 elements --(note: the more interval you have the accurate you get due to the number of elements)
+no_points_per_circuit =  len(grid_100)/6. #devide the number of element by the number of circuits (6 circuits for 60K ECU)
 
 #===============================================================================
 # Start of the velocity curves code and plots
@@ -190,11 +192,21 @@ for i in range(len(Test)):
         return result
         
     results = lanrange(y,average[i])
-    print "The result is: "
+    print "The Langrange profile for Test",Test[i],"is: "
     print results
     lang_res = results(grid_y)
+    #The following is used to get velocity percentages on each circuit
+    lang_res_100 = results(grid_100)
+    lang_res_100_sum = np.sum(lang_res_100)
+    lang_res_cir = lang_res_100.reshape(6,no_points_per_circuit) #reshape the results to number of points in the 6 circuits
+    lang_res_cir_sum = lang_res_cir.sum(1) #sum the number of point on each circuit
+    percentage = lang_res_cir_sum / lang_res_100_sum #notice that the sum of this array =1.0 (100%)
+    print "Air velocity percentage = ", percentage
+    print ' '
+
+
         
-#     plt.figure()
+    #plt.figure()
     ax = plt.subplot(1, 3, i+1)
     plt.plot(average[i],y,'bo',label=r'Data')
     plt.plot(vg,grid_y,'r',label=r'Cubic polynomial')
@@ -213,4 +225,4 @@ fig.set_tight_layout(True)
 leg = ax.legend(bbox_to_anchor=(-2.54, 0.03), loc='lower left', borderaxespad=0.)
 leg.get_frame().set_alpha(0.7)
 plt.savefig('velocity_profile_v2/velocity_curve_combined.pdf')
-plt.show()
+#plt.show()
