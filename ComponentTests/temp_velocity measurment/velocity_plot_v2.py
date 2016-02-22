@@ -224,5 +224,5 @@ for i in range(len(Test)):
 fig.set_tight_layout(True)
 leg = ax.legend(bbox_to_anchor=(-2.54, 0.03), loc='lower left', borderaxespad=0.)
 leg.get_frame().set_alpha(0.7)
-plt.savefig('velocity_profile_v2/velocity_curve_combined.pdf')
+#plt.savefig('velocity_profile_v2/velocity_curve_combined.pdf')
 #plt.show()
