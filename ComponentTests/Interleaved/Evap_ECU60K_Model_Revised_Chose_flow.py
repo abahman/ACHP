@@ -625,10 +625,10 @@ class MCE_N(EvaporatorClass):
 
 #                   ################################################## 
                     self.EvapsB[0].Fins.Air.Tdb= self.EvapsA[5].Tout_a
-                    self.EvapsB[1].Fins.Air.Tdb= self.EvapsA[4].Tout_a
-                    self.EvapsB[2].Fins.Air.Tdb= self.EvapsA[3].Tout_a
-                    self.EvapsB[3].Fins.Air.Tdb= self.EvapsA[2].Tout_a
-                    self.EvapsB[4].Fins.Air.Tdb= self.EvapsA[1].Tout_a
+                    self.EvapsB[1].Fins.Air.Tdb= self.EvapsA[3].Tout_a
+                    self.EvapsB[2].Fins.Air.Tdb= self.EvapsA[4].Tout_a
+                    self.EvapsB[3].Fins.Air.Tdb= self.EvapsA[1].Tout_a
+                    self.EvapsB[4].Fins.Air.Tdb= self.EvapsA[2].Tout_a
                     self.EvapsB[5].Fins.Air.Tdb= self.EvapsA[0].Tout_a    # This is for 60K ECU , 6 circuits                    
                     ################################################## 
 #                     self.EvapsB[0].Fins.Air.Tdb= self.EvapsA[3].Tout_a
@@ -711,10 +711,10 @@ class MCE_N(EvaporatorClass):
 #                     self.EvapsB[i].Fins.Air.Tdb= self.EvapsA[self.num_evaps-1-i].Tout_a
 #                    ################################################# 
                     self.EvapsB[0].Fins.Air.RH= self.EvapsA[5].Fins.Air.RH_out
-                    self.EvapsB[1].Fins.Air.RH= self.EvapsA[4].Fins.Air.RH_out
-                    self.EvapsB[2].Fins.Air.RH= self.EvapsA[3].Fins.Air.RH_out
-                    self.EvapsB[3].Fins.Air.RH= self.EvapsA[2].Fins.Air.RH_out
-                    self.EvapsB[4].Fins.Air.RH= self.EvapsA[1].Fins.Air.RH_out
+                    self.EvapsB[1].Fins.Air.RH= self.EvapsA[3].Fins.Air.RH_out
+                    self.EvapsB[2].Fins.Air.RH= self.EvapsA[4].Fins.Air.RH_out
+                    self.EvapsB[3].Fins.Air.RH= self.EvapsA[1].Fins.Air.RH_out
+                    self.EvapsB[4].Fins.Air.RH= self.EvapsA[2].Fins.Air.RH_out
                     self.EvapsB[5].Fins.Air.RH= self.EvapsA[0].Fins.Air.RH_out     # This is for 60K ECU, 6 circuits
                     ##################################################################################
 #                     self.EvapsB[0].Fins.Air.RH= self.EvapsA[3].Fins.Air.RH_out
@@ -745,10 +745,10 @@ class MCE_N(EvaporatorClass):
                     
                     ##################################################  
                     self.EvapsB[0].Fins.Air.Tdb= self.EvapsA[5].Tout_a
-                    self.EvapsB[1].Fins.Air.Tdb= self.EvapsA[4].Tout_a
-                    self.EvapsB[2].Fins.Air.Tdb= self.EvapsA[3].Tout_a
-                    self.EvapsB[3].Fins.Air.Tdb= self.EvapsA[2].Tout_a
-                    self.EvapsB[4].Fins.Air.Tdb= self.EvapsA[1].Tout_a
+                    self.EvapsB[1].Fins.Air.Tdb= self.EvapsA[3].Tout_a
+                    self.EvapsB[2].Fins.Air.Tdb= self.EvapsA[4].Tout_a
+                    self.EvapsB[3].Fins.Air.Tdb= self.EvapsA[1].Tout_a
+                    self.EvapsB[4].Fins.Air.Tdb= self.EvapsA[2].Tout_a
                     self.EvapsB[5].Fins.Air.Tdb= self.EvapsA[0].Tout_a    # This is for 60K ECU, 6 circuits
                     ##################################################  
 #                     self.EvapsB[0].Fins.Air.Tdb= self.EvapsA[3].Tout_a
@@ -792,9 +792,9 @@ class MCE_N(EvaporatorClass):
         else:
             print " The flow directions here are oppsite!"
             h_guess_max=PropsSI('H','P',self.psat_r,'T',self.EvapsA[0].Fins.Air.Tdb,self.Ref)-5.0
-            #guess_value=300000*np.ones(self.num_evaps)
-            #guess_value=1000.0*h_guess_max**np.ones(self.num_evaps)
-            guess_value=h_guess_max*np.ones(self.num_evaps)
+            guess_value=300000*np.ones(self.num_evaps)
+            guess_value=1000.0*h_guess_max**np.ones(self.num_evaps)
+            #guess_value=h_guess_max*np.ones(self.num_evaps)
             print""
             print " ######### The start of the fucntion residual ###############"
             print""
@@ -1239,7 +1239,7 @@ def airside_maldistribution_study(evap_type='LRCS',MD_Type=None,MD_severity=None
 #     ###############################
 
     elif MD_Type=="60K":
-        Original_Profile=np.array([0.15,0.25,0.10,0.25,0.15,0.10])*6.0 ##Update on 02/19/16
+        Original_Profile=np.array([0.16075005,0.15097187,0.22788295,0.18484725,0.10406957,0.17147832])*6.0 ##Update on 02/21/16
         MD_severity=[0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0] 
         #MD_severity=[1.0]
         airside_maldistributions=maldistribution_scaler(Original_Profile,severity=MD_severity,parametric_study=True)
