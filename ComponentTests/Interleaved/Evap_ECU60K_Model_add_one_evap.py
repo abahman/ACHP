@@ -178,7 +178,7 @@ class MCE_N(EvaporatorClass):
         #--------------------------------------
         Evaporator.Fins.Tubes.NTubes_per_bank=2 #3 #8 (each cell 1 tube)
         Evaporator.Fins.Tubes.Nbank=3#2.5 #4(half of actual number for a single cell)
-        Evaporator.Fins.Tubes.Ncircuits=1#8 (each cell is part of 1 circuit)
+        Evaporator.Fins.Tubes.Ncircuits=6#8 (each cell is part of 1 circuit)
         Evaporator.Fins.Tubes.Ltube=in2m(24.875) #in2m(19)#measured fin pack length
         Evaporator.Fins.Tubes.OD=in2m(0.5) #0.007874 #measured
         Evaporator.Fins.Tubes.ID=Evaporator.Fins.Tubes.OD - 2*in2m(0.019)#0.007874-0.001 #guess of 1 mm for wall thickness
@@ -752,13 +752,13 @@ class MCE_N(EvaporatorClass):
             self.mdot_r_tot+=self.EvapsA[i].mdot_r
             self.mdot_r_totB+=self.EvapsB[i].mdot_r
             #self.mdot_r_totC+=self.EvapsC[i].mdot_r
-            self.hout_r+=self.EvapsA[i].mdot_r*self.EvapsA[i].hout_r  #flow weighted average
+            self.hout_r+=self.EvapsB[i].mdot_r*self.EvapsB[i].hout_r  #flow weighted average
         self.hout_r/=self.mdot_r_tot
         T_sat=PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref)
         T_out = PropsSI('T','P',self.psat_r,'H',self.hout_r,self.Ref)
         self.hout_r_target=PropsSI('H','T',T_out,'P',self.psat_r,self.Ref)
         print "flowrate at first and second coil sheet is ",self.mdot_r_tot,self.mdot_r_totB,"relative error is", (self.mdot_r_tot-self.mdot_r_totB)/self.mdot_r_tot
-        print " The comparison of T_sat and T_out",T_sat, T_out
+        print " The comparison of T_sat and T_out_r",T_sat, T_out
         print " The capapcity in last run is: ",self.Q
         
         if False:  #plot results
@@ -1156,7 +1156,7 @@ if __name__=='__main__':
     if 0: #run parametric study for 2-circuit cases only
         #airside_maldistribution_study(evap_type='18K',MD_Type=None,Hybrid='adjust_superheat_iter',adjust_area_fraction_iternum=30)  #this runs the 2-circuit case with the only possible maldistribution for that case (code is ugly...)
         airside_maldistribution_study(evap_type='60K',MD_Type=None,Hybrid='adjust_superheat_iter',adjust_area_fraction_iternum=30)
-    if 1: #run parametric studies
+    if 0: #run parametric studies
         airside_maldistribution_study(evap_type='60K',MD_Type="60K")
         #airside_maldistribution_study(evap_type='36K',MD_Type="36K")
         #airside_maldistribution_study(evap_type='18K',MD_Type="18K")
@@ -1168,7 +1168,7 @@ if __name__=='__main__':
     if 0: #test superheat equalizer
         #sh_equalizer_tester()
         sh_equalizer_tester(evap_type='60K',num_evaps=6,md_type='60K') #NOT WORKING NOW >>> ERROR
-    if 0: #run different flow distribution profiles for 60K
+    if 1: #run different flow distribution profiles for 60K
         MD_severity=[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7]
         #MD_severity=[0.8]
         #MD_severity=[0.5]

@@ -219,7 +219,7 @@ class MCE_N(EvaporatorClass):
         #--------------------------------------
         Evaporator.Fins.Tubes.NTubes_per_bank=2 #3 #8 (each cell 1 tube)
         Evaporator.Fins.Tubes.Nbank=3#2.5 #4(half of actual number for a single cell)
-        Evaporator.Fins.Tubes.Ncircuits=1#8 (each cell is part of 1 circuit)
+        Evaporator.Fins.Tubes.Ncircuits=6#8 (each cell is part of 1 circuit)
         Evaporator.Fins.Tubes.Ltube=in2m(24.875) #in2m(19)#measured fin pack length
         Evaporator.Fins.Tubes.OD=in2m(0.5) #0.007874 #measured
         Evaporator.Fins.Tubes.ID=Evaporator.Fins.Tubes.OD - 2*in2m(0.019)#0.007874-0.001 #guess of 1 mm for wall thickness
@@ -232,7 +232,7 @@ class MCE_N(EvaporatorClass):
         Evaporator.Fins.Fins.t=in2m(0.0075)#0.0001524   #tuned; measurement with callipper, confirmed withmicrometer screw (0.0078inch=0.00019812m)
         Evaporator.Fins.Fins.k_fin=237 #Thermal conductivity of fin material, aluminum, from wikipedia (replace with other source)
          
-        Evaporator.Fins.Air.Vdot_ha=(1/6)*cfm2cms(1742)#(1/5)*cfm2cms(600.0) #4440rated cfm >set manually in liquid_receiver_cycle
+        Evaporator.Fins.Air.Vdot_ha=(1/6)*cfm2cms(1742.0)#(1/5)*cfm2cms(600.0) #4440rated cfm >set manually in liquid_receiver_cycle
         #Evaporator.Fins.Air.Tmean=C2K(2.0)  #this is not actually used
         Evaporator.Fins.Air.Tdb=C2K(25.86)#F2K(90)
         Evaporator.Fins.Air.p=101325      #Air pressure
@@ -975,7 +975,7 @@ class MCE_N(EvaporatorClass):
             self.Q+=self.EvapsA[i].Q+self.EvapsB[i].Q
             self.mdot_r_tot+=self.EvapsA[i].mdot_r
             self.mdot_r_totB+=self.EvapsB[i].mdot_r
-            self.hout_r+=self.EvapsA[i].mdot_r*self.EvapsA[i].hout_r  #flow weighted average
+            self.hout_r+=self.EvapsB[i].mdot_r*self.EvapsB[i].hout_r  #flow weighted average
         self.hout_r/=self.mdot_r_tot
         T_sat=PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref)
         T_out = PropsSI('T','P',self.psat_r,'H',self.hout_r,self.Ref)
@@ -1383,9 +1383,9 @@ if __name__=='__main__':
     if 1: #run different flow distribution profiles for LRCS
         MD_severity=[0,0.1,0.2,0.3,0.4,0.5]
         #MD_severity=[0.5]
-        for md_type in ["60K"]:
+        #for md_type in ["60K"]:
         #for md_type in ["18K"]:
-        #for md_type in ['pyramid']:
+        for md_type in ['pyramid']:
         #for md_type in ['linear','Halflinear A','Halflinear B']:
             maldistributions=flow_maldistribution_profiles(6,md_type,severity=MD_severity,parametric_study=True,custom=False,profile=np.array(range(6)))
             #maldistributions=flow_maldistribution_profiles(5,md_type,severity=MD_severity,parametric_study=True,custom=False,profile=np.array(range(5)))
