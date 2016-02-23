@@ -1399,14 +1399,3 @@ if __name__=='__main__':
                 #airside_maldistribution_study(evap_type='36K',MD_Type=md_type,MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=8,filenameMDair=md_type+'36K_xinye of 4 conditions'+'.csv')
         
     #plt.show() #show plots, if any
-
-    
-    
-    
-    
-    
-       
-        
-        
-        
-                    

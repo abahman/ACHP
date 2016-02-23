@@ -71,47 +71,47 @@ class MCE_N(EvaporatorClass):
         for i in range(num_evaps):                                                                                                                              
             Output_list_i.append([('Vol flow A'+' '+str(i),'m^3/s',self.EvapsA[i].Fins.Air.Vdot_ha),
                                         ('Vol flow B'+' '+str(i),'m^3/s',self.EvapsB[i].Fins.Air.Vdot_ha),
-                                        ('Vol flow C'+' '+str(i),'m^3/s',self.EvapsC[i].Fins.Air.Vdot_ha),
+                                        #('Vol flow C'+' '+str(i),'m^3/s',self.EvapsC[i].Fins.Air.Vdot_ha),
                                         ('Outlet superheat_A'+' '+str(i),'K',self.EvapsA[i].Tout_r-self.EvapsA[i].Tdew_r),    
                                         ('Outlet superheat_B'+' '+str(i),'K',self.EvapsB[i].Tout_r-self.EvapsB[i].Tdew_r),
-                                        ('Outlet superheat_C'+' '+str(i),'K',self.EvapsC[i].Tout_r-self.EvapsC[i].Tdew_r),
+                                        #('Outlet superheat_C'+' '+str(i),'K',self.EvapsC[i].Tout_r-self.EvapsC[i].Tdew_r),
                                         ('Refrigerant flowrate_A'+' '+str(i),'kg/s',self.EvapsA[i].mdot_r),    
                                         ('Refrigerant flowrate_B'+' '+str(i),'kg/s',self.EvapsB[i].mdot_r),
-                                        ('Refrigerant flowrate_C'+' '+str(i),'kg/s',self.EvapsC[i].mdot_r),
+                                        #('Refrigerant flowrate_C'+' '+str(i),'kg/s',self.EvapsC[i].mdot_r),
                                         ('Q Total_A'+' '+str(i),'W',self.EvapsA[i].Q),    
                                         ('Q Total_B'+' '+str(i),'W',self.EvapsB[i].Q),
-                                        ('Q Total_C'+' '+str(i),'W',self.EvapsC[i].Q),
+                                        #('Q Total_C'+' '+str(i),'W',self.EvapsC[i].Q),
                                         ('Inlet ref. temp_A'+' '+str(i),'K',self.EvapsA[i].Tin_r),    
                                         ('Inlet ref. temp_B'+' '+str(i),'K',self.EvapsB[i].Tin_r),
-                                        ('Inlet ref. temp_C'+' '+str(i),'K',self.EvapsC[i].Tin_r),
+                                        #('Inlet ref. temp_C'+' '+str(i),'K',self.EvapsC[i].Tin_r),
                                         ('Outlet ref. temp_A'+' '+str(i),'K',self.EvapsA[i].Tout_r),    
                                         ('Outlet ref. temp_B'+' '+str(i),'K',self.EvapsB[i].Tout_r),
-                                        ('Outlet ref. temp_C'+' '+str(i),'K',self.EvapsC[i].Tout_r),
+                                        #('Outlet ref. temp_C'+' '+str(i),'K',self.EvapsC[i].Tout_r),
                                         ('Outlet air temp_A'+' '+str(i),'K',self.EvapsA[i].Tout_a),    
                                         ('Outlet air temp_B'+' '+str(i),'K',self.EvapsB[i].Tout_a),
-                                        ('Outlet air temp_C'+' '+str(i),'K',self.EvapsC[i].Tout_a),
+                                        #('Outlet air temp_C'+' '+str(i),'K',self.EvapsC[i].Tout_a),
                                         ('Pressure Drop Total_A'+' '+str(i),'P_A',self.EvapsA[i].DP_r),    
                                         ('Pressure Drop Total_B'+' '+str(i),'P_B',self.EvapsB[i].DP_r),
-                                        ('Pressure Drop Total_C'+' '+str(i),'P_C',self.EvapsC[i].DP_r),
+                                        #('Pressure Drop Total_C'+' '+str(i),'P_C',self.EvapsC[i].DP_r),
                                         ('Charge Total_A'+' '+str(i),'kg',self.EvapsA[i].Charge),    
                                         ('Charge Total_B'+' '+str(i),'kg',self.EvapsB[i].Charge),
-                                        ('Charge Total_C'+' '+str(i),'kg',self.EvapsC[i].Charge),
+                                        #('Charge Total_C'+' '+str(i),'kg',self.EvapsC[i].Charge),
                                         ('Charge Superheat_A'+' '+str(i),'kg',self.EvapsA[i].Charge_superheat),    
                                         ('Charge Superheat_B'+' '+str(i),'kg',self.EvapsB[i].Charge_superheat),
-                                        ('Charge Superheat_C'+' '+str(i),'kg',self.EvapsC[i].Charge_superheat),
+                                        #('Charge Superheat_C'+' '+str(i),'kg',self.EvapsC[i].Charge_superheat),
 #                                         ('Charge Two-Phase_A'+' '+str(i),'kg',self.EvapsA[i].Charge_2phase),    
                                         ('Surface Effectiveness_A'+' '+str(i),'-',self.EvapsA[i].Fins.eta_a),    
                                         ('Surface Effectiveness_B'+' '+str(i),'-',self.EvapsB[i].Fins.eta_a),
-                                        ('Surface Effectiveness_C'+' '+str(i),'-',self.EvapsC[i].Fins.eta_a),
+                                        #('Surface Effectiveness_C'+' '+str(i),'-',self.EvapsC[i].Fins.eta_a),
                                         ('Pressure Drop Air-side_A'+' '+str(i),'P_A',self.EvapsA[i].Fins.dP_a),
                                         ('Pressure Drop Air-side_B'+' '+str(i),'P_B',self.EvapsB[i].Fins.dP_a),
-                                        ('Pressure Drop Air-side_C'+' '+str(i),'P_B',self.EvapsC[i].Fins.dP_a),
+                                        #('Pressure Drop Air-side_C'+' '+str(i),'P_B',self.EvapsC[i].Fins.dP_a),
                                         ('Refrigerant mass flow A'+' '+str(i),'kg/s',self.EvapsA[i].mdot_r),
                                         ('Refrigerant mass flow B'+' '+str(i),'kg/s',self.EvapsB[i].mdot_r),
-                                        ('Refrigerant mass flow C'+' '+str(i),'kg/s',self.EvapsC[i].mdot_r),
+                                        #('Refrigerant mass flow C'+' '+str(i),'kg/s',self.EvapsC[i].mdot_r),
                                         ('Sensible Heat Ratio_A'+' '+str(i),'-',self.EvapsA[i].SHR),
-                                        ('Sensible Heat Ratio_B'+' '+str(i),'-',self.EvapsB[i].SHR),
-                                        ('Sensible Heat Ratio_C'+' '+str(i),'-',self.EvapsC[i].SHR)])
+                                        ('Sensible Heat Ratio_B'+' '+str(i),'-',self.EvapsB[i].SHR)])
+                                        #('Sensible Heat Ratio_C'+' '+str(i),'-',self.EvapsC[i].SHR)])
         for i in range(0,len(Output_list_i[0]),1): #sort output list, such that corresponding values are next to each other
             sumsi=0    #need sums and avgs
             for n in range(0,num_evaps):
@@ -155,136 +155,18 @@ class MCE_N(EvaporatorClass):
             Output_List_tot.append(Output_list[i])
         return Output_List_tot
     
-        #define parameters for evaporator as used in 36K
+        #define parameters for evaporator as used in 60K
  
-    def Evaporator_36K_Fins(self):  
+    def Evaporator_60K_Fins(self):
         """ In this part, the inputs are as follows: 
-                    
-                    Fins Properties 
-                    Air flow rate(cms); 
-                    Air inlet temperature(K)and pressure (kPa);
-                    Air humidity;
-                    Fan Power;
+                     
+            Fins Properties 
+            Air flow rate(cms); 
+            Air inlet temperature(K) and pressure (Pa);
+            Air humidity;
+            Fan Power;
         """   
-#         #define parameters for evaporator as used in 36K (14 circuits)
-#         
-#         Evaporator=EvaporatorClass()
-#         Evaporator.Fins=FinInputs()
-#          
-#         #--------------------------------------
-#         #--------------------------------------
-#         #           Evaporator
-#         #           -> see Condenser and GUI for explanations
-#         #--------------------------------------
-#         #--------------------------------------
-#         Evaporator.Fins.Tubes.NTubes_per_bank=1 #8 (each cell 1 tube)
-#         Evaporator.Fins.Tubes.Nbank=2.5#4(half of actual number for a single cell)
-#         Evaporator.Fins.Tubes.Ncircuits=1#8 (each cell is part of 1 circuit)
-#         Evaporator.Fins.Tubes.Ltube=in2m(33) #measured fin pack length
-# #         Evaporator.Fins.Tubes.OD=0.009525 #measured
-#         Evaporator.Fins.Tubes.OD=0.004999 #measured
-# #         Evaporator.Fins.Tubes.ID=0.009525-0.001 #guess of 1 mm for wall thickness
-#         Evaporator.Fins.Tubes.ID=0.004999-0.001 #guess of 1 mm for wall thickness
-#         Evaporator.Fins.Tubes.Pl=0.020117      #distance between center of tubes in flow direction (measured)
-#         Evaporator.Fins.Tubes.Pt=0.020879
-#         # The input above is for the tube but the below is for the fins     
-#         Evaporator.Fins.Fins.FPI=8
-#         Evaporator.Fins.Fins.Pd=0.0014351  #fins are basically flat; measured Pd in wrong direction (wavyness perpendicular to airflow direction)
-#         Evaporator.Fins.Fins.xf=0.003175 
-#         Evaporator.Fins.Fins.t=0.0001524   #tuned; measurement with callipper, confirmed withmicrometer screw (0.0078inch=0.00019812m)
-#         Evaporator.Fins.Fins.k_fin=237 #Thermal conductivity of fin material, aluminum, from wikipedia (replace with other source)
-#          
-#         Evaporator.Fins.Air.Vdot_ha=(1/14)*cfm2cms(1200) #4440rated cfm >set manually in liquid_receiver_cycle
-#         #Evaporator.Fins.Air.Tmean=C2K(2.0)  #this is not actually used
-#         Evaporator.Fins.Air.Tdb=C2K(22.52)
-#         Evaporator.Fins.Air.p=101.325      #Air pressure
-#         #################################
-#         Evaporator.Fins.Air.RH=0.5  #0.48
-#         Evaporator.Fins.Air.RHmean=0.5 #0.48
-#         #################################
-#         Evaporator.Fins.Air.FanPower=650#378  #W, average from clean coil hybrid measurements
-#         return Evaporator.Fins 
-###############################################################################################   
-    
-#         #define parameters for evaporator as used in 36K (Original 8 circuits)
-#          
-#         Evaporator=EvaporatorClass()
-#         Evaporator.Fins=FinInputs()
-#           
-#         #--------------------------------------
-#         #--------------------------------------
-#         #           Evaporator
-#         #           -> see Condenser and GUI for explanations
-#         #--------------------------------------
-#         #--------------------------------------
-#         Evaporator.Fins.Tubes.NTubes_per_bank=1 #8 (each cell 1 tube)
-#         Evaporator.Fins.Tubes.Nbank=2 #4(half of actual number for a single cell)
-#         Evaporator.Fins.Tubes.Ncircuits=1#8 (each cell is part of 1 circuit)
-#         Evaporator.Fins.Tubes.Ltube=in2m(33) #measured fin pack length
-#         Evaporator.Fins.Tubes.OD=0.009525 #measured
-#         Evaporator.Fins.Tubes.ID=0.009525-0.001 #guess of 1 mm for wall thickness
-#         Evaporator.Fins.Tubes.Pl=0.02464      #distance between center of tubes in flow direction (measured)
-#         Evaporator.Fins.Tubes.Pt=0.0254
-#         # The input above is for the tube but the below is for the fins     
-#         Evaporator.Fins.Fins.FPI=8
-#         Evaporator.Fins.Fins.Pd=0.0014351  #fins are basically flat; measured Pd in wrong direction (wavyness perpendicular to airflow direction)
-#         Evaporator.Fins.Fins.xf=0.003175 
-#         Evaporator.Fins.Fins.t=0.0001524   #tuned; measurement with callipper, confirmed withmicrometer screw (0.0078inch=0.00019812m)
-#         Evaporator.Fins.Fins.k_fin=237 #Thermal conductivity of fin material, aluminum, from wikipedia (replace with other source)
-#           
-#         Evaporator.Fins.Air.Vdot_ha=(1/8)*cfm2cms(1200) #4440rated cfm >set manually in liquid_receiver_cycle
-#         #Evaporator.Fins.Air.Tmean=C2K(2.0)  #this is not actually used
-#         Evaporator.Fins.Air.Tdb=C2K(22.52)
-#         Evaporator.Fins.Air.p=101.325      #Air pressure
-#         #################################
-#         Evaporator.Fins.Air.RH=0.5  #0.48
-#         Evaporator.Fins.Air.RHmean=0.5 #0.48
-#         #################################
-#         Evaporator.Fins.Air.FanPower=650#378  #W, average from clean coil hybrid measurements
-#         return Evaporator.Fins 
-#         
-#         return FinsTubes    
-        #define parameters for evaporator as used in 18K (Original 5 circuits)
-         
-        Evaporator=EvaporatorClass()
-        Evaporator.Fins=FinInputs()
-          
-        #--------------------------------------
-        #--------------------------------------
-        #           Evaporator
-        #           -> see Condenser and GUI for explanations
-        #--------------------------------------
-        #--------------------------------------
-        Evaporator.Fins.Tubes.NTubes_per_bank=1 #8 (each cell 1 tube)
-        Evaporator.Fins.Tubes.Nbank=2 #4(half of actual number for a single cell)
-        Evaporator.Fins.Tubes.Ncircuits=1#8 (each cell is part of 1 circuit)
-        # The input above is for the dividing method for the partial evaporator
-        Evaporator.Fins.Tubes.Ltube=in2m(19) #measured fin pack length
-        Evaporator.Fins.Tubes.OD=0.007874#measured
-        Evaporator.Fins.Tubes.ID=0.007874-0.001 #guess of 1 mm for wall thickness
-        Evaporator.Fins.Tubes.Pl=0.0164      #distance between center of tubes in flow direction (measured)
-        Evaporator.Fins.Tubes.Pt=0.0254
-        # The input above is for the tube but the below is for the fins     
-        Evaporator.Fins.Fins.FPI=10
-        Evaporator.Fins.Fins.Pd=0.0014351  #fins are basically flat; measured Pd in wrong direction (wavyness perpendicular to airflow direction)
-        Evaporator.Fins.Fins.xf=0.003175 
-        Evaporator.Fins.Fins.t=0.0001524   #tuned; measurement with callipper, confirmed withmicrometer screw (0.0078inch=0.00019812m)
-        Evaporator.Fins.Fins.k_fin=237 #Thermal conductivity of fin material, aluminum, from wikipedia (replace with other source)
-          
-        Evaporator.Fins.Air.Vdot_ha=(1/9)*cfm2cms(600) #4440rated cfm >set manually in liquid_receiver_cycle
-        #Evaporator.Fins.Air.Tmean=C2K(2.0)  #this is not actually used
-        Evaporator.Fins.Air.Tdb=C2K(31.94)
-        Evaporator.Fins.Air.p=101325      #Air pressure
-        #################################
-        Evaporator.Fins.Air.RH=0.4923  #0.48
-        Evaporator.Fins.Air.RHmean=0.4923 #0.48
-        #################################
-        Evaporator.Fins.Air.FanPower=393#378  #W, average from clean coil hybrid measurements
-        return Evaporator.Fins 
-    
-    
-    def Evaporator_36K_last_Fins(self):
-        #define parameters for evaporator as used in LRCS
+        #define parameters for evaporator as used in 60K
         Evaporator=EvaporatorClass()
         Evaporator.Fins=FinInputs()
          
@@ -294,78 +176,55 @@ class MCE_N(EvaporatorClass):
         #           -> see Condenser and GUI for explanations
         #--------------------------------------
         #--------------------------------------
-        Evaporator.Fins.Tubes.NTubes_per_bank=1 #8 (each cell 1 tube)
-        Evaporator.Fins.Tubes.Nbank=1 #4(half of actual number for a single cell)
+        Evaporator.Fins.Tubes.NTubes_per_bank=2 #3 #8 (each cell 1 tube)
+        Evaporator.Fins.Tubes.Nbank=3#2.5 #4(half of actual number for a single cell)
         Evaporator.Fins.Tubes.Ncircuits=1#8 (each cell is part of 1 circuit)
-#         Evaporator.Fins.Tubes.Ltube=in2m(33) #measured fin pack length
-#         Evaporator.Fins.Tubes.OD=0.009525 #measured
-#         Evaporator.Fins.Tubes.ID=0.009525-0.001 #guess of 1 mm for wall thickness
-#         Evaporator.Fins.Tubes.Pl=0.02464      #distance between center of tubes in flow direction (measured)
-#         Evaporator.Fins.Tubes.Pt=0.0254
-#         # The input above is for the tube but the below is for the fins     
-#         Evaporator.Fins.Fins.FPI=8
-#         Evaporator.Fins.Fins.Pd=0.0014351  #fins are basically flat; measured Pd in wrong direction (wavyness perpendicular to airflow direction)
-#         Evaporator.Fins.Fins.xf=0.003175 
-#         Evaporator.Fins.Fins.t=0.0001524   #tuned; measurement with callipper, confirmed withmicrometer screw (0.0078inch=0.00019812m)
-#         Evaporator.Fins.Fins.k_fin=237 #Thermal conductivity of fin material, aluminum, from wikipedia (replace with other source)
-#          
-#         Evaporator.Fins.Air.Vdot_ha=(1/8)*cfm2cms(1200) #4440rated cfm >set manually in liquid_receiver_cycle
-#         #Evaporator.Fins.Air.Tmean=C2K(2.0)  #this is not actually used
-#         Evaporator.Fins.Air.Tdb=C2K(22.52)
-#         Evaporator.Fins.Air.p=101.325      #Air pressure
-#         #################################
-#         Evaporator.Fins.Air.RH=0.5  #0.48
-#         Evaporator.Fins.Air.RHmean=0.5 #0.48
-#         #################################
-#         Evaporator.Fins.Air.FanPower=650#378  #W, average from clean coil hybrid measurements
-#         return Evaporator.Fins 
-
-        # The input above is for the dividing method for the partial evaporator
-        Evaporator.Fins.Tubes.Ltube=in2m(19) #measured fin pack length
-        Evaporator.Fins.Tubes.OD=0.007874#measured
-        Evaporator.Fins.Tubes.ID=0.007874-0.001 #guess of 1 mm for wall thickness
-        Evaporator.Fins.Tubes.Pl=0.0164      #distance between center of tubes in flow direction (measured)
-        Evaporator.Fins.Tubes.Pt=0.0254
-        # The input above is for the tube but the below is for the fins     
-        Evaporator.Fins.Fins.FPI=10
-        Evaporator.Fins.Fins.Pd=0.0014351  #fins are basically flat; measured Pd in wrong direction (wavyness perpendicular to airflow direction)
-        Evaporator.Fins.Fins.xf=0.003175 
-        Evaporator.Fins.Fins.t=0.0001524   #tuned; measurement with callipper, confirmed withmicrometer screw (0.0078inch=0.00019812m)
+        Evaporator.Fins.Tubes.Ltube=in2m(24.875) #in2m(19)#measured fin pack length
+        Evaporator.Fins.Tubes.OD=in2m(0.5) #0.007874 #measured
+        Evaporator.Fins.Tubes.ID=Evaporator.Fins.Tubes.OD - 2*in2m(0.019)#0.007874-0.001 #guess of 1 mm for wall thickness
+        Evaporator.Fins.Tubes.Pl=in2m(1.082)#0.0164      #distance between center of tubes in flow direction (measured)
+        Evaporator.Fins.Tubes.Pt=in2m(1.25)#0.0254
+             
+        Evaporator.Fins.Fins.FPI=12#10
+        Evaporator.Fins.Fins.Pd=in2m(1.0/16.0/2)#0.001435  #fins are basically flat; measured Pd in wrong direction (wavyness perpendicular to airflow direction)
+        Evaporator.Fins.Fins.xf=in2m(1.0/4.0)#0.003175 
+        Evaporator.Fins.Fins.t=in2m(0.0075)#0.0001524   #tuned; measurement with callipper, confirmed withmicrometer screw (0.0078inch=0.00019812m)
         Evaporator.Fins.Fins.k_fin=237 #Thermal conductivity of fin material, aluminum, from wikipedia (replace with other source)
-          
-        Evaporator.Fins.Air.Vdot_ha=(1/9)*cfm2cms(600) #4440rated cfm >set manually in liquid_receiver_cycle
+         
+        Evaporator.Fins.Air.Vdot_ha=(1/6)*cfm2cms(1742)#(1/5)*cfm2cms(600.0) #4440rated cfm >set manually in liquid_receiver_cycle
         #Evaporator.Fins.Air.Tmean=C2K(2.0)  #this is not actually used
-        Evaporator.Fins.Air.Tdb=C2K(31.94)
+        Evaporator.Fins.Air.Tdb=C2K(25.86)#F2K(90)
         Evaporator.Fins.Air.p=101325      #Air pressure
         #################################
-        Evaporator.Fins.Air.RH=0.4923  #0.48
-        Evaporator.Fins.Air.RHmean=0.4923 #0.48
+        Evaporator.Fins.Air.RH=0.3145#0.4923  #0.48
+        Evaporator.Fins.Air.RHmean=0.3145#0.4923 #0.48
         #################################
-        Evaporator.Fins.Air.FanPower=393#378  #W, average from clean coil hybrid measurements
-        return Evaporator.Fins 
+        Evaporator.Fins.Air.FanPower=778.0#393#378  #W, average from clean coil hybrid measurements
+        
+        return Evaporator.Fins
     
     
-    def Calculate(self,evap_type='36K'):
+    def Calculate(self,evap_type='60K'):
         #common inputs; note: flowrates are "per circuit", not total!
         """ In this part, the inputs are as follows: 
                     
                     Refrigerant name; 
                     Saturated pressure of refrigerant; 
-                    Mass flow rate for each circuit(g/s);
+                    Mass flow rate for each circuit (kg/s);
                     Inlet enthalpy (J/kg);
                     Verbosity;
                     
                     """
         if not hasattr(self,'num_evaps'):
-            self.num_evaps=2 #number of evaporators
+            self.num_evaps=6 #number of evaporators
             
-        elif evap_type=='36K':  # 3tons = 10.55kW
+        elif evap_type=='60K':  # 5tons = 17.52kW
             self.Ref='R407c'    #'R410a'
             #Values from 125F-80F-41.2SF-50Damp hybrid test
-            self.psat_r= 656000 #857.6 for 36K
-            self.mdot_r=(44.7/1000.0)/(9.0)*1.0  #67 for 36K #later on add handling to automatically get back to flowrate of one circuit from total flowrate
+            self.psat_r= 345600
+            self.mdot_r=(0.09292)/(6.0)  # #later on add handling to automatically get back to flowrate of one circuit from total flowrate
             self.mdot_r_=self.mdot_r*1.0   #used as backup if first value in superheat iteration does not converge
-            self.hin_r=PropsSI('H','P', 656000,'Q',0.4314,self.Ref) #Q = 0.1791 for 36K
+            self.hin_r=PropsSI('H','P', 1732000,'T',C2K(33.14),self.Ref) #Q = 0.1791 for 36K
             self.Verbosity=0
             self.cp_r_iter=False  #iterate for CP in evaporator
             self.FinsType = 'WavyLouveredFins'
@@ -387,7 +246,7 @@ class MCE_N(EvaporatorClass):
             ED=copy.deepcopy(EvapDict)
             self.EvapsA=[]  #first row at air inlet
             self.EvapsB=[]  #second row, air inlet is air outlet from first row
-            self.EvapsC=[]    # Used for the last row
+            #self.EvapsC=[]    # Used for the last row
             
             #for both rows, [0] is on top, [1] is on bottom
             for i in range(self.num_evaps):
@@ -396,8 +255,8 @@ class MCE_N(EvaporatorClass):
                 ####first row
                 ED2=copy.deepcopy(ED)
                 E=EvaporatorClass(**ED2)
-                if evap_type=='36K':
-                    dict_tmp=copy.deepcopy(self.Evaporator_36K_Fins())
+                if evap_type=='60K':
+                    dict_tmp=copy.deepcopy(self.Evaporator_60K_Fins())
                 else:
                     print "undefined evaporator type"
                     raise()
@@ -410,8 +269,8 @@ class MCE_N(EvaporatorClass):
                 ####second row
                 ED2=copy.deepcopy(ED)
                 E=EvaporatorClass(**ED2)
-                if evap_type=='36K':
-                    dict_tmp=copy.deepcopy(self.Evaporator_36K_Fins())
+                if evap_type=='60K':
+                    dict_tmp=copy.deepcopy(self.Evaporator_60K_Fins())
                     E.h_a_tuning=1.0
                 else:
                     print "undefined evaporator type"
@@ -421,17 +280,17 @@ class MCE_N(EvaporatorClass):
                 self.EvapsB.append(E)
                 
                 ####last row
-                ED2=copy.deepcopy(ED)
-                E=EvaporatorClass(**ED2)
-                if evap_type=='36K':
-                    dict_tmp=copy.deepcopy(self.Evaporator_36K_last_Fins())
-                    E.h_a_tuning=1.0
-                else:
-                    print "undefined evaporator type"
-                    raise()
-                E.Fins=dict_tmp
-                #Add to list of evaporators
-                self.EvapsC.append(E)
+#                 ED2=copy.deepcopy(ED)
+#                 E=EvaporatorClass(**ED2)
+#                 if evap_type=='36K':
+#                     dict_tmp=copy.deepcopy(self.Evaporator_36K_last_Fins())
+#                     E.h_a_tuning=1.0
+#                 else:
+#                     print "undefined evaporator type"
+#                     raise()
+#                 E.Fins=dict_tmp
+#                 #Add to list of evaporators
+#                 self.EvapsC.append(E)
         "#################################################################################################"
                 
         """ In this part, the program will define maldistribution definition and apply it on the airflow rate. 
@@ -460,14 +319,14 @@ class MCE_N(EvaporatorClass):
                     max_order = self.interleave_order[1]
                     self.EvapsA[i].Fins.Air.Vdot_ha=self.Vdot_ha*air_flow_rat[i]
                     self.EvapsB[min_order[i]].Fins.Air.Vdot_ha=self.Vdot_ha*air_flow_rat[max_order[i]] 
-                    self.EvapsC[i].Fins.Air.Vdot_ha=self.EvapsB[i].Fins.Air.Vdot_ha    # There is no interleaved between B&C
+                    #self.EvapsC[i].Fins.Air.Vdot_ha=self.EvapsB[i].Fins.Air.Vdot_ha    # There is no interleaved between B&C
                 else:
                     self.EvapsA[i].Fins.Air.Vdot_ha=self.Vdot_ha*air_flow_rat[i] 
                     self.EvapsB[i].Fins.Air.Vdot_ha=self.Vdot_ha*air_flow_rat[i]
-            for i in range(self.num_evaps):
-                self.EvapsC[i].Fins.Air.Vdot_ha=self.EvapsB[i].Fins.Air.Vdot_ha    # There is no interleaved between B&C
+            #for i in range(self.num_evaps):
+            #    self.EvapsC[i].Fins.Air.Vdot_ha=self.EvapsB[i].Fins.Air.Vdot_ha    # There is no interleaved between B&C
             for  i in range(self.num_evaps):        
-                print "circuit",i,air_flow_rat[i],"circ Ai",self.EvapsA[i].Fins.Air.Vdot_ha,"circ Bi",self.EvapsB[i].Fins.Air.Vdot_ha,"circ Ci",self.EvapsC[i].Fins.Air.Vdot_ha
+                print "circuit",i,air_flow_rat[i],"circ Ai",self.EvapsA[i].Fins.Air.Vdot_ha,"circ Bi",self.EvapsB[i].Fins.Air.Vdot_ha#,"circ Ci",self.EvapsC[i].Fins.Air.Vdot_ha
             print " " #newline
             
 
@@ -487,7 +346,7 @@ class MCE_N(EvaporatorClass):
             for i in range(self.num_evaps):
                 self.EvapsA[i].mdot_r=self.mdot_r*ref_flow_rat[i]
                 self.EvapsB[i].mdot_r=self.mdot_r*ref_flow_rat[i]
-                self.EvapsC[i].mdot_r=self.mdot_r*ref_flow_rat[i]
+                #self.EvapsC[i].mdot_r=self.mdot_r*ref_flow_rat[i]
             
         def adjust_flowrates():  #function to adjust flowrates for hybrid control
             if hasattr(self,'Hybrid'):
@@ -500,7 +359,7 @@ class MCE_N(EvaporatorClass):
                     for i in range(self.num_evaps):
                         self.EvapsA[i].mdot_r=self.mdot_r*self.EvapsA[i].Fins.Air.Vdot_ha/v_dot_avg
                         self.EvapsB[i].mdot_r=self.mdot_r*self.EvapsB[i].Fins.Air.Vdot_ha/v_dot_avg
-                        self.EvapsC[i].mdot_r=self.mdot_r*self.EvapsC[i].Fins.Air.Vdot_ha/v_dot_avg
+                        #self.EvapsC[i].mdot_r=self.mdot_r*self.EvapsC[i].Fins.Air.Vdot_ha/v_dot_avg
                 elif self.Hybrid=='equal_flow_DT_in':
                     Tsat_r=PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref)  #neglect temperature dependency
                     DT_avg=0.0
@@ -511,14 +370,14 @@ class MCE_N(EvaporatorClass):
                     for i in range(self.num_evaps):
                         self.EvapsA[i].mdot_r=self.mdot_r*(self.EvapsA[i].Fins.Air.Tdb-Tsat_r)/DT_avg
                         self.EvapsB[i].mdot_r=self.mdot_r*(self.EvapsA[i].Fins.Air.Tdb-Tsat_r)/DT_avg  #parallel circuitry
-                        self.EvapsC[i].mdot_r=self.mdot_r*(self.EvapsA[i].Fins.Air.Tdb-Tsat_r)/DT_avg
+                        #self.EvapsC[i].mdot_r=self.mdot_r*(self.EvapsA[i].Fins.Air.Tdb-Tsat_r)/DT_avg
                 elif self.Hybrid=='adjust_superheat' or self.Hybrid=='adjust_area_fraction' or 'adjust_superheat_iter':
                         if not hasattr(self,'Hybrid_ref_distribution'):
                             raise()
                         for i in range(self.num_evaps):
                             self.EvapsA[i].mdot_r=self.mdot_r*self.Hybrid_ref_distribution[i]
                             self.EvapsB[i].mdot_r=self.mdot_r*self.Hybrid_ref_distribution[i]  #parallel circuitry
-                            self.EvapsC[i].mdot_r=self.mdot_r*self.Hybrid_ref_distribution[i]
+                            #self.EvapsC[i].mdot_r=self.mdot_r*self.Hybrid_ref_distribution[i]
                 else:
                     adjust_flowrate_EXV()  #already done at first call of Calculate, but needs to be repeated for calculation of mass flowrate with given target SH
                     print "Wrong input for self.Hybrid - temporarily using EXV adjustment for hybrid", self.Hybrid
@@ -609,25 +468,25 @@ class MCE_N(EvaporatorClass):
                 hB_out_for_residue[i]=self.EvapsB[i].hout_r
                 #print "The EvapsB.Fins.Air.h_outr",hB_out_for_residue[i]
             print ""
-            print " This means the code has calculated the EvapsB Part!! Then for EvapsC Part!!"
+            print " This means the code has calculated the EvapsB Part!!"
             print ""
             
-            hC_out_for_residue=np.zeros(self.num_evaps)
-            for i in range(self.num_evaps):   #update and calculate last row
-                self.EvapsC[i].Fins.Air.RH= self.EvapsB[i].Fins.Air.RH_out
-                self.EvapsC[i].Fins.Air.Tdb= self.EvapsB[i].Tout_a
-                self.EvapsC[i].Calculate() 
-                hC_out_for_residue[i]=self.EvapsC[i].hout_r    
-            print ""
-            print " This means the code has calculated the EvapsC Part!! Then for return of function"
-            print ""          
+#             hC_out_for_residue=np.zeros(self.num_evaps)
+#             for i in range(self.num_evaps):   #update and calculate last row
+#                 self.EvapsC[i].Fins.Air.RH= self.EvapsB[i].Fins.Air.RH_out
+#                 self.EvapsC[i].Fins.Air.Tdb= self.EvapsB[i].Tout_a
+#                 self.EvapsC[i].Calculate() 
+#                 hC_out_for_residue[i]=self.EvapsC[i].hout_r    
+#             print ""
+#             print " This means the code has calculated the EvapsC Part!! Then for return of function"
+#             print ""          
             #calculate the error between estimated and actual inlet enthalpy to first row
             #residue = 0.0
             #for i in range(self.num_evaps):
                 #residue+=(hin_rA[i]-hB_out_for_residue[i])**2
-            residue_A = hin_r[0:self.num_evaps]-hB_out_for_residue
-            residue_B = hin_r[self.num_evaps:2*self.num_evaps]-hC_out_for_residue
-            residue=np.append(residue_A,residue_B)
+            #residue_A = hin_r[0:self.num_evaps]-hB_out_for_residue
+            #residue_B = hin_r[self.num_evaps:2*self.num_evaps]-hC_out_for_residue
+            residue=hin_r-hB_out_for_residue #Ammr>>CHNAGED FROM : np.append(residue_A,residue_B)
 #             residue=residue_A^2 + residue_B^2
             #print "Guess Value la",guess_value
             #print " inlet enthalpy hehehehehe",hin_rA,"what's the hB_out",hB_out_for_residue
@@ -675,18 +534,18 @@ class MCE_N(EvaporatorClass):
                 self.EvapsB[i].Calculate()
                 print " The outlet of EvapB,h_out",self.EvapsB[i].hout_r
                 
-                self.EvapsC[i].hin_r = self.EvapsB[i].hout_r
+                #self.EvapsC[i].hin_r = self.EvapsB[i].hout_r
                 
-            print""
-            print" This means the code is calcualting the EvapC:"
-            print""
+            #print""
+            #print" This means the code is calcualting the EvapC:"
+            #print""
             
-            for i in range(self.num_evaps):   #update and calculate the last row
-                self.EvapsC[i].Fins.Air.RH= self.EvapsB[i].Fins.Air.RH_out
-                self.EvapsC[i].Fins.Air.Tdb= self.EvapsB[i].Tout_a
-                print " The inlet of EvapC,h_in",self.EvapsC[i].hin_r
-                self.EvapsC[i].Calculate()
-                print " The outlet of EvapC,h_out",self.EvapsC[i].hout_r
+            #for i in range(self.num_evaps):   #update and calculate the last row
+            #    self.EvapsC[i].Fins.Air.RH= self.EvapsB[i].Fins.Air.RH_out
+            #    self.EvapsC[i].Fins.Air.Tdb= self.EvapsB[i].Tout_a
+            #    print " The inlet of EvapC,h_in",self.EvapsC[i].hin_r
+            #    self.EvapsC[i].Calculate()
+            #    print " The outlet of EvapC,h_out",self.EvapsC[i].hout_r
                 
             print""
             print " ######### The end of the Calculating Process ###############"
@@ -701,11 +560,11 @@ class MCE_N(EvaporatorClass):
         else:
             print " The flow directions here are oppsite!"
             h_guess_A=PropsSI('H','P',self.psat_r,'T',self.EvapsA[0].Fins.Air.Tdb,self.Ref)-5.0
-            h_guess_B=PropsSI('H','P',self.psat_r,'T',self.EvapsA[0].Fins.Air.Tdb,self.Ref)-10.0
+            #h_guess_B=PropsSI('H','P',self.psat_r,'T',self.EvapsA[0].Fins.Air.Tdb,self.Ref)-10.0
 #             guess_value=300000*np.ones(self.num_evaps)
             guess_value_A=h_guess_A**np.ones(self.num_evaps)
-            guess_value_B=h_guess_B**np.ones(self.num_evaps)
-            guess_value = np.append(guess_value_A, guess_value_B)
+            #guess_value_B=h_guess_B**np.ones(self.num_evaps)
+            guess_value = guess_value_A#np.append(guess_value_A, guess_value_B)
             
 #             for i in range(self.num_evaps):
 #                 print " Guess_value for A check again!!!",guess_value[0][i]
@@ -884,15 +743,15 @@ class MCE_N(EvaporatorClass):
         self.Q=0.0
         self.mdot_r_tot=0.0
         self.mdot_r_totB=0.0  #second coil sheet, as a check
-        self.mdot_r_totC=0.0  #last coil sheet, as a check
+        #self.mdot_r_totC=0.0  #last coil sheet, as a check
         self.hout_r=0.0
         for i in range(self.num_evaps):
 #             print " check the capacity for each run A",self.EvapsA[i].Q
 #             print " check the capacity for each run B",self.EvapsB[i].Q
-            self.Q+=self.EvapsA[i].Q+self.EvapsB[i].Q+self.EvapsC[i].Q
+            self.Q+=self.EvapsA[i].Q+self.EvapsB[i].Q#+self.EvapsC[i].Q
             self.mdot_r_tot+=self.EvapsA[i].mdot_r
             self.mdot_r_totB+=self.EvapsB[i].mdot_r
-            self.mdot_r_totC+=self.EvapsC[i].mdot_r
+            #self.mdot_r_totC+=self.EvapsC[i].mdot_r
             self.hout_r+=self.EvapsA[i].mdot_r*self.EvapsA[i].hout_r  #flow weighted average
         self.hout_r/=self.mdot_r_tot
         T_sat=PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref)
@@ -976,7 +835,7 @@ def Profile_order(Profile):
     order = [index_min,index_max]
     return order  
             
-def flow_maldistribution_profiles(num_evaps,type,severity=[0,0.05,0.1,0.2,0.3,0.4,0.5],parametric_study=False,custom=False,profile=np.array(range(5))):
+def flow_maldistribution_profiles(num_evaps,type,severity=[0,0.05,0.1,0.2,0.3,0.4,0.5],parametric_study=False,custom=False,profile=np.array(range(6))):
     """
     generates a scaled maldistribution profile, returns an array with the distribution factors
     to be used on air or refrigerant side for flowdistribution
@@ -1029,7 +888,7 @@ def flow_maldistribution_profiles(num_evaps,type,severity=[0,0.05,0.1,0.2,0.3,0.
         len(maldistribution[0])
         dim_md=np.zeros(len(maldistribution))
         for i in range(len(maldistribution)):
-             dim_md[i]=dim_md_calc_array(maldistribution[i])
+            dim_md[i]=dim_md_calc_array(maldistribution[i])
     except:
         dim_md=[dim_md_calc_array(maldistribution)]    
     return maldistribution,dim_md,interleave_order
@@ -1044,12 +903,12 @@ def flow_maldistribution_profiles_tester():
     rc('font', **font)  # pass in the font dict as kwargs
     
     for severity in [0.8,[0,0.05,0.1,0.2,0.3,0.4,0.5]]:
-        for num_evaps in [7,8]:
+        for num_evaps in [5,6]:
             for type in ['linear','pyramid','Halflinear A','Halflinear B']:
                 fig=plt.figure()
                 ax = fig.add_subplot(111)
                 plt.rc('text', usetex=True)
-                use_fontsize=21
+                use_fontsize=11
                 plt.rcParams['font.size']=use_fontsize 
                 plt.rc('legend',**{'fontsize':use_fontsize})
                 try:
@@ -1128,8 +987,8 @@ def maldistribution_scaler(maldistribution_profile,severity=1,parametric_study=F
 def make_name(startstring,maldistribution,endstring):
     #helperfunction to set testdescription while preventing linebreaks
     try: 
-        if len(maldistribution)>5:
-            TestDescription=startstring+" "+str(maldistribution[0:5])[:-1]+" "+str(maldistribution[5:])[1:]+" "+endstring
+        if len(maldistribution)>6:
+            TestDescription=startstring+" "+str(maldistribution[0:6])[:-1]+" "+str(maldistribution[6:])[1:]+" "+endstring
         else:
             TestDescription=startstring+str(maldistribution)+endstring
         return TestDescription
@@ -1150,51 +1009,32 @@ def make_name(startstring,maldistribution,endstring):
         6) The end of this part are: calculation input part for uniform flow, baseline flow, interleave flow and bybrid flow.
     
                     """
-def airside_maldistribution_study(evap_type='36K',MD_Type=None,interleave_order=None,MD_severity=None,airside_maldistributions=None,num_evaps=2,filenameMDair='debug.csv',Hybrid='equal_flow',adjust_area_fraction_iternum=10):
+def airside_maldistribution_study(evap_type='60K',MD_Type=None,interleave_order=None,MD_severity=None,airside_maldistributions=None,num_evaps=6,filenameMDair='debug.csv',Hybrid='equal_flow',adjust_area_fraction_iternum=10):
     #run different airside flow maldistributions to check effect on performance
     if MD_Type==None:
         airside_maldistributions=[0,0.05,0.1,0.2,0.3,0.4,0.5]
         MD_severity=airside_maldistributions
         for i in range(len(airside_maldistributions)):
-           airside_maldistributions[i]=np.linspace(1.+airside_maldistributions[i],1.-airside_maldistributions[i],num_evaps)
+            airside_maldistributions[i]=np.linspace(1.+airside_maldistributions[i],1.-airside_maldistributions[i],num_evaps)
         filenameMDair =evap_type+'-NCircuit_airMD_linear.csv'
-###########################
-    elif MD_Type=="36K":  #see D:\Purdue\Thesis\Tex-document\source files and links\interleaved circuitry\LRCS\maldistribution profiles.xlsx
-        #Original_Profile=np.array([0.0135415976822403,0.0221506896994024,0.0369272399580833,0.111895731459975,0.106096750782192,0.265750418904745,0.196007841404425,0.247629730108938])*8.0  #different definition compared to normal ACHP MCE
-        #Original_Profile=np.array([0.11482602,0.104035698,0.091155398,0.076185154,0.133324145,0.140278695,0.156926708,0.183268184])*8.0  #different definition compared to normal ACHP MCE
-        #Original_Profile=np.array([0.1425512,0.1513153,0.1100230,0.0780403,0.0820702,0.1202301,0.1631706,0.1525993])*8.0
-#         Original_Profile=np.array([0.0994045,0.1984615,0.1868156,0.1811249,0.1740281,0.1201654,0.0298098,0.0101902])*8.0    #111414
-        Original_Profile=np.array([0.153699354,0.246305539,0.197249951,0.253914660,0.148830495])*5.0 ##Update on 021915
-#         Original_Profile=np.array([0.101853644,0.141104443,0.09926435,0.105120511,0.12965831,0.121091859,0.107709805,0.122422805,0.071774272])*9.0  # Velocity profile for 9 circuits 18K
-        #Original_Profile=np.array([0.125,0.125,0.125,0.125,0.125,0.125,0.125,0.125])*8.0
-#         Original_Profile=np.array([1/14,1/14,1/14,1/14,1/14,1/14,1/14,1/14,1/14,1/14,1/14,1/14,1/14,1/14])*14.0
-#         MD_severity=[0,0.1,0.2,0.3,0.4,0.5,1.0]
-        #MD_severity=[0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
-        #MD_severity=[0]
+    ###########################
+    
+    elif MD_Type=="60K":
+        Original_Profile=np.array([0.19008887,0.14424539,0.2115167,0.17403436,0.11236396,0.16775072])*6.0 ##Update on 02/22/16
         order_original_profile = Original_Profile 
-        MD_severity=[1.0]
+        MD_severity=[0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
         airside_maldistributions=maldistribution_scaler(Original_Profile,severity=MD_severity,parametric_study=True)
         interleave_order = Profile_order(order_original_profile)
-        num_evaps=5 #number of evaporators
-#         num_evaps=14 #number of evaporator
-        filenameMDair =evap_type+'-8Circuit_airMD_type_xinye.csv'
-###############################
-    elif MD_Type=="18K":  #see D:\Purdue\Thesis\Tex-document\source files and links\interleaved circuitry\LRCS\maldistribution profiles.xlsx
-#         Original_Profile=np.array([0.101853644,0.141104443,0.09926435,0.105120511,0.12965831,0.121091859,0.107709805,0.122422805,0.071774272])*9.0
-        #Original_Profile=np.array([0.208968102,0.186853962,0.227785303,0.203150503,0.17324213])*5.0
-        Original_Profile=np.array([0.153699354,0.246305539,0.197249951,0.253914660,0.148830495])*5.0 ##Update on 021915
-        #MD_severity=[0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0] 
-        MD_severity=[0,1.0]
-        airside_maldistributions=maldistribution_scaler(Original_Profile,severity=MD_severity,parametric_study=True)
-        interleave_order = Profile_order(Original_Profile)
-        num_evaps=5 #number of updated evaporators
-        #num_evaps=9 #number of updated evaporators
-        filenameMDair =evap_type+'-5Circuit_airMD_type_xinye.csv' 
-        #filenameMDair =evap_type+'-9Circuit_airMD_type_xinye.csv'
+        num_evaps=6 #number of evaporators
+        filenameMDair =evap_type+'-6Circuit_airMD_type_AddOne_Ammar.csv'
+    ###########################
+    
     elif MD_Type=='custom':
         print "using custum maldistribution as passed in"
-    Target_SH=5.0
-    Parallel_flow = False
+    
+    
+    Target_SH=15.55 #from Test 5 baseline
+    Parallel_flow = True
 
     evap=MCE_N()
     #evap.Target_SH=Target_SH
@@ -1202,7 +1042,7 @@ def airside_maldistribution_study(evap_type='36K',MD_Type=None,interleave_order=
     evap.interleaved=False
     evap.maldistributed=False
     evap.num_evaps=num_evaps #update evaporator
-#     evap.interleave_order = interleave_order
+#    evap.interleave_order = interleave_order
     evap.Calculate(evap_type)
     evap.TestDescription='Standard' #to use for plotting in Excel Details
     evap.md_severity=str(0) #to use for plotting in Excel 
@@ -1216,7 +1056,7 @@ def airside_maldistribution_study(evap_type='36K',MD_Type=None,interleave_order=
         evap.same_direction_flow =Parallel_flow
         evap.interleaved=False
         evap.num_evaps=num_evaps #update evaporator
-#         evap.interleave_order = interleave_order
+#        evap.interleave_order = interleave_order
         evap.maldistributed=airside_maldistributions[i]
         evap.Calculate(evap_type)
         evap.TestDescription='Standard' #to use for plotting in Excel Details
@@ -1265,13 +1105,13 @@ def airside_maldistribution_study(evap_type='36K',MD_Type=None,interleave_order=
     plt.show()
 
 
-def sh_equalizer_tester(evap_type='LRCS',num_evaps=8,md_type='linear',Target_SH=5.0,MD_severity=[0.2]):
+def sh_equalizer_tester(evap_type='LRCS',num_evaps=6,md_type='linear',Target_SH=15.55,MD_severity=[0.2]):
     #test if superheat equalizer works
     if len(MD_severity)>1:
         parametric_study=True
     else:
         parametric_study=False
-    maldistributions=flow_maldistribution_profiles(num_evaps,md_type,severity=MD_severity,parametric_study=parametric_study,custom=False,profile=np.array(range(5)))
+    maldistributions=flow_maldistribution_profiles(num_evaps,md_type,severity=MD_severity,parametric_study=parametric_study,custom=False,profile=np.array(range(6)))
     Append=False
     for i_iternum in [10]:
         for i_MD in range(len(MD_severity)):
@@ -1314,9 +1154,11 @@ if __name__=='__main__':
         flow_maldistribution_profiles_tester()
         #air_temp_maldistribution_profiles_tester()
     if 0: #run parametric study for 2-circuit cases only
-        airside_maldistribution_study(evap_type='18K',MD_Type=None,Hybrid='adjust_superheat_iter',adjust_area_fraction_iternum=30)  #this runs the 2-circuit case with the only possible maldistribution for that case (code is ugly...)
+        #airside_maldistribution_study(evap_type='18K',MD_Type=None,Hybrid='adjust_superheat_iter',adjust_area_fraction_iternum=30)  #this runs the 2-circuit case with the only possible maldistribution for that case (code is ugly...)
+        airside_maldistribution_study(evap_type='60K',MD_Type=None,Hybrid='adjust_superheat_iter',adjust_area_fraction_iternum=30)
     if 1: #run parametric studies
-        airside_maldistribution_study(evap_type='36K',MD_Type="36K")
+        airside_maldistribution_study(evap_type='60K',MD_Type="60K")
+        #airside_maldistribution_study(evap_type='36K',MD_Type="36K")
         #airside_maldistribution_study(evap_type='18K',MD_Type="18K")
         #refside_maldistribution_study(evap_type='LRCS')
         #airside_temp_maldistribution_study(evap_type='RAC',MD_Type="RAC_Temp")
@@ -1324,22 +1166,24 @@ if __name__=='__main__':
         #airside_maldistribution_study(evap_type='RAC',MD_Type="RAC_avg")
         #combined_maldistribution_study(evap_type='RAC',MD_Type='RAC_combined')
     if 0: #test superheat equalizer
-        sh_equalizer_tester()
-        
-    if 0: #run different flow distribution profiles for 36K&18K
+        #sh_equalizer_tester()
+        sh_equalizer_tester(evap_type='60K',num_evaps=6,md_type='60K') #NOT WORKING NOW >>> ERROR
+    if 0: #run different flow distribution profiles for 60K
         MD_severity=[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7]
         #MD_severity=[0.8]
-#         MD_severity=[0.5]
-        #for md_type in ["18K"]:
-        for md_type in ['pyramid','linear']:
-#         for md_type in ['linear','Halflinear A','Halflinear B','pyramid']:
-            Number_cir = 9
-            maldistributions=flow_maldistribution_profiles(Number_cir,md_type,severity=MD_severity,parametric_study=True,custom=False,profile=np.array(range(5)))
+        #MD_severity=[0.5]
+        for md_type in ["60K"]:
+        #for md_type in ['pyramid','linear']:
+        #for md_type in ['linear','Halflinear A','Halflinear B','pyramid']:
+            Number_cir = 6
+            maldistributions=flow_maldistribution_profiles(Number_cir,md_type,severity=MD_severity,parametric_study=True,custom=False,profile=np.array(range(6)))
             if 0:
-                sh_equalizer_tester(evap_type='LRCS',num_evaps=Number_cir,md_type=md_type,Target_SH=5.0,MD_severity=MD_severity)
+                #sh_equalizer_tester(evap_type='LRCS',num_evaps=Number_cir,md_type=md_type,Target_SH=5.0,MD_severity=MD_severity)
+                sh_equalizer_tester(evap_type='60K',num_evaps=6,md_type=md_type,Target_SH=15.55,MD_severity=MD_severity)
             if 1:
                 #airside_maldistribution_study(evap_type='18K',MD_Type=md_type,MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=5,filenameMDair=md_type+'18K_xinye of 4 conditions'+'.csv')
-                airside_maldistribution_study(evap_type='36K',MD_Type=md_type,interleave_order=maldistributions[2],MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=Number_cir,filenameMDair=md_type+'36K_xinye of 4 conditions'+'.csv')
-#                 airside_maldistribution_study(evap_type='36K',MD_Type=md_type,interleave_order=maldistributions[2],MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=14,filenameMDair=md_type+'36K_xinye of 4 conditions (14 cir)'+'.csv')
+                #airside_maldistribution_study(evap_type='36K',MD_Type=md_type,interleave_order=maldistributions[2],MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=Number_cir,filenameMDair=md_type+'36K_xinye of 4 conditions'+'.csv')
+                airside_maldistribution_study(evap_type='60K',MD_Type=md_type,interleave_order=maldistributions[2],MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=Number_cir,filenameMDair=md_type+'60K_Ammar of 4 conditions'+'.csv')
+                #airside_maldistribution_study(evap_type='36K',MD_Type=md_type,interleave_order=maldistributions[2],MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=14,filenameMDair=md_type+'36K_xinye of 4 conditions (14 cir)'+'.csv')
                 #airside_maldistribution_study(evap_type='36K',MD_Type=md_type,MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=8,filenameMDair=md_type+'36K_xinye of 4 conditions'+'.csv')
     #plt.show() #show plots, if any
