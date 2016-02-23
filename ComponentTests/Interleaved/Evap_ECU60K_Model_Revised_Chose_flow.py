@@ -1251,10 +1251,11 @@ def airside_maldistribution_study(evap_type='LRCS',MD_Type=None,MD_severity=None
         print "using custum maldistribution as passed in"
     
     Target_SH=15.55 #from Test 5 baseline  
+    Parallel_flow = False
 
     evap=MCE_N()
     #evap.Target_SH=Target_SH
-    evap.same_direction_flow =True
+    evap.same_direction_flow =Parallel_flow
     evap.interleaved=False
     evap.maldistributed=False
     evap.num_evaps=num_evaps #update evaporator
@@ -1268,7 +1269,7 @@ def airside_maldistribution_study(evap_type='LRCS',MD_Type=None,MD_severity=None
     for i in range(len(airside_maldistributions)):
         evap=MCE_N()
         #evap.Target_SH=Target_SH
-        evap.same_direction_flow =True
+        evap.same_direction_flow =Parallel_flow
         evap.interleaved=False
         evap.num_evaps=num_evaps #update evaporator
         evap.maldistributed=airside_maldistributions[i]
@@ -1282,7 +1283,7 @@ def airside_maldistribution_study(evap_type='LRCS',MD_Type=None,MD_severity=None
     for i in range(len(airside_maldistributions)):
         evap=MCE_N()
         #evap.Target_SH=Target_SH
-        evap.same_direction_flow =True
+        evap.same_direction_flow =Parallel_flow
         evap.interleaved=True
         evap.num_evaps=num_evaps #update evaporator
         evap.maldistributed=airside_maldistributions[i]
@@ -1296,7 +1297,7 @@ def airside_maldistribution_study(evap_type='LRCS',MD_Type=None,MD_severity=None
     for i in range(len(airside_maldistributions)):
         evap=MCE_N()
         #evap.Target_SH=Target_SH
-        evap.same_direction_flow = True
+        evap.same_direction_flow = Parallel_flow
         evap.Hybrid=Hybrid
         if evap.Hybrid=='adjust_superheat_iter':
             evap.Hybrid_ref_distribution=airside_maldistributions[i]
@@ -1313,7 +1314,7 @@ def airside_maldistribution_study(evap_type='LRCS',MD_Type=None,MD_severity=None
         
     print "capacity-non-interleaved",Q_noninterleaved,"capacity, interleaved",Q_interleaved,"ratio",(Q_interleaved/Q_noninterleaved),"performance improvement over non-interleaved",((Q_interleaved-Q_noninterleaved)/Q_noninterleaved)*100,'%'
     print "capacity-non-interleaved",Q_noninterleaved,"capacity, hybrid",Q_hybrid,"ratio",(Q_hybrid/Q_noninterleaved),"performance improvement over non-interleaved",((Q_hybrid-Q_noninterleaved)/Q_noninterleaved)*100,'%'
-    print "Capacity of basecase without maldistribution",Q_base,"performance degradation caused by maldistribution",((Q_base-Q_noninterleaved)/Q_base)*100
+    print "Capacity of basecase without maldistribution",Q_base,"performance degradation caused by maldistribution",((Q_base-Q_noninterleaved)/Q_base)*100,'%'
     #plt.show() #Ammar: there is no plot command here !!?
 
 
@@ -1383,9 +1384,9 @@ if __name__=='__main__':
     if 1: #run different flow distribution profiles for LRCS
         MD_severity=[0,0.1,0.2,0.3,0.4,0.5]
         #MD_severity=[0.5]
-        #for md_type in ["60K"]:
+        for md_type in ["60K"]:
         #for md_type in ["18K"]:
-        for md_type in ['pyramid']:
+        #for md_type in ['pyramid']:
         #for md_type in ['linear','Halflinear A','Halflinear B']:
             maldistributions=flow_maldistribution_profiles(6,md_type,severity=MD_severity,parametric_study=True,custom=False,profile=np.array(range(6)))
             #maldistributions=flow_maldistribution_profiles(5,md_type,severity=MD_severity,parametric_study=True,custom=False,profile=np.array(range(5)))
