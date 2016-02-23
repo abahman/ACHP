@@ -217,10 +217,10 @@ class MCE_N(EvaporatorClass):
         #           -> see Condenser and GUI for explanations
         #--------------------------------------
         #--------------------------------------
-        Evaporator.Fins.Tubes.NTubes_per_bank=6 #3 #8 (each cell 1 tube)
+        Evaporator.Fins.Tubes.NTubes_per_bank=2 #3 #8 (each cell 1 tube)
         Evaporator.Fins.Tubes.Nbank=3#2.5 #4(half of actual number for a single cell)
-        Evaporator.Fins.Tubes.Ncircuits=6#8 (each cell is part of 1 circuit)
-        Evaporator.Fins.Tubes.Ltube=in2m(25) #in2m(19)#measured fin pack length
+        Evaporator.Fins.Tubes.Ncircuits=1#8 (each cell is part of 1 circuit)
+        Evaporator.Fins.Tubes.Ltube=in2m(24.875) #in2m(19)#measured fin pack length
         Evaporator.Fins.Tubes.OD=in2m(0.5) #0.007874 #measured
         Evaporator.Fins.Tubes.ID=Evaporator.Fins.Tubes.OD - 2*in2m(0.019)#0.007874-0.001 #guess of 1 mm for wall thickness
         Evaporator.Fins.Tubes.Pl=in2m(1.082)#0.0164      #distance between center of tubes in flow direction (measured)
@@ -333,11 +333,11 @@ class MCE_N(EvaporatorClass):
         
         if evap_type=='60K':
             self.Ref='R407c'
-            self.psat_r=361500
+            self.psat_r=345600 #from baseline, Test 5 at state of saturated vapor (should be at state 9, inlet to evap) 
             if hasattr(self,'mdot_r'):
                 self.mdot_r=self.mdot_r/float(self.num_evaps) #internally using individual circuit average flowrate
             else:
-                self.mdot_r=(0.09292)/(6.0)*1.0  #later on add handling to automatically get back to flowrate of one circuit from total flowrate
+                self.mdot_r=(0.09292)/(6.0)  #later on add handling to automatically get back to flowrate of one circuit from total flowrate
             self.mdot_r_=self.mdot_r*1.0   #used as backup if first value in superheat iteration does not converge
             self.hin_r=PropsSI('H','P', 1732000,'T',C2K(33.14),self.Ref) #from baseline results Test 5 at state 7 (isenthalpic process to 9)
             self.Verbosity=0
