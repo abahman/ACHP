@@ -941,7 +941,7 @@ def flow_maldistribution_profiles_tester():
                 labels = [str(item) for item in ax.xaxis.get_majorticklocs()]
                 #labels[0]='0'
                 ax.set_xticklabels(labels)
-                plt.savefig(str(num_evaps)+type+str(np.round(dim_md[0],2))+'.png',bbox_inches='tight',dpi=600)
+                plt.savefig(str(num_evaps)+type+str(np.round(dim_md[0],2))+'.pdf',bbox_inches='tight')
         plt.close('all')
         #plt.show()
     
