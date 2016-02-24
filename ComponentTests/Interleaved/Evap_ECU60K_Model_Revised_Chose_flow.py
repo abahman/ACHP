@@ -672,9 +672,9 @@ class MCE_N(EvaporatorClass):
         else:
             print " The flow directions here are opposite!" #counter flow
             h_guess_max=PropsSI('H','P',self.psat_r,'T',self.EvapsA[0].Fins.Air.Tdb,self.Ref)-5.0
-            guess_value=300000*np.ones(self.num_evaps)
-            guess_value=1000.0*h_guess_max**np.ones(self.num_evaps)
-            #guess_value=h_guess_max*np.ones(self.num_evaps)
+            #guess_value=300000*np.ones(self.num_evaps)
+            #guess_value=1000.0*h_guess_max**np.ones(self.num_evaps)
+            guess_value=h_guess_max*np.ones(self.num_evaps)
             print""
             print " ######### The start of the fucntion residual ###############"
             print""
