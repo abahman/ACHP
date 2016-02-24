@@ -71,47 +71,34 @@ class MCE_N(EvaporatorClass):
         for i in range(num_evaps):                                                                                                                              
             Output_list_i.append([('Vol flow A'+' '+str(i),'m^3/s',self.EvapsA[i].Fins.Air.Vdot_ha),
                                         ('Vol flow B'+' '+str(i),'m^3/s',self.EvapsB[i].Fins.Air.Vdot_ha),
-                                        #('Vol flow C'+' '+str(i),'m^3/s',self.EvapsC[i].Fins.Air.Vdot_ha),
                                         ('Outlet superheat_A'+' '+str(i),'K',self.EvapsA[i].Tout_r-self.EvapsA[i].Tdew_r),    
                                         ('Outlet superheat_B'+' '+str(i),'K',self.EvapsB[i].Tout_r-self.EvapsB[i].Tdew_r),
-                                        #('Outlet superheat_C'+' '+str(i),'K',self.EvapsC[i].Tout_r-self.EvapsC[i].Tdew_r),
                                         ('Refrigerant flowrate_A'+' '+str(i),'kg/s',self.EvapsA[i].mdot_r),    
                                         ('Refrigerant flowrate_B'+' '+str(i),'kg/s',self.EvapsB[i].mdot_r),
-                                        #('Refrigerant flowrate_C'+' '+str(i),'kg/s',self.EvapsC[i].mdot_r),
                                         ('Q Total_A'+' '+str(i),'W',self.EvapsA[i].Q),    
                                         ('Q Total_B'+' '+str(i),'W',self.EvapsB[i].Q),
-                                        #('Q Total_C'+' '+str(i),'W',self.EvapsC[i].Q),
                                         ('Inlet ref. temp_A'+' '+str(i),'K',self.EvapsA[i].Tin_r),    
                                         ('Inlet ref. temp_B'+' '+str(i),'K',self.EvapsB[i].Tin_r),
-                                        #('Inlet ref. temp_C'+' '+str(i),'K',self.EvapsC[i].Tin_r),
                                         ('Outlet ref. temp_A'+' '+str(i),'K',self.EvapsA[i].Tout_r),    
                                         ('Outlet ref. temp_B'+' '+str(i),'K',self.EvapsB[i].Tout_r),
-                                        #('Outlet ref. temp_C'+' '+str(i),'K',self.EvapsC[i].Tout_r),
                                         ('Outlet air temp_A'+' '+str(i),'K',self.EvapsA[i].Tout_a),    
                                         ('Outlet air temp_B'+' '+str(i),'K',self.EvapsB[i].Tout_a),
-                                        #('Outlet air temp_C'+' '+str(i),'K',self.EvapsC[i].Tout_a),
                                         ('Pressure Drop Total_A'+' '+str(i),'P_A',self.EvapsA[i].DP_r),    
                                         ('Pressure Drop Total_B'+' '+str(i),'P_B',self.EvapsB[i].DP_r),
-                                        #('Pressure Drop Total_C'+' '+str(i),'P_C',self.EvapsC[i].DP_r),
                                         ('Charge Total_A'+' '+str(i),'kg',self.EvapsA[i].Charge),    
                                         ('Charge Total_B'+' '+str(i),'kg',self.EvapsB[i].Charge),
-                                        #('Charge Total_C'+' '+str(i),'kg',self.EvapsC[i].Charge),
                                         ('Charge Superheat_A'+' '+str(i),'kg',self.EvapsA[i].Charge_superheat),    
                                         ('Charge Superheat_B'+' '+str(i),'kg',self.EvapsB[i].Charge_superheat),
-                                        #('Charge Superheat_C'+' '+str(i),'kg',self.EvapsC[i].Charge_superheat),
-#                                         ('Charge Two-Phase_A'+' '+str(i),'kg',self.EvapsA[i].Charge_2phase),    
+                                        ('Charge Two-Phase_A'+' '+str(i),'kg',self.EvapsA[i].Charge_2phase),
+                                        ('Charge Two-Phase_B'+' '+str(i),'kg',self.EvapsB[i].Charge_2phase),    
                                         ('Surface Effectiveness_A'+' '+str(i),'-',self.EvapsA[i].Fins.eta_a),    
                                         ('Surface Effectiveness_B'+' '+str(i),'-',self.EvapsB[i].Fins.eta_a),
-                                        #('Surface Effectiveness_C'+' '+str(i),'-',self.EvapsC[i].Fins.eta_a),
                                         ('Pressure Drop Air-side_A'+' '+str(i),'P_A',self.EvapsA[i].Fins.dP_a),
                                         ('Pressure Drop Air-side_B'+' '+str(i),'P_B',self.EvapsB[i].Fins.dP_a),
-                                        #('Pressure Drop Air-side_C'+' '+str(i),'P_B',self.EvapsC[i].Fins.dP_a),
                                         ('Refrigerant mass flow A'+' '+str(i),'kg/s',self.EvapsA[i].mdot_r),
                                         ('Refrigerant mass flow B'+' '+str(i),'kg/s',self.EvapsB[i].mdot_r),
-                                        #('Refrigerant mass flow C'+' '+str(i),'kg/s',self.EvapsC[i].mdot_r),
                                         ('Sensible Heat Ratio_A'+' '+str(i),'-',self.EvapsA[i].SHR),
                                         ('Sensible Heat Ratio_B'+' '+str(i),'-',self.EvapsB[i].SHR)])
-                                        #('Sensible Heat Ratio_C'+' '+str(i),'-',self.EvapsC[i].SHR)])
         for i in range(0,len(Output_list_i[0]),1): #sort output list, such that corresponding values are next to each other
             sumsi=0    #need sums and avgs
             for n in range(0,num_evaps):
@@ -192,13 +179,10 @@ class MCE_N(EvaporatorClass):
         Evaporator.Fins.Fins.k_fin=237 #Thermal conductivity of fin material, aluminum, from wikipedia (replace with other source)
          
         Evaporator.Fins.Air.Vdot_ha=(1/6)*cfm2cms(1742)#(1/5)*cfm2cms(600.0) #4440rated cfm >set manually in liquid_receiver_cycle
-        #Evaporator.Fins.Air.Tmean=C2K(2.0)  #this is not actually used
         Evaporator.Fins.Air.Tdb=C2K(25.86)#F2K(90)
         Evaporator.Fins.Air.p=101325      #Air pressure
-        #################################
         Evaporator.Fins.Air.RH=0.3145#0.4923  #0.48
         Evaporator.Fins.Air.RHmean=0.3145#0.4923 #0.48
-        #################################
         Evaporator.Fins.Air.FanPower=778.0#393#378  #W, average from clean coil hybrid measurements
         
         return Evaporator.Fins
@@ -220,11 +204,10 @@ class MCE_N(EvaporatorClass):
             
         elif evap_type=='60K':  # 5tons = 17.52kW
             self.Ref='R407c'    #'R410a'
-            #Values from 125F-80F-41.2SF-50Damp hybrid test
             self.psat_r= 345600
             self.mdot_r=(0.09292)/(6.0)  # #later on add handling to automatically get back to flowrate of one circuit from total flowrate
             self.mdot_r_=self.mdot_r*1.0   #used as backup if first value in superheat iteration does not converge
-            self.hin_r=PropsSI('H','P', 1732000,'T',C2K(33.14),self.Ref) #Q = 0.1791 for 36K
+            self.hin_r=PropsSI('H','P', 1732000,'T',C2K(33.14),self.Ref)
             self.Verbosity=0
             self.cp_r_iter=False  #iterate for CP in evaporator
             self.FinsType = 'WavyLouveredFins'
@@ -238,7 +221,7 @@ class MCE_N(EvaporatorClass):
         """ In this part, the program will define the separate evaporator, 
             which will be significant for 'cell' definition, interleave condition later
                     
-                    """
+        """
         
         if not hasattr(self,'EvapsA'):   #if we don't already have run the calculate function once
             #generate dictionaries for evaporators
@@ -246,7 +229,6 @@ class MCE_N(EvaporatorClass):
             ED=copy.deepcopy(EvapDict)
             self.EvapsA=[]  #first row at air inlet
             self.EvapsB=[]  #second row, air inlet is air outlet from first row
-            #self.EvapsC=[]    # Used for the last row
             
             #for both rows, [0] is on top, [1] is on bottom
             for i in range(self.num_evaps):
@@ -257,6 +239,7 @@ class MCE_N(EvaporatorClass):
                 E=EvaporatorClass(**ED2)
                 if evap_type=='60K':
                     dict_tmp=copy.deepcopy(self.Evaporator_60K_Fins())
+                    E.h_a_tuning=1.0
                 else:
                     print "undefined evaporator type"
                     raise()
@@ -279,28 +262,18 @@ class MCE_N(EvaporatorClass):
                 #Add to list of evaporators
                 self.EvapsB.append(E)
                 
-                ####last row
-#                 ED2=copy.deepcopy(ED)
-#                 E=EvaporatorClass(**ED2)
-#                 if evap_type=='36K':
-#                     dict_tmp=copy.deepcopy(self.Evaporator_36K_last_Fins())
-#                     E.h_a_tuning=1.0
-#                 else:
-#                     print "undefined evaporator type"
-#                     raise()
-#                 E.Fins=dict_tmp
-#                 #Add to list of evaporators
-#                 self.EvapsC.append(E)
         "#################################################################################################"
                 
-        """ In this part, the program will define maldistribution definition and apply it on the airflow rate. 
-            (Note: the maldtributed rate is not the input of velocity profile which has been changed based on the maldistribution level)
+        """ In this part, the program will define maldistribution definition and 
+            apply it on the airflow rate. 
+            (Note: the maldtributed rate is not the input of velocity profile 
+            which has been changed based on the maldistribution level)
                    
-                    """
+        """
                           
         if hasattr(self,'maldistributed'):    
             #apply airside FLOW maldistribution
-            try: 
+            try:
                 float(self.maldistributed[i])
                 air_flow_rat=self.maldistributed
             except: #no airside maldistribution
@@ -310,83 +283,71 @@ class MCE_N(EvaporatorClass):
             print " "
             print "This print is after interleaved part::" 
             for i in range(self.num_evaps):
-#                 if hasattr(self,'interleaved'):
-                    #adjust air flowrates to second row (is interleaved)
-#                     if self.interleaved==True:
                 if self.interleaved:
                     " Use the function to find the profile order"
                     min_order = self.interleave_order[0]
                     max_order = self.interleave_order[1]
                     self.EvapsA[i].Fins.Air.Vdot_ha=self.Vdot_ha*air_flow_rat[i]
                     self.EvapsB[min_order[i]].Fins.Air.Vdot_ha=self.Vdot_ha*air_flow_rat[max_order[i]] 
-                    #self.EvapsC[i].Fins.Air.Vdot_ha=self.EvapsB[i].Fins.Air.Vdot_ha    # There is no interleaved between B&C
                 else:
                     self.EvapsA[i].Fins.Air.Vdot_ha=self.Vdot_ha*air_flow_rat[i] 
                     self.EvapsB[i].Fins.Air.Vdot_ha=self.Vdot_ha*air_flow_rat[i]
-            #for i in range(self.num_evaps):
-            #    self.EvapsC[i].Fins.Air.Vdot_ha=self.EvapsB[i].Fins.Air.Vdot_ha    # There is no interleaved between B&C
             for  i in range(self.num_evaps):        
-                print "circuit",i,air_flow_rat[i],"circ Ai",self.EvapsA[i].Fins.Air.Vdot_ha,"circ Bi",self.EvapsB[i].Fins.Air.Vdot_ha#,"circ Ci",self.EvapsC[i].Fins.Air.Vdot_ha
+                print "circuit",i,air_flow_rat[i],"circ Ai",self.EvapsA[i].Fins.Air.Vdot_ha,"circ Bi",self.EvapsB[i].Fins.Air.Vdot_ha
             print " " #newline
             
-
-
-                
-        def adjust_flowrate_EXV(): 
-            #apply refrigerant side maldistribution
-            #function to adjust flowrates for EXV control
-            #adjust refrigerant flowrates according to equal flow assumption or maldistribution
-            #parallel flow for normal EXV
-            try: 
-                float(self.ref_maldistributed[self.num_evaps-1])
-                ref_flow_rat=self.ref_maldistributed
-                print "applying maldistribution on refrigerant side"
-            except:
-                ref_flow_rat=np.ones(self.num_evaps)
-            for i in range(self.num_evaps):
-                self.EvapsA[i].mdot_r=self.mdot_r*ref_flow_rat[i]
-                self.EvapsB[i].mdot_r=self.mdot_r*ref_flow_rat[i]
-                #self.EvapsC[i].mdot_r=self.mdot_r*ref_flow_rat[i]
+      
+#         def adjust_flowrate_EXV(): 
+#             #apply refrigerant side maldistribution
+#             #function to adjust flowrates for EXV control
+#             #adjust refrigerant flowrates according to equal flow assumption or maldistribution
+#             #parallel flow for normal EXV
+#             try: 
+#                 float(self.ref_maldistributed[self.num_evaps-1])
+#                 ref_flow_rat=self.ref_maldistributed
+#                 print "applying maldistribution on refrigerant side"
+#             except:
+#                 ref_flow_rat=np.ones(self.num_evaps)
+#             for i in range(self.num_evaps):
+#                 self.EvapsA[i].mdot_r=self.mdot_r*ref_flow_rat[i]
+#                 self.EvapsB[i].mdot_r=self.mdot_r*ref_flow_rat[i]
             
-        def adjust_flowrates():  #function to adjust flowrates for hybrid control
-            if hasattr(self,'Hybrid'):
-                if self.Hybrid=='equal_flow':
-                    v_dot_avg=0.0
-                    for i in range(self.num_evaps):
-                        v_dot_avg+=self.EvapsA[i].Fins.Air.Vdot_ha
-                    v_dot_avg/=(1.0*self.num_evaps)  #average circuit inlet flowrate
-                    #adjust refrigerant flowrates according to air flowrates
-                    for i in range(self.num_evaps):
-                        self.EvapsA[i].mdot_r=self.mdot_r*self.EvapsA[i].Fins.Air.Vdot_ha/v_dot_avg
-                        self.EvapsB[i].mdot_r=self.mdot_r*self.EvapsB[i].Fins.Air.Vdot_ha/v_dot_avg
-                        #self.EvapsC[i].mdot_r=self.mdot_r*self.EvapsC[i].Fins.Air.Vdot_ha/v_dot_avg
-                elif self.Hybrid=='equal_flow_DT_in':
-                    Tsat_r=PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref)  #neglect temperature dependency
-                    DT_avg=0.0
-                    for i in range(self.num_evaps):
-                        DT_avg+=self.EvapsA[i].Fins.Air.Tdb
-                    DT_avg=(DT_avg)/(1.0*self.num_evaps)-Tsat_r
-                    #adjust refrigerant flowrates according to air inlet temperature difference
-                    for i in range(self.num_evaps):
-                        self.EvapsA[i].mdot_r=self.mdot_r*(self.EvapsA[i].Fins.Air.Tdb-Tsat_r)/DT_avg
-                        self.EvapsB[i].mdot_r=self.mdot_r*(self.EvapsA[i].Fins.Air.Tdb-Tsat_r)/DT_avg  #parallel circuitry
-                        #self.EvapsC[i].mdot_r=self.mdot_r*(self.EvapsA[i].Fins.Air.Tdb-Tsat_r)/DT_avg
-                elif self.Hybrid=='adjust_superheat' or self.Hybrid=='adjust_area_fraction' or 'adjust_superheat_iter':
-                        if not hasattr(self,'Hybrid_ref_distribution'):
-                            raise()
-                        for i in range(self.num_evaps):
-                            self.EvapsA[i].mdot_r=self.mdot_r*self.Hybrid_ref_distribution[i]
-                            self.EvapsB[i].mdot_r=self.mdot_r*self.Hybrid_ref_distribution[i]  #parallel circuitry
-                            #self.EvapsC[i].mdot_r=self.mdot_r*self.Hybrid_ref_distribution[i]
-                else:
-                    adjust_flowrate_EXV()  #already done at first call of Calculate, but needs to be repeated for calculation of mass flowrate with given target SH
-                    print "Wrong input for self.Hybrid - temporarily using EXV adjustment for hybrid", self.Hybrid
-            else:
-                adjust_flowrate_EXV()  #already done at first call of Calculate, but needs to be repeated for calculation of mass flowrate with given target SH
-                
-        adjust_flowrates()  #run once at startup, needed for calculation of guess values
-        
-        #self.iterationloopnum=0
+#         def adjust_flowrates():  #function to adjust flowrates for hybrid control
+#             if hasattr(self,'Hybrid'):
+#                 if self.Hybrid=='equal_flow':
+#                     v_dot_avg=0.0
+#                     for i in range(self.num_evaps):
+#                         v_dot_avg+=self.EvapsA[i].Fins.Air.Vdot_ha
+#                     v_dot_avg/=(1.0*self.num_evaps)  #average circuit inlet flowrate
+#                     #adjust refrigerant flowrates according to air flowrates
+#                     for i in range(self.num_evaps):
+#                         self.EvapsA[i].mdot_r=self.mdot_r*self.EvapsA[i].Fins.Air.Vdot_ha/v_dot_avg
+#                         self.EvapsB[i].mdot_r=self.mdot_r*self.EvapsB[i].Fins.Air.Vdot_ha/v_dot_avg
+#                 elif self.Hybrid=='equal_flow_DT_in':
+#                     Tsat_r=PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref)  #neglect temperature dependency
+#                     DT_avg=0.0
+#                     for i in range(self.num_evaps):
+#                         DT_avg+=self.EvapsA[i].Fins.Air.Tdb
+#                     DT_avg=(DT_avg)/(1.0*self.num_evaps)-Tsat_r
+#                     #adjust refrigerant flowrates according to air inlet temperature difference
+#                     for i in range(self.num_evaps):
+#                         self.EvapsA[i].mdot_r=self.mdot_r*(self.EvapsA[i].Fins.Air.Tdb-Tsat_r)/DT_avg
+#                         self.EvapsB[i].mdot_r=self.mdot_r*(self.EvapsA[i].Fins.Air.Tdb-Tsat_r)/DT_avg  #parallel circuitry
+#                 elif self.Hybrid=='adjust_superheat' or self.Hybrid=='adjust_area_fraction' or 'adjust_superheat_iter':
+#                         if not hasattr(self,'Hybrid_ref_distribution'):
+#                             raise()
+#                         for i in range(self.num_evaps):
+#                             self.EvapsA[i].mdot_r=self.mdot_r*self.Hybrid_ref_distribution[i]
+#                             self.EvapsB[i].mdot_r=self.mdot_r*self.Hybrid_ref_distribution[i]  #parallel circuitry
+#                 else:
+#                     adjust_flowrate_EXV()  #already done at first call of Calculate, but needs to be repeated for calculation of mass flowrate with given target SH
+#                     print "Wrong input for self.Hybrid - temporarily using EXV adjustment for hybrid", self.Hybrid
+#             else:
+#                 adjust_flowrate_EXV()  #already done at first call of Calculate, but needs to be repeated for calculation of mass flowrate with given target SH
+#                 
+#         adjust_flowrates()  #run once at startup, needed for calculation of guess values
+#         
+#         #self.iterationloopnum=0
         
         """#################################################################################################"""
                 
@@ -402,12 +363,7 @@ class MCE_N(EvaporatorClass):
             #objective function to calculate residual of evaporators
             #self.iterationloopnum+=1
             #print self.iterationloopnum, "self.iterationloopnum"
-            
             for i in range(self.num_evaps):  #update and calculate first row
-                #print "A - evaps"
-                #print""
-                #print" I want to know the input of function of redidual",hin_rA
-                #print""
                 if self.Verbosity: print "residual evap calcs first coil sheet",i
                 if hin_r[i]<PropsSI('H','Q',0.0,'P',self.psat_r,self.Ref):
                     print "something wrong with inlet enthalpy, too small- is",hin_r[i],i,"but saturated liquid would be",PropsSI('H','Q',0.0,'P',self.psat_r,self.Ref),
@@ -420,15 +376,10 @@ class MCE_N(EvaporatorClass):
                     print "limited to 0.1K les than the air inlet temperature"
                     
                 self.EvapsA[i].hin_r=hin_r[i]
-                #print " I want to know the input of Evap A",self.EvapsA[i].hin_r
                 self.EvapsA[i].Calculate()
-                #print " This means the code is calculating the EvapsA Part!!"
-                #print " The enthalpy in residula function ",self.EvapsA[i].hin_r
-                #print "The EvapsA.Fins.Air.RH_out",self.EvapsA[i].Fins.Air.RH_out
-                #print "The EvapsA.Fins.Air.T_out",self.EvapsA[i].Tout_a
                 if self.Verbosity: print "first coil sheet",i
             print ""
-            print " This means the code has calculated the EvapsA Part!! Then for B. "
+            print " This means the code has calculated the EvapsA Part!! Then for EvapsB "
             print ""
             
             hB_out_for_residue=np.zeros(self.num_evaps)
@@ -461,35 +412,15 @@ class MCE_N(EvaporatorClass):
                     
                 #self.EvapsB[i].hin_r=hin_r[i]
                 
-            for i in range(self.num_evaps):
+            #for i in range(self.num_evaps):
                 self.EvapsB[i].Calculate()
-                #print "The EvapsB.Fins.Air.RH_out",self.EvapsB[i].Fins.Air.RH_out
-                #print "The EvapsB.Fins.Air.T_out",self.EvapsB[i].Fins.Air.Tout
                 hB_out_for_residue[i]=self.EvapsB[i].hout_r
-                #print "The EvapsB.Fins.Air.h_outr",hB_out_for_residue[i]
             print ""
             print " This means the code has calculated the EvapsB Part!!"
             print ""
-            
-#             hC_out_for_residue=np.zeros(self.num_evaps)
-#             for i in range(self.num_evaps):   #update and calculate last row
-#                 self.EvapsC[i].Fins.Air.RH= self.EvapsB[i].Fins.Air.RH_out
-#                 self.EvapsC[i].Fins.Air.Tdb= self.EvapsB[i].Tout_a
-#                 self.EvapsC[i].Calculate() 
-#                 hC_out_for_residue[i]=self.EvapsC[i].hout_r    
-#             print ""
-#             print " This means the code has calculated the EvapsC Part!! Then for return of function"
-#             print ""          
+                      
             #calculate the error between estimated and actual inlet enthalpy to first row
-            #residue = 0.0
-            #for i in range(self.num_evaps):
-                #residue+=(hin_rA[i]-hB_out_for_residue[i])**2
-            #residue_A = hin_r[0:self.num_evaps]-hB_out_for_residue
-            #residue_B = hin_r[self.num_evaps:2*self.num_evaps]-hC_out_for_residue
             residue=hin_r-hB_out_for_residue #Ammr>>CHNAGED FROM : np.append(residue_A,residue_B)
-#             residue=residue_A^2 + residue_B^2
-            #print "Guess Value la",guess_value
-            #print " inlet enthalpy hehehehehe",hin_rA,"what's the hB_out",hB_out_for_residue
             print " the residue is: ", residue
             self.resids=residue
             return residue
@@ -498,26 +429,22 @@ class MCE_N(EvaporatorClass):
         print""
         print " I will choose the direction of the air flow"
         print""
-        if self.same_direction_flow: 
+        if self.same_direction_flow: #parallel flow (cross flow + air and ref are in parallel)
             print""
-            print " The flow directions here are same!"
+            print " The flow directions is parallel!"
             print""
             for i in range(self.num_evaps):
-                #print " ########################## The Second Trial #######################################"
                 print""
                 print" This means the code is calcualting the EvapA:"
                 print""
-                #print " The first print is inlet temperature:",self.EvapsA[0].Fins.Air.Tdb
                 print " The inlet of EvapA,h_in:",self.EvapsA[i].hin_r
                 self.EvapsA[i].Calculate()
                 print " The outlet of EvapA,h_out",self.EvapsA[i].hout_r
                 self.EvapsB[i].hin_r = self.EvapsA[i].hout_r
-                
+            
             print""
             print" This means the code is calcualting the EvapB:"
             print""
-                           
-
             for i in range(self.num_evaps):   #update and calculate second row
                 if self.interleaved:
                     " Use the function to find the profile order"
@@ -529,47 +456,25 @@ class MCE_N(EvaporatorClass):
                     self.EvapsB[i].Fins.Air.RH= self.EvapsA[i].Fins.Air.RH_out
                     self.EvapsB[i].Fins.Air.Tdb= self.EvapsA[i].Tout_a
             for i in range(self.num_evaps):
-#            if we use the profile order function we need to take care the order of the iteration here (Update problem !!!!!!!)
+            #if we use the profile order function we need to take care the order of the iteration here (Update problem !!!!!!!)
                 print " The inlet of EvapB,h_in",self.EvapsB[i].hin_r
                 self.EvapsB[i].Calculate()
                 print " The outlet of EvapB,h_out",self.EvapsB[i].hout_r
                 
-                #self.EvapsC[i].hin_r = self.EvapsB[i].hout_r
-                
-            #print""
-            #print" This means the code is calcualting the EvapC:"
-            #print""
-            
-            #for i in range(self.num_evaps):   #update and calculate the last row
-            #    self.EvapsC[i].Fins.Air.RH= self.EvapsB[i].Fins.Air.RH_out
-            #    self.EvapsC[i].Fins.Air.Tdb= self.EvapsB[i].Tout_a
-            #    print " The inlet of EvapC,h_in",self.EvapsC[i].hin_r
-            #    self.EvapsC[i].Calculate()
-            #    print " The outlet of EvapC,h_out",self.EvapsC[i].hout_r
                 
             print""
             print " ######### The end of the Calculating Process ###############"
             print""
-            
-            
 
             print""
             print " ############### Calculated for each circuit, then out to next function ##################"
             print""
             
-        else:
-            print " The flow directions here are oppsite!"
-            h_guess_A=PropsSI('H','P',self.psat_r,'T',self.EvapsA[0].Fins.Air.Tdb,self.Ref)-5.0
-            #h_guess_B=PropsSI('H','P',self.psat_r,'T',self.EvapsA[0].Fins.Air.Tdb,self.Ref)-10.0
-#             guess_value=300000*np.ones(self.num_evaps)
-            guess_value_A=h_guess_A**np.ones(self.num_evaps)
-            #guess_value_B=h_guess_B**np.ones(self.num_evaps)
-            guess_value = guess_value_A#np.append(guess_value_A, guess_value_B)
-            
-#             for i in range(self.num_evaps):
-#                 print " Guess_value for A check again!!!",guess_value[0][i]
-#                 print " Guess_value for B check again!!!",guess_value[1][i]
-            print " Guess_value for B check again!!!",guess_value
+        else: #for counter flow (cross flow + ref and air are in counter)
+            print " The flow directions is counter!"
+            h_guess_max=PropsSI('H','P',self.psat_r,'T',self.EvapsA[0].Fins.Air.Tdb,self.Ref)-5.0
+            #guess_value=300000*h_guess_max*np.ones(self.num_evaps)
+            guess_value=h_guess_max**np.ones(self.num_evaps)
             print""
             print " ######### The start of the fucntion residual ###############"
             print""
