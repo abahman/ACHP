@@ -472,7 +472,9 @@ class MCE_N(EvaporatorClass):
             print""
         
 #         def solve_for_exit_sh(self):
-#             "solve for the mass flow rate for a given target super-heat"
+#           """
+#                This function can solve for the Ref. mass flow rate if a target super-heat (Target_SH) was given
+#           """
 #             Target_SH=np.float(self.Target_SH)  #check if it is a float
 #             print" Check the superheat for each circuit!!!!!!!!",Target_SH
 #             #import solver and solve
@@ -651,7 +653,8 @@ class MCE_N(EvaporatorClass):
         self.hout_r/=self.mdot_r_tot
         T_sat = PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref)
         T_out = PropsSI('T','P',self.psat_r,'H',self.hout_r,self.Ref)
-        self.hout_r_target=PropsSI('H','T',T_out,'P',self.psat_r,self.Ref)
+        if hasattr(self,'Target_SH'):
+            self.hout_r_target=PropsSI('H','T',T_out,'P',self.psat_r,self.Ref)
         print "flowrate at first and second coil sheet is ",self.mdot_r_tot,self.mdot_r_totB,"relative error is", (self.mdot_r_tot-self.mdot_r_totB)/self.mdot_r_tot
         print " The comparison of T_sat and Tout_r",T_sat, T_out
         print " The capapcity in last run is: ",self.Q
@@ -811,7 +814,7 @@ def flow_maldistribution_profiles_tester():
                     parametric_study=True
                 except:
                     parametric_study=False
-                profiles,dim_md=flow_maldistribution_profiles(num_evaps,type,severity=severity,parametric_study=parametric_study)
+                profiles,dim_md,interleave_order=flow_maldistribution_profiles(num_evaps,type,severity=severity,parametric_study=parametric_study)
                 if parametric_study==True:
                     #profiles=np.rot90(profiles)
                     for i in range(len(profiles)):
@@ -916,13 +919,13 @@ def airside_maldistribution_study(evap_type='60K',MD_Type=None,interleave_order=
     elif MD_Type=="60K":
         Original_Profile=np.array([0.19008887,0.14424539,0.2115167,0.17403436,0.11236396,0.16775072])*6.0 ##Update on 02/22/16
         order_original_profile = Original_Profile 
-        #MD_severity=[0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
-        MD_severity=[0,0.05,0.5,1.0]
+        MD_severity=[0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+        #MD_severity=[0,0.05,0.5,1.0]
         #MD_severity=[1.0]
         airside_maldistributions=maldistribution_scaler(Original_Profile,severity=MD_severity,parametric_study=True)
         interleave_order = Profile_order(order_original_profile)
         num_evaps=6 #number of evaporators
-        filenameMDair =evap_type+'-6Circuit_airMD_type_AddOne_Ammar.csv'
+        filenameMDair =evap_type+'-6Circuit_airMD_type_Final_Ammar.csv'
     ###########################
     
     elif MD_Type=='custom':
@@ -930,7 +933,7 @@ def airside_maldistribution_study(evap_type='60K',MD_Type=None,interleave_order=
     
     
     Target_SH=15.55 #from Test 5 baseline
-    Parallel_flow = False
+    Parallel_flow = True
     
     #===========================================================================
     # Calculate the Base cycle (uniform air flow)
@@ -1078,11 +1081,11 @@ if __name__=='__main__':
         sh_equalizer_tester(evap_type='60K',num_evaps=6,md_type='60K') #NOT WORKING NOW >>> ERROR
     if 0: #run different flow distribution profiles for 60K
         MD_severity=[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7]
-        #MD_severity=[0.8]
+        #MD_severity=[0.0,0.1,0.5,0.7,1.0]
         #MD_severity=[0.5]
-        #for md_type in ["60K"]:
-        #for md_type in ['pyramid','linear']:
-        for md_type in ['linear','Halflinear A','Halflinear B','pyramid']:
+        for md_type in ["60K"]:
+        #for md_type in ['pyramid']:
+        #for md_type in ['linear','Halflinear A','Halflinear B']:
             Number_cir = 6
             maldistributions=flow_maldistribution_profiles(Number_cir,md_type,severity=MD_severity,parametric_study=True,custom=False,profile=np.array(range(6)))
             if 0:
@@ -1091,7 +1094,7 @@ if __name__=='__main__':
             if 1:
                 #airside_maldistribution_study(evap_type='18K',MD_Type=md_type,MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=5,filenameMDair=md_type+'18K_xinye of 4 conditions'+'.csv')
                 #airside_maldistribution_study(evap_type='36K',MD_Type=md_type,interleave_order=maldistributions[2],MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=Number_cir,filenameMDair=md_type+'36K_xinye of 4 conditions'+'.csv')
-                airside_maldistribution_study(evap_type='60K',MD_Type=md_type,interleave_order=maldistributions[2],MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=Number_cir,filenameMDair=md_type+'60K_Ammar of 4 conditions'+'.csv')
+                airside_maldistribution_study(evap_type='60K',MD_Type=md_type,interleave_order=maldistributions[2],MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=Number_cir,filenameMDair='60K_Ammar of 4 conditions_'+md_type+'.csv')
                 #airside_maldistribution_study(evap_type='36K',MD_Type=md_type,interleave_order=maldistributions[2],MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=14,filenameMDair=md_type+'36K_xinye of 4 conditions (14 cir)'+'.csv')
                 #airside_maldistribution_study(evap_type='36K',MD_Type=md_type,MD_severity=MD_severity,airside_maldistributions=maldistributions[0],num_evaps=8,filenameMDair=md_type+'36K_xinye of 4 conditions'+'.csv')
     #plt.show() #show plots, if any
