@@ -487,56 +487,56 @@ class MCE_N(EvaporatorClass):
  
 
                 
-        def adjust_flowrate_EXV(): #apply refrigerant side maldistribution
-            #function to adjust flowrates for EXV control
-            #adjust refrigerant flowrates according to equal flow assumption or maldistribution
-            #parallel flow for normal EXV
-            try: 
-                float(self.ref_maldistributed[self.num_evaps-1])
-                ref_flow_rat=self.ref_maldistributed
-                print "applying maldistribution on refrigerant side"
-            except:
-                ref_flow_rat=np.ones(self.num_evaps)
-            for i in range(self.num_evaps):
-                self.EvapsA[i].mdot_r=self.mdot_r*ref_flow_rat[i]
-                self.EvapsB[i].mdot_r=self.mdot_r*ref_flow_rat[i]
-            
-        def adjust_flowrates():  #function to adjust flowrates for hybrid control
-            if hasattr(self,'Hybrid'):
-                if self.Hybrid=='equal_flow':
-                    v_dot_avg=0.0
-                    for i in range(self.num_evaps):
-                        v_dot_avg+=self.EvapsA[i].Fins.Air.Vdot_ha
-                    v_dot_avg/=(1.0*self.num_evaps)  #average circuit inlet flowrate
-                    #adjust refrigerant flowrates according to air flowrates
-                    for i in range(self.num_evaps):
-                        self.EvapsA[i].mdot_r=self.mdot_r*self.EvapsA[i].Fins.Air.Vdot_ha/v_dot_avg
-                        self.EvapsB[i].mdot_r=self.mdot_r*self.EvapsB[i].Fins.Air.Vdot_ha/v_dot_avg
-                elif self.Hybrid=='equal_flow_DT_in':
-                    Tsat_r=PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref)  #neglect temperature dependency
-                    DT_avg=0.0
-                    for i in range(self.num_evaps):
-                        DT_avg+=self.EvapsA[i].Fins.Air.Tdb
-                    DT_avg=(DT_avg)/(1.0*self.num_evaps)-Tsat_r
-                    #adjust refrigerant flowrates according to air inlet temperature difference
-                    for i in range(self.num_evaps):
-                        self.EvapsA[i].mdot_r=self.mdot_r*(self.EvapsA[i].Fins.Air.Tdb-Tsat_r)/DT_avg
-                        self.EvapsB[i].mdot_r=self.mdot_r*(self.EvapsA[i].Fins.Air.Tdb-Tsat_r)/DT_avg  #parallel circuitry
-                elif self.Hybrid=='adjust_superheat' or self.Hybrid=='adjust_area_fraction' or 'adjust_superheat_iter':
-                        if not hasattr(self,'Hybrid_ref_distribution'):
-                            raise()
-                        for i in range(self.num_evaps):
-                            self.EvapsA[i].mdot_r=self.mdot_r*self.Hybrid_ref_distribution[i]
-                            self.EvapsB[i].mdot_r=self.mdot_r*self.Hybrid_ref_distribution[i]  #parallel circuitry
-                else:
-                    adjust_flowrate_EXV()  #already done at first call of Calculate, but needs to be repeated for calculation of mass flowrate with given target SH
-                    print "Wrong input for self.Hybrid - temporarily using EXV adjustment for hybrid", self.Hybrid
-            else:
-                adjust_flowrate_EXV()  #already done at first call of Calculate, but needs to be repeated for calculation of mass flowrate with given target SH
-                
-        adjust_flowrates()  #run once at startup, needed for calculation of guess values
-        
-        #self.iterationloopnum=0
+#         def adjust_flowrate_EXV(): #apply refrigerant side maldistribution
+#             #function to adjust flowrates for EXV control
+#             #adjust refrigerant flowrates according to equal flow assumption or maldistribution
+#             #parallel flow for normal EXV
+#             try: 
+#                 float(self.ref_maldistributed[self.num_evaps-1])
+#                 ref_flow_rat=self.ref_maldistributed
+#                 print "applying maldistribution on refrigerant side"
+#             except:
+#                 ref_flow_rat=np.ones(self.num_evaps)
+#             for i in range(self.num_evaps):
+#                 self.EvapsA[i].mdot_r=self.mdot_r*ref_flow_rat[i]
+#                 self.EvapsB[i].mdot_r=self.mdot_r*ref_flow_rat[i]
+#             
+#         def adjust_flowrates():  #function to adjust flowrates for hybrid control
+#             if hasattr(self,'Hybrid'):
+#                 if self.Hybrid=='equal_flow':
+#                     v_dot_avg=0.0
+#                     for i in range(self.num_evaps):
+#                         v_dot_avg+=self.EvapsA[i].Fins.Air.Vdot_ha
+#                     v_dot_avg/=(1.0*self.num_evaps)  #average circuit inlet flowrate
+#                     #adjust refrigerant flowrates according to air flowrates
+#                     for i in range(self.num_evaps):
+#                         self.EvapsA[i].mdot_r=self.mdot_r*self.EvapsA[i].Fins.Air.Vdot_ha/v_dot_avg
+#                         self.EvapsB[i].mdot_r=self.mdot_r*self.EvapsB[i].Fins.Air.Vdot_ha/v_dot_avg
+#                 elif self.Hybrid=='equal_flow_DT_in':
+#                     Tsat_r=PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref)  #neglect temperature dependency
+#                     DT_avg=0.0
+#                     for i in range(self.num_evaps):
+#                         DT_avg+=self.EvapsA[i].Fins.Air.Tdb
+#                     DT_avg=(DT_avg)/(1.0*self.num_evaps)-Tsat_r
+#                     #adjust refrigerant flowrates according to air inlet temperature difference
+#                     for i in range(self.num_evaps):
+#                         self.EvapsA[i].mdot_r=self.mdot_r*(self.EvapsA[i].Fins.Air.Tdb-Tsat_r)/DT_avg
+#                         self.EvapsB[i].mdot_r=self.mdot_r*(self.EvapsA[i].Fins.Air.Tdb-Tsat_r)/DT_avg  #parallel circuitry
+#                 elif self.Hybrid=='adjust_superheat' or self.Hybrid=='adjust_area_fraction' or 'adjust_superheat_iter':
+#                         if not hasattr(self,'Hybrid_ref_distribution'):
+#                             raise()
+#                         for i in range(self.num_evaps):
+#                             self.EvapsA[i].mdot_r=self.mdot_r*self.Hybrid_ref_distribution[i]
+#                             self.EvapsB[i].mdot_r=self.mdot_r*self.Hybrid_ref_distribution[i]  #parallel circuitry
+#                 else:
+#                     adjust_flowrate_EXV()  #already done at first call of Calculate, but needs to be repeated for calculation of mass flowrate with given target SH
+#                     print "Wrong input for self.Hybrid - temporarily using EXV adjustment for hybrid", self.Hybrid
+#             else:
+#                 adjust_flowrate_EXV()  #already done at first call of Calculate, but needs to be repeated for calculation of mass flowrate with given target SH
+#                 
+#         adjust_flowrates()  #run once at startup, needed for calculation of guess values
+#         
+#         #self.iterationloopnum=0
         
         """#################################################################################################"""
                 
@@ -683,49 +683,49 @@ class MCE_N(EvaporatorClass):
             print " ############### Calculated for each circuit, then out to next function (mass)##################"
             print""
         
-        def solve_for_exit_sh(self):
-            "solve for the mass flow rate for a given target super-heat"
-            Target_SH=np.float(self.Target_SH)  #check if it is a float
-            print" Check the superheat for each circuit!!!!!!!!",Target_SH
-            #import solver and solve
-            from scipy.optimize import fsolve
-            from scipy.optimize import fmin_l_bfgs_b
-            
-            def objective_SH_out(mdot_guess):
-                print "mdot_guess",mdot_guess
-                if mdot_guess<0.00001:
-                    print 'warning - mass flowrate has a negative value during solving process - constrained to 0.002'
-                    mdot_guess=[0.00001]
-                self.mdot_r=mdot_guess[0]
-                adjust_flowrates()  #adjust flowrates for hybrid or control
-                fsolve(residual, guess_value)  #actually solve evaporator
-
-                print " Calculate One Time !!!!"
-                self.mdot_r_tot=0.0
-                self.hout_r=0.0
-                for i in range(self.num_evaps):
-                    self.mdot_r_tot+=self.EvapsA[i].mdot_r
-                    self.hout_r+=self.EvapsA[i].mdot_r*self.EvapsA[i].hout_r
-                self.hout_r/=self.mdot_r_tot
-                self.resids=self.hout_r-self.hout_r_target #store nested for csv output
-                print " mdot_r_tot",self.mdot_r_tot,"evapa_hout_r",self.EvapsA[i].hout_r,"hout_r",self.hout_r,"target",self.hout_r_target,"resids",self.resids
-                return self.hout_r-self.hout_r_target                        
-            
-            T_sat=PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref)
-            self.hout_r_target=PropsSI('H','T',self.Target_SH+T_sat,'P',self.psat_r,self.Ref)
-            print"Check the superheat here",self.Target_SH
-            print " Be care about the initial guess of mass flow rate!!!"
-            #fsolve(objective_SH_out, self.mdot_r*0.5)  #note - flowrate is based on single evaporator up to here; mdot_r used as initial guess
-            fsolve(objective_SH_out, self.mdot_r*1)
-            #fmin_l_bfgs_b(objective_SH_out, self.mdot_r*1.5,approx_grad=True,bounds = [[0,None]])
-            print "residual for superheat is",self.resids
-            if self.resids>0.5:
-                #fmin_l_bfgs_b(objective_SH_out, self.mdot_r*0.8,approx_grad=True,bounds = [[0,None]])
-                fsolve(objective_SH_out, self.mdot_r_*0.8)  #backup massflow
-            if self.resids<-0.5:
-                #fmin_l_bfgs_b(objective_SH_out,self.mdot_r*1.2,approx_grad=True,bounds = [[0,None]])
-                fsolve(objective_SH_out, self.mdot_r_*1.2)  #backup massflow
-            print "result of fsolve is that target superheat is ",np.float(self.Target_SH), "actual value is ", self.EvapsA[0].Tout_r-T_sat,self.EvapsA[1].Tout_r-T_sat
+#         def solve_for_exit_sh(self):
+#             "solve for the mass flow rate for a given target super-heat"
+#             Target_SH=np.float(self.Target_SH)  #check if it is a float
+#             print" Check the superheat for each circuit!!!!!!!!",Target_SH
+#             #import solver and solve
+#             from scipy.optimize import fsolve
+#             from scipy.optimize import fmin_l_bfgs_b
+#             
+#             def objective_SH_out(mdot_guess):
+#                 print "mdot_guess",mdot_guess
+#                 if mdot_guess<0.00001:
+#                     print 'warning - mass flowrate has a negative value during solving process - constrained to 0.002'
+#                     mdot_guess=[0.00001]
+#                 self.mdot_r=mdot_guess[0]
+#                 adjust_flowrates()  #adjust flowrates for hybrid or control
+#                 fsolve(residual, guess_value)  #actually solve evaporator
+# 
+#                 print " Calculate One Time !!!!"
+#                 self.mdot_r_tot=0.0
+#                 self.hout_r=0.0
+#                 for i in range(self.num_evaps):
+#                     self.mdot_r_tot+=self.EvapsA[i].mdot_r
+#                     self.hout_r+=self.EvapsA[i].mdot_r*self.EvapsA[i].hout_r
+#                 self.hout_r/=self.mdot_r_tot
+#                 self.resids=self.hout_r-self.hout_r_target #store nested for csv output
+#                 print " mdot_r_tot",self.mdot_r_tot,"evapa_hout_r",self.EvapsA[i].hout_r,"hout_r",self.hout_r,"target",self.hout_r_target,"resids",self.resids
+#                 return self.hout_r-self.hout_r_target                        
+#             
+#             T_sat=PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref)
+#             self.hout_r_target=PropsSI('H','T',self.Target_SH+T_sat,'P',self.psat_r,self.Ref)
+#             print"Check the superheat here",self.Target_SH
+#             print " Be care about the initial guess of mass flow rate!!!"
+#             #fsolve(objective_SH_out, self.mdot_r*0.5)  #note - flowrate is based on single evaporator up to here; mdot_r used as initial guess
+#             fsolve(objective_SH_out, self.mdot_r*1)
+#             #fmin_l_bfgs_b(objective_SH_out, self.mdot_r*1.5,approx_grad=True,bounds = [[0,None]])
+#             print "residual for superheat is",self.resids
+#             if self.resids>0.5:
+#                 #fmin_l_bfgs_b(objective_SH_out, self.mdot_r*0.8,approx_grad=True,bounds = [[0,None]])
+#                 fsolve(objective_SH_out, self.mdot_r_*0.8)  #backup massflow
+#             if self.resids<-0.5:
+#                 #fmin_l_bfgs_b(objective_SH_out,self.mdot_r*1.2,approx_grad=True,bounds = [[0,None]])
+#                 fsolve(objective_SH_out, self.mdot_r_*1.2)  #backup massflow
+#             print "result of fsolve is that target superheat is ",np.float(self.Target_SH), "actual value is ", self.EvapsA[0].Tout_r-T_sat,self.EvapsA[1].Tout_r-T_sat
             
         if hasattr(self,'Target_SH'):
             if hasattr(self,'Hybrid'):
@@ -744,98 +744,98 @@ class MCE_N(EvaporatorClass):
                 actual_hinA=fsolve(residual, guess_value)
         
         #equalize exit superheat for hybrid control, if applicable
-        def EQ_SH_OBJECTIVE(x):
-            #objective is equalization of exit superheats
-            self.Hybrid_ref_distribution=x #update distribution
-            print x
-            solve_for_exit_sh(self)
-            #calculate residual is the difference of the individual circuit exit enthalpies
-            resid_eq_sh=np.zeros(self.num_evaps)
-            for i in range(self.num_evaps):
-                resid_eq_sh[i]=self.EvapsA[i].hout_r #/10000.0 #bring on similar scale as inputs
-            resid_eq_sh=np.sum(resid_eq_sh*resid_eq_sh)
-            self. resid_eq_sh=resid_eq_sh
-            return resid_eq_sh
+#         def EQ_SH_OBJECTIVE(x):
+#             #objective is equalization of exit superheats
+#             self.Hybrid_ref_distribution=x #update distribution
+#             print x
+#             solve_for_exit_sh(self)
+#             #calculate residual is the difference of the individual circuit exit enthalpies
+#             resid_eq_sh=np.zeros(self.num_evaps)
+#             for i in range(self.num_evaps):
+#                 resid_eq_sh[i]=self.EvapsA[i].hout_r #/10000.0 #bring on similar scale as inputs
+#             resid_eq_sh=np.sum(resid_eq_sh*resid_eq_sh)
+#             self. resid_eq_sh=resid_eq_sh
+#             return resid_eq_sh
 
-        if hasattr(self,'Hybrid'):
-            if self.Hybrid=='adjust_superheat':
-                if not hasattr(self,'Hybrid_ref_distribution'):
-                    #use equal flow distribution on refrigerant and airside
-                    self.Hybrid_ref_distribution=np.zeros(self.num_evaps)
-                    v_dot_avg=0.0
-                    for i in range(self.num_evaps):
-                        v_dot_avg+=self.EvapsA[i].Fins.Air.Vdot_ha
-                    v_dot_avg/=(1.0*self.num_evaps)  #average circuit inlet flowrate
-                    #adjust refrigerant flowrates according to air flowrates
-                    for i in range(self.num_evaps):
-                        self.Hybrid_ref_distribution[i]=self.EvapsA[i].Fins.Air.Vdot_ha/v_dot_avg
-                #Starting guess for mass flow weighting parameters are air volume flow weighting parameters
-                print "warning, the Hybrid_ref_distribution does not seem to work properly"
-                x0=self.Hybrid_ref_distribution
-                print "x0=self.Hybrid_ref_distribution",self.Hybrid_ref_distribution
-                #Actually solve constrained optimization problem to obtain equal exit superheats
-                Bounds=[]; 
-                B_min=np.min(x0*0.5)
-                B_max=np.max(x0*1.5)
-                for n in range(0,len(x0)): Bounds.append((B_min,B_max)) #create the solver-boundaries for the flowrates
-                x=fmin_slsqp(EQ_SH_OBJECTIVE,x0,eqcons=[lambda x: np.sum(x)-len(x0)],bounds=Bounds)
-                print "residual for fining equal exit superheats is",self. resid_eq_sh
-            elif self.Hybrid=='adjust_area_fraction':
-                print "self.Hybrid  ia adjust_area_fraction"
-                #Iteratively find flowrates for same area fraction
-                #use equal flow distribution on refrigerant and airside
-                self.Hybrid_ref_distribution=np.zeros(self.num_evaps)
-                v_dot_avg=0.0
-                for i in range(self.num_evaps):
-                    v_dot_avg+=self.EvapsA[i].Fins.Air.Vdot_ha
-                v_dot_avg/=(1.0*self.num_evaps)  #average circuit inlet flowrate
-                #adjust refrigerant flowrates according to air flowrates
-                for i in range(self.num_evaps):
-                    self.Hybrid_ref_distribution[i]=self.EvapsA[i].Fins.Air.Vdot_ha/v_dot_avg
-                #solve for exit superheat
-                solve_for_exit_sh(self)
-                #iterate
-                if not hasattr(self,'adjust_area_fraction_iternum'):
-                    self.adjust_area_fraction_iternum=1 #do one iteration
-                for i in range(self.adjust_area_fraction_iternum):
-                    print "in pseudo I-control loop, iteration",i
-                    w_evaps=np.zeros(self.num_evaps)
-                    for i in range(self.num_evaps): w_evaps[i]=self.EvapsA[i].w_2phase+self.EvapsB[i].w_2phase
-                    w_evaps_ave=np.average(w_evaps)
-                    for i in range(self.num_evaps): self.Hybrid_ref_distribution[i]=(0.5+0.5*(w_evaps_ave-w_evaps[i])/w_evaps_ave)*self.Hybrid_ref_distribution[i]  #using 50% "integration" value as pseudo I-control
-                    self.Hybrid_ref_distribution=self.Hybrid_ref_distribution/np.sum(self.Hybrid_ref_distribution)*float(self.num_evaps)
-                    solve_for_exit_sh(self) #recalculate
-            elif self.Hybrid=='adjust_superheat_iter':
-                print "self.Hybrid  ia adjust_area_fraction"
-                #Iteratively find flowrates for same exit superheat
-                #use equal flow distribution on refrigerant and airside
-                self.Hybrid_ref_distribution=np.zeros(self.num_evaps)
-                v_dot_avg=0.0
-                for i in range(self.num_evaps):
-                    v_dot_avg+=self.EvapsA[i].Fins.Air.Vdot_ha
-                v_dot_avg/=(1.0*self.num_evaps)  #average circuit inlet flowrate
-                #adjust refrigerant flowrates according to air flowrates
-                for i in range(self.num_evaps):
-                    self.Hybrid_ref_distribution[i]=self.EvapsA[i].Fins.Air.Vdot_ha/v_dot_avg
-                #solve for exit superheat
-                solve_for_exit_sh(self)
-                #iterate
-                if not hasattr(self,'adjust_area_fraction_iternum'):
-                    self.adjust_area_fraction_iternum=1 #do one iteration
-                for i in range(self.adjust_area_fraction_iternum):
-                    print "in pseudo I-control loop, iteration",i
-                    SH_evaps=np.zeros(self.num_evaps)
-                    for i in range(self.num_evaps): SH_evaps[i]=self.EvapsA[i].Tout_r-self.EvapsA[i].Tdew_r
-                    SH_evaps_ave=np.average(SH_evaps)
-                    for i in range(self.num_evaps): 
-                        tmp=self.Hybrid_ref_distribution[i] #check if it  is an ovberwriting issue
-                        self.Hybrid_ref_distribution[i]=tmp+0.07*(SH_evaps[i]-SH_evaps_ave)/SH_evaps_ave*tmp  #using 7% "integration" value as pseudo I-control
-                    self.Hybrid_ref_distribution=self.Hybrid_ref_distribution/np.sum(self.Hybrid_ref_distribution)*float(self.num_evaps)
-                    solve_for_exit_sh(self) #recalculate
-
-            else:
-                #already covered by previous calculations for equal flow and DT in
-                print "maybe wrong input for Hybrid?"
+#         if hasattr(self,'Hybrid'):
+#             if self.Hybrid=='adjust_superheat':
+#                 if not hasattr(self,'Hybrid_ref_distribution'):
+#                     #use equal flow distribution on refrigerant and airside
+#                     self.Hybrid_ref_distribution=np.zeros(self.num_evaps)
+#                     v_dot_avg=0.0
+#                     for i in range(self.num_evaps):
+#                         v_dot_avg+=self.EvapsA[i].Fins.Air.Vdot_ha
+#                     v_dot_avg/=(1.0*self.num_evaps)  #average circuit inlet flowrate
+#                     #adjust refrigerant flowrates according to air flowrates
+#                     for i in range(self.num_evaps):
+#                         self.Hybrid_ref_distribution[i]=self.EvapsA[i].Fins.Air.Vdot_ha/v_dot_avg
+#                 #Starting guess for mass flow weighting parameters are air volume flow weighting parameters
+#                 print "warning, the Hybrid_ref_distribution does not seem to work properly"
+#                 x0=self.Hybrid_ref_distribution
+#                 print "x0=self.Hybrid_ref_distribution",self.Hybrid_ref_distribution
+#                 #Actually solve constrained optimization problem to obtain equal exit superheats
+#                 Bounds=[]; 
+#                 B_min=np.min(x0*0.5)
+#                 B_max=np.max(x0*1.5)
+#                 for n in range(0,len(x0)): Bounds.append((B_min,B_max)) #create the solver-boundaries for the flowrates
+#                 x=fmin_slsqp(EQ_SH_OBJECTIVE,x0,eqcons=[lambda x: np.sum(x)-len(x0)],bounds=Bounds)
+#                 print "residual for fining equal exit superheats is",self. resid_eq_sh
+#             elif self.Hybrid=='adjust_area_fraction':
+#                 print "self.Hybrid  ia adjust_area_fraction"
+#                 #Iteratively find flowrates for same area fraction
+#                 #use equal flow distribution on refrigerant and airside
+#                 self.Hybrid_ref_distribution=np.zeros(self.num_evaps)
+#                 v_dot_avg=0.0
+#                 for i in range(self.num_evaps):
+#                     v_dot_avg+=self.EvapsA[i].Fins.Air.Vdot_ha
+#                 v_dot_avg/=(1.0*self.num_evaps)  #average circuit inlet flowrate
+#                 #adjust refrigerant flowrates according to air flowrates
+#                 for i in range(self.num_evaps):
+#                     self.Hybrid_ref_distribution[i]=self.EvapsA[i].Fins.Air.Vdot_ha/v_dot_avg
+#                 #solve for exit superheat
+#                 solve_for_exit_sh(self)
+#                 #iterate
+#                 if not hasattr(self,'adjust_area_fraction_iternum'):
+#                     self.adjust_area_fraction_iternum=1 #do one iteration
+#                 for i in range(self.adjust_area_fraction_iternum):
+#                     print "in pseudo I-control loop, iteration",i
+#                     w_evaps=np.zeros(self.num_evaps)
+#                     for i in range(self.num_evaps): w_evaps[i]=self.EvapsA[i].w_2phase+self.EvapsB[i].w_2phase
+#                     w_evaps_ave=np.average(w_evaps)
+#                     for i in range(self.num_evaps): self.Hybrid_ref_distribution[i]=(0.5+0.5*(w_evaps_ave-w_evaps[i])/w_evaps_ave)*self.Hybrid_ref_distribution[i]  #using 50% "integration" value as pseudo I-control
+#                     self.Hybrid_ref_distribution=self.Hybrid_ref_distribution/np.sum(self.Hybrid_ref_distribution)*float(self.num_evaps)
+#                     solve_for_exit_sh(self) #recalculate
+#             elif self.Hybrid=='adjust_superheat_iter':
+#                 print "self.Hybrid  ia adjust_area_fraction"
+#                 #Iteratively find flowrates for same exit superheat
+#                 #use equal flow distribution on refrigerant and airside
+#                 self.Hybrid_ref_distribution=np.zeros(self.num_evaps)
+#                 v_dot_avg=0.0
+#                 for i in range(self.num_evaps):
+#                     v_dot_avg+=self.EvapsA[i].Fins.Air.Vdot_ha
+#                 v_dot_avg/=(1.0*self.num_evaps)  #average circuit inlet flowrate
+#                 #adjust refrigerant flowrates according to air flowrates
+#                 for i in range(self.num_evaps):
+#                     self.Hybrid_ref_distribution[i]=self.EvapsA[i].Fins.Air.Vdot_ha/v_dot_avg
+#                 #solve for exit superheat
+#                 solve_for_exit_sh(self)
+#                 #iterate
+#                 if not hasattr(self,'adjust_area_fraction_iternum'):
+#                     self.adjust_area_fraction_iternum=1 #do one iteration
+#                 for i in range(self.adjust_area_fraction_iternum):
+#                     print "in pseudo I-control loop, iteration",i
+#                     SH_evaps=np.zeros(self.num_evaps)
+#                     for i in range(self.num_evaps): SH_evaps[i]=self.EvapsA[i].Tout_r-self.EvapsA[i].Tdew_r
+#                     SH_evaps_ave=np.average(SH_evaps)
+#                     for i in range(self.num_evaps): 
+#                         tmp=self.Hybrid_ref_distribution[i] #check if it  is an ovberwriting issue
+#                         self.Hybrid_ref_distribution[i]=tmp+0.07*(SH_evaps[i]-SH_evaps_ave)/SH_evaps_ave*tmp  #using 7% "integration" value as pseudo I-control
+#                     self.Hybrid_ref_distribution=self.Hybrid_ref_distribution/np.sum(self.Hybrid_ref_distribution)*float(self.num_evaps)
+#                     solve_for_exit_sh(self) #recalculate
+# 
+#             else:
+#                 #already covered by previous calculations for equal flow and DT in
+#                 print "maybe wrong input for Hybrid?"
 
         """#################################################################################################"""
                 
@@ -1127,7 +1127,8 @@ def airside_maldistribution_study(evap_type='LRCS',MD_Type=None,MD_severity=None
 
     elif MD_Type=="60K":
         Original_Profile=np.array([0.19008887,0.14424539,0.2115167,0.17403436,0.11236396,0.16775072])*6.0 ##Update on 02/21/16
-        MD_severity=[0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0] 
+        #MD_severity=[0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0] 
+        MD_severity=[0,0.05,0.5,1.0]
         #MD_severity=[1.0]
         airside_maldistributions=maldistribution_scaler(Original_Profile,severity=MD_severity,parametric_study=True)
         num_evaps=6 #number of updated evaporator circuits
@@ -1138,7 +1139,7 @@ def airside_maldistribution_study(evap_type='LRCS',MD_Type=None,MD_severity=None
         print "using custum maldistribution as passed in"
     
     Target_SH=15.55 #from Test 5 baseline  
-    Parallel_flow = True
+    Parallel_flow = False
 
     evap=MCE_N()
     #evap.Target_SH=Target_SH
@@ -1257,7 +1258,7 @@ if __name__=='__main__':
     if 0: #run parametric study for 2-circuit cases only ... and 6 circuits
         #airside_maldistribution_study(evap_type='18K',MD_Type=None,Hybrid='adjust_superheat_iter',adjust_area_fraction_iternum=30)  #this runs the 2-circuit case with the only possible maldistribution for that case (code is ugly...)
         airside_maldistribution_study(evap_type='60K',MD_Type=None,Hybrid='adjust_superheat_iter',adjust_area_fraction_iternum=30)
-    if 0: #run parametric studies
+    if 1: #run parametric studies
         airside_maldistribution_study(evap_type='60K',MD_Type="60K")
         #airside_maldistribution_study(evap_type='36K',MD_Type="36K")
         #airside_maldistribution_study(evap_type='18K',MD_Type="18K")
@@ -1269,13 +1270,13 @@ if __name__=='__main__':
     if 0: #test superheat equalizer
         #sh_equalizer_tester()
         sh_equalizer_tester(evap_type='60K',num_evaps=6,md_type='60K') #NOT WORKING NOW >>> ERROR
-    if 1: #run different flow distribution profiles for LRCS
+    if 0: #run different flow distribution profiles for LRCS
         MD_severity=[0,0.1,0.2,0.3,0.4,0.5]
         #MD_severity=[0.5]
-        for md_type in ["60K"]:
+        #for md_type in ["60K"]:
         #for md_type in ["18K"]:
         #for md_type in ['pyramid']:
-        #for md_type in ['linear','Halflinear A','Halflinear B']:
+        for md_type in ['linear','Halflinear A','Halflinear B']:
             maldistributions=flow_maldistribution_profiles(6,md_type,severity=MD_severity,parametric_study=True,custom=False,profile=np.array(range(6)))
             #maldistributions=flow_maldistribution_profiles(5,md_type,severity=MD_severity,parametric_study=True,custom=False,profile=np.array(range(5)))
             #print maldistributions[1][1],md_type

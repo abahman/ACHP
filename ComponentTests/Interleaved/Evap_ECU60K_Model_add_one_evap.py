@@ -126,6 +126,12 @@ class MCE_N(EvaporatorClass):
             Output_List_tot.append(('Details','N/A',self.Details))
         if hasattr(self,'md_severity'):
             Output_List_tot.append(('Maldistribution Severity','N/A',self.md_severity))
+#         if hasattr(self,'resids'):
+#             Output_List_tot.append(('Residuals','N/A',self.resids))
+#         if hasattr(self,'resid_eq_sh'):
+#             Output_List_tot.append(('Residuals_SH_equal','N/A',self.resid_eq_sh))
+#         else:
+#             Output_List_tot.append(('Residuals_SH_equal','N/A','0'))
         if hasattr(self,'maldistributed'):
             try: 
                 len(self.maldistributed) #if it is a bool (=False), then we can't calculate anything
@@ -144,7 +150,6 @@ class MCE_N(EvaporatorClass):
             Output_List_tot.append(Output_list[i])
         return Output_List_tot
     
-        #define parameters for evaporator as used in 60K
  
     def Evaporator_60K_Fins(self):
         """ In this part, the inputs are as follows: 
@@ -155,7 +160,7 @@ class MCE_N(EvaporatorClass):
             Air humidity;
             Fan Power;
         """   
-        #define parameters for evaporator as used in 60K
+
         Evaporator=EvaporatorClass()
         Evaporator.Fins=FinInputs()
          
@@ -216,7 +221,7 @@ class MCE_N(EvaporatorClass):
         else:
             print "undefined evaporator type"
             raise()
-        #self.interleaved=False  #this needs to be set by calling function!
+
         
         "#################################################################################################"
                 
@@ -299,57 +304,57 @@ class MCE_N(EvaporatorClass):
             print " " #newline
             
       
-        def adjust_flowrate_EXV(): 
-            #apply refrigerant side maldistribution
-            #function to adjust flowrates for EXV control
-            #adjust refrigerant flowrates according to equal flow assumption or maldistribution
-            #parallel flow for normal EXV
-            try: 
-                float(self.ref_maldistributed[self.num_evaps-1])
-                ref_flow_rat=self.ref_maldistributed
-                print "applying maldistribution on refrigerant side"
-            except:
-                ref_flow_rat=np.ones(self.num_evaps)
-            for i in range(self.num_evaps):
-                self.EvapsA[i].mdot_r=self.mdot_r*ref_flow_rat[i]
-                self.EvapsB[i].mdot_r=self.mdot_r*ref_flow_rat[i]
-             
-        def adjust_flowrates():  #function to adjust flowrates for hybrid control
-            if hasattr(self,'Hybrid'):
-                if self.Hybrid=='equal_flow':
-                    v_dot_avg=0.0
-                    for i in range(self.num_evaps):
-                        v_dot_avg+=self.EvapsA[i].Fins.Air.Vdot_ha
-                    v_dot_avg/=(1.0*self.num_evaps)  #average circuit inlet flowrate
-                    #adjust refrigerant flowrates according to air flowrates
-                    for i in range(self.num_evaps):
-                        self.EvapsA[i].mdot_r=self.mdot_r*self.EvapsA[i].Fins.Air.Vdot_ha/v_dot_avg
-                        self.EvapsB[i].mdot_r=self.mdot_r*self.EvapsB[i].Fins.Air.Vdot_ha/v_dot_avg
-                elif self.Hybrid=='equal_flow_DT_in':
-                    Tsat_r=PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref)  #neglect temperature dependency
-                    DT_avg=0.0
-                    for i in range(self.num_evaps):
-                        DT_avg+=self.EvapsA[i].Fins.Air.Tdb
-                    DT_avg=(DT_avg)/(1.0*self.num_evaps)-Tsat_r
-                    #adjust refrigerant flowrates according to air inlet temperature difference
-                    for i in range(self.num_evaps):
-                        self.EvapsA[i].mdot_r=self.mdot_r*(self.EvapsA[i].Fins.Air.Tdb-Tsat_r)/DT_avg
-                        self.EvapsB[i].mdot_r=self.mdot_r*(self.EvapsA[i].Fins.Air.Tdb-Tsat_r)/DT_avg  #parallel circuitry
-                elif self.Hybrid=='adjust_superheat' or self.Hybrid=='adjust_area_fraction' or 'adjust_superheat_iter':
-                        if not hasattr(self,'Hybrid_ref_distribution'):
-                            raise()
-                        for i in range(self.num_evaps):
-                            self.EvapsA[i].mdot_r=self.mdot_r*self.Hybrid_ref_distribution[i]
-                            self.EvapsB[i].mdot_r=self.mdot_r*self.Hybrid_ref_distribution[i]  #parallel circuitry
-                else:
-                    adjust_flowrate_EXV()  #already done at first call of Calculate, but needs to be repeated for calculation of mass flowrate with given target SH
-                    print "Wrong input for self.Hybrid - temporarily using EXV adjustment for hybrid", self.Hybrid
-            else:
-                adjust_flowrate_EXV()  #already done at first call of Calculate, but needs to be repeated for calculation of mass flowrate with given target SH
-                 
-        adjust_flowrates()  #run once at startup, needed for calculation of guess values
-         
-        #self.iterationloopnum=0
+#         def adjust_flowrate_EXV(): 
+#             #apply refrigerant side maldistribution
+#             #function to adjust flowrates for EXV control
+#             #adjust refrigerant flowrates according to equal flow assumption or maldistribution
+#             #parallel flow for normal EXV
+#             try: 
+#                 float(self.ref_maldistributed[self.num_evaps-1])
+#                 ref_flow_rat=self.ref_maldistributed
+#                 print "applying maldistribution on refrigerant side"
+#             except:
+#                 ref_flow_rat=np.ones(self.num_evaps)
+#             for i in range(self.num_evaps):
+#                 self.EvapsA[i].mdot_r=self.mdot_r*ref_flow_rat[i]
+#                 self.EvapsB[i].mdot_r=self.mdot_r*ref_flow_rat[i]
+#              
+#         def adjust_flowrates():  #function to adjust flowrates for hybrid control
+#             if hasattr(self,'Hybrid'):
+#                 if self.Hybrid=='equal_flow':
+#                     v_dot_avg=0.0
+#                     for i in range(self.num_evaps):
+#                         v_dot_avg+=self.EvapsA[i].Fins.Air.Vdot_ha
+#                     v_dot_avg/=(1.0*self.num_evaps)  #average circuit inlet flowrate
+#                     #adjust refrigerant flowrates according to air flowrates
+#                     for i in range(self.num_evaps):
+#                         self.EvapsA[i].mdot_r=self.mdot_r*self.EvapsA[i].Fins.Air.Vdot_ha/v_dot_avg
+#                         self.EvapsB[i].mdot_r=self.mdot_r*self.EvapsB[i].Fins.Air.Vdot_ha/v_dot_avg
+#                 elif self.Hybrid=='equal_flow_DT_in':
+#                     Tsat_r=PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref)  #neglect temperature dependency
+#                     DT_avg=0.0
+#                     for i in range(self.num_evaps):
+#                         DT_avg+=self.EvapsA[i].Fins.Air.Tdb
+#                     DT_avg=(DT_avg)/(1.0*self.num_evaps)-Tsat_r
+#                     #adjust refrigerant flowrates according to air inlet temperature difference
+#                     for i in range(self.num_evaps):
+#                         self.EvapsA[i].mdot_r=self.mdot_r*(self.EvapsA[i].Fins.Air.Tdb-Tsat_r)/DT_avg
+#                         self.EvapsB[i].mdot_r=self.mdot_r*(self.EvapsA[i].Fins.Air.Tdb-Tsat_r)/DT_avg  #parallel circuitry
+#                 elif self.Hybrid=='adjust_superheat' or self.Hybrid=='adjust_area_fraction' or 'adjust_superheat_iter':
+#                         if not hasattr(self,'Hybrid_ref_distribution'):
+#                             raise()
+#                         for i in range(self.num_evaps):
+#                             self.EvapsA[i].mdot_r=self.mdot_r*self.Hybrid_ref_distribution[i]
+#                             self.EvapsB[i].mdot_r=self.mdot_r*self.Hybrid_ref_distribution[i]  #parallel circuitry
+#                 else:
+#                     adjust_flowrate_EXV()  #already done at first call of Calculate, but needs to be repeated for calculation of mass flowrate with given target SH
+#                     print "Wrong input for self.Hybrid - temporarily using EXV adjustment for hybrid", self.Hybrid
+#             else:
+#                 adjust_flowrate_EXV()  #already done at first call of Calculate, but needs to be repeated for calculation of mass flowrate with given target SH
+#                  
+#         adjust_flowrates()  #run once at startup, needed for calculation of guess values
+#          
+#         #self.iterationloopnum=0
         
         """#################################################################################################"""
                 
@@ -376,7 +381,6 @@ class MCE_N(EvaporatorClass):
                     print "hin_rA[i]",hin_rA[i],i
                     hin_rA[i]=PropsSI('H','T',self.EvapsA[i].Fins.Air.Tdb-0.1,'P',self.psat_r,self.Ref)
                     print "limited to 0.1K les than the air inlet temperature"
-                    
                 self.EvapsA[i].hin_r=hin_rA[i]
                 self.EvapsA[i].Calculate()
                 if self.Verbosity: print "first coil sheet",i
@@ -399,7 +403,7 @@ class MCE_N(EvaporatorClass):
                 else:
                     self.EvapsB[i].Fins.Air.RH= self.EvapsA[i].Fins.Air.RH_out
                     self.EvapsB[i].Fins.Air.Tdb= self.EvapsA[i].Tout_a
-            #for i in range(self.num_evaps):
+            for i in range(self.num_evaps):
                 self.EvapsB[i].Calculate()
                 hB_out_for_residue[i]=self.EvapsB[i].hout_r
             print ""
@@ -912,7 +916,8 @@ def airside_maldistribution_study(evap_type='60K',MD_Type=None,interleave_order=
     elif MD_Type=="60K":
         Original_Profile=np.array([0.19008887,0.14424539,0.2115167,0.17403436,0.11236396,0.16775072])*6.0 ##Update on 02/22/16
         order_original_profile = Original_Profile 
-        MD_severity=[0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+        #MD_severity=[0,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+        MD_severity=[0,0.05,0.5,1.0]
         #MD_severity=[1.0]
         airside_maldistributions=maldistribution_scaler(Original_Profile,severity=MD_severity,parametric_study=True)
         interleave_order = Profile_order(order_original_profile)
@@ -925,7 +930,7 @@ def airside_maldistribution_study(evap_type='60K',MD_Type=None,interleave_order=
     
     
     Target_SH=15.55 #from Test 5 baseline
-    Parallel_flow = True
+    Parallel_flow = False
     
     #===========================================================================
     # Calculate the Base cycle (uniform air flow)
@@ -1004,7 +1009,7 @@ def airside_maldistribution_study(evap_type='60K',MD_Type=None,interleave_order=
           
     print "capacity-non-interleaved",Q_noninterleaved,"capacity, interleaved",Q_interleaved,"ratio",(Q_interleaved/Q_noninterleaved),"performance improvement over non-interleaved",((Q_interleaved-Q_noninterleaved)/Q_noninterleaved)*100,'%'
 #     print "capacity-non-interleaved",Q_noninterleaved,"capacity, hybrid",Q_hybrid,"ratio",(Q_hybrid/Q_noninterleaved),"performance improvement over non-interleaved",((Q_hybrid-Q_noninterleaved)/Q_noninterleaved)*100,'%'
-    print "Capacity of Base cycle with uniform flow",Q_base,"performance degradation caused by maldistribution",((Q_base-Q_noninterleaved)/Q_base)*100
+    print "Capacity of Base cycle with uniform flow",Q_base,"performance degradation caused by maldistribution",((Q_base-Q_noninterleaved)/Q_base)*100,'%'
     #plt.show()
 
 
@@ -1059,7 +1064,7 @@ if __name__=='__main__':
     if 0: #run parametric study for 2-circuit cases only
         #airside_maldistribution_study(evap_type='18K',MD_Type=None,Hybrid='adjust_superheat_iter',adjust_area_fraction_iternum=30)  #this runs the 2-circuit case with the only possible maldistribution for that case (code is ugly...)
         airside_maldistribution_study(evap_type='60K',MD_Type=None,Hybrid='adjust_superheat_iter',adjust_area_fraction_iternum=30)
-    if 0: #run parametric studies
+    if 1: #run parametric studies
         airside_maldistribution_study(evap_type='60K',MD_Type="60K")
         #airside_maldistribution_study(evap_type='36K',MD_Type="36K")
         #airside_maldistribution_study(evap_type='18K',MD_Type="18K")
@@ -1071,13 +1076,13 @@ if __name__=='__main__':
     if 0: #test superheat equalizer
         #sh_equalizer_tester()
         sh_equalizer_tester(evap_type='60K',num_evaps=6,md_type='60K') #NOT WORKING NOW >>> ERROR
-    if 1: #run different flow distribution profiles for 60K
+    if 0: #run different flow distribution profiles for 60K
         MD_severity=[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7]
         #MD_severity=[0.8]
         #MD_severity=[0.5]
-        for md_type in ["60K"]:
+        #for md_type in ["60K"]:
         #for md_type in ['pyramid','linear']:
-        #for md_type in ['linear','Halflinear A','Halflinear B','pyramid']:
+        for md_type in ['linear','Halflinear A','Halflinear B','pyramid']:
             Number_cir = 6
             maldistributions=flow_maldistribution_profiles(Number_cir,md_type,severity=MD_severity,parametric_study=True,custom=False,profile=np.array(range(6)))
             if 0:
