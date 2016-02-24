@@ -552,7 +552,6 @@ class MCE_N(EvaporatorClass):
             #objective function to calculate residual of evaporators
             #self.iterationloopnum+=1
             #print self.iterationloopnum, "self.iterationloopnum"
-            
             for i in range(self.num_evaps):  #update and calculate first row
                 #print "A - evaps"
                 #print""
@@ -570,12 +569,7 @@ class MCE_N(EvaporatorClass):
                     print "limited to 0.1K less than the air inlet temperature"
                     
                 self.EvapsA[i].hin_r=hin_rA[i]
-                #print " I want to know the input of Evap A",self.EvapsA[i].hin_r
                 self.EvapsA[i].Calculate()
-                #print " This means the code is calculating the EvapsA Part!!"
-                #print " The enthalpy in residula function ",self.EvapsA[i].hin_r
-                #print "The EvapsA.Fins.Air.RH_out",self.EvapsA[i].Fins.Air.RH_out
-                #print "The EvapsA.Fins.Air.T_out",self.EvapsA[i].Tout_a
                 if self.Verbosity: print "first coil sheet",i
             print ""
             print " This means the code has calculated the EvapsA Part!! Now for EvapB"
@@ -591,38 +585,12 @@ class MCE_N(EvaporatorClass):
 #                     self.EvapsB[i].Fins.Air.RH= self.EvapsA[self.num_evaps-1-i].Fins.Air.RH_out
 #                     self.EvapsB[i].Fins.Air.Tdb= self.EvapsA[self.num_evaps-1-i].Tout_a
                 ##################################################################################
-                    self.EvapsB[0].Fins.Air.RH= self.EvapsA[5].Fins.Air.RH_out
-                    self.EvapsB[1].Fins.Air.RH= self.EvapsA[4].Fins.Air.RH_out
-                    self.EvapsB[2].Fins.Air.RH= self.EvapsA[3].Fins.Air.RH_out
-                    self.EvapsB[3].Fins.Air.RH= self.EvapsA[2].Fins.Air.RH_out
-                    self.EvapsB[4].Fins.Air.RH= self.EvapsA[1].Fins.Air.RH_out
-                    self.EvapsB[5].Fins.Air.RH= self.EvapsA[0].Fins.Air.RH_out     # This is for 60K ECU , 6 circuits 
-                ##################################################################################
-#                     self.EvapsB[0].Fins.Air.RH= self.EvapsA[3].Fins.Air.RH_out
-#                     self.EvapsB[1].Fins.Air.RH= self.EvapsA[7].Fins.Air.RH_out
-#                     self.EvapsB[2].Fins.Air.RH= self.EvapsA[6].Fins.Air.RH_out
-#                     self.EvapsB[3].Fins.Air.RH= self.EvapsA[0].Fins.Air.RH_out
-#                     self.EvapsB[4].Fins.Air.RH= self.EvapsA[5].Fins.Air.RH_out
-#                     self.EvapsB[5].Fins.Air.RH= self.EvapsA[4].Fins.Air.RH_out
-#                     self.EvapsB[6].Fins.Air.RH= self.EvapsA[2].Fins.Air.RH_out
-#                     self.EvapsB[7].Fins.Air.RH= self.EvapsA[1].Fins.Air.RH_out    # This is for 8 circuits
-                ##################################################################################
-#                     self.EvapsB[0].Fins.Air.RH= self.EvapsA[1].Fins.Air.RH_out
-#                     self.EvapsB[1].Fins.Air.RH= self.EvapsA[0].Fins.Air.RH_out
-#                     self.EvapsB[2].Fins.Air.RH= self.EvapsA[2].Fins.Air.RH_out
-#                     self.EvapsB[3].Fins.Air.RH= self.EvapsA[4].Fins.Air.RH_out
-#                     self.EvapsB[4].Fins.Air.RH= self.EvapsA[3].Fins.Air.RH_out     # This is for 5 circuits 
-                ##################################################################################
-#                     self.EvapsB[0].Fins.Air.RH= self.EvapsA[5].Fins.Air.RH_out
-#                     self.EvapsB[1].Fins.Air.RH= self.EvapsA[6].Fins.Air.RH_out
-#                     self.EvapsB[2].Fins.Air.RH= self.EvapsA[7].Fins.Air.RH_out
-#                     self.EvapsB[3].Fins.Air.RH= self.EvapsA[3].Fins.Air.RH_out
-#                     self.EvapsB[4].Fins.Air.RH= self.EvapsA[8].Fins.Air.RH_out
-#                     self.EvapsB[5].Fins.Air.RH= self.EvapsA[0].Fins.Air.RH_out
-#                     self.EvapsB[6].Fins.Air.RH= self.EvapsA[1].Fins.Air.RH_out
-#                     self.EvapsB[7].Fins.Air.RH= self.EvapsA[2].Fins.Air.RH_out     
-#                     self.EvapsB[8].Fins.Air.RH= self.EvapsA[4].Fins.Air.RH_out    # This is for 9 circuits (New18K) 
-
+                    self.EvapsB[0].Fins.Air.RH= self.EvapsA[1].Fins.Air.RH_out
+                    self.EvapsB[1].Fins.Air.RH= self.EvapsA[0].Fins.Air.RH_out
+                    self.EvapsB[2].Fins.Air.RH= self.EvapsA[4].Fins.Air.RH_out
+                    self.EvapsB[3].Fins.Air.RH= self.EvapsA[5].Fins.Air.RH_out
+                    self.EvapsB[4].Fins.Air.RH= self.EvapsA[2].Fins.Air.RH_out
+                    self.EvapsB[5].Fins.Air.RH= self.EvapsA[3].Fins.Air.RH_out     # This is for 60K ECU , 6 circuits 
 #                   ################################################## 
                     self.EvapsB[0].Fins.Air.Tdb= self.EvapsA[1].Tout_a
                     self.EvapsB[1].Fins.Air.Tdb= self.EvapsA[0].Tout_a
@@ -630,49 +598,16 @@ class MCE_N(EvaporatorClass):
                     self.EvapsB[3].Fins.Air.Tdb= self.EvapsA[5].Tout_a
                     self.EvapsB[4].Fins.Air.Tdb= self.EvapsA[2].Tout_a
                     self.EvapsB[5].Fins.Air.Tdb= self.EvapsA[3].Tout_a    # This is for 60K ECU , 6 circuits                    
-                    ################################################## 
-#                     self.EvapsB[0].Fins.Air.Tdb= self.EvapsA[3].Tout_a
-#                     self.EvapsB[1].Fins.Air.Tdb= self.EvapsA[7].Tout_a
-#                     self.EvapsB[2].Fins.Air.Tdb= self.EvapsA[6].Tout_a
-#                     self.EvapsB[3].Fins.Air.Tdb= self.EvapsA[0].Tout_a
-#                     self.EvapsB[4].Fins.Air.Tdb= self.EvapsA[5].Tout_a
-#                     self.EvapsB[5].Fins.Air.Tdb= self.EvapsA[4].Tout_a
-#                     self.EvapsB[6].Fins.Air.Tdb= self.EvapsA[2].Tout_a
-#                     self.EvapsB[7].Fins.Air.Tdb= self.EvapsA[1].Tout_a    # This is for 8 circuits
-#                   ################################################## 
-#                     self.EvapsB[0].Fins.Air.Tdb= self.EvapsA[1].Tout_a
-#                     self.EvapsB[1].Fins.Air.Tdb= self.EvapsA[0].Tout_a
-#                     self.EvapsB[2].Fins.Air.Tdb= self.EvapsA[2].Tout_a
-#                     self.EvapsB[3].Fins.Air.Tdb= self.EvapsA[4].Tout_a
-#                     self.EvapsB[4].Fins.Air.Tdb= self.EvapsA[3].Tout_a    # This is for 5 circuits 
-                    ##################################################             
-#                     self.EvapsB[0].Fins.Air.Tdb= self.EvapsA[5].Tout_a
-#                     self.EvapsB[1].Fins.Air.Tdb= self.EvapsA[6].Tout_a
-#                     self.EvapsB[2].Fins.Air.Tdb= self.EvapsA[7].Tout_a
-#                     self.EvapsB[3].Fins.Air.Tdb= self.EvapsA[3].Tout_a
-#                     self.EvapsB[4].Fins.Air.Tdb= self.EvapsA[8].Tout_a
-#                     self.EvapsB[5].Fins.Air.Tdb= self.EvapsA[0].Tout_a
-#                     self.EvapsB[6].Fins.Air.Tdb= self.EvapsA[1].Tout_a
-#                     self.EvapsB[7].Fins.Air.Tdb= self.EvapsA[2].Tout_a
-#                     self.EvapsB[8].Fins.Air.Tdb= self.EvapsA[4].Tout_a    # This is for 9 circuits (New18K)
                 else:
                     self.EvapsB[i].Fins.Air.RH= self.EvapsA[i].Fins.Air.RH_out
                     self.EvapsB[i].Fins.Air.Tdb= self.EvapsA[i].Tout_a
                 self.EvapsB[i].Calculate()
-                #print "The EvapsB.Fins.Air.RH_out",self.EvapsB[i].Fins.Air.RH_out
-                #print "The EvapsB.Fins.Air.T_out",self.EvapsB[i].Fins.Air.Tout
                 hB_out_for_residue[i]=self.EvapsB[i].hout_r
-                #print "The EvapsB.Fins.Air.h_outr",hB_out_for_residue[i]
             print ""
             print " This means the code has calculated the EvapsB Part!! Then for return of function"
             print ""
             #calculate the error between estimated and actual inlet enthalpy to first row
-            #residue = 0.0
-            #for i in range(self.num_evaps):
-                #residue+=(hin_rA[i]-hB_out_for_residue[i])**2
             residue=hin_rA-hB_out_for_residue
-            #print "Guess Value la",guess_value
-            #print " inlet enthalpy hehehehehe",hin_rA,"what's the hB_out",hB_out_for_residue
             print " the residue is: ", residue
             self.resids=residue
             return residue
@@ -681,7 +616,7 @@ class MCE_N(EvaporatorClass):
         print""
         print " I will choose the direction of the air flow"
         print""
-        if self.same_direction_flow: 
+        if self.same_direction_flow == True: #parallel flow
             print""
             print " The flow directions here are same!"
             print""
@@ -700,11 +635,8 @@ class MCE_N(EvaporatorClass):
                 print" This means the code is calcualting the EvapB:"
                 print""
             
-            
-            
                 self.EvapsB[i].hin_r = self.EvapsA[i].hout_r
             
-
             for i in range(self.num_evaps):   #update and calculate second row
                 if self.interleaved:
 #                     self.EvapsB[i].Fins.Air.RH= self.EvapsA[self.num_evaps-1-i].Fins.Air.RH_out
@@ -716,33 +648,6 @@ class MCE_N(EvaporatorClass):
                     self.EvapsB[3].Fins.Air.RH= self.EvapsA[5].Fins.Air.RH_out
                     self.EvapsB[4].Fins.Air.RH= self.EvapsA[2].Fins.Air.RH_out
                     self.EvapsB[5].Fins.Air.RH= self.EvapsA[3].Fins.Air.RH_out     # This is for 60K ECU, 6 circuits
-                    ##################################################################################
-#                     self.EvapsB[0].Fins.Air.RH= self.EvapsA[3].Fins.Air.RH_out
-#                     self.EvapsB[1].Fins.Air.RH= self.EvapsA[7].Fins.Air.RH_out
-#                     self.EvapsB[2].Fins.Air.RH= self.EvapsA[6].Fins.Air.RH_out
-#                     self.EvapsB[3].Fins.Air.RH= self.EvapsA[0].Fins.Air.RH_out
-#                     self.EvapsB[4].Fins.Air.RH= self.EvapsA[5].Fins.Air.RH_out
-#                     self.EvapsB[5].Fins.Air.RH= self.EvapsA[4].Fins.Air.RH_out
-#                     self.EvapsB[6].Fins.Air.RH= self.EvapsA[2].Fins.Air.RH_out
-#                     self.EvapsB[7].Fins.Air.RH= self.EvapsA[1].Fins.Air.RH_out    # This is for 8 circuits
-#                    ################################################# 
-#                     self.EvapsB[0].Fins.Air.RH= self.EvapsA[1].Fins.Air.RH_out
-#                     self.EvapsB[1].Fins.Air.RH= self.EvapsA[0].Fins.Air.RH_out
-#                     self.EvapsB[2].Fins.Air.RH= self.EvapsA[2].Fins.Air.RH_out
-#                     self.EvapsB[3].Fins.Air.RH= self.EvapsA[4].Fins.Air.RH_out
-#                     self.EvapsB[4].Fins.Air.RH= self.EvapsA[3].Fins.Air.RH_out     # This is for 5 circuits 
-                    ################################################## 
-#                     self.EvapsB[0].Fins.Air.RH= self.EvapsA[5].Fins.Air.RH_out
-#                     self.EvapsB[1].Fins.Air.RH= self.EvapsA[6].Fins.Air.RH_out
-#                     self.EvapsB[2].Fins.Air.RH= self.EvapsA[7].Fins.Air.RH_out
-#                     self.EvapsB[3].Fins.Air.RH= self.EvapsA[3].Fins.Air.RH_out
-#                     self.EvapsB[4].Fins.Air.RH= self.EvapsA[8].Fins.Air.RH_out
-#                     self.EvapsB[5].Fins.Air.RH= self.EvapsA[0].Fins.Air.RH_out
-#                     self.EvapsB[6].Fins.Air.RH= self.EvapsA[1].Fins.Air.RH_out
-#                     self.EvapsB[7].Fins.Air.RH= self.EvapsA[2].Fins.Air.RH_out     
-#                     self.EvapsB[8].Fins.Air.RH= self.EvapsA[4].Fins.Air.RH_out    # This is for 9 circuits (New18K) 
-                    ##################################################
-                    
                     ##################################################  
                     self.EvapsB[0].Fins.Air.Tdb= self.EvapsA[1].Tout_a
                     self.EvapsB[1].Fins.Air.Tdb= self.EvapsA[0].Tout_a
@@ -750,31 +655,6 @@ class MCE_N(EvaporatorClass):
                     self.EvapsB[3].Fins.Air.Tdb= self.EvapsA[5].Tout_a
                     self.EvapsB[4].Fins.Air.Tdb= self.EvapsA[2].Tout_a
                     self.EvapsB[5].Fins.Air.Tdb= self.EvapsA[3].Tout_a    # This is for 60K ECU, 6 circuits
-                    ##################################################  
-#                     self.EvapsB[0].Fins.Air.Tdb= self.EvapsA[3].Tout_a
-#                     self.EvapsB[1].Fins.Air.Tdb= self.EvapsA[7].Tout_a
-#                     self.EvapsB[2].Fins.Air.Tdb= self.EvapsA[6].Tout_a
-#                     self.EvapsB[3].Fins.Air.Tdb= self.EvapsA[0].Tout_a
-#                     self.EvapsB[4].Fins.Air.Tdb= self.EvapsA[5].Tout_a
-#                     self.EvapsB[5].Fins.Air.Tdb= self.EvapsA[4].Tout_a
-#                     self.EvapsB[6].Fins.Air.Tdb= self.EvapsA[2].Tout_a
-#                     self.EvapsB[7].Fins.Air.Tdb= self.EvapsA[1].Tout_a    # This is for 8 circuits
-                    ##################################################  
-#                     self.EvapsB[0].Fins.Air.Tdb= self.EvapsA[1].Tout_a
-#                     self.EvapsB[1].Fins.Air.Tdb= self.EvapsA[0].Tout_a
-#                     self.EvapsB[2].Fins.Air.Tdb= self.EvapsA[2].Tout_a
-#                     self.EvapsB[3].Fins.Air.Tdb= self.EvapsA[4].Tout_a
-#                     self.EvapsB[4].Fins.Air.Tdb= self.EvapsA[3].Tout_a    # This is for 5 circuits
-                    ##################################################                 
-#                     self.EvapsB[0].Fins.Air.Tdb= self.EvapsA[5].Tout_a
-#                     self.EvapsB[1].Fins.Air.Tdb= self.EvapsA[6].Tout_a
-#                     self.EvapsB[2].Fins.Air.Tdb= self.EvapsA[7].Tout_a
-#                     self.EvapsB[3].Fins.Air.Tdb= self.EvapsA[3].Tout_a
-#                     self.EvapsB[4].Fins.Air.Tdb= self.EvapsA[8].Tout_a
-#                     self.EvapsB[5].Fins.Air.Tdb= self.EvapsA[0].Tout_a
-#                     self.EvapsB[6].Fins.Air.Tdb= self.EvapsA[1].Tout_a
-#                     self.EvapsB[7].Fins.Air.Tdb= self.EvapsA[2].Tout_a
-#                     self.EvapsB[8].Fins.Air.Tdb= self.EvapsA[4].Tout_a    # This is for 9 circuits (New18K)
                 else:
                     self.EvapsB[i].Fins.Air.RH= self.EvapsA[i].Fins.Air.RH_out
                     self.EvapsB[i].Fins.Air.Tdb= self.EvapsA[i].Tout_a
@@ -790,11 +670,11 @@ class MCE_N(EvaporatorClass):
             print""
             
         else:
-            print " The flow directions here are oppsite!"
+            print " The flow directions here are opposite!" #counter flow
             h_guess_max=PropsSI('H','P',self.psat_r,'T',self.EvapsA[0].Fins.Air.Tdb,self.Ref)-5.0
-            #guess_value=300000*np.ones(self.num_evaps)
-            #guess_value=1000.0*h_guess_max**np.ones(self.num_evaps)
-            guess_value=h_guess_max*np.ones(self.num_evaps)
+            guess_value=300000*np.ones(self.num_evaps)
+            guess_value=1000.0*h_guess_max**np.ones(self.num_evaps)
+            #guess_value=h_guess_max*np.ones(self.num_evaps)
             print""
             print " ######### The start of the fucntion residual ###############"
             print""
@@ -971,17 +851,24 @@ class MCE_N(EvaporatorClass):
         self.mdot_r_tot=0.0
         self.mdot_r_totB=0.0  #second coil sheet, as a check
         self.hout_r=0.0
-        for i in range(self.num_evaps):
-            self.Q+=self.EvapsA[i].Q+self.EvapsB[i].Q
-            self.mdot_r_tot+=self.EvapsA[i].mdot_r
-            self.mdot_r_totB+=self.EvapsB[i].mdot_r
-            self.hout_r+=self.EvapsB[i].mdot_r*self.EvapsB[i].hout_r  #flow weighted average
+        if self.same_direction_flow == False: #for counter flow the refrigerant outlet is EvapA
+            for i in range(self.num_evaps):
+                self.Q+=self.EvapsA[i].Q+self.EvapsB[i].Q
+                self.mdot_r_tot+=self.EvapsA[i].mdot_r
+                self.mdot_r_totB+=self.EvapsB[i].mdot_r
+                self.hout_r+=self.EvapsA[i].mdot_r*self.EvapsA[i].hout_r  #flow weighted average        
+        else: #for parallel flow the refrigerant outlet is EvapB
+            for i in range(self.num_evaps):
+                self.Q+=self.EvapsA[i].Q+self.EvapsB[i].Q
+                self.mdot_r_tot+=self.EvapsA[i].mdot_r
+                self.mdot_r_totB+=self.EvapsB[i].mdot_r
+                self.hout_r+=self.EvapsB[i].mdot_r*self.EvapsB[i].hout_r  #flow weighted average 
         self.hout_r/=self.mdot_r_tot
         T_sat=PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref)
         T_out = PropsSI('T','P',self.psat_r,'H',self.hout_r,self.Ref)
         self.hout_r_target=PropsSI('H','T',T_out,'P',self.psat_r,self.Ref)
         print "flowrate at first and second coil sheet is ",self.mdot_r_tot,self.mdot_r_totB,"relative error is", (self.mdot_r_tot-self.mdot_r_totB)/self.mdot_r_tot
-        print " The comparison of T_sat and T_out",T_sat, T_out
+        print " The comparison of T_sat and T_out_r",T_sat, T_out
         print " The capacity in last run is: ",self.Q
         
         if False:  #plot results
@@ -1251,7 +1138,7 @@ def airside_maldistribution_study(evap_type='LRCS',MD_Type=None,MD_severity=None
         print "using custum maldistribution as passed in"
     
     Target_SH=15.55 #from Test 5 baseline  
-    Parallel_flow = False
+    Parallel_flow = True
 
     evap=MCE_N()
     #evap.Target_SH=Target_SH
@@ -1294,26 +1181,27 @@ def airside_maldistribution_study(evap_type='LRCS',MD_Type=None,MD_severity=None
         Write2CSV(evap,open(filenameMDair,'a'),append=True)
         Q_interleaved=evap.Q
      
-    for i in range(len(airside_maldistributions)):
-        evap=MCE_N()
-        #evap.Target_SH=Target_SH
-        evap.same_direction_flow = Parallel_flow
-        evap.Hybrid=Hybrid
-        if evap.Hybrid=='adjust_superheat_iter':
-            evap.Hybrid_ref_distribution=airside_maldistributions[i]
-            evap.adjust_area_fraction_iternum=adjust_area_fraction_iternum
-        evap.interleaved=False
-        evap.num_evaps=num_evaps #update evaporator
-        evap.maldistributed=airside_maldistributions[i]
-        evap.Calculate(evap_type)
-        evap.TestDescription='Equal flow' #to use for plotting in Excel Details
-        evap.md_severity=str(MD_severity[i]) #to use for plotting in Excel 
-        evap.Details=make_name('Equal flow ',str(np.round(airside_maldistributions[i],2)),'air flow MD') 
-        Write2CSV(evap,open(filenameMDair,'a'),append=True)
-        Q_hybrid=evap.Q
+#     for i in range(len(airside_maldistributions)):
+#         evap=MCE_N()
+#         #evap.Target_SH=Target_SH
+#         evap.same_direction_flow = Parallel_flow
+#         evap.Hybrid=Hybrid
+#         if evap.Hybrid=='adjust_superheat_iter':
+#             evap.Hybrid_ref_distribution=airside_maldistributions[i]
+#             evap.adjust_area_fraction_iternum=adjust_area_fraction_iternum
+#         evap.interleaved=False
+#         evap.num_evaps=num_evaps #update evaporator
+#         evap.maldistributed=airside_maldistributions[i]
+#         evap.Calculate(evap_type)
+#         evap.TestDescription='Equal flow' #to use for plotting in Excel Details
+#         evap.md_severity=str(MD_severity[i]) #to use for plotting in Excel 
+#         evap.Details=make_name('Equal flow ',str(np.round(airside_maldistributions[i],2)),'air flow MD') 
+#         Write2CSV(evap,open(filenameMDair,'a'),append=True)
+#         Q_hybrid=evap.Q
         
+    print ' '
     print "capacity-non-interleaved",Q_noninterleaved,"capacity, interleaved",Q_interleaved,"ratio",(Q_interleaved/Q_noninterleaved),"performance improvement over non-interleaved",((Q_interleaved-Q_noninterleaved)/Q_noninterleaved)*100,'%'
-    print "capacity-non-interleaved",Q_noninterleaved,"capacity, hybrid",Q_hybrid,"ratio",(Q_hybrid/Q_noninterleaved),"performance improvement over non-interleaved",((Q_hybrid-Q_noninterleaved)/Q_noninterleaved)*100,'%'
+    #print "capacity-non-interleaved",Q_noninterleaved,"capacity, hybrid",Q_hybrid,"ratio",(Q_hybrid/Q_noninterleaved),"performance improvement over non-interleaved",((Q_hybrid-Q_noninterleaved)/Q_noninterleaved)*100,'%'
     print "Capacity of basecase without maldistribution",Q_base,"performance degradation caused by maldistribution",((Q_base-Q_noninterleaved)/Q_base)*100,'%'
     #plt.show() #Ammar: there is no plot command here !!?
 

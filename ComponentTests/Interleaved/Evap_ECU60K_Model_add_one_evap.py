@@ -447,19 +447,19 @@ class MCE_N(EvaporatorClass):
                     self.EvapsB[i].Fins.Air.RH= self.EvapsA[i].Fins.Air.RH_out
                     self.EvapsB[i].Fins.Air.Tdb= self.EvapsA[i].Tout_a
                     
-            for i in range(self.num_evaps):
-                if self.Verbosity: print "residual evap calcs second coil sheet",i
-                if hin_r[i+self.num_evaps]<PropsSI('H','Q',0.0,'P',self.psat_r,self.Ref):
-                    print "something wrong with inlet enthalpy, too small- is",hin_r[i+self.num_evaps],i,"but saturated liquid would be",PropsSI('H','Q',0.0,'P',self.psat_r,self.Ref),
-                    print "fixing it to slight amount of quality to allow solver to proceed"
-                    hin_r[i+self.num_evaps]=PropsSI('H','Q',0.01,'P',self.psat_r,self.Ref)
-                if hin_r[i+self.num_evaps]>PropsSI('H','T',self.EvapsB[i].Fins.Air.Tdb,'P',self.psat_r,self.Ref):
-                    print "something wrong with inlet enthalpy, too large"
-                    print "hin_rA[i]",hin_r[i+self.num_evaps],i
-                    hin_r[i+self.num_evaps]=PropsSI('H','T',self.EvapsB[i].Fins.Air.Tdb-0.1,'P',self.psat_r,self.Ref)
-                    print "limited to 0.1K les than the air inlet temperature"
+#             for i in range(self.num_evaps):
+#                 if self.Verbosity: print "residual evap calcs second coil sheet",i
+#                 if hin_r[i+self.num_evaps]<PropsSI('H','Q',0.0,'P',self.psat_r,self.Ref):
+#                     print "something wrong with inlet enthalpy, too small- is",hin_r[i+self.num_evaps],i,"but saturated liquid would be",PropsSI('H','Q',0.0,'P',self.psat_r,self.Ref),
+#                     print "fixing it to slight amount of quality to allow solver to proceed"
+#                     hin_r[i+self.num_evaps]=PropsSI('H','Q',0.01,'P',self.psat_r,self.Ref)
+#                 if hin_r[i+self.num_evaps]>PropsSI('H','T',self.EvapsB[i].Fins.Air.Tdb,'P',self.psat_r,self.Ref):
+#                     print "something wrong with inlet enthalpy, too large"
+#                     print "hin_rA[i]",hin_r[i+self.num_evaps],i
+#                     hin_r[i+self.num_evaps]=PropsSI('H','T',self.EvapsB[i].Fins.Air.Tdb-0.1,'P',self.psat_r,self.Ref)
+#                     print "limited to 0.1K les than the air inlet temperature"
                     
-                self.EvapsB[i].hin_r=hin_r[i+self.num_evaps]
+                #self.EvapsB[i].hin_r=hin_r[i]
                 
             for i in range(self.num_evaps):
                 self.EvapsB[i].Calculate()
@@ -745,14 +745,21 @@ class MCE_N(EvaporatorClass):
         self.mdot_r_totB=0.0  #second coil sheet, as a check
         #self.mdot_r_totC=0.0  #last coil sheet, as a check
         self.hout_r=0.0
-        for i in range(self.num_evaps):
-#             print " check the capacity for each run A",self.EvapsA[i].Q
-#             print " check the capacity for each run B",self.EvapsB[i].Q
-            self.Q+=self.EvapsA[i].Q+self.EvapsB[i].Q#+self.EvapsC[i].Q
-            self.mdot_r_tot+=self.EvapsA[i].mdot_r
-            self.mdot_r_totB+=self.EvapsB[i].mdot_r
-            #self.mdot_r_totC+=self.EvapsC[i].mdot_r
-            self.hout_r+=self.EvapsB[i].mdot_r*self.EvapsB[i].hout_r  #flow weighted average
+        if self.same_direction_flow == False: #for counter flow the refrigerant outlet is EvapA
+            for i in range(self.num_evaps):
+#                 print " check the capacity for each run A",self.EvapsA[i].Q
+#                 print " check the capacity for each run B",self.EvapsB[i].Q
+                self.Q+=self.EvapsA[i].Q+self.EvapsB[i].Q#+self.EvapsC[i].Q
+                self.mdot_r_tot+=self.EvapsA[i].mdot_r
+                self.mdot_r_totB+=self.EvapsB[i].mdot_r
+                #self.mdot_r_totC+=self.EvapsC[i].mdot_r
+                self.hout_r+=self.EvapsA[i].mdot_r*self.EvapsA[i].hout_r  #flow weighted average
+        else: #for parallel flow the refrigerant outlet is EvapB
+            for i in range(self.num_evaps):
+                self.Q+=self.EvapsA[i].Q+self.EvapsB[i].Q#+self.EvapsC[i].Q
+                self.mdot_r_tot+=self.EvapsA[i].mdot_r
+                self.mdot_r_totB+=self.EvapsB[i].mdot_r
+                self.hout_r+=self.EvapsB[i].mdot_r*self.EvapsB[i].hout_r  #flow weighted average
         self.hout_r/=self.mdot_r_tot
         T_sat=PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref)
         T_out = PropsSI('T','P',self.psat_r,'H',self.hout_r,self.Ref)
@@ -1034,7 +1041,7 @@ def airside_maldistribution_study(evap_type='60K',MD_Type=None,interleave_order=
     
     
     Target_SH=15.55 #from Test 5 baseline
-    Parallel_flow = True
+    Parallel_flow = False
 
     evap=MCE_N()
     #evap.Target_SH=Target_SH
