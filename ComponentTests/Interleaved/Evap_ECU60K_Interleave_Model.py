@@ -101,8 +101,10 @@ class MCE_N(EvaporatorClass):
                                         ('Refrigerant mass flow B'+' '+str(i),'kg/s',self.EvapsB[i].mdot_r),
                                         ('Sensible Heat Ratio_A'+' '+str(i),'-',self.EvapsA[i].SHR),
                                         ('Sensible Heat Ratio_B'+' '+str(i),'-',self.EvapsB[i].SHR),
-                                        ('Outlet ref h_B'+' '+str(i),'K',self.EvapsB[i].hout_r),    
-                                        ('Inlet ref h_A'+' '+str(i),'K',self.EvapsA[i].hin_r)])
+                                        ('Outlet ref h_B'+' '+str(i),'J/kg',self.EvapsB[i].hout_r),    
+                                        ('Inlet ref h_A'+' '+str(i),'J/kg',self.EvapsA[i].hin_r),
+                                        ('Outlet ref Temp_B'+' '+str(i),'K',self.EvapsB[i].Tout_r),
+                                        ('Inlet ref Temp_A'+' '+str(i),'K',self.EvapsA[i].Tin_r)])
         for i in range(0,len(Output_list_i[0]),1): #sort output list, such that corresponding values are next to each other
             sumsi=0    #need sums and avgs
             for n in range(0,num_evaps):
@@ -172,9 +174,9 @@ class MCE_N(EvaporatorClass):
         #           -> see Condenser and GUI for explanations
         #--------------------------------------
         #--------------------------------------
-        Evaporator.Fins.Tubes.NTubes_per_bank=2 #3 #8 (each cell 1 tube)
+        Evaporator.Fins.Tubes.NTubes_per_bank=1 #3 #8 (each cell 1 tube)
         Evaporator.Fins.Tubes.Nbank=3#2.5 #4(half of actual number for a single cell)
-        Evaporator.Fins.Tubes.Ncircuits=6#8 (each cell is part of 1 circuit)
+        Evaporator.Fins.Tubes.Ncircuits=1#8 (each cell is part of 1 circuit)
         Evaporator.Fins.Tubes.Ltube=in2m(24.875) #in2m(19)#measured fin pack length
         Evaporator.Fins.Tubes.OD=in2m(0.5) #0.007874 #measured
         Evaporator.Fins.Tubes.ID=Evaporator.Fins.Tubes.OD - 2*in2m(0.019)#0.007874-0.001 #guess of 1 mm for wall thickness
@@ -427,15 +429,15 @@ class MCE_N(EvaporatorClass):
             print " The flow directions is parallel!"
             print""
             for i in range(self.num_evaps):
-                print""
-                print" This means the code is calcualting the EvapA:"
-                print""
-                print " The inlet of EvapA,h_in:",self.EvapsA[i].hin_r
+                #print""
+                #print" This means the code is calcualting the EvapA:"
+                #print""
+                #print " The inlet of EvapA,h_in:",self.EvapsA[i].hin_r
                 self.EvapsA[i].Calculate()
-                print " The outlet of EvapA,h_out",self.EvapsA[i].hout_r            
-                print""
-                print" This means the code is calcualting the EvapB:"
-                print""
+                #print " The outlet of EvapA,h_out",self.EvapsA[i].hout_r            
+                #print""
+                #print" This means the code is calcualting the EvapB:"
+                #print""
                 self.EvapsB[i].hin_r = self.EvapsA[i].hout_r
                 
             for i in range(self.num_evaps):   #update and calculate second row
@@ -450,9 +452,9 @@ class MCE_N(EvaporatorClass):
                     self.EvapsB[i].Fins.Air.Tdb= self.EvapsA[i].Tout_a
             for i in range(self.num_evaps):
             #if we use the profile order function we need to take care the order of the iteration here (Update problem !!!!!!!)
-                print " The inlet of EvapB,h_in",self.EvapsB[i].hin_r
+                #print " The inlet of EvapB,h_in",self.EvapsB[i].hin_r
                 self.EvapsB[i].Calculate()
-                print " The outlet of EvapB,h_out",self.EvapsB[i].hout_r
+                #print " The outlet of EvapB,h_out",self.EvapsB[i].hout_r
                 
             print""
             print " ######### The end of the Calculating Process ###############"
@@ -935,7 +937,7 @@ def airside_maldistribution_study(evap_type='60K',MD_Type=None,interleave_order=
     
     
     Target_SH=15.55 #from Test 5 baseline
-    Parallel_flow = False #True >>> parallel flow OR False >>> counter flow
+    Parallel_flow = False #CHOOSE: True>>parallel flow OR False>>counter flow
     
     #===========================================================================
     # Calculate the Base cycle (uniform air flow)

@@ -106,7 +106,7 @@ class EvaporatorClass():
             self.Fins.Validate()
             reqFields=[
                        ('Ref',str,None,None),
-                       ('psat_r',float,1e-6,100000),
+                       ('psat_r',float,0.001,100000000),
                        ('Fins',IsFinsClass,None,None),
                        ('FinsType',str,None,None),
                        ('hin_r',float,-100000,10000000),
