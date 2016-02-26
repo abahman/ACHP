@@ -220,10 +220,7 @@ class MCE_N(EvaporatorClass):
         elif evap_type=='60K':  # 5tons = 17.52kW
             self.Ref='R404A'    #'R410a'
             self.psat_r= 445100
-            if hasattr(self,'mdot_r'):
-                self.mdot_r=self.mdot_r/float(self.num_evaps) #internally using individual circuit average flowrate
-            else:
-                self.mdot_r=(86.57/1000.0)/(8.0)*1.2 #later on add handling to automatically get back to flowrate of one circuit from total flowrate
+            self.mdot_r=(86.57/1000.0)/(8.0)*1.2 #later on add handling to automatically get back to flowrate of one circuit from total flowrate
             self.mdot_r_=self.mdot_r*1.0   #used as backup if first value in superheat iteration does not converge
             self.hin_r=PropsSI('H','P', 1429000,'Q',0,self.Ref)
             self.Verbosity=0
