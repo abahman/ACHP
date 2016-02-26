@@ -656,7 +656,7 @@ class MCE_N(EvaporatorClass):
         self.hout_r/=self.mdot_r_tot
         T_sat = PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref)
         T_out = PropsSI('T','P',self.psat_r,'H',self.hout_r,self.Ref)
-        self.hout_r_target=PropsSI('H','T',T_out,'P',self.psat_r,self.Ref)
+        #self.hout_r_target=PropsSI('H','T',T_out,'P',self.psat_r,self.Ref)
         print "flowrate at first and second coil sheet is ",self.mdot_r_tot,self.mdot_r_totB,"relative error is", (self.mdot_r_tot-self.mdot_r_totB)/self.mdot_r_tot
         print " The comparison of T_sat and Tout_r",T_sat, T_out
         print " The capapcity in last run is: ",self.Q, 'W'
@@ -911,8 +911,8 @@ def airside_maldistribution_study(evap_type='60K',MD_Type=None,interleave_order=
     
     #run different airside flow maldistributions to check effect on performance
     if MD_Type==None:
-        #airside_maldistributions=[0,0.05,0.1,0.2,0.3,0.4,0.5]
-        airside_maldistributions=[0,0.05,0.5,1.0]
+        airside_maldistributions=[0,0.05,0.1,0.2,0.3,0.4,0.5]
+        #airside_maldistributions=[0,0.05,0.5,1.0]
         MD_severity=airside_maldistributions
         for i in range(len(airside_maldistributions)):
             airside_maldistributions[i]=np.linspace(1.+airside_maldistributions[i],1.-airside_maldistributions[i],num_evaps)
@@ -991,30 +991,30 @@ def airside_maldistribution_study(evap_type='60K',MD_Type=None,interleave_order=
         Write2CSV(evap,open(filenameMDair,'a'),append=True)
         Q_interleaved=evap.Q
       
-#     #=========================================================================
-#     # Calculate the Hybrid cycle (MD_severity with hybrid) 
-#     #=========================================================================
-#     for i in range(len(airside_maldistributions)):
-#         evap=MCE_N()
-#         #evap.Target_SH=Target_SH
-#         evap.same_direction_flow = Parallel_flow
-#         evap.Hybrid=Hybrid
-#         if evap.Hybrid=='adjust_superheat_iter':
-#             evap.Hybrid_ref_distribution=airside_maldistributions[i]
-#             evap.adjust_area_fraction_iternum=adjust_area_fraction_iternum
-#         evap.interleaved=False
-#         evap.num_evaps=num_evaps #update evaporator
-# #         evap.interleave_order = interleave_order
-#         evap.maldistributed=airside_maldistributions[i]
-#         evap.Calculate(evap_type)
-#         evap.TestDescription='Equal flow' #to use for plotting in Excel Details
-#         evap.md_severity=str(MD_severity[i]) #to use for plotting in Excel 
-#         evap.Details=make_name('Equal flow ',str(np.round(airside_maldistributions[i],2)),'air flow MD') 
-#         Write2CSV(evap,open(filenameMDair,'a'),append=True)
-#         Q_hybrid=evap.Q
+    #=========================================================================
+    # Calculate the Hybrid cycle (MD_severity with hybrid) 
+    #=========================================================================
+    for i in range(len(airside_maldistributions)):
+        evap=MCE_N()
+        #evap.Target_SH=Target_SH
+        evap.same_direction_flow = Parallel_flow
+        evap.Hybrid=Hybrid
+        if evap.Hybrid=='adjust_superheat_iter':
+            evap.Hybrid_ref_distribution=airside_maldistributions[i]
+            evap.adjust_area_fraction_iternum=adjust_area_fraction_iternum
+        evap.interleaved=False
+        evap.num_evaps=num_evaps #update evaporator
+#         evap.interleave_order = interleave_order
+        evap.maldistributed=airside_maldistributions[i]
+        evap.Calculate(evap_type)
+        evap.TestDescription='Equal flow' #to use for plotting in Excel Details
+        evap.md_severity=str(MD_severity[i]) #to use for plotting in Excel 
+        evap.Details=make_name('Equal flow ',str(np.round(airside_maldistributions[i],2)),'air flow MD') 
+        Write2CSV(evap,open(filenameMDair,'a'),append=True)
+        Q_hybrid=evap.Q
           
     print "capacity-non-interleaved",Q_noninterleaved,"capacity, interleaved",Q_interleaved,"ratio",(Q_interleaved/Q_noninterleaved),"performance improvement over non-interleaved",((Q_interleaved-Q_noninterleaved)/Q_noninterleaved)*100,'%'
-#     print "capacity-non-interleaved",Q_noninterleaved,"capacity, hybrid",Q_hybrid,"ratio",(Q_hybrid/Q_noninterleaved),"performance improvement over non-interleaved",((Q_hybrid-Q_noninterleaved)/Q_noninterleaved)*100,'%'
+    print "capacity-non-interleaved",Q_noninterleaved,"capacity, hybrid",Q_hybrid,"ratio",(Q_hybrid/Q_noninterleaved),"performance improvement over non-interleaved",((Q_hybrid-Q_noninterleaved)/Q_noninterleaved)*100,'%'
     print "Capacity of Base cycle with uniform flow",Q_base,"performance degradation caused by maldistribution",((Q_base-Q_noninterleaved)/Q_base)*100,'%'
     #plt.show()
 
