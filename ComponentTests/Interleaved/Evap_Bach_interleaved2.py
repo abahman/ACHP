@@ -397,8 +397,8 @@ class MCE_N(EvaporatorClass):
         
         print self.EvapsA[0].Fins.Air.Tdb
         h_guess_max=PropsSI('H','P',self.psat_r,'T',self.EvapsA[0].Fins.Air.Tdb,self.Ref)-5.0
-        guess_value=300000*np.ones(self.num_evaps)
-        guess_value=1000.0*h_guess_max**np.ones(self.num_evaps)
+        #guess_value=300000*np.ones(self.num_evaps)
+        guess_value=h_guess_max**np.ones(self.num_evaps)
         print self.EvapsA[0].Fins.Air.Tdb,h_guess_max,guess_value
         print residual(guess_value)
         
@@ -422,6 +422,7 @@ class MCE_N(EvaporatorClass):
                     self.hout_r+=self.EvapsA[i].mdot_r*self.EvapsA[i].hout_r
                 self.hout_r/=self.mdot_r_tot
                 self.resids=self.hout_r-self.hout_r_target #store nested for csv output
+                print " mdot_r_tot",self.mdot_r_tot,"evapa_hout_r",self.EvapsA[i].hout_r,"hout_r",self.hout_r,"target",self.hout_r_target,"resids",self.resids
                 return self.hout_r-self.hout_r_target
             T_sat=PropsSI('T','P',self.psat_r,'Q',1.0,self.Ref)
             self.hout_r_target=PropsSI('H','T',self.Target_SH+T_sat,'P',self.psat_r,self.Ref)
