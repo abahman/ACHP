@@ -33,7 +33,11 @@ def DryWetSegment(DWS):
     
     #Retrieve values from structures defined above
     Tin_a=DWS.Tin_a
-    h_a=DWS.h_a
+    if DWS.h_a<0.000000001:
+        print "Warning: Dws.h_a was constrained to 0.001, original value: ", DWS.h_a
+        h_a=0.000000001
+    else:
+        h_a=DWS.h_a    
     cp_da=DWS.cp_da
     eta_a=DWS.eta_a  #from fin correlations, overall airside surface effectiveness
     A_a=DWS.A_a
@@ -43,7 +47,11 @@ def DryWetSegment(DWS):
 
     Tin_r=DWS.Tin_r
     pin_r=DWS.pin_r
-    h_r=DWS.h_r
+    if DWS.h_r<0.000000001:
+        print "Warning: Dws.h_r was constrained to 0.001, original value: ", DWS.h_r
+        h_r=0.000000001
+    else:
+        h_r=DWS.h_r
     cp_r=DWS.cp_r
     A_r=DWS.A_r
     mdot_r=DWS.mdot_r

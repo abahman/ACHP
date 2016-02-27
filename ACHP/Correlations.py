@@ -277,7 +277,9 @@ def LockhartMartinelli(Ref, G, D, x, Tbubble,Tdew,C=None,satTransport=None):
     
     return dpdz,alpha
 
-def ShahEvaporation_Average(x_min,x_max,Ref,G,D,p,q_flux,Tbubble,Tdew):
+def ShahEvaporation_Average(x_min,x_max,Ref,G,D,p,q_flux,Tbubble,Tdew,h_tp_tuning=1.0):
+    #print h_tp_tuning
+    #h_tp_tuning=0.7 for LRCS (christian model- 2 circuits)
     """
     Returns the average heat transfer coefficient between qualities of x_min and x_max.
     
@@ -370,10 +372,10 @@ def ShahEvaporation_Average(x_min,x_max,Ref,G,D,p,q_flux,Tbubble,Tdew):
     #if x_min == x_max, or they are really really close to being the same
     if abs(x_max-x_min)<5*machine_eps:
         #return just one of the edge values
-        return h[0]
+        return h[0] * h_tp_tuning#h_tuning
     else:
         #Use Simpson's rule to carry out numerical integration to get average
-        return simps(h,x)/(x_max-x_min)
+        return simps(h,x)/(x_max-x_min) * h_tp_tuning#h_tuning
 
 def LongoCondensation(x_avg,G,dh,Ref,TsatL,TsatV):
     rho_L = PropsSI('D', 'T', TsatL, 'Q', 0, Ref) #kg/m^3
@@ -445,7 +447,11 @@ def f_h_1phase_Annulus(mdot, OD, ID, T, p, Fluid, Phase='Single'):
         cp = PropsSI('C', 'T', T, 'P', p, Fluid) #J/kg-K
         k = PropsSI('L', 'T', T, 'P', p, Fluid) #W/m-K
         rho = PropsSI('D', 'T', T, 'P', p, Fluid) #kg/m^3
-
+    if k<=0.0:
+        print "Warning: property calculation in Correlations.py did not converge, k was: ", k
+        print "T was ", T, " and P was ", p
+        k=0.000001
+        
     Pr = cp * mu / k #[-]
 
     Dh = OD - ID

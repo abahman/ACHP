@@ -471,8 +471,8 @@ class EvaporatorClass():
         #Outlet superheat an temperature (in case of two phase)
         if existsSuperheat:
             try:
-                self.Tout_r=PropsSI('T','P',self.pout_r,'H',self.hout_r,self.Ref) 
-                #self.Tout_r=newton(lambda T: PropsSI('H','T',T,'P',self.pout_r,self.Ref)-self.hout_r,PropsSI('T','P',self.pout_r,'Q',1.0,self.Ref))
+                #self.Tout_r=PropsSI('T','P',self.pout_r,'H',self.hout_r,self.Ref) 
+                self.Tout_r=newton(lambda T: PropsSI('H','T',T,'P',self.pout_r,self.Ref)-self.hout_r,PropsSI('T','P',self.pout_r,'Q',1.0,self.Ref))
             except:
                 print "problem iwith calculating Tout_r in evaporator.py"
                 print "self.hout_r",self.hout_r,"self.hin_r",self.hin_r,"PropsSI('H','Q',1.0,'P',self.pout_r,self.Ref)",PropsSI('H','Q',1.0,'P',self.pout_r,self.Ref),"self.pout_r",self.pout_r,"self.psat_r",self.psat_r,"self.mdot_r",self.mdot_r,"self.xin_r",self.xin_r
@@ -554,7 +554,7 @@ class EvaporatorClass():
             raise ValueError('Q_target in Evaporator must be positive')
         
         # Average Refrigerant heat transfer coefficient
-        DWS.h_r=ShahEvaporation_Average(self.xin_r,self.xout_2phase,self.Ref,self.G_r,self.ID,self.psat_r,Q_target/DWS.A_r,self.Tbubble_r,self.Tdew_r)
+        DWS.h_r=ShahEvaporation_Average(self.xin_r,self.xout_2phase,self.Ref,self.G_r,self.ID,self.psat_r,Q_target/DWS.A_r,self.Tbubble_r,self.Tdew_r,self.h_tp_tuning)
         if DWS.h_r<=0.0001:
             print 'something is wrong with the refrigerant side HT-coefficient as requested by Evaporator.py, inputs are\n',self.xin_r,self.xout_2phase,self.Ref,self.G_r,self.ID,self.Tsat_r,Q_target/DWS.A_r,self.Tbubble_r,self.Tdew_r
         
