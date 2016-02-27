@@ -214,6 +214,7 @@ class MCE_N(EvaporatorClass):
             self.Verbosity=0
             self.cp_r_iter=False  #iterate for CP in evaporator
             self.FinsType = 'WavyLouveredFins'
+            self.h_tp_tuning = 0.7 #two phase tuning factor
             
         elif evap_type=='RAC':
             self.Ref='R410a'
@@ -393,14 +394,22 @@ class MCE_N(EvaporatorClass):
             #calculate the error between estimated and actual inlet enthalpy to first row
             residue=hin_rA-hB_out_for_residue
             self.resids=residue
+            print " the residue is: ", residue
             return residue
         
-        print self.EvapsA[0].Fins.Air.Tdb
+        #print self.EvapsA[0].Fins.Air.Tdb
         h_guess_max=PropsSI('H','P',self.psat_r,'T',self.EvapsA[0].Fins.Air.Tdb,self.Ref)-5.0
         #guess_value=300000*np.ones(self.num_evaps)
         guess_value=h_guess_max**np.ones(self.num_evaps)
-        print self.EvapsA[0].Fins.Air.Tdb,h_guess_max,guess_value
-        print residual(guess_value)
+        #print self.EvapsA[0].Fins.Air.Tdb,h_guess_max,guess_value
+        #print residual(guess_value)
+        print""
+        print " ######### The start of the fucntion residual ###############"
+        print""
+        print " The residual fucntion process: ",residual(guess_value)
+        print ""
+        print " ############### Calculated for each circuit, then out to next function (mass)##################"
+        print""
         
         def solve_for_exit_sh(self):
             "solve for the mass flow rate for a given target super-heat"
@@ -456,7 +465,7 @@ class MCE_N(EvaporatorClass):
             #calculate residual is the difference of the individual circuit exit enthalpies
             resid_eq_sh=np.zeros(self.num_evaps)
             for i in range(self.num_evaps):
-                resid_eq_sh[i]=self.EvapsA[i].hout_r/10000.0 #bring on similar scale as inputs
+                resid_eq_sh[i]=self.EvapsA[i].hout_r/1000.0 #bring on similar scale as inputs
             resid_eq_sh=np.sum(resid_eq_sh*resid_eq_sh)
             self. resid_eq_sh=resid_eq_sh
             return resid_eq_sh
