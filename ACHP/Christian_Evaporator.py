@@ -471,10 +471,10 @@ class EvaporatorClass():
         #Outlet superheat an temperature (in case of two phase)
         if existsSuperheat:
             try:
-                #self.Tout_r=PropsSI('T','P',self.pout_r,'H',self.hout_r,self.Ref) 
-                self.Tout_r=newton(lambda T: PropsSI('H','T',T,'P',self.pout_r,self.Ref)-self.hout_r,PropsSI('T','P',self.pout_r,'Q',1.0,self.Ref))
+                self.Tout_r=PropsSI('T','P',self.pout_r,'H',self.hout_r,self.Ref) 
+                #self.Tout_r=newton(lambda T: PropsSI('H','T',T,'P',self.pout_r,self.Ref)-self.hout_r,PropsSI('T','P',self.pout_r,'Q',1.0,self.Ref))
             except:
-                print "problem iwith calculating Tout_r in evaporator.py"
+                print "problem iwith calculating Tout_r in Christian_evaporator.py"
                 print "self.hout_r",self.hout_r,"self.hin_r",self.hin_r,"PropsSI('H','Q',1.0,'P',self.pout_r,self.Ref)",PropsSI('H','Q',1.0,'P',self.pout_r,self.Ref),"self.pout_r",self.pout_r,"self.psat_r",self.psat_r,"self.mdot_r",self.mdot_r,"self.xin_r",self.xin_r
                 print "PropsSI('H','Q',0.0,'P',self.pout_r,self.Ref)",PropsSI('H','Q',0.0,'P',self.pout_r,self.Ref),"self.Tin_a,self.Tsat_r",self.Tin_a,self.Tsat_r,"self.DP_r",self.DP_r,self.Q,self.Q_superheat,self.Q_2phase,existsSuperheat,self.w_2phase
                 print self.Fins.cp_da
@@ -645,7 +645,7 @@ class EvaporatorClass():
         
 if __name__=='__main__':
     #This code runs if this file is run by itself, but otherwise doesn't run
-    if 0:
+    if 1:
         Ref='R410a'
         TT=[]
         Q=[]
@@ -728,7 +728,7 @@ if __name__=='__main__':
         pylab.show()
 
 #########################################################################
-    if 1: #run a change-in-dewpoint temperature study
+    if 0: #run a change-in-dewpoint temperature study
         TT=[]
         Q=[]
         ff=[]
