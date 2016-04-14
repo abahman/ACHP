@@ -140,7 +140,7 @@ no_points_per_circuit =  len(grid_100)/6. #devide the number of element by the n
 #===============================================================================
 # Start of the velocity curves code and plots
 #===============================================================================
-fig = plt.figure(1, figsize=(9, 3))
+#fig = plt.figure(1, figsize=(9, 3))
 for i in range(len(Test)):
         
     vg = griddata(y, average[i], grid_y, method='cubic')
@@ -205,7 +205,7 @@ for i in range(len(Test)):
     print ' '
     
     ##########plot air velocity percentages##########
-    ax = plt.subplot(1, 3, i+1)
+    #ax = plt.subplot(1, 3, i+1)
     plt.bar(np.arange(1,7,1)-0.4,percentage*100,label=r'velocity percentage')
     plt.ylim(0,25)
     plt.xlim(0,7)
@@ -214,11 +214,12 @@ for i in range(len(Test)):
     plt.xlabel('Circuit number')
     plt.ylabel('Percentage [\%]')
     plt.title('Air Velocity \% of Test '+Test[i])
-    
+    plt.savefig('velocity_profile_v2/velocity_percent_test'+Test[i]+'.pdf')
+    plt.show()    
     
     #########plot air velocity fit#############    
     #plt.figure()
-#     ax = plt.subplot(1, 3, i+1)
+    #ax = plt.subplot(1, 3, i+1)
 #     plt.plot(average[i],y,'bo',label=r'Data')
 #     plt.plot(vg,grid_y,'r',label=r'Cubic polynomial')
 #     plt.plot(lang_res,grid_y,'g--',label=r'Lagrange polynomial')
@@ -232,9 +233,9 @@ for i in range(len(Test)):
 #     plt.legend(loc='best',fancybox=False)
 #     plt.savefig('velocity_profile_v2/velocity_curve_test'+Test[i]+'.pdf')
 #     plt.show()
-fig.set_tight_layout(True)
+#fig.set_tight_layout(True)
 #leg = ax.legend(bbox_to_anchor=(-2.54, 0.03), loc='lower left', borderaxespad=0.)
 #leg.get_frame().set_alpha(0.7)
 #plt.savefig('velocity_profile_v2/velocity_curve_combined.pdf')
-plt.savefig('velocity_profile_v2/velocity_percent_combined.pdf')
-plt.show()
+#plt.savefig('velocity_profile_v2/velocity_percent_combined.pdf')
+#plt.show()
