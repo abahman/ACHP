@@ -43,6 +43,7 @@ pgf_with_latex = {                      # setup matplotlib to use latex for outp
 "axes.labelsize": 10,               # LaTeX default is 10pt font.
 "font.size": 10,
 "legend.fontsize": 8,               # Make the legend/label fonts a little smaller
+"legend.labelspacing":0.2,
 "xtick.labelsize": 8,
 "ytick.labelsize": 8,
 "figure.figsize": figsize(0.9),     # default fig size of 0.9 textwidth
@@ -117,9 +118,11 @@ V4 = (V4_max+V4_min)/2
 V5 = (V5_max+V5_min)/2
 VFan = (VFan_max+VFan_min)/2
 
-V_data = [V4,V5,VFan]
+print 'Average of Fan only = '+ str(VFan.mean())+' m/s'
 
+V_data = [V4,V5,VFan]
 average = [V4.mean(1), V5.mean(1), VFan.mean(1)]
+
 grid_y = np.arange(0, 22.6, 0.1)
 grid_100 = np.arange(0,22.6,0.0223) #this grid(array) is used to get velocity percentages on each circuit-- now there are 1000 elements --(note: the more interval you have the accurate you get due to the number of elements)
 no_points_per_circuit =  len(grid_100)/6. #devide the number of element by the number of circuits (6 circuits for 60K ECU)
@@ -128,7 +131,7 @@ no_points_per_circuit =  len(grid_100)/6. #devide the number of element by the n
 # Plot the grid only
 #===============================================================================
 # fig = plt.figure(figsize=(4,3.5))
-# 
+#  
 # plt.ylim(0,22.5)
 # plt.xlim(0,24.875)
 # plt.xticks([0, 5, 10, 15, 20, 24.875],
@@ -138,14 +141,14 @@ no_points_per_circuit =  len(grid_100)/6. #devide the number of element by the n
 # plt.xlabel('Evaporator width [in]')
 # plt.ylabel('Evaporator height [in]')
 # plt.title('Velocity profile grid')
-# 
-#      
+#  
+#       
 # ## TO SHOW the values with the measurment grid on the plot
 # for k in range(len(x)):
 #     for j in range(len(y)):
 #         plt.plot(x[k],y[j],'ko')
 #         #plt.annotate(V_data[i][j,k], (x[k],y[j]))
-# 
+#  
 # plt.savefig('velocity_profile/velocity_profile_grid.pdf')
 # plt.show()
 

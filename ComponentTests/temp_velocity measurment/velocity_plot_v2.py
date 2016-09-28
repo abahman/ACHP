@@ -43,6 +43,7 @@ pgf_with_latex = {                      # setup matplotlib to use latex for outp
 "axes.labelsize": 10,               # LaTeX default is 10pt font.
 "font.size": 10,
 "legend.fontsize": 8,               # Make the legend/label fonts a little smaller
+"legend.labelspacing":0.2,
 "xtick.labelsize": 8,
 "ytick.labelsize": 8,
 "figure.figsize": figsize(0.9),     # default fig size of 0.9 textwidth
@@ -205,34 +206,36 @@ for i in range(len(Test)):
     print ' '
     
     ##########plot air velocity percentages##########
-    #ax = plt.subplot(1, 3, i+1)
-    plt.bar(np.arange(1,7,1)-0.4,percentage*100,label=r'velocity percentage')
-    plt.ylim(0,25)
-    plt.xlim(0,7)
-    plt.xticks([0, 1, 2, 3, 4, 5, 6, 7],
-               [r'$top$', r'$1$', r'$2$', r'$3$',r'$4$', r'$5$', r'$6$', r'$bottom$'])
-    plt.xlabel('Circuit number')
-    plt.ylabel('Percentage [\%]')
-    plt.title('Air Velocity \% of Test '+Test[i])
-    plt.savefig('velocity_profile_v2/velocity_percent_test'+Test[i]+'.pdf')
-    plt.show()    
+#     #ax = plt.subplot(1, 3, i+1)
+#     plt.bar(np.arange(1,7,1)-0.4,percentage*100,label=r'velocity percentage')
+#     plt.ylim(0,25)
+#     plt.xlim(0,7)
+#     plt.xticks([0, 1, 2, 3, 4, 5, 6, 7],
+#                [r'$top$', r'$1$', r'$2$', r'$3$',r'$4$', r'$5$', r'$6$', r'$bottom$'])
+#     plt.xlabel('Circuit number')
+#     plt.ylabel('Percentage [\%]')
+#     plt.title('Air Velocity \% of Test '+Test[i])
+#     #plt.savefig('velocity_profile_v2/velocity_percent_test'+Test[i]+'.pdf')
+#     plt.show()    
     
     #########plot air velocity fit#############    
     #plt.figure()
     #ax = plt.subplot(1, 3, i+1)
-#     plt.plot(average[i],y,'bo',label=r'Data')
-#     plt.plot(vg,grid_y,'r',label=r'Cubic polynomial')
-#     plt.plot(lang_res,grid_y,'g--',label=r'Lagrange polynomial')
-#     plt.ylim(0,22.5)
-#     plt.xlim(0,6)
-#     plt.yticks([0, 4, 8, 12, 16, 20, 22.5],
-#                [r'$0$', r'$4$', r'$8$', r'$12$',r'$16$', r'$20$', r'$22.5$'])
-#     plt.xlabel('Velocity [m/s]')
-#     plt.ylabel('Evaporator height [in]')
-#     plt.title('Velocity fit of Test '+Test[i])
-#     plt.legend(loc='best',fancybox=False)
-#     plt.savefig('velocity_profile_v2/velocity_curve_test'+Test[i]+'.pdf')
-#     plt.show()
+    plt.plot(average[i],y,'bo',label=r'Data')
+    plt.plot(vg,grid_y,'r',label=r'Cubic polynomial')
+    plt.plot(lang_res,grid_y,'g--',label=r'Lagrange polynomial')
+    plt.ylim(0,22.5)
+    plt.xlim(0,6)
+    plt.yticks([0, 4, 8, 12, 16, 20, 22.5],
+               [r'$0$', r'$4$', r'$8$', r'$12$',r'$16$', r'$20$', r'$22.5$'])
+    plt.xlabel('Velocity [m/s]')
+    plt.ylabel('Evaporator height [in]')
+    #plt.title('Velocity fit of Test '+Test[i])
+    leg = plt.legend(loc='best',fancybox=False,numpoints=1)
+    frame  = leg.get_frame()  
+    frame.set_linewidth(0.5)
+    #plt.savefig('velocity_profile_v2/velocity_curve_test'+Test[i]+'.pdf')
+    plt.show()
 #fig.set_tight_layout(True)
 #leg = ax.legend(bbox_to_anchor=(-2.54, 0.03), loc='lower left', borderaxespad=0.)
 #leg.get_frame().set_alpha(0.7)
