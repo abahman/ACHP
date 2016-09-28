@@ -118,6 +118,8 @@ V4 = (V4_max+V4_min)/2
 V5 = (V5_max+V5_min)/2
 VFan = (VFan_max+VFan_min)/2
 
+print 'Average of Test 4 = '+ str(V4.mean())+' m/s'
+print 'Average of Test 5 = '+ str(V5.mean())+' m/s'
 print 'Average of Fan only = '+ str(VFan.mean())+' m/s'
 
 V_data = [V4,V5,VFan]
