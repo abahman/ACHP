@@ -219,23 +219,45 @@ for i in range(len(Test)):
 #     plt.show()    
     
     #########plot air velocity fit#############    
+#     #plt.figure()
+#     #ax = plt.subplot(1, 3, i+1)
+#     plt.plot(average[i],y,'bo',label=r'Data')
+#     plt.plot(vg,grid_y,'r',label=r'Cubic polynomial')
+#     plt.plot(lang_res,grid_y,'g--',label=r'Lagrange polynomial')
+#     plt.ylim(0,22.5)
+#     plt.xlim(0,6)
+#     plt.yticks([0, 4, 8, 12, 16, 20, 22.5],
+#                [r'$0$', r'$4$', r'$8$', r'$12$',r'$16$', r'$20$', r'$22.5$'])
+#     plt.xlabel('Velocity [m/s]')
+#     plt.ylabel('Evaporator height [in]')
+#     #plt.title('Velocity fit of Test '+Test[i])
+#     leg = plt.legend(loc='best',fancybox=False,numpoints=1)
+#     frame  = leg.get_frame()  
+#     frame.set_linewidth(0.5)
+#     #plt.savefig('velocity_profile_v2/velocity_curve_test'+Test[i]+'.pdf')
+#     plt.show()
+    
+    
+    ######### plot air velocity fit (SI unit) #############    
     #plt.figure()
     #ax = plt.subplot(1, 3, i+1)
-    plt.plot(average[i],y,'bo',label=r'Data')
-    plt.plot(vg,grid_y,'r',label=r'Cubic polynomial')
-    plt.plot(lang_res,grid_y,'g--',label=r'Lagrange polynomial')
-    plt.ylim(0,22.5)
+    plt.plot(average[i],y*25.4,'bo',label=r'Data') #multiplied by 25.4 to convert inches to milimeters
+    plt.plot(vg,grid_y*25.4,'r',label=r'Cubic polynomial') #multiplied by 25.4 to convert inches to milimeters
+    plt.plot(lang_res,grid_y*25.4,'g--',label=r'Lagrange polynomial') #multiplied by 25.4 to convert inches to milimeters
+    plt.ylim(0,571.5)
     plt.xlim(0,6)
-    plt.yticks([0, 4, 8, 12, 16, 20, 22.5],
-               [r'$0$', r'$4$', r'$8$', r'$12$',r'$16$', r'$20$', r'$22.5$'])
+    plt.yticks([0, 95, 190, 285, 380, 475, 571.5],
+          [r'$0$', r'$95$', r'$190$', r'$285$',r'$380$', r'$475$', r'$571.5$'])
     plt.xlabel('Velocity [m/s]')
-    plt.ylabel('Evaporator height [in]')
+    plt.ylabel('Evaporator height [mm]')
     #plt.title('Velocity fit of Test '+Test[i])
     leg = plt.legend(loc='best',fancybox=False,numpoints=1)
     frame  = leg.get_frame()  
     frame.set_linewidth(0.5)
-    #plt.savefig('velocity_profile_v2/velocity_curve_test'+Test[i]+'.pdf')
+    plt.savefig('velocity_profile_v2/velocity_curve_test'+Test[i]+'_SI.pdf')
     plt.show()
+    
+    
 #fig.set_tight_layout(True)
 #leg = ax.legend(bbox_to_anchor=(-2.54, 0.03), loc='lower left', borderaxespad=0.)
 #leg.get_frame().set_alpha(0.7)

@@ -155,6 +155,32 @@ no_points_per_circuit =  len(grid_100)/6. #devide the number of element by the n
 # plt.show()
 
 #===============================================================================
+# Plot the grid only (SI unit)
+#===============================================================================
+# fig = plt.figure(figsize=(4,3.5))
+#
+# plt.ylim(0,571.5)
+# plt.xlim(0,631.825)
+# plt.xticks([0, 105, 210, 315, 420, 525, 631.825],
+#           [r'$0$', r'$105$', r'$210$', r'$315$', r'$420$', r'$525$', r'$631.825$'])
+# plt.yticks([0, 95, 190, 285, 380, 475, 571.5],
+#           [r'$0$', r'$95$', r'$190$', r'$285$',r'$380$', r'$475$', r'$571.5$'])
+# plt.xlabel('Evaporator width [mm]')
+# plt.ylabel('Evaporator height [mm]')
+# #plt.title('Velocity profile grid')
+#  
+#       
+# ## TO SHOW the values with the measurment grid on the plot
+# for k in range(len(x)):
+#     for j in range(len(y)):
+#         plt.plot(x[k]*25.4,y[j]*25.4,'ko') #multiplied by 25.4 to convert inches to milimeters
+#         #plt.annotate(V_data[i][j,k], (x[k],y[j]))
+#  
+# plt.savefig('velocity_profile/velocity_profile_grid_SI.pdf')
+# plt.show()
+
+
+#===============================================================================
 # Start of the velocity curves code and plots
 #===============================================================================
 fig = plt.figure(1, figsize=(9, 3))
@@ -241,7 +267,8 @@ fig.set_tight_layout(True)
 leg = ax.legend(bbox_to_anchor=(-2.54, 0.03), loc='lower left', borderaxespad=0.)
 leg.get_frame().set_alpha(0.7)
 #plt.savefig('velocity_profile/velocity_curve_combined.pdf')
-#plt.show()    
+#plt.show()
+plt.close()
     
 #===============================================================================
 # Velocity profiles map plots
@@ -273,6 +300,39 @@ leg.get_frame().set_alpha(0.7)
 #           
 #     plt.savefig('velocity_profile/velocity_profile_test'+Test[i]+'.pdf')
 #     plt.show()
+
+
+#===============================================================================
+# Velocity profiles map plots (SI unit)
+#===============================================================================
+for i in range(len(Test)):
+    plt.figure()
+   #im = plt.imshow(V_data[i], interpolation='bicubic',extent=[0, 24.875, 0, 22.5], vmax=6, vmin=0)
+    CS = plt.contour(V_data[i], extent=[0, 631.825, 0, 571.5],vmax=6, vmin=0,linewidths=0.5, colors='k')
+    plt.clabel(CS,inline=1, fontsize=6,fmt='%1.1f')
+    im = plt.contourf(V_data[i],100,rasterized=True, extent=[0, 631.825, 0, 571.5],vmax=6, vmin=0)  
+   #cbar = plt.colorbar(im)
+   #cbar.ax.set_ylabel(r'Velocity [m/s]')
+    plt.ylim(0,571.5)
+    plt.xlim(0,631.825)
+    plt.xticks([0, 105, 210, 315, 420, 525, 631.825],
+          [r'$0$', r'$105$', r'$210$', r'$315$', r'$420$', r'$525$', r'$631.825$'])
+    plt.yticks([0, 95, 190, 285, 380, 475, 571.5],
+          [r'$0$', r'$95$', r'$190$', r'$285$',r'$380$', r'$475$', r'$571.5$'])
+    plt.xlabel('Evaporator width [mm]')
+    plt.ylabel('Evaporator height [mm]')
+    #plt.title('Velocity profile of Test '+Test[i])
+       
+  
+    ### TO SHOW the values with the measurment grid on the plot
+#     for k in range(len(x)):
+#         for j in range(len(y)):
+#             plt.plot(x[k],y[j],'ko')
+#             plt.annotate(V_data[i][j,k], (x[k],y[j]))
+           
+    plt.savefig('velocity_profile/velocity_profile_test'+Test[i]+'_SI.pdf')
+    plt.show()
+
 
 #===============================================================================
 # TO SHOW all plots in one Figure
