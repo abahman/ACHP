@@ -42,7 +42,8 @@ params={
         'Tin_r': C2K(73.63),
         'psat_r': kPa2Pa(1639), 
         'Fins': Fins,
-        'Verbosity':0
+        'Verbosity':0,
+        'Backend':'HEOS' #choose between: 'HEOS','TTSE&HEOS','BICUBIC&HEOS','REFPROP','SRK','PR'
         }
 
 

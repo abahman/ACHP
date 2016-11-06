@@ -3,6 +3,7 @@ from CoolProp.CoolProp import PropsSI#, IsFluidType
 from Correlations import f_h_1phase_Tube,TrhoPhase_ph
 from math import log,pi,exp
 from convert_units import F2K, kPa2Pa, in2m,mm2m
+import CoolProp as CP
 
 class LineSetClass():
     def __init__(self,**kwargs):
@@ -41,30 +42,43 @@ class LineSetClass():
          ]
     
     def Calculate(self):
-        if not 'INCOMP' in self.Ref: #if not IsFluidType(self.Ref,'Brine'):
+        #AbstractState
+        if hasattr(self,'Backend'): #check if backend is given
+            AS = CP.AbstractState(self.Backend, self.Ref)
+            if hasattr(self,'MassFrac'):
+                AS.set_mass_fractions([self.MassFrac])
+        else: #otherwise, use the defualt backend
+            AS = CP.AbstractState('HEOS', self.Ref)
+        self.AS = AS
+        
+        if not 'IncompressibleBackend' in AS.backend_name(): #if not IsFluidType(self.Ref,'Brine'):
             #Figure out the inlet state
-            self.Tbubble=PropsSI('T','P',self.pin,'Q',0.0,self.Ref)
-            self.Tdew=PropsSI('T','P',self.pin,'Q',1.0,self.Ref)
+            AS.update(CP.PQ_INPUTS, self.pin, 0.0)
+            self.Tbubble=AS.T() #[K]
+            AS.update(CP.PQ_INPUTS, self.pin, 1.0)
+            self.Tdew=AS.T() #[K]
         else:
             #It is a brine
             self.Tbubble = None
             self.Tdew = None
         
-        self.Tin,self.rhoin,self.Phasein=TrhoPhase_ph(self.Ref,self.pin,self.hin,self.Tbubble,self.Tdew)
+        self.Tin,self.rhoin,self.Phasein=TrhoPhase_ph(self.AS,self.pin,self.hin,self.Tbubble,self.Tdew)
         ###Solver shows TwoPhase in the first iteration, the following if statement just to avoid ValueError with CoolProp for pseudo-pure refrigerants
         if self.Phasein =='TwoPhase':
             print "Cauation::two phase at the inlet of LineSet during iterartion"
-            self.f_fluid, self.h_fluid, self.Re_fluid=f_h_1phase_Tube(self.mdot, self.ID, self.Tin-1, self.pin, self.Ref, self.Phasein)
+            self.f_fluid, self.h_fluid, self.Re_fluid=f_h_1phase_Tube(self.mdot, self.ID, self.Tin-1, self.pin, self.AS, self.Phasein)
+            AS.update(CP.PT_INPUTS, self.pin, self.Tin-1)
             # Specific heat capacity [J/kg-K]                        
-            cp=PropsSI('C','T',self.Tin-1,'Q',0,self.Ref)
+            cp=AS.cpmass()
             # Density [kg/m^3]
-            rho=PropsSI('D','T',self.Tin-1, 'Q',0, self.Ref)
+            rho=AS.rhomass()
         else: #Single phase
-            self.f_fluid, self.h_fluid, self.Re_fluid=f_h_1phase_Tube(self.mdot, self.ID, self.Tin, self.pin, self.Ref, self.Phasein)
-            # Specific heat capacity [J/kg-K]                        
-            cp=PropsSI('C','T',self.Tin,'P',self.pin,self.Ref) #*1000
+            self.f_fluid, self.h_fluid, self.Re_fluid=f_h_1phase_Tube(self.mdot, self.ID, self.Tin, self.pin, self.AS, self.Phasein)
+            AS.update(CP.PT_INPUTS, self.pin, self.Tin)
+            # Specific heat capacity [J/kg-K]
+            cp=AS.cpmass()
             # Density [kg/m^3]
-            rho=PropsSI('D','T',self.Tin, 'P', self.pin, self.Ref)
+            rho=AS.rhomass()
 
     
         #Thermal resistance of tube
@@ -110,6 +124,7 @@ if __name__=='__main__':
             'k_insul':0.036,
             'T_air':F2K(75),
             'Ref': 'R407C',
+            'Backend': 'HEOS', #choose between: 'HEOS','TTSE&HEOS','BICUBIC&HEOS','REFPROP','SRK','PR'
             'h_air':10,
             'pin': kPa2Pa(1639),           #Pressure of the fluid at the inlet i.e 500kPa
             'hin': PropsSI('H','P',kPa2Pa(1639),'T',305.75,'R407C'),    #Enthalpy of the fluid at the inlet i.e subcooled 10K below bubble

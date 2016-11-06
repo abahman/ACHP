@@ -20,7 +20,8 @@ kwds={
       'pin_r':423.4*1000,
       'pout_r':1639*1000,
       'fp':0.1, #Fraction of electrical power lost as heat to ambient
-      'Vdot_ratio': 1 #Displacement Scale factor
+      'Vdot_ratio': 1, #Displacement Scale factor
+      'Backend':'TTSE&HEOS' #choose between: 'HEOS','TTSE&HEOS','BICUBIC&HEOS','REFPROP','SRK','PR'
       }
 Comp=CompressorClass(**kwds)
 Comp.Calculate()

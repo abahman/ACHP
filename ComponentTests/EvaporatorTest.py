@@ -38,7 +38,8 @@ kwargs={'Ref': 'R407C',
         'Fins': FinsTubes,
         'FinsType': 'WavyLouveredFins',                                         #WavyLouveredFins, HerringboneFins, PlainFins
         'hin_r': PropsSI('H','P',1624000,'T',C2K(32.18),'R407C'), #[J/kg]
-        'Verbosity': 0
+        'Verbosity': 0,
+        'Backend':'TTSE&HEOS' #choose between: 'HEOS','TTSE&HEOS','BICUBIC&HEOS','REFPROP','SRK','PR'
         }
 
 Evap=EvaporatorClass(**kwargs)
