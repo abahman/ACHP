@@ -19,7 +19,6 @@ from CoolProp.Plots import PropertyPlot
 from CoolProp.Plots import Ph
 from FinCorrelations import FinInputs    #fin correlations
 from MicroFinCorrelations import MicroFinInputs #Micro-fin correlations
-
 from FinCorrelations import FinInputs     #fin correlations
 
 import numpy as np                  #NumPy is fundamental scientific package
@@ -1123,7 +1122,7 @@ class ECU_DXCycleClass():
                     if delta_low<1 and delta_high<1:
                         DP_converged=True
                     if self.Verbosity>4:
-                        print self.DP_HighPressure,self.DP_LowPressure,'DPHP' #self.DP_HighPressure/1000,self.DP_LowPressure/1000 is updated by removing /1000
+                        print self.DP_HighPressure,self.DP_LowPressure,'DPHP'
                     GoodRun=True
             except AttributeError:
                 # This will be a fatal error !! Should never have attribute error
