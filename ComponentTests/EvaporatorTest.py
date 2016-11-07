@@ -1,9 +1,3 @@
-'''
-Created on Mar 21, 2015
-
-@author: AmmarBahman
-'''
-
 from CoolProp.CoolProp import PropsSI
 from FinCorrelations import FinInputs
 from Evaporator import EvaporatorClass

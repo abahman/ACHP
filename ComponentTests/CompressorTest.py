@@ -1,9 +1,3 @@
-'''
-Created on Mar 15, 2015
-
-@author: AmmarBahman
-'''
-
 from Compressor import CompressorClass
 from CoolProp.CoolProp import PropsSI
 from convert_units import C2K

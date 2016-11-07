@@ -1,5 +1,5 @@
 from __future__ import division
-from CoolProp.CoolProp import PropsSI#, IsFluidType
+from CoolProp.CoolProp import PropsSI
 from Correlations import f_h_1phase_Tube,TrhoPhase_ph
 from math import log,pi,exp
 from convert_units import F2K, kPa2Pa, in2m,mm2m
@@ -51,7 +51,7 @@ class LineSetClass():
             AS = CP.AbstractState('HEOS', self.Ref)
         self.AS = AS
         
-        if not 'IncompressibleBackend' in AS.backend_name(): #if not IsFluidType(self.Ref,'Brine'):
+        if not 'IncompressibleBackend' in AS.backend_name():
             #Figure out the inlet state
             AS.update(CP.PQ_INPUTS, self.pin, 0.0)
             self.Tbubble=AS.T() #[K]
@@ -80,7 +80,6 @@ class LineSetClass():
             # Density [kg/m^3]
             rho=AS.rhomass()
 
-    
         #Thermal resistance of tube
         R_tube=log(self.OD/self.ID)/(2*pi*self.L*self.k_tube)
         #Thermal resistance of insulation
