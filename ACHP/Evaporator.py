@@ -380,11 +380,11 @@ class EvaporatorClass():
         #Pressure gradient using Darcy friction factor
         dpdz_r=-self.f_r_superheat*v_r*self.G_r**2/(2*self.ID)  #Pressure gradient
         self.DP_r_superheat=dpdz_r*self.Lcircuit*self.w_superheat
-        print ""
+        #print ""
         #print "DT_super=", self.DT_sh_calc
-        print "x_in=",self.xin_r
-        print "x_2ph=", self.xout_2phase
-        print ""
+        #print "x_in=",self.xin_r
+        #print "x_2ph=", self.xout_2phase
+        #print ""
         #Set values
         self.Q_superheat=DWS.Q
         self.Q_sensible_superheat=DWS.Q_sensible

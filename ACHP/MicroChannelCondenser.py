@@ -421,10 +421,10 @@ class MicroCondenserClass():
         self.Q_subcool=-epsilon_subcool*Cmin*(Tbubble-self.Tin_a)
         self.DT_sc=-self.Q_subcool/(self.mdot_r*cp_r)
         self.Tout_r=Tbubble-self.DT_sc
-        print "x_2ph= ",self.xout_2phase
-        print "w_sub=",self.w_subcool
-        print"epsilon=",epsilon_subcool
-        print "DT_sc=",self.DT_sc
+        #print "x_2ph= ",self.xout_2phase
+        #print "w_sub=",self.w_subcool
+        #print"epsilon=",epsilon_subcool
+        #print "DT_sc=",self.DT_sc
         try:
             AS.update(CP.PT_INPUTS, self.psat_r, (Tbubble + self.Tout_r) / 2)
             rho_subcool=AS.rhomass() #[kg/m^3]
