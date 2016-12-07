@@ -16,7 +16,6 @@ from scipy.optimize import brentq, fsolve,newton
 
 import CoolProp as CP
 from CoolProp.Plots import PropertyPlot
-from CoolProp.Plots import Ph
 from FinCorrelations import FinInputs    #fin correlations
 from MicroFinCorrelations import MicroFinInputs #Micro-fin correlations
 from FinCorrelations import FinInputs     #fin correlations
@@ -839,9 +838,9 @@ class ECU_DXCycleClass():
         self.Condenser.Fins=MicroFinInputs()
         self.Evaporator=EvaporatorClass()
         self.Evaporator.Fins=FinInputs()
-        self.LineSetSupply=LineSetClass()
-        self.LineSetReturn=LineSetClass()
-        self.SightGlassFilterDrierMicroMotion=SightGlassFilterDrierMicroMotionClass()
+        #self.LineSetSupply=LineSetClass()
+        #self.LineSetReturn=LineSetClass()
+        #self.SightGlassFilterDrierMicroMotion=SightGlassFilterDrierMicroMotionClass()
     def OutputList(self):
         """
             Return a list of parameters for this component for further output
@@ -892,11 +891,25 @@ class ECU_DXCycleClass():
         """
         if self.Verbosity>1:
             print 'DTevap %7.4f DTcond %7.4f,' %(DT_evap,DT_cond)
+        #AbstractState
+        if hasattr(self,'Backend'): #check if backend is given
+            AS = CP.AbstractState(self.Backend, self.Ref)
+        else: #otherwise, use the defualt backend
+            AS = CP.AbstractState('HEOS', self.Ref)
+            self.Backend = 'HEOS'
+        self.AS = AS
+        
+        #Condenser and evaporator dew temperature (guess)
         Tdew_cond=self.Condenser.Fins.Air.Tdb+DT_cond#the values (Tin_a,..) come from line 128ff
         Tdew_evap=self.Evaporator.Fins.Air.Tdb-DT_evap
-        psat_cond=PropsSI('P','T',Tdew_cond,'Q',1,self.Ref)
-        psat_evap=PropsSI('P','T',Tdew_evap,'Q',1,self.Ref)
-        Tbubble_evap=PropsSI('T','P',psat_evap,'Q',0,self.Ref)
+        #Condenser and evaporator saturation pressures
+        AS.update(CP.QT_INPUTS,1.0,Tdew_cond)
+        psat_cond=AS.p() #[Pa]
+        AS.update(CP.QT_INPUTS,1.0,Tdew_evap)
+        psat_evap=AS.p() #[Pa]
+        #evaporator bubble temparture
+        AS.update(CP.PQ_INPUTS,psat_evap,0.0)
+        Tbubble_evap=AS.T() #[T]
         
         self.Tdew_cond=Tdew_cond
         self.Tdew_evap=Tdew_evap
@@ -913,28 +926,34 @@ class ECU_DXCycleClass():
                     'pin_r': psat_evap-self.DP_low,   
                     'pout_r': psat_cond+self.DP_high,
                     'Tin_r': Tdew_evap+self.Evaporator.DT_sh,
-                    'Ref':  self.Ref
+                    'Ref':  self.Ref,
+                    'Backend': self.Backend
                 }
                 self.Compressor.Update(**params)
                 self.Compressor.Calculate()
             
-            params={
-                'pin': psat_evap,
-                'hin': PropsSI('H','T',Tdew_evap+self.Evaporator.DT_sh,'P',psat_evap,self.Ref), #*1000
-                'mdot': self.Compressor.mdot_r,
-                'Ref':  self.Ref
-            }
-            self.LineSetReturn.Update(**params)
-            self.LineSetReturn.Calculate()
-            
-            params={               #dictionary -> key:value, e.g. 'key':2345,
-                'pin_r': psat_evap-self.DP_low,   
-                'pout_r': psat_cond+self.DP_high,
-                'Tin_r': TrhoPhase_ph(self.Ref,psat_evap,self.LineSetReturn.hout,Tbubble_evap,Tdew_evap)[0],
-                'Ref':  self.Ref
-            }
-            self.Compressor.Update(**params)
-            self.Compressor.Calculate()
+#             #Calculate inlet enthalpy 
+#             AS.update(CP.PT_INPUTS,psat_evap,Tdew_evap+self.Evaporator.DT_sh)
+#             h_in = AS.hmass() #[J/kg]
+#             params={
+#                 'pin': psat_evap,
+#                 'hin': h_in,
+#                 'mdot': self.Compressor.mdot_r,
+#                 'Ref':  self.Ref,
+#                 'Backend': self.Backend
+#             }
+#             self.LineSetReturn.Update(**params)
+#             self.LineSetReturn.Calculate()
+#             
+#             params={               #dictionary -> key:value, e.g. 'key':2345,
+#                 'pin_r': psat_evap-self.DP_low,   
+#                 'pout_r': psat_cond+self.DP_high,
+#                 'Tin_r': TrhoPhase_ph(self.Ref,psat_evap,self.LineSetReturn.hout,Tbubble_evap,Tdew_evap)[0],
+#                 'Ref':  self.Ref,
+#                 'Backend': self.Backend
+#             }
+#             self.Compressor.Update(**params)
+#             self.Compressor.Calculate()
             if self.Verbosity>1:
                 print 'Comp DP L H',self.DP_low,self.DP_high
              
@@ -942,48 +961,52 @@ class ECU_DXCycleClass():
                 'mdot_r': self.Compressor.mdot_r,
                 'Tin_r': self.Compressor.Tout_r,
                 'psat_r': psat_cond,
-                'Ref': self.Ref
+                'Ref': self.Ref,
+                'Backend': self.Backend
             }
             self.Condenser.Update(**params)
             self.Condenser.Calculate()
             
-            params={
-                'pin':psat_cond,
-                'hin':self.Condenser.hout_r,
-                'mdot':self.Compressor.mdot_r,
-                'Ref':self.Ref
-            }
-            self.LineSetSupply.Update(**params)
-            self.LineSetSupply.Calculate()
-            
-            
-            #Add new components
-            params={
-                'pin':psat_cond,
-                'hin':self.Condenser.hout_r,
-                'mdot':self.Compressor.mdot_r,
-                'Ref':self.Ref
-            }
-            self.SightGlassFilterDrierMicroMotion.Update(**params)
-            self.SightGlassFilterDrierMicroMotion.Calculate()
+#             params={
+#                 'pin':psat_cond,
+#                 'hin':self.Condenser.hout_r,
+#                 'mdot':self.Compressor.mdot_r,
+#                 'Ref':self.Ref,
+#                 'Backend': self.Backend
+#             }
+#             self.LineSetSupply.Update(**params)
+#             self.LineSetSupply.Calculate()
+#             
+#             
+#             #Add new components
+#             params={
+#                 'pin':psat_cond,
+#                 'hin':self.Condenser.hout_r,
+#                 'mdot':self.Compressor.mdot_r,
+#                 'Ref':self.Ref,
+#                 'Backend': self.Backend
+#             }
+#             self.SightGlassFilterDrierMicroMotion.Update(**params)
+#             self.SightGlassFilterDrierMicroMotion.Calculate()
             
             
             params={
                 'mdot_r': self.Compressor.mdot_r,
                 'psat_r': psat_evap,
-                'hin_r': self.LineSetSupply.hout,
-                'Ref': self.Ref
+                'hin_r': self.Condenser.hout_r,
+                'Ref': self.Ref,
+                'Backend': self.Backend
             }
             self.Evaporator.Update(**params)
             self.Evaporator.Calculate()
             
-            self.Charge=self.Condenser.Charge+self.Evaporator.Charge+self.LineSetSupply.Charge+self.LineSetReturn.Charge+self.SightGlassFilterDrierMicroMotion.Charge
+            self.Charge=self.Condenser.Charge+self.Evaporator.Charge#+self.LineSetSupply.Charge+self.LineSetReturn.Charge+self.SightGlassFilterDrierMicroMotion.Charge
             self.EnergyBalance=self.Compressor.CycleEnergyIn+self.Condenser.Q+self.Evaporator.Q
             
             resid=np.zeros((2))
-            self.DP_HighPressure=self.Condenser.DP_r+self.LineSetSupply.DP+(-10000)#self.SightGlassFilterDrierMicroMotion.DP
-            self.DP_LowPressure=self.Evaporator.DP_r+self.LineSetReturn.DP
-            resid[0]=self.Compressor.mdot_r*(self.LineSetReturn.hin-self.Evaporator.hout_r) #in cases without set lines >> self.Compressor.mdot_r*(self.Compressor.hin_r-self.Evaporator.hout_r)
+            self.DP_HighPressure=self.Condenser.DP_r#+self.LineSetSupply.DP+(-10000)#self.SightGlassFilterDrierMicroMotion.DP
+            self.DP_LowPressure=self.Evaporator.DP_r#+self.LineSetReturn.DP
+            resid[0]=self.Compressor.mdot_r*(self.Compressor.hin_r-self.Evaporator.hout_r) #in cases without set lines >> self.Compressor.mdot_r*(self.Compressor.hin_r-self.Evaporator.hout_r)
             
             if self.ImposedVariable=='Subcooling':
                 resid[1]=self.Condenser.DT_sc-self.DT_sc_target    

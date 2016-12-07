@@ -108,11 +108,11 @@ class CompressorClass():
         Tsat_d = self.Tsat_d_K * 9/5 - 459.67
     
         #Apply the 10 coefficient ARI map to saturation temps in F
-        #power_map = P[0] + P[1] * Tsat_s + P[2] * Tsat_d + P[3] * Tsat_s**2 + P[4] * Tsat_s * Tsat_d + P[5] * Tsat_d**2 + P[6] * Tsat_s**3 + P[7] * Tsat_d * Tsat_s**2 + P[8] * Tsat_d**2*Tsat_s + P[9] * Tsat_d**3
-        power_map = -5.08529306e2 + 3.24424375e1*Tsat_d - 2.50130460e-1*Tsat_d**2 + 1.29902221e-3*Tsat_d**3 - 3.49820566e0*Tsat_s - 2.41636242e-2*Tsat_s**2 - 7.81798186e-4*Tsat_s**3 + 9.67379949e-2*Tsat_d*Tsat_s + 6.40038982e-4*Tsat_d*Tsat_s**2 - 8.88334210e-4*Tsat_s*Tsat_d**2 + 2.05406836e-6*(Tsat_d**2)*Tsat_s**2
+        power_map = P[0] + P[1] * Tsat_s + P[2] * Tsat_d + P[3] * Tsat_s**2 + P[4] * Tsat_s * Tsat_d + P[5] * Tsat_d**2 + P[6] * Tsat_s**3 + P[7] * Tsat_d * Tsat_s**2 + P[8] * Tsat_d**2*Tsat_s + P[9] * Tsat_d**3
+        #power_map = -5.08529306e2 + 3.24424375e1*Tsat_d - 2.50130460e-1*Tsat_d**2 + 1.29902221e-3*Tsat_d**3 - 3.49820566e0*Tsat_s - 2.41636242e-2*Tsat_s**2 - 7.81798186e-4*Tsat_s**3 + 9.67379949e-2*Tsat_d*Tsat_s + 6.40038982e-4*Tsat_d*Tsat_s**2 - 8.88334210e-4*Tsat_s*Tsat_d**2 + 2.05406836e-6*(Tsat_d**2)*Tsat_s**2
         
-        #mdot_map = M[0] + M[1] * Tsat_s + M[2] * Tsat_d + M[3] * Tsat_s**2 + M[4] * Tsat_s * Tsat_d + M[5] * Tsat_d**2 + M[6] * Tsat_s**3 + M[7] * Tsat_d * Tsat_s**2 + M[8] * Tsat_d**2*Tsat_s + M[9] * Tsat_d**3
-        mdot_map = 2.05789074e2 - 2.24019807e0*Tsat_d + 2.54020352e-2*Tsat_d**2 - 1.05631260e-4*Tsat_d**3 + 4.35061359e0*Tsat_s + 3.26760042e-2*Tsat_s**2 + 9.51492468e-5*Tsat_s**3 - 2.07644638e-2*Tsat_d*Tsat_s - 3.20249167e-5*Tsat_d*Tsat_s**2 + 1.22859357e-4*Tsat_s*Tsat_d**2 - 1.18803713e-7*(Tsat_d**2)*Tsat_s**2
+        mdot_map = M[0] + M[1] * Tsat_s + M[2] * Tsat_d + M[3] * Tsat_s**2 + M[4] * Tsat_s * Tsat_d + M[5] * Tsat_d**2 + M[6] * Tsat_s**3 + M[7] * Tsat_d * Tsat_s**2 + M[8] * Tsat_d**2*Tsat_s + M[9] * Tsat_d**3
+        #mdot_map = 2.05789074e2 - 2.24019807e0*Tsat_d + 2.54020352e-2*Tsat_d**2 - 1.05631260e-4*Tsat_d**3 + 4.35061359e0*Tsat_s + 3.26760042e-2*Tsat_s**2 + 9.51492468e-5*Tsat_s**3 - 2.07644638e-2*Tsat_d*Tsat_s - 3.20249167e-5*Tsat_d*Tsat_s**2 + 1.22859357e-4*Tsat_s*Tsat_d**2 - 1.18803713e-7*(Tsat_d**2)*Tsat_s**2
           
         # Convert mass flow rate to kg/s from lbm/h
         mdot_map *= 0.000125998 

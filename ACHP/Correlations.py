@@ -286,7 +286,7 @@ def LockhartMartinelli(AS, G, D, x, Tbubble,Tdew,C=None,satTransport=None):
     
     return dpdz,alpha
 
-def ShahEvaporation_Average(x_min,x_max,Ref,G,D,p,q_flux,Tbubble,Tdew,h_tp_tuning=1.0):
+def ShahEvaporation_Average(x_min,x_max,AS,G,D,p,q_flux,Tbubble,Tdew,h_tp_tuning=1.0):
     #print h_tp_tuning
     #h_tp_tuning=0.7 for LRCS (christian model- 2 circuits)
     """
@@ -452,7 +452,6 @@ def f_h_1phase_Annulus(mdot, OD, ID, T, p, AS, Phase='Single'):
         k = AS.conductivity() #[W/m-K]
         rho = AS.rhomass() #[kg/m^3]
     elif Phase =="SatLiq":
-<<<<<<< HEAD
         AS.update(CP.QT_INPUTS,0.0,T)
         mu = AS.viscosity() #[Pa-s OR kg/m-s]
         cp = AS.cpmass() #[J/kg-K]
