@@ -5,6 +5,7 @@ from math import pi
 from Solvers import MultiDimNewtRaph
 import numpy as np
 import CoolProp as CP
+from convert_units import *
 
 def DXPreconditioner(Cycle,epsilon=0.96):
     
@@ -39,6 +40,7 @@ def DXPreconditioner(Cycle,epsilon=0.96):
         Cycle.Compressor.pout_r=pcond
         Cycle.Compressor.Tin_r=Tevap+Cycle.Evaporator.DT_sh
         Cycle.Compressor.Ref=Cycle.Ref
+        Cycle.Compressor.Backend=Cycle.Backend
         Cycle.Compressor.Calculate()
         W=Cycle.Compressor.W
         
@@ -50,6 +52,7 @@ def DXPreconditioner(Cycle,epsilon=0.96):
         Evap.mdot_r=Cycle.Compressor.mdot_r
         Evap.psat_r=pevap
         Evap.Ref=Cycle.Ref
+        Evap.Backend=Cycle.Backend
         Evap.Initialize()
         UA_a=Evap.Fins.h_a*Evap.Fins.A_a*Evap.Fins.eta_a
         Tin_a=Evap.Fins.Air.Tdb
@@ -235,4 +238,140 @@ def SecondaryLoopPreconditioner(Cycle,epsilon=0.9):
         raise ValueError()
         
     return DT_evap-2,DT_cond+2,Tin_CC
+
+
+def VICompPreconditioner(Cycle,epsilon=0.96):
     
+    #Assume the heat exchangers are highly effective
+    #Condensing heat transfer rate from enthalpies
+    rho_air=1.1
+    Cp_air =1005 #[J/kg/K]
+        
+    #AbstractState
+    if hasattr(Cycle,'Backend'): #check if backend is given
+        AS = CP.AbstractState(Cycle.Backend, Cycle.Ref)
+    else: #otherwise, use the defualt backend
+        AS = CP.AbstractState('HEOS', Cycle.Ref)
+        Cycle.Backend = 'HEOS'
+    Cycle.AS = AS
+    
+    def OBJECTIVE(x):
+        Tevap=x[0]
+        Tcond=x[1]
+        Tdew_inj=x[2]
+        
+        #Use fixed effectiveness to get a guess for the condenser capacity
+        Qcond=epsilon*Cycle.Condenser.Fins.Air.Vdot_ha*rho_air*(Cycle.Condenser.Fins.Air.Tdb-Tcond)*Cp_air
+        
+        Cycle.AS.update(CP.QT_INPUTS,1.0,Tevap)
+        pevap=Cycle.AS.p() #[pa]
+        Cycle.AS.update(CP.QT_INPUTS,0.0,Tcond)
+        P_l =Cycle.AS.p() #[pa]
+        Cycle.AS.update(CP.QT_INPUTS,1.0,Tcond)
+        P_v=Cycle.AS.p() #[pa]
+        pcond= (P_l+P_v)/2.0
+        Cycle.AS.update(CP.QT_INPUTS,1.0,Tdew_inj)
+        pinj=Cycle.AS.p() #[pa]
+        cp_inj=Cycle.AS.cpmass() #[J/kg-K]
+        Cycle.Compressor.pin_r=pevap
+        Cycle.Compressor.pout_r=pcond
+        Cycle.Compressor.Tini_r=Tdew_inj+Cycle.DT_inj_sh_target
+        Cycle.Compressor.pinj_r=pinj
+        Cycle.Compressor.Tin_r=Tevap+Cycle.Evaporator.DT_sh
+        Cycle.Compressor.Ref=Cycle.Ref
+        Cycle.Compressor.Backend=Cycle.Backend
+        Cycle.Compressor.Calculate()
+        W=Cycle.Compressor.W
+        
+        # Evaporator fully-dry analysis
+        Qevap_dry=epsilon*Cycle.Evaporator.Fins.Air.Vdot_ha*rho_air*(Cycle.Evaporator.Fins.Air.Tdb-Tevap)*Cp_air
+        
+        #Air-side heat transfer UA
+        Evap=Cycle.Evaporator
+        Evap.mdot_r=Cycle.Compressor.mdot_r
+        Evap.psat_r=pevap
+        Evap.Ref=Cycle.Ref
+        Evap.Backend=Cycle.Backend
+        Evap.Initialize()
+        UA_a=Evap.Fins.h_a*Evap.Fins.A_a*Evap.Fins.eta_a
+        Tin_a=Evap.Fins.Air.Tdb
+        Tout_a=Tin_a+Qevap_dry/(Evap.Fins.mdot_da*Evap.Fins.cp_da)
+        #Refrigerant-side heat transfer UA
+        UA_r=Evap.A_r_wetted*Correlations.ShahEvaporation_Average(0.5,0.5,Cycle.AS,Evap.G_r,Evap.ID,Evap.psat_r,Qevap_dry/Evap.A_r_wetted,Evap.Tbubble_r,Evap.Tdew_r)
+        #Get wall temperatures at inlet and outlet from energy balance
+        T_so_a=(UA_a*Evap.Tin_a+UA_r*Tevap)/(UA_a+UA_r)
+        T_so_b=(UA_a*Tout_a+UA_r*Tevap)/(UA_a+UA_r)
+        
+        Tdewpoint=HAPropsSI('D','T',Cycle.Evaporator.Fins.Air.Tdb, 'P',101325, 'R',Evap.Fins.Air.RH)
+        
+        #Now calculate the fully-wet analysis
+        #Evaporator is bounded by saturated air at the refrigerant temperature.
+        h_ai=HAPropsSI('H','T',Cycle.Evaporator.Fins.Air.Tdb, 'P',101325, 'R', Cycle.Evaporator.Fins.Air.RH) #[J/kg_da]
+        h_s_w_o=HAPropsSI('H','T',Tevap, 'P',101325, 'R', 1.0) #[J/kg_da]
+        Qevap_wet=epsilon*Cycle.Evaporator.Fins.Air.Vdot_ha*rho_air*(h_ai-h_s_w_o)
+        
+        #Coil is either fully-wet, fully-dry or partially wet, partially dry
+        if T_so_a>Tdewpoint and T_so_b>Tdewpoint:
+            #Fully dry, use dry Q
+            f_dry=1.0
+        elif T_so_a<Tdewpoint and T_so_b<Tdewpoint:
+            #Fully wet, use wet Q
+            f_dry=0.0
+        else:
+            f_dry=1-(Tdewpoint-T_so_a)/(T_so_b-T_so_a)
+        Qevap=f_dry*Qevap_dry+(1-f_dry)*Qevap_wet
+        
+        if Cycle.ImposedVariable == 'Subcooling': #if Subcooling impose
+            Cycle.AS.update(CP.PT_INPUTS,pcond,Tcond-Cycle.DT_sc_target)
+            h_target = Cycle.AS.hmass() #[J/kg]
+            cp_cond = Cycle.AS.cpmass() #[J/kg-K]
+            Qcond_enthalpy=Cycle.Compressor.mdot_r*(Cycle.Compressor.hout_r-h_target)
+        else: #otherwise, if Charge impose
+            Cycle.AS.update(CP.PT_INPUTS,pcond,Tcond-5)
+            h_target = Cycle.AS.hmass() #[J/kg]
+            Qcond_enthalpy=Cycle.Compressor.mdot_r*(Cycle.Compressor.hout_r-h_target)
+        
+        #New analysis for the economizer
+        cp_c = cp_inj #[J/kg-K] taken at injection dew point state
+        cp_h = cp_cond #[J/kg-K] taken at inlet of hot side (condenser outlet)
+        Cc = Cycle.Compressor.mdot_inj * cp_c
+        Ch = Cycle.Compressor.mdot_tot * cp_h
+        if Ch < Cc: Cmin = Ch
+        else: Cmin = Cc
+        Ty = (Cc * (Tdew_inj+Cycle.DT_inj_sh_target) - epsilon * Cmin * (Tcond-Cycle.DT_sc_target)) /(Cc - epsilon*Cmin)
+        #enthalpy at the inlet of cold side (two phase)
+        Cycle.AS.update(CP.PT_INPUTS,pinj,Ty)
+        hy = Cycle.AS.hmass() #[J/kg] 
+        #enthalpy at the inlet of evaporator
+        hevap = Cycle.Compressor.hin_r - Qevap/Cycle.Compressor.mdot_r
+        #enthalpy at the exit of the hot side (single phase)
+        hx = (Cycle.Compressor.mdot_r * hevap + Cycle.Compressor.mdot_inj * hy) / Cycle.Compressor.mdot_tot
+        Q_c = Cycle.Compressor.mdot_inj * (Cycle.Compressor.hinj_r - hy)
+        Q_h = Cycle.Compressor.mdot_tot * (h_target - hx)
+        
+        resids=[Qevap+W+Qcond,Qcond+Qcond_enthalpy,Q_c-Q_h]
+        return resids
+    
+    Tevap_init=Cycle.Evaporator.Fins.Air.Tdb-15
+    Tcond_init=Cycle.Condenser.Fins.Air.Tdb+8
+    Tdew_inj=np.sqrt(Tevap_init*Tcond_init)
+    
+    #First try using the fsolve algorithm
+    try:
+        x=fsolve(OBJECTIVE,[Tevap_init,Tcond_init,Tdew_inj])
+    except:
+        #If that doesnt work, try the Mult-Dimensional Newton-raphson solver
+        try:
+            print 'try using the Mult-Dimensional Newton-raphson solver'
+            x=MultiDimNewtRaph(OBJECTIVE,[Tevap_init,Tcond_init,Tdew_inj])
+        except:
+            #use the simplified equation propsed by Emerson (see Thomas thesis page 21)
+            print 'try using simplified equation propsed by Emerson'
+            Tdew_inj = 0.8 * K2F(Tevap_init) + 0.5 * K2F(Tcond_init) - 21 #[F]
+            x=[Tevap_init,Tcond_init,F2K(Tdew_inj)] 
+    
+    DT_evap=Cycle.Evaporator.Fins.Air.Tdb-x[0]
+    DT_cond=x[1]-Cycle.Condenser.Fins.Air.Tdb
+    Tdew_inj=x[2]
+    
+    return DT_evap-4, DT_cond+5, Tdew_inj
