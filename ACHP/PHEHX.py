@@ -59,7 +59,7 @@ class PHEHXClass():
         return [
             ('Effective Length','m',self.Lp),
             ('Wetted area','m^2',self.A_h_wetted),
-            ('Outlet Superheat','K',self.Tin_c-self.Tdew_c),
+            ('Outlet Superheat','K',self.Tout_c-self.Tsat_c),
             ('Q Total','W',self.Q),
             ('Q Superheat Hot','W',self.Q_superheated_h),
             ('Q Two-Phase Hot','W',self.Q_2phase_h),
@@ -942,6 +942,41 @@ def WyattPHEHX():
 #    pylab.plot(TT,QQ)
 #    pylab.show()
 
+def VICompPHEHX():
+
+    params={
+        'Ref_h':'R407C',
+        'Backend_h':'HEOS',
+        'mdot_h':0.059,
+        'pin_h':PropsSI('P','T',315,'Q',1,'R407C'),
+        'hin_h':PropsSI('H','P',PropsSI('P','T',315,'Q',1,'R407C'),'T',PropsSI('T','P',PropsSI('P','T',315,'Q',1,'R407C'),'Q',0,'R407C')-5,'R407C'), #[J/kg-K]
+        
+        'Ref_c':'R407C',
+        'Backend_c':'HEOS',
+        'mdot_c':0.016,
+        'pin_c':816322.314008,
+        'hin_c':PropsSI('H','P',816322.314008,'Q',0.3,'R407C'), #[J/kg-K]
+        
+        #Geometric parameters
+        'Bp' : 0.101,
+        'Lp' : 0.455, #Center-to-center distance between ports
+        'Nplates' : 46,
+        'PlateAmplitude' : 0.00102, #[m]
+        'PlateThickness' : 0.0003, #[m]
+        'PlateWavelength' : 0.00626, #[m]
+        'InclinationAngle' : 65/180*pi,#[rad]
+        'PlateConductivity' : 15.0, #[W/m-K]
+        'MoreChannels' : 'Hot', #Which stream gets the extra channel, 'Hot' or 'Cold'
+    
+        'Verbosity':0
+    }
+    PHE=PHEHXClass(**params)
+    PHE.Calculate()
+    #Print PHEHX outputs
+    for id, unit, value in PHE.OutputList():
+        print str(id) + ' = ' + str(value) + ' ' + str(unit)
+    
+        
 def SWEPVariedmdot():
     Tin=8+273.15
     for mdot_h in [0.4176,0.5013,0.6267,0.8357,1.254,2.508]:
@@ -1059,4 +1094,5 @@ def SamplePHEHX():
 if __name__=='__main__':
     #SamplePHEHX()
     #WyattPHEHX()
-    SWEPVariedmdot()
+    #SWEPVariedmdot()
+    VICompPHEHX()
