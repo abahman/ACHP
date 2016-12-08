@@ -40,9 +40,12 @@ def C2K(T_C):
 def C2F(T_C):
     """Convert temperature in Celsius to Fahrenheit"""
     return T_C*9.0/5.0+32.0
-def K2C(T_C):
+def K2C(T_K):
     """Convert temperature in Kelvin to Celsius"""
-    return T_C-273.15
+    return T_K-273.15
+def K2F(T_K):
+    """Convert temperature in Kelvin to Fahrenheit"""
+    return T_K * 9.0/5.0 - 459.67
 
 """##### Massflow    ####################################"""
 def lbh2kgs(lbm):
