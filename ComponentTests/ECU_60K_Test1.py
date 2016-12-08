@@ -528,10 +528,10 @@ if __name__=='__main__':
     s_exp /= 1000.0
     
     #Model Results
-    P = [cycle.Compressor.pin_r, cycle.Compressor.pout_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Evaporator.psat_r, cycle.Compressor.pin_r, cycle.Compressor.pin_r]
-    h = [cycle.Compressor.hin_r, cycle.Compressor.hout_r, PropsSI('H','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('H','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.hout_r, cycle.Evaporator.hin_r, PropsSI('H','P',cycle.Compressor.pin_r,'Q',1,ref_fluid), cycle.Compressor.hin_r]
-    T = [cycle.Compressor.Tin_r, cycle.Compressor.Tout_r, PropsSI('T','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('T','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.Tout_r, cycle.Evaporator.Tin_r, PropsSI('T','P',cycle.Compressor.pin_r,'Q',1,ref_fluid), cycle.Compressor.Tin_r]
-    s = [cycle.Compressor.sin_r, cycle.Compressor.sout_r, PropsSI('S','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('S','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.sout_r, cycle.Evaporator.sin_r, PropsSI('S','P',cycle.Compressor.pin_r,'Q',1,ref_fluid), cycle.Compressor.sin_r]
+    P = [cycle.Evaporator.psat_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Evaporator.psat_r, cycle.Evaporator.psat_r, cycle.Evaporator.psat_r]
+    h = [cycle.Compressor.hin_r, cycle.Compressor.hout_r, PropsSI('H','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('H','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.hout_r, cycle.Evaporator.hin_r, PropsSI('H','P',cycle.Evaporator.psat_r,'Q',1,ref_fluid), cycle.Compressor.hin_r]
+    T = [cycle.Compressor.Tin_r, cycle.Compressor.Tout_r, PropsSI('T','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('T','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.Tout_r, cycle.Evaporator.Tin_r, PropsSI('T','P',cycle.Evaporator.psat_r,'Q',1,ref_fluid), cycle.Compressor.Tin_r]
+    s = [cycle.Compressor.sin_r, cycle.Compressor.sout_r, PropsSI('S','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('S','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.sout_r, cycle.Evaporator.sin_r, PropsSI('S','P',cycle.Evaporator.psat_r,'Q',1,ref_fluid), cycle.Compressor.sin_r]
     P = np.array(P)
     T = np.array(T)
     h = np.array(h)
@@ -543,10 +543,10 @@ if __name__=='__main__':
     
     #Model Results (VI comp)
     cycle = cycle2 # just assign the results of cycle2 (VIComp) to cycle so that I don't have to retype everything again
-    P2 = [cycle.Compressor.pin_r, cycle.Compressor.pout_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Evaporator.psat_r, cycle.Compressor.pin_r, cycle.Compressor.pin_r]
-    h2 = [cycle.Compressor.hin_r, cycle.Compressor.hout_r, PropsSI('H','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('H','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.hout_r, cycle.Evaporator.hin_r, PropsSI('H','P',cycle.Compressor.pin_r,'Q',1,ref_fluid), cycle.Compressor.hin_r]
-    T2 = [cycle.Compressor.Tin_r, cycle.Compressor.Tout_r, PropsSI('T','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('T','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.Tout_r, cycle.Evaporator.Tin_r, PropsSI('T','P',cycle.Compressor.pin_r,'Q',1,ref_fluid), cycle.Compressor.Tin_r]
-    s2 = [cycle.Compressor.sin_r, cycle.Compressor.sout_r, PropsSI('S','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('S','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.sout_r, cycle.Evaporator.sin_r, PropsSI('S','P',cycle.Compressor.pin_r,'Q',1,ref_fluid), cycle.Compressor.sin_r]
+    P2 = [cycle.Evaporator.psat_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Condenser.psat_r, cycle.Evaporator.psat_r, cycle.Evaporator.psat_r, cycle.Evaporator.psat_r]
+    h2 = [cycle.Compressor.hin_r, cycle.Compressor.hout_r, PropsSI('H','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('H','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.hout_r, cycle.Evaporator.hin_r, PropsSI('H','P',cycle.Evaporator.psat_r,'Q',1,ref_fluid), cycle.Compressor.hin_r]
+    T2 = [cycle.Compressor.Tin_r, cycle.Compressor.Tout_r, PropsSI('T','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('T','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.Tout_r, cycle.Evaporator.Tin_r, PropsSI('T','P',cycle.Evaporator.psat_r,'Q',1,ref_fluid), cycle.Compressor.Tin_r]
+    s2 = [cycle.Compressor.sin_r, cycle.Compressor.sout_r, PropsSI('S','P',cycle.Condenser.psat_r,'Q',1,ref_fluid), PropsSI('S','P',cycle.Condenser.psat_r,'Q',0,ref_fluid), cycle.Condenser.sout_r, cycle.Evaporator.sin_r, PropsSI('S','P',cycle.Evaporator.psat_r,'Q',1,ref_fluid), cycle.Compressor.sin_r]
     P2 = np.array(P2)
     T2 = np.array(T2)
     h2 = np.array(h2)
