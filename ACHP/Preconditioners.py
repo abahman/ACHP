@@ -265,17 +265,19 @@ def VICompPreconditioner(Cycle,epsilon=0.96):
         
         Cycle.AS.update(CP.QT_INPUTS,1.0,Tevap)
         pevap=Cycle.AS.p() #[pa]
-        Cycle.AS.update(CP.QT_INPUTS,0.0,Tcond)
-        P_l =Cycle.AS.p() #[pa]
+        #Cycle.AS.update(CP.QT_INPUTS,0.0,Tcond)
+        #P_l =Cycle.AS.p() #[pa]
         Cycle.AS.update(CP.QT_INPUTS,1.0,Tcond)
-        P_v=Cycle.AS.p() #[pa]
-        pcond= (P_l+P_v)/2.0
+        pcond=Cycle.AS.p() #[pa]
+        #pcond= (P_l+P_v)/2.0
         Cycle.AS.update(CP.QT_INPUTS,1.0,Tdew_inj)
         pinj=Cycle.AS.p() #[pa]
         cp_inj=Cycle.AS.cpmass() #[J/kg-K]
+        Cycle.AS.update(CP.PQ_INPUTS,pinj,0.0)
+        Tbubble_inj=Cycle.AS.T() #[K]
         Cycle.Compressor.pin_r=pevap
         Cycle.Compressor.pout_r=pcond
-        Cycle.Compressor.Tini_r=Tdew_inj+Cycle.DT_inj_sh_target
+        Cycle.Compressor.Tinj_r=Tdew_inj+Cycle.PHEHX.DT_sh_target
         Cycle.Compressor.pinj_r=pinj
         Cycle.Compressor.Tin_r=Tevap+Cycle.Evaporator.DT_sh
         Cycle.Compressor.Ref=Cycle.Ref
@@ -325,11 +327,12 @@ def VICompPreconditioner(Cycle,epsilon=0.96):
             Cycle.AS.update(CP.PT_INPUTS,pcond,Tcond-Cycle.DT_sc_target)
             h_target = Cycle.AS.hmass() #[J/kg]
             cp_cond = Cycle.AS.cpmass() #[J/kg-K]
-            Qcond_enthalpy=Cycle.Compressor.mdot_r*(Cycle.Compressor.hout_r-h_target)
+            Qcond_enthalpy=Cycle.Compressor.mdot_tot*(Cycle.Compressor.hout_r-h_target)
         else: #otherwise, if Charge impose
             Cycle.AS.update(CP.PT_INPUTS,pcond,Tcond-5)
             h_target = Cycle.AS.hmass() #[J/kg]
-            Qcond_enthalpy=Cycle.Compressor.mdot_r*(Cycle.Compressor.hout_r-h_target)
+            cp_cond = Cycle.AS.cpmass() #[J/kg-K]
+            Qcond_enthalpy=Cycle.Compressor.mdot_tot*(Cycle.Compressor.hout_r-h_target)
         
         #New analysis for the economizer
         cp_c = cp_inj #[J/kg-K] taken at injection dew point state
@@ -338,10 +341,18 @@ def VICompPreconditioner(Cycle,epsilon=0.96):
         Ch = Cycle.Compressor.mdot_tot * cp_h
         if Ch < Cc: Cmin = Ch
         else: Cmin = Cc
-        Ty = (Cc * (Tdew_inj+Cycle.DT_inj_sh_target) - epsilon * Cmin * (Tcond-Cycle.DT_sc_target)) /(Cc - epsilon*Cmin)
+        #Temperature at the inlet of cold side (two phase)
+        Ty = (Cc * (Tdew_inj+Cycle.PHEHX.DT_sh_target) - epsilon * Cmin * (Tcond-Cycle.DT_sc_target)) /(Cc - epsilon*Cmin) 
+        #Approximated qaulity becasue it should be 2-phase
+        xy=(Ty-Tbubble_inj)/(Tdew_inj-Tbubble_inj)
+        if xy<0 or xy>1.0:
+            print ValueError('Quality must be between 0 and 1, x= ', xy)
         #enthalpy at the inlet of cold side (two phase)
-        Cycle.AS.update(CP.PT_INPUTS,pinj,Ty)
-        hy = Cycle.AS.hmass() #[J/kg] 
+        try:
+            Cycle.AS.update(CP.PQ_INPUTS,pinj,xy)
+        except:
+            Cycle.AS.update(CP.PQ_INPUTS,pinj,0.5)
+        hy = Cycle.AS.hmass() #[J/kg]
         #enthalpy at the inlet of evaporator
         hevap = Cycle.Compressor.hin_r - Qevap/Cycle.Compressor.mdot_r
         #enthalpy at the exit of the hot side (single phase)
@@ -349,27 +360,28 @@ def VICompPreconditioner(Cycle,epsilon=0.96):
         Q_c = Cycle.Compressor.mdot_inj * (Cycle.Compressor.hinj_r - hy)
         Q_h = Cycle.Compressor.mdot_tot * (h_target - hx)
         
-        resids=[Qevap+W+Qcond,Qcond+Qcond_enthalpy,Q_c-Q_h]
+        resids=[Qevap+W+Qcond-Q_c,Qcond+Qcond_enthalpy,Q_c-Q_h]
+        
         return resids
     
     Tevap_init=Cycle.Evaporator.Fins.Air.Tdb-15
     Tcond_init=Cycle.Condenser.Fins.Air.Tdb+8
-    Tdew_inj=np.sqrt(Tevap_init*Tcond_init)
+    Tdew_inj_init=np.sqrt(Tevap_init*Tcond_init)
     
     #First try using the fsolve algorithm
-    try:
-        x=fsolve(OBJECTIVE,[Tevap_init,Tcond_init,Tdew_inj])
-    except:
-        #If that doesnt work, try the Mult-Dimensional Newton-raphson solver
-        try:
-            print 'try using the Mult-Dimensional Newton-raphson solver'
-            x=MultiDimNewtRaph(OBJECTIVE,[Tevap_init,Tcond_init,Tdew_inj])
-        except:
-            #use the simplified equation propsed by Emerson (see Thomas thesis page 21)
-            print 'try using simplified equation propsed by Emerson'
-            Tdew_inj = 0.8 * K2F(Tevap_init) + 0.5 * K2F(Tcond_init) - 21 #[F]
-            x=[Tevap_init,Tcond_init,F2K(Tdew_inj)] 
-    
+#     try:
+    x=fsolve(OBJECTIVE,[Tevap_init,Tcond_init,Tdew_inj_init])
+#     except:
+#         #If that doesnt work, try the Mult-Dimensional Newton-raphson solver
+#         try:
+#             print 'try using the Mult-Dimensional Newton-raphson solver'
+#             x=MultiDimNewtRaph(OBJECTIVE,[Tevap_init,Tcond_init,Tdew_inj_init])
+#         except:
+#             #use the simplified equation propsed by Emerson (see Thomas thesis page 21)
+#             print 'try using simplified equation propsed by Emerson'
+#             Tdew_inj_init = 0.8 * K2F(Tevap_init) + 0.5 * K2F(Tcond_init) - 21 #[F]
+#             x=[Tevap_init,Tcond_init,F2K(Tdew_inj_init)]
+            
     DT_evap=Cycle.Evaporator.Fins.Air.Tdb-x[0]
     DT_cond=x[1]-Cycle.Condenser.Fins.Air.Tdb
     Tdew_inj=x[2]

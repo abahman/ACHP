@@ -383,9 +383,9 @@ class PHEHXClass():
         
         self.q_flux=collect(cellList,'Phase_c','TwoPhase','q_flux')
             
-        self.Tout_h,self.rhoout_h=TrhoPhase_ph(self.AS_h,self.pin_h,self.hout_h,self.Tbubble_h,self.Tdew_h,self.rhosatL_h,self.rhosatV_h)[0:2]
-        self.Tout_c,self.rhoout_c=TrhoPhase_ph(self.AS_c,self.pin_c,self.hout_c,self.Tbubble_c,self.Tdew_c,self.rhosatL_c,self.rhosatV_c)[0:2]
-        
+        self.Tout_h,self.rhoout_h,phase_h=TrhoPhase_ph(self.AS_h,self.pin_h,self.hout_h,self.Tbubble_h,self.Tdew_h,self.rhosatL_h,self.rhosatV_h)
+        self.Tout_c,self.rhoout_c,phase_c=TrhoPhase_ph(self.AS_c,self.pin_c,self.hout_c,self.Tbubble_c,self.Tdew_c,self.rhosatL_c,self.rhosatV_c)
+
         if 'IncompressibleBackend' in AS_c.backend_name():
             AS_c.update(CP.PT_INPUTS, self.pin_c, self.Tout_c)
             self.sout_c=AS_c.smass() #[J/kg-K]
@@ -615,7 +615,7 @@ class PHEHXClass():
         #Use Lockhart Martinelli to calculate the pressure drop.  Claesson found good agreement using C parameter of 4.67
         DP_frict_h=LMPressureGradientAvg(Inputs['xout_h'],Inputs['xin_h'],self.AS_h,self.mdot_h/self.A_h_flow,self.Dh_h,self.Tbubble_h,self.Tdew_h,C=4.67)*w*self.Lp
         #Accelerational pressure drop component    
-        DP_accel_h=-AccelPressureDrop(Inputs['xout_h'],Inputs['xin_h'],self.AS_h,self.mdot_h/self.A_h_flow,self.Tbubble_h,self.Tdew_h)*w*self.Lp
+        DP_accel_h=AccelPressureDrop(Inputs['xout_h'],Inputs['xin_h'],self.AS_h,self.mdot_h/self.A_h_flow,self.Tbubble_h,self.Tdew_h)*w*self.Lp
         
         #Pack outputs
         Outputs={
@@ -752,7 +752,7 @@ class PHEHXClass():
         
         #Figure out the limiting rate of heat transfer
         self.Qmax=self.DetermineHTBounds()
-        
+
         def GivenQ(Q):
             """
             In this function, the heat transfer rate is imposed.  Therefore the
@@ -903,7 +903,8 @@ class PHEHXClass():
         try:
             brentq(GivenQ,0.0000001*self.Qmax,0.999999999*self.Qmax,xtol=0.000001*self.Qmax)#,xtol=0.000001*self.Qmax) is commented
         except ValueError:
-            print GivenQ(0.0000001*self.Qmax),GivenQ(0.999999999*self.Qmax)
+            print 
+            print 'lower bound:',GivenQ(0.0000001*self.Qmax),' upperbound:',GivenQ(0.999999999*self.Qmax)
             raise
         # Collect parameters from all the pieces
         self.PostProcess(self.cellList)
