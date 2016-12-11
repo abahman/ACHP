@@ -686,7 +686,7 @@ if __name__=='__main__':
     import time
     start = time.time()
     #Write the outputs to file
-    Write2CSV(cycle3,open('results/Cycle_60K_Test1.csv','w'),append=False)
+    Write2CSV(cycle3,open('results/Cycle_60K_Test1_VIcomp.csv','w'),append=False)
     #Write2CSV(cycle2,open('results/Cycle_60K_Test1.csv','a'),append=True)
     #Write2CSV(cycle3,open('results/Cycle_60K_Test1.csv','a'),append=True)
     print 'Took '+str(time.time()-start)+' seconds to run Cycle model'
