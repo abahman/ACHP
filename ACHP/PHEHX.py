@@ -4,9 +4,11 @@ import CoolProp as CP
 
 from Correlations import ShahEvaporation_Average,PHE_1phase_hdP,Cooper_PoolBoiling,TwoPhaseDensity,TrhoPhase_ph,Phase_ph,LMPressureGradientAvg,KandlikarPHE,Bertsch_MC,AccelPressureDrop,ShahCondensation_Average,LongoCondensation
 from math import pi,exp,log,sqrt,tan,cos,sin
-from scipy.optimize import brentq
+from scipy.optimize import brentq,fsolve
 import numpy as np
 import pylab
+from convert_units import *
+import matplotlib.pyplot as plt
 
 class PHEHXClass():
     """
@@ -59,7 +61,7 @@ class PHEHXClass():
         return [
             ('Effective Length','m',self.Lp),
             ('Wetted area','m^2',self.A_h_wetted),
-            ('Outlet Superheat','K',self.Tout_c-self.Tsat_c),
+            ('Outlet Superheat','K',self.Tout_c-self.Tdew_c),
             ('Q Total','W',self.Q),
             ('Q Superheat Hot','W',self.Q_superheated_h),
             ('Q Two-Phase Hot','W',self.Q_2phase_h),
@@ -107,7 +109,7 @@ class PHEHXClass():
         
         #AbstractState
         AS_h = self.AS_h
-        AS_c =self.AS_c
+        AS_c = self.AS_c
         
         #Inlet phases
         self.Tin_h,rhoin_h,Phasein_h=TrhoPhase_ph(self.AS_h,self.pin_h,self.hin_h,self.Tbubble_h,self.Tdew_h,self.rhosatL_h,self.rhosatV_h)
@@ -143,8 +145,8 @@ class PHEHXClass():
             TList_h[i]=TrhoPhase_ph(self.AS_h,self.pin_h,EnthalpyList_h[i],self.Tbubble_h,self.Tdew_h,self.rhosatL_h,self.rhosatV_h)[0]
 
 #        #Double-check that the edges are not pinched
-#        if TList_c[0]-1e-9>TList_h[0] or TList_c[-1]-1e-9>TList_h[-1]:
-#            raise ValueError('Outlet or inlet of PHE is pinching.  Why?')
+#         if TList_c[0]-1e-9>TList_h[0] or TList_c[-1]-1e-9>TList_h[-1]:
+#             raise ValueError('Outlet or inlet of PHE is pinching.  Why?')
         
         #TODO: could do with more generality if both streams can change phase
         #Check if any internal points are pinched
@@ -159,7 +161,7 @@ class PHEHXClass():
                     #Find heat transfer of hot stream in right-most cell
                     Qextra=self.mdot_h*(EnthalpyList_h[i+1]-EnthalpyList_h[i])
                     Qmax=self.mdot_c*(hpinch-self.hin_c)+Qextra
-        
+
         return Qmax
         
     def PlateHTDP(self,AS,T,p,mdot_gap):
@@ -419,12 +421,12 @@ class PHEHXClass():
             else:
                 self.DT_sc_h=self.Tbubble_h-self.Tout_h
         
-    def eNTU_CounterFlow(self,Cr,Ntu):
-        """
-        This function returns the effectiveness for counter flow fluids
-        """
-        return ((1 - exp(-Ntu * (1 - Cr))) / 
-            (1 - Cr * exp(-Ntu * (1 - Cr))))
+#     def eNTU_CounterFlow(self,Cr,Ntu):
+#         """
+#         This function returns the effectiveness for counter flow fluids
+#         """
+#         return ((1 - exp(-Ntu * (1 - Cr))) / 
+#             (1 - Cr * exp(-Ntu * (1 - Cr))))
     
     def _OnePhaseH_OnePhaseC_Qimposed(self,Inputs):
         """
@@ -482,7 +484,7 @@ class PHEHXClass():
         Outputs={
             'w': w,
             'Tout_h': Inputs['Tin_h']-Q/(self.mdot_h*cp_h),
-            'Tout_c': Inputs['Tin_c']-Q/(self.mdot_c*cp_c),
+            'Tout_c': Inputs['Tin_c']+Q/(self.mdot_c*cp_c),
             'Charge_c': Charge_c,
             'Charge_h': Charge_h,
             'DP_h': -PlateOutput_h['DELTAP'],
@@ -510,8 +512,9 @@ class PHEHXClass():
         h_h,cp_h,PlateOutput_h=self.PlateHTDP(self.AS_h, Inputs['Tmean_h'], Inputs['pin_h'],self.mdot_h/self.NgapsHot)
         #Use cp calculated from delta h/delta T
         cp_h=Inputs['cp_h']
+        cp_c=Inputs['cp_c']
         #Mole mass of refrigerant for Cooper correlation
-        M=AS_c.molar_mass() #[kg/mol]
+        M=AS_c.molar_mass()*1000 #[kg/kmol]
         #Reduced pressure for Cooper Correlation
         pcrit_c = AS_c.p_critical() #critical pressure of Ref_c [Pa]
         pstar=Inputs['pin_c']/pcrit_c
@@ -535,7 +538,7 @@ class PHEHXClass():
             UA_total=1/(1/(h_h*self.A_h_wetted)+1/(h_c_2phase*self.A_c_wetted)+self.PlateThickness/(self.PlateConductivity*self.A_c_wetted))
             C_h=cp_h*self.mdot_h
             
-            Qmax=C_h*(Inputs['Tin_h']-Inputs['Tsat_c'])
+            Qmax=C_h*(Inputs['Tin_h']-Inputs['Tin_c'])
             epsilon=Q/Qmax
             
             if epsilon>=1.0:
@@ -562,6 +565,7 @@ class PHEHXClass():
         Outputs={
             'w':w,
             'Tout_h': Inputs['Tin_h']-Q/(self.mdot_h*cp_h),
+            'Tout_c': Inputs['Tin_c']+Q/(self.mdot_c*cp_c),
             'Charge_c': Charge_c,
             'Charge_h': Charge_h,
             'DP_h': -PlateOutput_h['DELTAP'],
@@ -590,11 +594,12 @@ class PHEHXClass():
         h_c,cp_c,PlateOutput_c=self.PlateHTDP(self.AS_c, Inputs['Tmean_c'], Inputs['pin_c'],self.mdot_c/self.NgapsCold)
         #Use cp calculated from delta h/delta T
         cp_c=Inputs['cp_c']
-        UA_total=1/(1/(h_c*self.A_c_wetted)+1/(h_h_2phase*self.A_h_wetted)+self.PlateThickness/(self.PlateConductivity*(self.A_c_wetted+self.A_h_wetted)/2.))
+        cp_h=Inputs['cp_h']
+        UA_total=1/(1/(h_c*self.A_c_wetted)+1/(h_h_2phase*self.A_h_wetted)+self.PlateThickness/(self.PlateConductivity*self.A_h_wetted))
         C_c=cp_c*self.mdot_c
         
         Q=Inputs['Q']
-        Qmax=C_c*(Inputs['Tsat_h']-Inputs['Tin_c'])
+        Qmax=C_c*(Inputs['Tin_h']-Inputs['Tin_c'])
         epsilon=Q/Qmax
         
         #Cr = 0, so NTU is simply
@@ -620,7 +625,8 @@ class PHEHXClass():
         #Pack outputs
         Outputs={
             'w': w,
-            'Tout_c': Inputs['Tin_c']-Q/(self.mdot_c*cp_c),
+            'Tout_c': Inputs['Tin_c']+Q/(self.mdot_c*cp_c),
+            'Tout_h': Inputs['Tin_h']-Q/(self.mdot_h*cp_h),
             'DP_c': -PlateOutput_c['DELTAP'],
             'DP_h': DP_accel_h+DP_frict_h,
             'Charge_c':Charge_c,
@@ -701,8 +707,8 @@ class PHEHXClass():
             self.Tsat_h=(self.Tbubble_h+self.Tdew_h)/2.0
         
         #The rest of the inlet states
-        self.Tin_h,self.rhoin_h=TrhoPhase_ph(self.AS_h,self.pin_h,self.hin_h,self.Tbubble_h,self.Tdew_h,self.rhosatL_h,self.rhosatV_h)[0:2]
-        self.Tin_c,self.rhoin_c=TrhoPhase_ph(self.AS_c,self.pin_c,self.hin_c,self.Tbubble_c,self.Tdew_c,self.rhosatL_c,self.rhosatV_c)[0:2]
+        self.Tin_h,self.rhoin_h,phasein_h=TrhoPhase_ph(self.AS_h,self.pin_h,self.hin_h,self.Tbubble_h,self.Tdew_h,self.rhosatL_h,self.rhosatV_h)
+        self.Tin_c,self.rhoin_c,phasein_c=TrhoPhase_ph(self.AS_c,self.pin_c,self.hin_c,self.Tbubble_c,self.Tdew_c,self.rhosatL_c,self.rhosatV_c)
         
         if 'IncompressibleBackend' in AS_c.backend_name():
             AS_c.update(CP.PT_INPUTS, self.pin_c, self.Tin_c)
@@ -762,25 +768,27 @@ class PHEHXClass():
             
             EnthalpyList_c,EnthalpyList_h=self.BuildEnthalpyLists(Q)
                 
-#            #Plot temperature versus enthalpy profiles
-#            for i in range(len(EnthalpyList_c)-1):
-#                hc=np.linspace(EnthalpyList_c[i],EnthalpyList_c[i+1])
-#                Tc=np.zeros_like(hc)
-#                for j in range(len(hc)):
-#                    Tc[j],r,Ph=TrhoPhase_ph(self.Ref_c,self.pin_c,hc[j],self.Tbubble_c,self.Tdew_c,self.rhosatL_c,self.rhosatV_c)
-#                pylab.plot(self.mdot_c*(hc-EnthalpyList_c[0])/1000,Tc,'b')
-#                
-#            for i in range(len(EnthalpyList_h)-1):
-#                hh=np.linspace(EnthalpyList_h[i],EnthalpyList_h[i+1])
-#                Th=np.zeros_like(hh)
-#                for j in range(len(hh)):
-#                    Th[j],r,Ph=TrhoPhase_ph(self.Ref_h,self.pin_h,hh[j],self.Tbubble_h,self.Tdew_h,self.rhosatL_h,self.rhosatV_h)
-#                pylab.plot(self.mdot_h*(hh-EnthalpyList_h[0])/1000,Th,'r')
-#            pylab.show()
-                
-#            Ph(self.Ref_h)
-#            pylab.plot(np.array(EnthalpyList_h)/1000,self.pin_h/1000*np.ones_like(EnthalpyList_h))
-#            pylab.show()
+#             #Plot temperature versus enthalpy profiles
+#             for i in range(len(EnthalpyList_c)-1):
+#                 hc=np.linspace(EnthalpyList_c[i],EnthalpyList_c[i+1])
+#                 Tc=np.zeros_like(hc)
+#                 for j in range(len(hc)):
+#                     Tc[j],r,Ph=TrhoPhase_ph(self.AS_c,self.pin_c,hc[j],self.Tbubble_c,self.Tdew_c,self.rhosatL_c,self.rhosatV_c)
+#                 pylab.plot(self.mdot_c*(hc-EnthalpyList_c[0])/Q,Tc,'b')
+#                  
+#             for i in range(len(EnthalpyList_h)-1):
+#                 hh=np.linspace(EnthalpyList_h[i],EnthalpyList_h[i+1])
+#                 Th=np.zeros_like(hh)
+#                 for j in range(len(hh)):
+#                     Th[j],r,Ph=TrhoPhase_ph(self.AS_h,self.pin_h,hh[j],self.Tbubble_h,self.Tdew_h,self.rhosatL_h,self.rhosatV_h)
+#                 pylab.plot(self.mdot_h*(hh-EnthalpyList_h[0])/Q,Th,'r')
+#             pylab.xlabel('$\hat h$ [-]')
+#             pylab.ylabel('$T$ [K]')
+#             pylab.show()
+#                   
+#             Ph(self.Ref_h)
+#             pylab.plot(np.array(EnthalpyList_h)/1000,self.pin_h/1000*np.ones_like(EnthalpyList_h))
+#             pylab.show()
             
             I_h=0
             I_c=0
@@ -856,7 +864,9 @@ class PHEHXClass():
                         'Tsat_h':self.Tsat_h,
                         'Tmean_c':(Tin_c+Tout_c)/2,
                         'cp_c':(hin_c-hout_c)/(Tin_c-Tout_c),
+                        'cp_h':(hin_h-hout_h)/(Tin_h-Tout_h),
                         'Tin_c':Tin_c,
+                        'Tin_h':Tin_h,
                         'pin_h':self.pin_h,
                         'pin_c':self.pin_c,
                         'Phase_c':Phase_c,
@@ -880,8 +890,10 @@ class PHEHXClass():
                         'xout_c':xout_c,
                         'Tsat_c':self.Tsat_c,
                         'cp_h':(hin_h-hout_h)/(Tin_h-Tout_h),
+                        'cp_c':(hin_c-hout_c)/(Tin_c-Tout_c),
                         'Tmean_h':(Tin_h+Tout_h)/2,
                         'Tin_h':Tin_h,
+                        'Tin_c':Tin_c,
                         'pin_h':self.pin_h,
                         'pin_c':self.pin_c,
                         'Phase_c':Phase_c,
@@ -899,7 +911,7 @@ class PHEHXClass():
             self.cellList=cellList
             if self.Verbosity>6:
                 print 'wsum:', np.sum(wList)
-            return np.sum(wList)-1.0
+            return 1.0 - np.sum(wList)
         try:
             brentq(GivenQ,0.0000001*self.Qmax,0.999999999*self.Qmax,xtol=0.000001*self.Qmax)#,xtol=0.000001*self.Qmax) is commented
         except ValueError:
@@ -908,43 +920,16 @@ class PHEHXClass():
             raise
         # Collect parameters from all the pieces
         self.PostProcess(self.cellList)
-        
-def WyattPHEHX():
-        
-    Tdew=PropsSI('T','P',962833,'Q',1.0,'R134a')
-    params={
-        'Ref_c':'R134a',
-        'mdot_c':0.073,
-        'pin_c':962833,
-        'hin_c':PropsSI('H','T',Tdew,'Q',0.0,'R134a'), #[J/kg-K]
-        'xin_c':0.0,
-        
-        'Ref_h':'Water',
-        'mdot_h':100.017,
-        'pin_h':PropsSI('P','T',115.5+273.15,'Q',1,'Water'),
-        'hin_h':PropsSI('H','T',115.5+273.15,'Q',1,'Water'), #[J/kg-K]
-        
-        #Geometric parameters
-        'Bp' : 0.119,
-        'Lp' : 0.526, #Center-to-center distance between ports
-        'Nplates' : 110,
-        'PlateAmplitude' : 0.00102, #[m]
-        'PlateThickness' : 0.0003, #[m]
-        'PlateWavelength' : 0.0066, #[m]
-        'InclinationAngle' : pi/3,#[rad]
-        'PlateConductivity' : 15.0, #[W/m-K]
-        'MoreChannels' : 'Hot', #Which stream gets the extra channel, 'Hot' or 'Cold'
     
-        'Verbosity':10
-    }
-    PHE=PHEHXClass(**params)
-    PHE.Calculate()
 
-#    pylab.plot(TT,QQ)
-#    pylab.show()
 
 def VICompPHEHX():
-
+    Tdew_c = PropsSI('T','P',816322.314008,'Q',1.0,'R407C')
+    Tinj = Tdew_c + 5
+    hinj = PropsSI('H','P',816322.314008,'T',Tinj,'R407C')
+    x1 = 0.52
+    x2 = 0.6
+    
     params={
         'Ref_h':'R407C',
         'Backend_h':'HEOS',
@@ -956,13 +941,13 @@ def VICompPHEHX():
         'Backend_c':'HEOS',
         'mdot_c':0.016,
         'pin_c':816322.314008,
-        'hin_c':PropsSI('H','P',816322.314008,'Q',0.3,'R407C'), #[J/kg-K]
+        'hin_c':PropsSI('H','P',816322.314008,'Q',0.594,'R407C'), #[J/kg-K]
         
         #Geometric parameters
-        'Bp' : 0.101,
-        'Lp' : 0.455, #Center-to-center distance between ports
-        'Nplates' : 46,
-        'PlateAmplitude' : 0.00102, #[m]
+        'Bp' : in2m(2.875),#0.101,
+        'Lp' : in2m(18),#0.455, #Center-to-center distance between ports
+        'Nplates' : 10, #no finalized!!
+        'PlateAmplitude' : 0.001, #[m]
         'PlateThickness' : 0.0003, #[m]
         'PlateWavelength' : 0.00626, #[m]
         'InclinationAngle' : 65/180*pi,#[rad]
@@ -973,6 +958,57 @@ def VICompPHEHX():
     }
     PHE=PHEHXClass(**params)
     PHE.Calculate()
+            
+    #Print PHEHX outputs
+    for id, unit, value in PHE.OutputList():
+        print str(id) + ' = ' + str(value) + ' ' + str(unit)
+     
+    
+def VICompPHEHX_Res():
+    Tdew_c = PropsSI('T','P',816322.314008,'Q',1.0,'R407C')
+    Tinj = Tdew_c + 5
+    hinj = PropsSI('H','P',816322.314008,'T',Tinj,'R407C')
+    params={
+            'Ref_h':'R407C',
+            'Backend_h':'HEOS',
+            'mdot_h':0.059,
+            'pin_h':PropsSI('P','T',315,'Q',1,'R407C'),
+            'hin_h':PropsSI('H','P',PropsSI('P','T',315,'Q',1,'R407C'),'T',PropsSI('T','P',PropsSI('P','T',315,'Q',1,'R407C'),'Q',0,'R407C')-5,'R407C'), #[J/kg-K]
+            
+            'Ref_c':'R407C',
+            'Backend_c':'HEOS',
+            'mdot_c':0.016,
+            'pin_c':816322.314008,
+            #'hin_c':PropsSI('H','P',816322.314008,'Q',x_in_PHEHX,'R407C'), #[J/kg-K]
+            
+            #Geometric parameters
+            'Bp' : in2m(2.875),#0.101,
+            'Lp' : in2m(18),#0.455, #Center-to-center distance between ports
+            'Nplates' : 10, #no finalized!!
+            'PlateAmplitude' : 0.001, #[m]
+            'PlateThickness' : 0.0003, #[m]
+            'PlateWavelength' : 0.00626, #[m]
+            'InclinationAngle' : 65/180*pi,#[rad]
+            'PlateConductivity' : 15.0, #[W/m-K]
+            'MoreChannels' : 'Hot', #Which stream gets the extra channel, 'Hot' or 'Cold'
+        
+            'Verbosity':0
+        }
+    PHE=PHEHXClass(**params)
+    
+    def residual(x_in_PHEHX):
+        print x_in_PHEHX
+        params={
+        'hin_c':PropsSI('H','P',816322.314008,'Q',x_in_PHEHX,'R407C')
+        }
+        PHE.Update(**params)
+        PHE.Calculate()
+        
+        resid = Tinj - PHE.Tout_c#PHE.mdot_c*(PHE.hout_c - hinj)
+        return resid
+    
+    x_in_PHEHX_actual= brentq(residual,0.00001,0.99999)
+    print 'actual',x_in_PHEHX_actual
     #Print PHEHX outputs
     for id, unit, value in PHE.OutputList():
         print str(id) + ' = ' + str(value) + ' ' + str(unit)
@@ -1096,4 +1132,5 @@ if __name__=='__main__':
     #SamplePHEHX()
     #WyattPHEHX()
     #SWEPVariedmdot()
-    VICompPHEHX()
+    VICompPHEHX_Res()
+    #VICompPHEHX()
