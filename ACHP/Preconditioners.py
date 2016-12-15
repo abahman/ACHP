@@ -361,7 +361,6 @@ def VICompPreconditioner(Cycle,epsilon=0.96):
         hevap = Cycle.Compressor.hin_r - Qevap/Cycle.Compressor.mdot_r
 #         #Enthalpy at the exit of the hot side (single phase)
 #         hx = (Cycle.Compressor.mdot_r * hevap + Cycle.Compressor.mdot_inj * hy) / Cycle.Compressor.mdot_tot
-# 
 #         Q_c = Cycle.Compressor.mdot_inj * (Cycle.Compressor.hinj_r - hy)
 #         Q_h = Cycle.Compressor.mdot_tot * (h_target - hx)
         Cycle.AS.update(CP.HmassP_INPUTS,hevap,pcond)
@@ -402,4 +401,4 @@ def VICompPreconditioner(Cycle,epsilon=0.96):
     DT_cond=x[1]-Cycle.Condenser.Fins.Air.Tdb
     Tdew_inj=x[2]
 
-    return DT_evap-4, DT_cond+5, Tdew_inj
+    return DT_evap-4, DT_cond+5, Tdew_inj+10

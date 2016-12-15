@@ -1349,12 +1349,12 @@ class ECU_VICompCycleClass():
             def residual(h_in_PHEHX):
                 'function to iterate for hin_c'
 #                 x_in_PHEHX = float(x_in_PHEHX)
-#                 #print x_in_PHEHX
+#                 print x_in_PHEHX
 #                 if x_in_PHEHX < 0:
 #                     x_in_PHEHX = 0.0001
 #                 elif x_in_PHEHX > 1:
 #                     x_in_PHEHX = 0.9999
-#                 AS.update(CP.PQ_INPUTS,psat_inj,x_in_PHEHX)
+#                 AS.update(CP.PQ_INPUTS,psat_inj,float(x_in_PHEHX))
 #                 h_in_PHEHX = AS.hmass()
                 params={
                     'mdot_h': self.Compressor.mdot_tot,
@@ -1364,7 +1364,7 @@ class ECU_VICompCycleClass():
                     'pin_c': psat_inj,
                     'hin_c': float(h_in_PHEHX),
                 }
-                print params
+                #print params
                 self.PHEHX.Update(**params)
                 self.PHEHX.Calculate()
                 
@@ -1372,32 +1372,34 @@ class ECU_VICompCycleClass():
                 #T_target = AS.T()
                 #resid = self.PHEHX.Tout_h - T_target
                 resid = self.Compressor.mdot_inj*(self.Compressor.hinj_r - self.PHEHX.hout_c)
-                #DT_sh_PHEHX = self.PHEHX.Tout_c - self.PHEHX.Tsat_c
+                #DT_sh_PHEHX = self.PHEHX.Tout_c - self.PHEHX.Tdew_c
                 #resid = DT_sh_PHEHX-self.PHEHX.DT_sh_target
-                #print resid
+                print resid
                 return resid
 
             #assume a guess value for 
-            h_guess = hsatL_inj*1.001#(hsatL_inj+hsatV_inj)/2#self.Compressor.hinj_r#*0.85 #[J/kg]
+            #h_guess = hsatL_inj*1.001#(hsatL_inj+hsatV_inj)/2#self.Compressor.hinj_r#*0.85 #[J/kg]
             #Solve for the actual inlet enthalpy to the PHEHX (cold side)
             #h_in_PHEHX_actual = fsolve(residual,h_guess)
-            h_in_PHEHX_actual = brentq(residual,1.0001*hsatL_inj,0.99999*self.Condenser.hout_r)
-            
-            x_guess = 0.5
+            try:
+                h_in_PHEHX_actual = brentq(residual,1.0001*hsatL_inj,0.99999*self.Condenser.hout_r)
+            except:
+                pass
+            #x_guess = 0.5
             #x_in_PHEHX_actual= fsolve(residual,x_guess)
-            #x_in_PHEHX_actual = brentq(residual,0.01,0.99)
-            
-            #Solve PHEHX one more time for the actual value of the inlet enthapy (cold side)
-            params={
-                    'mdot_h': self.Compressor.mdot_tot,
-                    'pin_h': psat_cond,
-                    'hin_h': self.Condenser.hout_r,
-                    'mdot_c': self.Compressor.mdot_inj,
-                    'pin_c': psat_inj,
-                    'hin_c': float(h_in_PHEHX_actual),
-            }
-            self.PHEHX.Update(**params)
-            self.PHEHX.Calculate()
+            #x_in_PHEHX_actual = brentq(residual,0.00001,0.99999)
+            #print x_in_PHEHX_actual
+#             #Solve PHEHX one more time for the actual value of the inlet enthapy (cold side)
+#             params={
+#                     'mdot_h': self.Compressor.mdot_tot,
+#                     'pin_h': psat_cond,
+#                     'hin_h': self.Condenser.hout_r,
+#                     'mdot_c': self.Compressor.mdot_inj,
+#                     'pin_c': psat_inj,
+#                     'hin_c': float(h_in_PHEHX_actual),
+#             }
+#             self.PHEHX.Update(**params)
+#             self.PHEHX.Calculate()
             
             #Evaporator inlet enthalpy is from energy balance on the mixing node
             h_evap = (self.Compressor.mdot_tot * self.PHEHX.hout_h - self.Compressor.mdot_inj * self.PHEHX.hin_c)/self.Compressor.mdot_r
@@ -1423,11 +1425,11 @@ class ECU_VICompCycleClass():
             elif self.ImposedVariable=='Charge':
                 resid[1]=self.Charge-self.Charge_target
             
-            #resid[2]=self.EnergyBalance
+            resid[2]=self.EnergyBalance
             #DT_sh_PHEHX = self.PHEHX.Tout_c - self.Tdew_inj
             #DT_sh_PHEHX = self.PHEHX.Tout_c - self.PHEHX.Tsat_c
             #resid[2]=DT_sh_PHEHX-self.PHEHX.DT_sh_target
-            resid[2]=self.Compressor.mdot_inj*(self.Compressor.hinj_r - self.PHEHX.hout_c)
+            #resid[2]=self.Compressor.mdot_inj*(self.Compressor.hinj_r - self.PHEHX.hout_c)
             
             if self.Verbosity>1:
                 print resid
@@ -1523,72 +1525,72 @@ class ECU_VICompCycleClass():
         
         return resid
     
-#     def PreconditionedSolve(self):
-#         """
-#         Solver that will precondition by trying a range of DeltaT until the model
-#         can solve, then will kick into 2-D Newton Raphson solve
-#          
-#         The two input variables for the system solver are the differences in 
-#         temperature between the inlet air temperature of the heat exchanger and the
-#         dew temperature of the refrigerant.  This is important for refrigerant blends
-#         with temperature glide during constant-pressure evaporation or condensation.
-#         Good examples of common working fluid with glide would be R404A or R410A.
-#         """
-#         def OBJECTIVE(x):
-#             """
-#             A wrapper function to convert input vector for fsolve to the proper form for the solver
-#             """
-#             try:
-#                 resids=self.Calculate(DT_evap=float(x[0]),DT_cond=float(x[1]),Tdew_inj=float(x[2]))
-#             except ValueError:
-#                 raise
-#             return resids
-#          
-#         # Use the preconditioner to determine a reasonably good starting guess
-#         DT_evap_init,DT_cond_init,Tdew_inj_init=VICompPreconditioner(self)
-#  
-#         GoodRun=False
-#         while GoodRun==False:
-#             try:
-#                 self.DP_low=0
-#                 self.DP_high=0
-#                 self.DP_int=0
-#                 DP_converged=False        
-#                 while DP_converged==False:
-#                     #Actually run the Newton-Raphson solver to get the solution
-#                     x=Broyden(OBJECTIVE,[DT_evap_init,DT_cond_init,Tdew_inj_init])
-#                     delta_low=abs(self.DP_low-abs(self.DP_LowPressure))
-#                     delta_high=abs(self.DP_high-abs(self.DP_HighPressure))
-#                     delta_int=abs(self.DP_int-abs(self.DP_IntPressure))
-#                     self.DP_low=abs(self.DP_LowPressure)
-#                     self.DP_high=abs(self.DP_HighPressure)
-#                     self.DP_int=abs(self.DP_IntPressure)
-#                     #Update the guess values based on last converged values
-#                     DT_evap_init=self.DT_evap
-#                     DT_cond_init=self.DT_cond
-#                     Tdew_inj_init=self.Tdew_inj
-#                     if delta_low<1 and delta_high<1 and delta_int<1:
-#                         DP_converged=True
-#                     if self.Verbosity>4:
-#                         print self.DP_HighPressure,self.DP_LowPressure,self.DP_IntPressure,'DPHPIP'
-#                     GoodRun=True
-#             except AttributeError:
-#                 # This will be a fatal error !! Should never have attribute error
-#                 raise 
-#             except:
-#                 print "--------------  Exception Caught ---------------- " 
-#                 print "Error of type",sys.exc_info()[0]," is: " + sys.exc_info()[1].message
-#                 raise
-#          
-#         if self.Verbosity>0:
-#             print 'Capacity: ', self.Capacity
-#             print 'COP: ',self.COP
-#             print 'COP (w/ both fans): ',self.COSP
-#             print 'SHR: ',self.SHR
-#             print 'UA_r_evap',self.Evaporator.UA_r
-#             print 'UA_a_evap',self.Evaporator.UA_a
-#             print 'UA_r_cond',self.Condenser.UA_r
-#             print 'UA_a_cond',self.Condenser.UA_a
+    def PreconditionedSolve(self):
+        """
+        Solver that will precondition by trying a range of DeltaT until the model
+        can solve, then will kick into 2-D Newton Raphson solve
+          
+        The two input variables for the system solver are the differences in 
+        temperature between the inlet air temperature of the heat exchanger and the
+        dew temperature of the refrigerant.  This is important for refrigerant blends
+        with temperature glide during constant-pressure evaporation or condensation.
+        Good examples of common working fluid with glide would be R404A or R410A.
+        """
+        def OBJECTIVE(x):
+            """
+            A wrapper function to convert input vector for fsolve to the proper form for the solver
+            """
+            try:
+                resids=self.Calculate(DT_evap=float(x[0]),DT_cond=float(x[1]),Tdew_inj=float(x[2]))
+            except ValueError:
+                raise
+            return resids
+          
+        # Use the preconditioner to determine a reasonably good starting guess
+        DT_evap_init,DT_cond_init,Tdew_inj_init=VICompPreconditioner(self)
+  
+        GoodRun=False
+        while GoodRun==False:
+            try:
+                self.DP_low=0
+                self.DP_high=0
+                self.DP_int=0
+                DP_converged=False        
+                while DP_converged==False:
+                    #Actually run the Newton-Raphson solver to get the solution
+                    x=Broyden(OBJECTIVE,[DT_evap_init,DT_cond_init,Tdew_inj_init])
+                    delta_low=abs(self.DP_low-abs(self.DP_LowPressure))
+                    delta_high=abs(self.DP_high-abs(self.DP_HighPressure))
+                    delta_int=abs(self.DP_int-abs(self.DP_IntPressure))
+                    self.DP_low=abs(self.DP_LowPressure)
+                    self.DP_high=abs(self.DP_HighPressure)
+                    self.DP_int=abs(self.DP_IntPressure)
+                    #Update the guess values based on last converged values
+                    DT_evap_init=self.DT_evap
+                    DT_cond_init=self.DT_cond
+                    Tdew_inj_init=self.Tdew_inj
+                    if delta_low<1 and delta_high<1 and delta_int<1:
+                        DP_converged=True
+                    if self.Verbosity>4:
+                        print self.DP_HighPressure,self.DP_LowPressure,self.DP_IntPressure,'DPHPIP'
+                    GoodRun=True
+            except AttributeError:
+                # This will be a fatal error !! Should never have attribute error
+                raise 
+            except:
+                print "--------------  Exception Caught ---------------- " 
+                print "Error of type",sys.exc_info()[0]," is: " + sys.exc_info()[1].message
+                raise
+          
+        if self.Verbosity>0:
+            print 'Capacity: ', self.Capacity
+            print 'COP: ',self.COP
+            print 'COP (w/ both fans): ',self.COSP
+            print 'SHR: ',self.SHR
+            print 'UA_r_evap',self.Evaporator.UA_r
+            print 'UA_a_evap',self.Evaporator.UA_a
+            print 'UA_r_cond',self.Condenser.UA_r
+            print 'UA_a_cond',self.Condenser.UA_a
     
     def PreconditionedSolve_new(self,PrecondValues=None):
         '''

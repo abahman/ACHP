@@ -600,10 +600,10 @@ def ECUCycle_VIComp():
             'DT_sh_target':5,
             
             #Geometric parameters
-            'Bp' : 0.101,
-            'Lp' : 0.455, #Center-to-center distance between ports
-            'Nplates' : 46,
-            'PlateAmplitude' : 0.00102, #[m]
+            'Bp' : in2m(2.875),
+            'Lp' : in2m(18), #Center-to-center distance between ports
+            'Nplates' : 10,
+            'PlateAmplitude' : 0.001, #[m]
             'PlateThickness' : 0.0003, #[m]
             'PlateWavelength' : 0.00626, #[m]
             'InclinationAngle' : 65/180*pi,#[rad]
@@ -670,8 +670,8 @@ def ECUCycle_VIComp():
 #     
     
     #Now solve
-    #Cycle.PreconditionedSolve()
-    Cycle.PreconditionedSolve_new()
+    Cycle.PreconditionedSolve()
+    #Cycle.PreconditionedSolve_new()
     
     #Print Cycle outputs
     for id, unit, value in Cycle.OutputList():
