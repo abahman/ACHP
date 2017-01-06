@@ -90,7 +90,7 @@ class VICompressorClass():
             ('Injection Entropy','J/kg-K',self.sinj_r),
             ('Outlet Entropy','J/kg-K',self.sout_r),
             ('Overall isentropic efficiency','-',self.eta_oi),
-            ('Pumped flow rate','m^3/s',self.Vdot_pumped),
+            ('Pumped flow rate','m**3/s',self.Vdot_pumped),
             ('Ambient heat loss','W',self.Q_amb)
          ]
         
@@ -122,7 +122,7 @@ class VICompressorClass():
         AS.update(CP.PT_INPUTS, self.pin_r, self.Tin_r)
         self.hin_r=AS.hmass() #[J/kg]
         self.sin_r=AS.smass() #[J/kg-K]
-        self.vin_r = 1 / AS.rhomass() #[m^3/kg]
+        self.vin_r = 1 / AS.rhomass() #[m**3/kg]
         
         #AS.update(CP.QT_INPUTS, 0.0, self.Tinj_r)
         AS.update(CP.PQ_INPUTS, self.pinj_r, 0.0)
@@ -151,16 +151,25 @@ class VICompressorClass():
         deltah_suc_norm = Dh_sh/Dh_fg
         
         #Power [Watts]
-        power = P[0] + P[1] * ((self.pinj_r/self.pin_r)**P[2]) * ((Dh_shinj_r/Dh_fg_inj)**P[3]) * ((self.pout_r/self.pin_r)**P[4]) * ((Dh_sh/Dh_fg)**P[5])
+        #power = P[0] + P[1] * ((self.pinj_r/self.pin_r)**P[2]) * ((Dh_shinj_r/Dh_fg_inj)**P[3]) * ((self.pout_r/self.pin_r)**P[4]) * ((Dh_sh/Dh_fg)**P[5])
         #power=-221692.6142+226000.5146*p_dis_norm**(-0.02318188686)*p_inj_norm**(+0.02748851436)*deltah_inj_norm**(+0.1951974063)*deltah_suc_norm**(+0.03808133981)
+        #power=+2255.855988+1.272237025*p_dis_norm**(+1.386084529)*p_inj_norm**(+0.4665091523)*deltah_suc_norm**(+108.6198468)*deltah_inj_norm**(-0.2734908995)
+        #power=-486688.1319+490640.1614*p_dis_norm**(-0.01665460385)*p_inj_norm**(+0.01936780152)*deltah_suc_norm**(+0.03077386404)*deltah_inj_norm**(+0.1223111911)
+        power=-319729.1256+321981.9721*p_dis_norm**(+0.003473718649)*p_inj_norm**(+0.001361941186)
 
         #suction mass flow rate [kg/s]
         #mdot = M[0] + M[1] * ((self.pinj_r/self.pin_r)**M[2]) * ((Dh_shinj_r/Dh_fg_inj)**M[3]) * ((self.pout_r/self.pin_r)**M[4]) * ((Dh_sh/Dh_fg)**M[5])
-        mdot=+32.03321447+1495.38647*p_dis_norm**(-2.323951449)*p_inj_norm**(+1.664814757)*deltah_inj_norm**(+11.87719284)*deltah_suc_norm**(+7.977699852)
-        
+        #mdot=+32.03321447+1495.38647*p_dis_norm**(-2.323951449)*p_inj_norm**(+1.664814757)*deltah_inj_norm**(+11.87719284)*deltah_suc_norm**(+7.977699852)
+        #mdot=+0.0006866353183+0.009703849695*p_dis_norm**(-0.3195095861)*p_inj_norm**(+0.06435925202)*deltah_suc_norm**(+49.42744463)*deltah_inj_norm**(+0.4097326195)
+        #mdot=-0.001049098943+0.1684268596*p_dis_norm**(-2.803142126)*p_inj_norm**(+2.252610925)*deltah_suc_norm**(+9.139310451)*deltah_inj_norm**(+14.54322906)
+        mdot=-49745.88214+50671.82075*p_dis_norm**(-0.005391951797)*p_inj_norm**(-0.0006888184216)
+
         #ratio of injection to suction mass flow rate [-]
         #ratio_mass = R[0] + R[1] * ((self.pinj_r/self.pin_r)**R[2]) * ((Dh_shinj_r/Dh_fg_inj)**R[3]) * ((self.pout_r/self.pin_r)**R[4]) * ((Dh_sh/Dh_fg)**R[5])
-        ratio_mass=-5.107639209+4.903278345*p_dis_norm**(+0.04064998309)*p_inj_norm**(+0.08813423426)*deltah_inj_norm**(-0.2250659425)*deltah_suc_norm**(+0.03886689634)
+        #ratio_mass=-5.107639209+4.903278345*p_dis_norm**(+0.04064998309)*p_inj_norm**(+0.08813423426)*deltah_inj_norm**(-0.2250659425)*deltah_suc_norm**(+0.03886689634)
+        #ratio_mass=-33.36701011+33.05046622*p_dis_norm**(+0.007937476525)*p_inj_norm**(+0.004692211409)*deltah_suc_norm**(+0.06654063672)*deltah_inj_norm**(-0.03190257993)
+        #ratio_mass=-10.05302602+9.817948036*p_dis_norm**(-0.001821866536)*p_inj_norm**(+0.07187989147)*deltah_suc_norm**(+0.0681223862)*deltah_inj_norm**(+0.006131357799)
+        ratio_mass=-0.2434501617+0.183719441*p_dis_norm**(+0.1700795496)*p_inj_norm**(+1.342340672)
 
         #injection mass flow rate [kg/s]
         mdot_inj = mdot * ratio_mass
@@ -169,9 +178,13 @@ class VICompressorClass():
         
         #Discharge tempearture [K]
         #T_dis = Te[0] + Te[1] * ((self.pinj_r/self.pin_r)**Te[2]) * ((Dh_shinj_r/Dh_fg_inj)**Te[3]) * ((self.pout_r/self.pin_r)**Te[4]) * ((Dh_sh/Dh_fg)**Te[5])
-        T_dis=+62.17255277+52.69594129*p_dis_norm**(-0.07656264047)*p_inj_norm**(+0.62997606)*deltah_inj_norm**(+4.96795673)*deltah_suc_norm**(+5.197706204)
-        
+        #T_dis=+62.17255277+52.69594129*p_dis_norm**(-0.07656264047)*p_inj_norm**(+0.62997606)*deltah_inj_norm**(+4.96795673)*deltah_suc_norm**(+5.197706204)
+        #T_dis=+321.7965732+0.6011743237*p_dis_norm**(+1.171991802)*p_inj_norm**(+0.3640605433)*deltah_suc_norm**(+45.74189473)*deltah_inj_norm**(+1.62244683)
+        #T_dis=+294.5941967+24.21525236*p_dis_norm**(-0.3468596178)*p_inj_norm**(+0.953536384)*deltah_suc_norm**(+6.396931042)*deltah_inj_norm**(+6.811709684)
+        T_dis=-12328.67021+12410.38063*p_dis_norm**(+0.005848322644)*p_inj_norm**(+0.0008722038865)
+
         self.Tout_r = F2K(T_dis) #[K]
+
         AS.update(CP.PT_INPUTS, self.pout_r, self.Tout_r)
         self.hout_r = AS.hmass() #[J/kg]
         self.sout_r = AS.smass() #[J/kg-K]        
@@ -182,7 +195,7 @@ class VICompressorClass():
         
         AS.update(CP.PSmass_INPUTS, self.pout_r, self.sinj_r)
         h_4s=AS.hmass() #[J/kg]
-                
+        
         #isentropic effeicincy defined by Groll
         self.eta_oi=(mdot*(h_2s-self.hin_r) + mdot_inj*(h_4s-self.hinj_r))/power
         
@@ -196,9 +209,9 @@ class VICompressorClass():
         
 if __name__=='__main__':        
     import numpy as np
-    Tin_dew = 270 #assume 5K superheat
+    Tin_dew = 273.15 #assume 5K superheat
     pin_r = PropsSI('P','T',Tin_dew,'Q',1,'R407C')
-    pout_r = PropsSI('P','T',315,'Q',1,'R407C')
+    pout_r = PropsSI('P','T',333.15,'Q',1,'R407C')
     pinj_r = np.sqrt(pin_r * pout_r)
     Tinj_dew = PropsSI('T','P',pinj_r,'Q',1,'R407C')
     

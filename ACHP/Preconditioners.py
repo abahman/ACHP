@@ -265,11 +265,8 @@ def VICompPreconditioner(Cycle,epsilon=0.96):
         
         Cycle.AS.update(CP.QT_INPUTS,1.0,Tevap)
         pevap=Cycle.AS.p() #[pa]
-        #Cycle.AS.update(CP.QT_INPUTS,0.0,Tcond)
-        #P_l =Cycle.AS.p() #[pa]
         Cycle.AS.update(CP.QT_INPUTS,1.0,Tcond)
         pcond=Cycle.AS.p() #[pa]
-        #pcond= (P_l+P_v)/2.0
         Cycle.AS.update(CP.QT_INPUTS,1.0,Tdew_inj)
         pinj=Cycle.AS.p() #[pa]
         cp_dew=Cycle.AS.cpmass() #[J/kg-K]
@@ -340,42 +337,55 @@ def VICompPreconditioner(Cycle,epsilon=0.96):
             cp_econ = Cycle.AS.cpmass() #[J/kg-K] #assume economizer has 5K more subcooling
             Qcond_enthalpy=Cycle.Compressor.mdot_tot*(Cycle.Compressor.hout_r-h_target)
         
-#         #New analysis for the economizer
-#         cp_c = cp_inj #[J/kg-K] taken at average injection state
-#         cp_h = (cp_cond+cp_econ)/2 #[J/kg-K] average hot side specific heat
-#         Cc = Cycle.Compressor.mdot_inj * cp_c
-#         Ch = Cycle.Compressor.mdot_tot * cp_h
-#         if Ch < Cc: Cmin = Ch
-#         else: Cmin = Cc
-#         #Temperature at the inlet of cold side (two phase)
-#         Ty = (Cc * (Tdew_inj+Cycle.PHEHX.DT_sh_target) - epsilon * Cmin * (Tcond-Cycle.DT_sc_target)) /(Cc - epsilon*Cmin) 
-#         #Enthalpy at the inlet of cold side (two phase), approximated qaulity becasue it should be 2-phase
-#         xy=(Ty-Tbubble_inj)/(Tdew_inj-Tbubble_inj)
-#         if xy <= 0:
-#             xy = 0.00001
-#         elif xy >= 1:
-#             xy = 0.99999
-#         Cycle.AS.update(CP.PQ_INPUTS,pinj,xy)
-#         hy = Cycle.AS.hmass() #[J/kg]
+        #New analysis for the economizer
+        cp_c = cp_inj #[J/kg-K] taken at average injection state
+        cp_h = cp_cond #[J/kg-K] specific heat at the inlet of hot side
+        Cc = Cycle.Compressor.mdot_inj * cp_c
+        Ch = Cycle.Compressor.mdot_tot * cp_h
+        if Ch < Cc: Cmin = Ch
+        else: Cmin = Cc
+        #Temperature at the inlet of cold side (two phase)
+        Ty = (Cc * (Tdew_inj+Cycle.PHEHX.DT_sh_target) - epsilon * Cmin * (Tcond-Cycle.DT_sc_target)) /(Cc - epsilon*Cmin) 
+        #Enthalpy at the inlet of cold side (two phase), approximated qaulity becasue it should be 2-phase
+        xy=(Ty-Tbubble_inj)/(Tdew_inj-Tbubble_inj)
+        if xy <= 0:
+            xy = 0.00001
+        elif xy >= 1:
+            xy = 0.99999
+        Cycle.AS.update(CP.PQ_INPUTS,pinj,xy)
+        hy = Cycle.AS.hmass() #[J/kg]
         #Enthalpy at the inlet of evaporator
         hevap = Cycle.Compressor.hin_r - Qevap/Cycle.Compressor.mdot_r
-#         #Enthalpy at the exit of the hot side (single phase)
-#         hx = (Cycle.Compressor.mdot_r * hevap + Cycle.Compressor.mdot_inj * hy) / Cycle.Compressor.mdot_tot
-#         Q_c = Cycle.Compressor.mdot_inj * (Cycle.Compressor.hinj_r - hy)
-#         Q_h = Cycle.Compressor.mdot_tot * (h_target - hx)
-        Cycle.AS.update(CP.HmassP_INPUTS,hevap,pcond)
-        Tz = Cycle.AS.T()
-        Ty=Tz
-        Tx=Ty
-        Cycle.AS.update(CP.PT_INPUTS,pcond,Tx)
-        hx=Cycle.AS.hmass()
-        hy =(hx*Cycle.Compressor.mdot_tot - hevap*Cycle.Compressor.mdot_r)/Cycle.Compressor.mdot_inj
-#         Cycle.AS.update(CP.HmassP_INPUTS,hy,pinj)
-#         print Cycle.AS.Q()
+        #Enthalpy at the exit of the hot side (single phase)
+        hx = (Cycle.Compressor.mdot_r * hevap + Cycle.Compressor.mdot_inj * hy) / Cycle.Compressor.mdot_tot
         Q_c = Cycle.Compressor.mdot_inj * (Cycle.Compressor.hinj_r - hy)
         Q_h = Cycle.Compressor.mdot_tot * (h_target - hx)
-
-        resids=[Qevap+W+Qcond-Q_h,Qcond+Qcond_enthalpy,Q_c-Q_h]
+#         Cycle.AS.update(CP.HmassP_INPUTS,hevap,pcond)
+#         Tz = Cycle.AS.T()
+#         Tx = Ty = Tz
+#         Cycle.AS.update(CP.PT_INPUTS,pcond,Tx)
+#         hx=Cycle.AS.hmass()
+#         hy =(hx*Cycle.Compressor.mdot_tot - hevap*Cycle.Compressor.mdot_r)/Cycle.Compressor.mdot_inj
+# #         Cycle.AS.update(CP.HmassP_INPUTS,hy,pinj)
+# #         print Cycle.AS.Q()
+#         Q_c = Cycle.Compressor.mdot_inj * (Cycle.Compressor.hinj_r - hy)
+#         Q_h = Cycle.Compressor.mdot_tot * (h_target - hx)
+#         Cycle.AS.update(CP.PQ_INPUTS,pinj,0.5)
+#         hy = Cycle.AS.hmass() #[J/kg]
+#         Cycle.PHEHX.pin_c=pinj
+#         Cycle.PHEHX.pin_h=pcond
+#         Cycle.PHEHX.hin_c=hy
+#         Cycle.PHEHX.hin_h=h_target
+#         Cycle.PHEHX.mdot_c=Cycle.Compressor.mdot_inj
+#         Cycle.PHEHX.mdot_h=Cycle.Compressor.mdot_tot
+#         Cycle.PHEHX.Ref_c=Cycle.Ref
+#         Cycle.PHEHX.Ref_h=Cycle.Ref
+#         Cycle.PHEHX.Backend_c=Cycle.Backend
+#         Cycle.PHEHX.Backend_h=Cycle.Backend
+#         Cycle.PHEHX.Calculate()
+#         Q_econ = Cycle.PHEHX.Q
+        
+        resids=[Qevap+W+Qcond-Q_h,Qcond+Qcond_enthalpy,Q_h-Q_c]#,Cycle.Compressor.mdot_inj*(Cycle.Compressor.hinj_r - Cycle.PHEHX.hout_c)]
 
         return resids
     
@@ -401,4 +411,4 @@ def VICompPreconditioner(Cycle,epsilon=0.96):
     DT_cond=x[1]-Cycle.Condenser.Fins.Air.Tdb
     Tdew_inj=x[2]
 
-    return DT_evap-4, DT_cond+5, Tdew_inj+10
+    return DT_evap-1, DT_cond+5, Tdew_inj+20

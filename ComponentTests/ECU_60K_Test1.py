@@ -583,7 +583,7 @@ def ECUCycle_VIComp():
             'Ref': Cycle.Ref,
             'Backend': Cycle.Backend,
             'Verbosity':0,
-            'DT_sh':16.42, #DeltaF2K()
+            'DT_sh':5,#16.42, #DeltaF2K()
             }
     
     Cycle.Evaporator.Update(**params)
@@ -595,7 +595,9 @@ def ECUCycle_VIComp():
     # ----------------------------------
     params={
             'Ref_c':Cycle.Ref,
+            'Backend_c': Cycle.Backend,
             'Ref_h':Cycle.Ref,
+            'Backend_h': Cycle.Backend,
             'Verbosity':0,
             'DT_sh_target':5,
             

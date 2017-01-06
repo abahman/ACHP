@@ -1345,8 +1345,9 @@ class ECU_VICompCycleClass():
 #             }
 #             self.SightGlassFilterDrierMicroMotion.Update(**params)
 #             self.SightGlassFilterDrierMicroMotion.Calculate()
-            
-            def residual(h_in_PHEHX):
+
+            def residual(x_in_PHEHX):
+                print 'quality at inlet of PHEHX', x_in_PHEHX
                 'function to iterate for hin_c'
 #                 x_in_PHEHX = float(x_in_PHEHX)
 #                 print x_in_PHEHX
@@ -1354,8 +1355,8 @@ class ECU_VICompCycleClass():
 #                     x_in_PHEHX = 0.0001
 #                 elif x_in_PHEHX > 1:
 #                     x_in_PHEHX = 0.9999
-#                 AS.update(CP.PQ_INPUTS,psat_inj,float(x_in_PHEHX))
-#                 h_in_PHEHX = AS.hmass()
+                AS.update(CP.PQ_INPUTS,psat_inj,float(x_in_PHEHX))
+                h_in_PHEHX = AS.hmass()
                 params={
                     'mdot_h': self.Compressor.mdot_tot,
                     'pin_h': psat_cond,
@@ -1364,7 +1365,7 @@ class ECU_VICompCycleClass():
                     'pin_c': psat_inj,
                     'hin_c': float(h_in_PHEHX),
                 }
-                #print params
+                print params
                 self.PHEHX.Update(**params)
                 self.PHEHX.Calculate()
                 
@@ -1374,36 +1375,43 @@ class ECU_VICompCycleClass():
                 resid = self.Compressor.mdot_inj*(self.Compressor.hinj_r - self.PHEHX.hout_c)
                 #DT_sh_PHEHX = self.PHEHX.Tout_c - self.PHEHX.Tdew_c
                 #resid = DT_sh_PHEHX-self.PHEHX.DT_sh_target
-                print resid
+                #print resid
                 return resid
 
             #assume a guess value for 
             #h_guess = hsatL_inj*1.001#(hsatL_inj+hsatV_inj)/2#self.Compressor.hinj_r#*0.85 #[J/kg]
             #Solve for the actual inlet enthalpy to the PHEHX (cold side)
             #h_in_PHEHX_actual = fsolve(residual,h_guess)
-            try:
-                h_in_PHEHX_actual = brentq(residual,1.0001*hsatL_inj,0.99999*self.Condenser.hout_r)
-            except:
-                pass
+#             try:
+#                 h_in_PHEHX_actual = brentq(residual,1.0001*hsatL_inj,0.99999*self.Condenser.hout_r)
+#             except:
+#                 pass
             #x_guess = 0.5
             #x_in_PHEHX_actual= fsolve(residual,x_guess)
-            #x_in_PHEHX_actual = brentq(residual,0.00001,0.99999)
+            try:
+                x_in_PHEHX_actual = brentq(residual,0.001,0.999)
+            except:
+                print 'pass PHEX'
+                pass
             #print x_in_PHEHX_actual
-#             #Solve PHEHX one more time for the actual value of the inlet enthapy (cold side)
+            #Solve PHEHX one more time for the actual value of the inlet enthapy (cold side)
+#             AS.update(CP.PQ_INPUTS,psat_inj,float(x_in_PHEHX_actual))
+#             h_in_PHEHX = AS.hmass()
 #             params={
 #                     'mdot_h': self.Compressor.mdot_tot,
 #                     'pin_h': psat_cond,
 #                     'hin_h': self.Condenser.hout_r,
 #                     'mdot_c': self.Compressor.mdot_inj,
 #                     'pin_c': psat_inj,
-#                     'hin_c': float(h_in_PHEHX_actual),
+#                     'hin_c': h_in_PHEHX,
 #             }
 #             self.PHEHX.Update(**params)
 #             self.PHEHX.Calculate()
             
             #Evaporator inlet enthalpy is from energy balance on the mixing node
             h_evap = (self.Compressor.mdot_tot * self.PHEHX.hout_h - self.Compressor.mdot_inj * self.PHEHX.hin_c)/self.Compressor.mdot_r
-            
+            AS.update(CP.HmassP_INPUTS,h_evap,psat_evap)
+            print 'quality at inlet of evaporator',AS.Q()
             params={
                 'mdot_r': self.Compressor.mdot_r,
                 'psat_r': psat_evap,
