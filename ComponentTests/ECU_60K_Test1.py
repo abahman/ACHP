@@ -5,9 +5,9 @@ Created on Dec 6, 2016
 @author: AmmarBahman
 '''
 
-'''This code is for Direct Expansion in Cooling Mode of ECU 18K'''
+'''This code is for Cooling Mode of ECU 60K'''
 
-from Cycle import ECU_DXCycleClass, ECU_VICompCycleClass
+from Cycle import ECU_DXCycleClass, ECU_VICompCycleClass, ECU_VISemiEmpCompCycleClass
 from convert_units import *
 from ACHPTools import Write2CSV
 import CoolProp
@@ -681,14 +681,247 @@ def ECUCycle_VIComp():
     
     return Cycle
 
+def ECUCycle_VISemiEmpComp():
+    #########################################################################
+    ######################     CYCLE INITIALIZATION    ######################
+    #########################################################################
+    
+    ## Here we load parameters that are not a function of operating conditions
+    ## They are primarily geometric parameters
+
+    #Instantiate the cycle class
+    Cycle=ECU_VISemiEmpCompCycleClass()
+    
+    
+    #--------------------------------------
+    #--------------------------------------
+    #         Cycle parameters
+    #--------------------------------------
+    #--------------------------------------
+    Cycle.Verbosity = 0 #the idea here is to have different levels of debug output 
+    Cycle.ImposedVariable = 'Subcooling' #'Subcooling' # or 'Charge'
+    Cycle.DT_sc_target = 4.9
+    #Cycle.Charge_target = oz2kg(85) #37-44 ounces #kg #uncomment for use with imposed 'Charge'
+    Cycle.Mode='AC'
+    Cycle.Ref='R407C'
+    Cycle.Backend='HEOS' #Backend for refrigerant properties calculation: 'HEOS','TTSE&HEOS','BICUBIC&HEOS','REFPROP','SRK','PR'
+    Cycle.TestName='ECU-60K-VI-SemiEmp'  #this and the two next lines can be used to specify exact test conditions
+    Cycle.TestDescription='Test1'
+    Cycle.TestDetails='This is ECU60K with VISemiEmpComp new system'
+    
+    
+    #--------------------------------------
+    #--------------------------------------
+    #       VI Semi Empricial Compressor parameters
+    #--------------------------------------
+    #--------------------------------------
+    params={
+            'N_comp':3600, #compressor speed [RPM]
+            'Ref':Cycle.Ref,
+            'Backend':Cycle.Backend,
+            'Verbosity': 0, # How verbose should the debugging be [0-10]
+
+            #Optimized Compressor Parameters
+            'VR1':1.400305991,  #volume ratio before injection
+            'VR2':1.431429505, #volume ratio after injection
+            'A_suc':8.99E-05, #main suction port area [m^2]
+            'A_inj':6.57E-06, #injection port area [m^2]
+            'A_dis':1.30E-05, #discharge port area [m^2]
+            'A_leak':4.62E-07, #leakage area [m^2]
+            'V_suc_comp':6.68E-05, #suction volume [m^3]
+            'T_loss':0.616731207, #frictional torque loss [N-m]
+            'eta_m':0.99, # motor efficiency
+        
+            #Extra parameter not included in the original model
+            'fp':0.15, #Fraction of electrical power lost as heat to ambient
+            'Vdot_ratio': 1.0, #Displacement Scale factor
+            }
+    
+    Cycle.Compressor.Update(**params)
+    
+    
+    #--------------------------------------
+    #--------------------------------------
+    #      Condenser parameters
+    #--------------------------------------
+    #--------------------------------------
+    Cycle.Condenser.Fins.Tubes.NTubes=52               #Number of tubes (per bank for now!)
+    Cycle.Condenser.Fins.Tubes.Nbank=2                 #Number of banks (set to 1 for now!)
+    Cycle.Condenser.Fins.Tubes.Npass=2                 #Number of passes (per bank) #averaged if not even
+    Cycle.Condenser.Fins.Tubes.Nports=11               #Number of rectangular ports
+    Cycle.Condenser.Fins.Tubes.Ltube=in2m(21.26)       #length of a single tube
+    Cycle.Condenser.Fins.Tubes.Td=in2m(1)              #Tube outside width (depth)
+    Cycle.Condenser.Fins.Tubes.Ht=in2m(0.072)          #Tube outside height (major diameter)
+    Cycle.Condenser.Fins.Tubes.b=in2m(0.488)           #Tube spacing   
+    Cycle.Condenser.Fins.Tubes.tw=in2m(0.015)          #Tube wall thickness
+    Cycle.Condenser.Fins.Tubes.twp=in2m(0.016)         #Port (channel) wall thickness     
+    Cycle.Condenser.Fins.Tubes.beta=1.7675             #Port (channel) aspect ratio (=width/height)
+    
+    Cycle.Condenser.Fins.Fins.FPI=14                   #Fin per inch
+    Cycle.Condenser.Fins.Fins.Lf=in2m(1)               #Fin length = tube outside width in this HX
+    Cycle.Condenser.Fins.Fins.t=in2m(0.0045)           ##measured## #Fin thickness
+    Cycle.Condenser.Fins.Fins.k_fin=117                #Fin thermal conductivity for pure Aluminum
+        
+    Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(3500)     #Air volume flow rate in m^3/s
+    Cycle.Condenser.Fins.Air.Tdb=F2K(125)               #Air inlet temperature, K
+    Cycle.Condenser.Fins.Air.p=101325                  #Air pressure in Pa
+    Cycle.Condenser.Fins.Air.RH=0.199                 #Air inlet relative humidity
+    Cycle.Condenser.Fins.Air.FanPower=984.5              #Fan power, Watts
+        
+    Cycle.Condenser.Fins.Louvers.Lalpha=25             ##estimated## #Louver angle, in degree
+    Cycle.Condenser.Fins.Louvers.lp=mm2m(1.12)         ##measured## #Louver pitch
+    
+    Cycle.Condenser.Ref=Cycle.Ref
+    Cycle.Condenser.Verbosity=0
+    params={
+            'Ref': Cycle.Ref,
+            'Backend': Cycle.Backend,
+            'Verbosity':0,
+            }
+    Cycle.Condenser.Update(**params)
+    
+    
+    #--------------------------------------
+    #--------------------------------------
+    #     Evaporator Parameters 
+    #--------------------------------------
+    #--------------------------------------
+    Cycle.Evaporator.Fins.Tubes.NTubes_per_bank=18
+    Cycle.Evaporator.Fins.Tubes.Nbank=4
+    Cycle.Evaporator.Fins.Tubes.Ltube=in2m(24.875)
+    Cycle.Evaporator.Fins.Tubes.OD=in2m(0.5)
+    Cycle.Evaporator.Fins.Tubes.ID=Cycle.Evaporator.Fins.Tubes.OD - 2*in2m(0.019)
+    Cycle.Evaporator.Fins.Tubes.Pl=in2m(1.082)
+    Cycle.Evaporator.Fins.Tubes.Pt=in2m(1.25)
+    Cycle.Evaporator.Fins.Tubes.Ncircuits=6
+    
+    Cycle.Evaporator.Fins.Fins.FPI=12
+    Cycle.Evaporator.Fins.Fins.Pd=in2m(1.0/16.0/2)
+    Cycle.Evaporator.Fins.Fins.xf=in2m(1.0/4.0)
+    Cycle.Evaporator.Fins.Fins.t=in2m(0.0075)
+    Cycle.Evaporator.Fins.Fins.k_fin=237
+    
+    Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(1700)          
+    Cycle.Evaporator.Fins.Air.Tdb=F2K(90)
+    Cycle.Evaporator.Fins.Air.p=101325                       #Evaporator Air pressure in Pa
+    Cycle.Evaporator.Fins.Air.RH=0.5023
+    Cycle.Evaporator.Fins.Air.FanPower=750.2
+    
+    Cycle.Evaporator.FinsType = 'WavyLouveredFins'        #WavyLouveredFins, HerringboneFins, PlainFins
+    Cycle.Evaporator.Verbosity=0
+    
+    params={
+            'Ref': Cycle.Ref,
+            'Backend': Cycle.Backend,
+            'Verbosity':0,
+            'DT_sh':5,#16.42, #DeltaF2K()
+            }
+    
+    Cycle.Evaporator.Update(**params)
+    
+    # ----------------------------------
+    # ----------------------------------
+    #       PHEHX Parameters
+    # ----------------------------------
+    # ----------------------------------
+    params={
+            'Ref_c':Cycle.Ref,
+            'Backend_c': Cycle.Backend,
+            'Ref_h':Cycle.Ref,
+            'Backend_h': Cycle.Backend,
+            'Verbosity':0,
+            'DT_sh_target':5,
+            
+            #Geometric parameters
+            'Bp' : in2m(2.875),
+            'Lp' : in2m(18), #Center-to-center distance between ports
+            'Nplates' : 10,
+            'PlateAmplitude' : 0.001, #[m]
+            'PlateThickness' : 0.0003, #[m]
+            'PlateWavelength' : 0.00626, #[m]
+            'InclinationAngle' : 65/180*pi,#[rad]
+            'PlateConductivity' : 15.0, #[W/m-K]
+            'MoreChannels' : 'Hot', #Which stream gets the extra channel, 'Hot' or 'Cold'
+            }
+    Cycle.PHEHX.Update(**params)
+        
+    # ----------------------------------
+    # ----------------------------------
+    #       Line Set Return Parameters (vapor line)
+    # ----------------------------------
+    # ----------------------------------
+#     params={
+#             'L':in2m(85),
+#             'k_tube':0.19,
+#             't_insul':0.02,
+#             'k_insul':0.036,
+#             'T_air':F2K(125),
+#             'Ref': Cycle.Ref,
+#             'h_air':10, #0.0000000001 is changed to 10 assumed for forced air convection
+#             }
+#      
+#     Cycle.LineSetReturn.Update(**params)
+#     Cycle.LineSetReturn.OD=in2m(5.0/8.0)
+#     Cycle.LineSetReturn.ID=in2m(5.0/8.0)-mm2m(2) #wall thickness is 1mm
+
+    # ----------------------------------
+    # ----------------------------------
+    #       Line Set Supply Parameters (liquid line)
+    # ----------------------------------
+    # ----------------------------------
+#     params={
+#             'L':in2m(183),                #tube length in m
+#             'k_tube':0.19,
+#             't_insul':0, #no insulation
+#             'k_insul':0.036,
+#             'T_air':F2K(125),
+#             'Ref': Cycle.Ref,
+#             'h_air':10,#0.0000000001 is changed to 10 assumed for forced air convection
+#             }
+#      
+#     Cycle.LineSetSupply.Update(**params)
+#     Cycle.LineSetSupply.OD=in2m(3.0/8.0)
+#     Cycle.LineSetSupply.ID=in2m(3.0/8.0)-mm2m(2) #wall thickness is 1mm
+    
+    # ----------------------------------
+    # ----------------------------------
+    #       Sight Glass + Filter Drier + MicroMotion Parameters
+    # ----------------------------------
+    # ----------------------------------
+#     params={
+#             'h':in2m(1.370),        #height of sight glass in m
+#             'D':in2m(1.110),        #diameter of sight glass in m
+#             'Ref': Cycle.Ref,
+#             'V': cubin2cubm(30), #volume of filter drier (website = 13.74in^3 calculated) (manual = 16in^3)
+#             'D_Micro': in2m(0.21),  #micromotion tube diameter
+#             'L_Micro': in2m(14.6),  #micormotion tube length
+#             'n_Micro': 2,           #micormotion number of tubes
+#             }
+#      
+#     Cycle.SightGlassFilterDrierMicroMotion.Update(**params)
+#     Cycle.SightGlassFilterDrierMicroMotion.ID=in2m(3.0/8.0)-mm2m(2) #wall thickness is 1mm
+#     
+    
+    #Now solve
+    Cycle.PreconditionedSolve()
+    #Cycle.PreconditionedSolve_new()
+    
+    #Print Cycle outputs
+    for id, unit, value in Cycle.OutputList():
+        print str(id) + ' = ' + str(value) + ' ' + str(unit)
+    
+    return Cycle
+
+
 if __name__=='__main__':
     #cycle=ECUCycle()
     #cycle2=ECUCycle_NewComp()
-    cycle3=ECUCycle_VIComp()
+    #cycle3=ECUCycle_VIComp()
+    cycle4=ECUCycle_VISemiEmpComp()
     import time
     start = time.time()
     #Write the outputs to file
-    Write2CSV(cycle3,open('results/Cycle_60K_Test1_VIcomp.csv','w'),append=False)
+    Write2CSV(cycle4,open('results/Cycle_60K_Test1_VISemiEmpComp.csv','w'),append=False)
     #Write2CSV(cycle2,open('results/Cycle_60K_Test1.csv','a'),append=True)
     #Write2CSV(cycle3,open('results/Cycle_60K_Test1.csv','a'),append=True)
     print 'Took '+str(time.time()-start)+' seconds to run Cycle model'
