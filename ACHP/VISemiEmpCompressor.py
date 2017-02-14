@@ -14,6 +14,7 @@ Basline case assuming homogeneous flow through
 
 @author: Nelson
 """
+from bokeh.charts.builders.area_builder import Area
 
 
 """
@@ -49,41 +50,41 @@ from random import randint, random
 numTol = 1e-6 #numerical tolerance
 
 #--------------------------------------------------------------------------
-def Import(start,end,filename):
-    "import experimental data"
-    
-    [data,rownum] = DataIO.ParameterImport(start,end,filename)
-    
-    i = 0  
-    "initialize arrays"
-    Tamb = float(data[i][0])
-    Tsuc = float(data[i][1])
-    TsucOil = float(data[i][2])
-    Psuc = float(data[i][3])
-    Tex = float(data[i][4])
-    Pex = float(data[i][5])
-    mgas = float(data[i][6])
-    mliq = float(data[i][7])
-    Nexp = float(data[i][8])
-    tau = float(data[i][9])
-    i=i+1
-    
-    while i < (end - start+1):
-        Tamb = np.append(Tamb,float(data[i][0]))
-        Tsuc = np.append(Tsuc,float(data[i][1]))
-        TsucOil = np.append(Tsuc,float(data[i][2]))
-        Psuc = np.append(Psuc,float(data[i][3]))
-        Tex = np.append(Tex,float(data[i][4]))
-        Pex = np.append(Pex,float(data[i][5]))
-        mgas = np.append(mgas,float(data[i][6]))
-        mliq = np.append(mliq,float(data[i][7]))
-        Nexp = np.append(Nexp,float(data[i][8]))
-        tau = np.append(tau,float(data[i][9]))
-#        print "i: ",i
-        i=i+1
-        Data = [Tamb,Tsuc,TsucOil,Psuc,Tex,Pex,mgas,mliq,Nexp,tau]
-    
-    return Data
+# def Import(start,end,filename):
+#     "import experimental data"
+#     
+#     [data,rownum] = DataIO.ParameterImport(start,end,filename)
+#     
+#     i = 0  
+#     "initialize arrays"
+#     Tamb = float(data[i][0])
+#     Tsuc = float(data[i][1])
+#     TsucOil = float(data[i][2])
+#     Psuc = float(data[i][3])
+#     Tex = float(data[i][4])
+#     Pex = float(data[i][5])
+#     mgas = float(data[i][6])
+#     mliq = float(data[i][7])
+#     Nexp = float(data[i][8])
+#     tau = float(data[i][9])
+#     i=i+1
+#     
+#     while i < (end - start+1):
+#         Tamb = np.append(Tamb,float(data[i][0]))
+#         Tsuc = np.append(Tsuc,float(data[i][1]))
+#         TsucOil = np.append(Tsuc,float(data[i][2]))
+#         Psuc = np.append(Psuc,float(data[i][3]))
+#         Tex = np.append(Tex,float(data[i][4]))
+#         Pex = np.append(Pex,float(data[i][5]))
+#         mgas = np.append(mgas,float(data[i][6]))
+#         mliq = np.append(mliq,float(data[i][7]))
+#         Nexp = np.append(Nexp,float(data[i][8]))
+#         tau = np.append(tau,float(data[i][9]))
+# #        print "i: ",i
+#         i=i+1
+#         Data = [Tamb,Tsuc,TsucOil,Psuc,Tex,Pex,mgas,mliq,Nexp,tau]
+#     
+#     return Data
     
     
 
@@ -141,24 +142,24 @@ def h_l(T,P):
 
 
 
-def T_l(h,P):
-    "find the liquid temperature [K] given h and P"
-    #initial guesses, functions fairly linear so guesses not too important
-    T = [300, 400]
-    h_check = h_l(T[0],P)
-    f = [h_check - h] #function to converge
-    
-    i=0 #array index
-    while abs(f[i])> numTol:
-        i=i+1 #update index
-        h_check = h_l(T[i],P)
-        f = np.append(f,h_check - h)
-        T = np.append(T , T[i]-(f[i]*(T[i]-T[i-1]))/(f[i]-f[i-1])) #secant method
-        
-        if i>100:
-            raise Exception("T_l not converging after 100x")
-        
-    return T[i]
+# def T_l(h,P):
+#     "find the liquid temperature [K] given h and P"
+#     #initial guesses, functions fairly linear so guesses not too important
+#     T = [300, 400]
+#     h_check = h_l(T[0],P)
+#     f = [h_check - h] #function to converge
+#     
+#     i=0 #array index
+#     while abs(f[i])> numTol:
+#         i=i+1 #update index
+#         h_check = h_l(T[i],P)
+#         f = np.append(f,h_check - h)
+#         T = np.append(T , T[i]-(f[i]*(T[i]-T[i-1]))/(f[i]-f[i-1])) #secant method
+#         
+#         if i>100:
+#             raise Exception("T_l not converging after 100x")
+#         
+#     return T[i]
     
 
 def P_hv(Ref,h,v):
@@ -189,11 +190,10 @@ def P_hv(Ref,h,v):
     return P[i]
     
 
-
-def vol_l(T):
-    "return specific volume of liq"
-    v = 1.0/rho_l(T)
-    return v
+# def vol_l(T):
+#     "return specific volume of liq"
+#     v = 1.0/rho_l(T)
+#     return v
 
 def vol_g(Ref,T,P):
     "returns the specific volume so inverse of density doesn't need to be manually entered"
@@ -205,122 +205,114 @@ def vol_g(Ref,T,P):
     
 "Mixture Function Calls"
 
+# def T_mix_h(Ref,h,P,y,Tguess):
+#     "find the mixture temperature given its specific enthalpy"
+#     T=[Tguess+5, Tguess-5]
+#     hgas = [PropsSI('H','T',T[0],'P',P,Ref),PropsSI('H','T',T[1],'P',P,Ref)]
+#     
+#     Tgas = PropsSI('T','H',hgas[0],'P',P,Ref)
+#     
+#     h_check = (hgas[0]+ y*h_l(Tgas,P))/(1+y)
+#     f =[h_check - h]
+#     
+#     i=0 #array index
+#     while abs(f[i])> 1e-5: #numTol:
+#         i=i+1 #update index
+# #        if T[i]< Tguess/2: #ride herd
+# #            T[i] = Tguess/2 + random()*(Tguess - Tguess/2)
+# 
+#         Tgas = PropsSI('T','H',hgas[i],'P',P,Ref)
+#         h_check = (hgas[i]+ y*h_l(Tgas,P))/(1+y)
+#         
+#         f = np.append(f,h_check - h)
+#         hgas = np.append(hgas , hgas[i]-(f[i]*(hgas[i]-hgas[i-1]))/(f[i]-f[i-1])) #secant method
+#         
+#         if i>150:
+#             Tgas = T_mix_h_bisect(Ref,h,P,y,Tguess)
+#             break
+#     
+#     return Tgas
 
 
 
-def T_mix_h(Ref,h,P,y,Tguess):
-    "find the mixture temperature given its specific enthalpy"
-    T=[Tguess+5, Tguess-5]
-    hgas = [PropsSI('H','T',T[0],'P',P,Ref),PropsSI('H','T',T[1],'P',P,Ref)]
-    
-    Tgas = PropsSI('T','H',hgas[0],'P',P,Ref)
-    
-    h_check = (hgas[0]+ y*h_l(Tgas,P))/(1+y)
-    f =[h_check - h]
-    
-    i=0 #array index
-    while abs(f[i])> 1e-5: #numTol:
-        i=i+1 #update index
-#        if T[i]< Tguess/2: #ride herd
-#            T[i] = Tguess/2 + random()*(Tguess - Tguess/2)
-
-        Tgas = PropsSI('T','H',hgas[i],'P',P,Ref)
-        h_check = (hgas[i]+ y*h_l(Tgas,P))/(1+y)
-        
-        f = np.append(f,h_check - h)
-        hgas = np.append(hgas , hgas[i]-(f[i]*(hgas[i]-hgas[i-1]))/(f[i]-f[i-1])) #secant method
-        
-        if i>150:
-            Tgas = T_mix_h_bisect(Ref,h,P,y,Tguess)
-            break
-    
-    return Tgas
-
-
-
-  
-    
-
-def T_mix_h_bisect(Ref,h,P,y,Tguess):
-    "find the mixture temperature given its specific enthalpy"
-       
-    THigh = 450
-    TLow = 100       
-    
-    h_high = (PropsSI('H','T',THigh,'P',P,Ref)+ y*h_l(THigh,P))/(1+y)
-    h_low = (PropsSI('H','T',TLow,'P',P,Ref)+ y*h_l(TLow,P))/(1+y) 
-    
-    FHigh = h_high - h
-    FLow = h_low - h
-    
-    if FLow>FHigh:
-        signChange = -1.0
-    else:
-        signChange=1.0
-    
-    FHigh = FHigh*signChange
-    FLow = FLow*signChange
-    
-#    print "Fhigh: ",FHigh
-#    print "FLow: ",FLow
-    
-    NumSections = 0
-    FMid = 10
-    
-    while abs(FMid) > 1e-5:
-        
-        NumSections = NumSections+1
-        TMid = (THigh+TLow)/2.0
-        FMid = (PropsSI('H','T',TMid,'P',P,Ref)+ y*h_l(TMid,P))/(1+y) - h
-        
-        if FMid>0:
-            THigh = TMid
-        else:
-            TLow = TMid
-        
-#        print "Tmid: ",TMid
-        if NumSections>1000:
-#            print "Phigh: ",PHigh
-#            print "Plow: ",PLow
-#            print "PMid: ",PMid
-#            print "Fmid: ",FMid
-            raise Exception("T_mix_h converging after 100x")
-    
-    T2 = TMid    
-
-
-    return T2
+# def T_mix_h_bisect(Ref,h,P,y,Tguess):
+#     "find the mixture temperature given its specific enthalpy"
+#        
+#     THigh = 450
+#     TLow = 100       
+#     
+#     h_high = (PropsSI('H','T',THigh,'P',P,Ref)+ y*h_l(THigh,P))/(1+y)
+#     h_low = (PropsSI('H','T',TLow,'P',P,Ref)+ y*h_l(TLow,P))/(1+y) 
+#     
+#     FHigh = h_high - h
+#     FLow = h_low - h
+#     
+#     if FLow>FHigh:
+#         signChange = -1.0
+#     else:
+#         signChange=1.0
+#     
+#     FHigh = FHigh*signChange
+#     FLow = FLow*signChange
+#     
+# #    print "Fhigh: ",FHigh
+# #    print "FLow: ",FLow
+#     
+#     NumSections = 0
+#     FMid = 10
+#     
+#     while abs(FMid) > 1e-5:
+#         
+#         NumSections = NumSections+1
+#         TMid = (THigh+TLow)/2.0
+#         FMid = (PropsSI('H','T',TMid,'P',P,Ref)+ y*h_l(TMid,P))/(1+y) - h
+#         
+#         if FMid>0:
+#             THigh = TMid
+#         else:
+#             TLow = TMid
+#         
+# #        print "Tmid: ",TMid
+#         if NumSections>1000:
+# #            print "Phigh: ",PHigh
+# #            print "Plow: ",PLow
+# #            print "PMid: ",PMid
+# #            print "Fmid: ",FMid
+#             raise Exception("T_mix_h converging after 100x")
+#     
+#     T2 = TMid    
+#     return T2
 
 
 
-def T_mix_s(Ref,s,P,y,Tguess):
-    "find the mixture temperature given its specific enthalpy"
-    T=[Tguess+5, Tguess-5]
-    sgas = [PropsSI('S','T',T[0],'P',P,Ref),PropsSI('S','T',T[1],'P',P,Ref)]
-    
-    Tgas = PropsSI('T','S',sgas[0],'P',P,Ref)
-    
-    s_check = (sgas[0]+ y*s_l(Tgas))/(1+y)
-    f =[s_check - s]
-    
-    i=0 #array index
-    while abs(f[i])> 1e-5: #numTol:
-        i=i+1 #update index
-#        if T[i]< Tguess/2: #ride herd
-#            T[i] = Tguess/2 + random()*(Tguess - Tguess/2)
-
-        Tgas = PropsSI('T','S',sgas[i],'P',P,Ref)
-        s_check = (sgas[i]+ y*s_l(Tgas))/(1+y)
-        
-        f = np.append(f,s_check - s)
-        sgas = np.append(sgas , sgas[i]-(f[i]*(sgas[i]-sgas[i-1]))/(f[i]-f[i-1])) #secant method
-        
-        if i>150:
-            raise Exception("T_mix_s not converging after 100x")
-#            Tgas = T_mix_h_bisect(Ref,h,P,y,Tguess)
-#            break
-    
-    return Tgas
+# def T_mix_s(Ref,s,P,y,Tguess):
+#     "find the mixture temperature given its specific enthalpy"
+#     T=[Tguess+5, Tguess-5]
+#     sgas = [PropsSI('S','T',T[0],'P',P,Ref),PropsSI('S','T',T[1],'P',P,Ref)]
+#     
+#     Tgas = PropsSI('T','S',sgas[0],'P',P,Ref)
+#     
+#     s_check = (sgas[0]+ y*s_l(Tgas))/(1+y)
+#     f =[s_check - s]
+#     
+#     i=0 #array index
+#     while abs(f[i])> 1e-5: #numTol:
+#         i=i+1 #update index
+# #        if T[i]< Tguess/2: #ride herd
+# #            T[i] = Tguess/2 + random()*(Tguess - Tguess/2)
+# 
+#         Tgas = PropsSI('T','S',sgas[i],'P',P,Ref)
+#         s_check = (sgas[i]+ y*s_l(Tgas))/(1+y)
+#         
+#         f = np.append(f,s_check - s)
+#         sgas = np.append(sgas , sgas[i]-(f[i]*(sgas[i]-sgas[i-1]))/(f[i]-f[i-1])) #secant method
+#         
+#         if i>150:
+#             raise Exception("T_mix_s not converging after 100x")
+# #            Tgas = T_mix_h_bisect(Ref,h,P,y,Tguess)
+# #            break
+#     
+#     return Tgas
 
 
     
@@ -333,430 +325,226 @@ def gamma_mix(Ref,T,P,y):
 
 
 "Ian Helper Functions"
-def cK_e(vl,vg,x,psi):
+# def cK_e(vl,vg,x,psi):
+#     
+#     K_e = psi+(1.0-psi)*math.sqrt(( vg / vl + psi*(1.0 -x)/x) /(1.0+ psi*(1.0 -x)/x));
+#     
+#     return K_e
     
-    K_e = psi+(1.0-psi)*math.sqrt(( vg / vl + psi*(1.0 -x)/x) /(1.0+ psi*(1.0 -x)/x));
     
-    return K_e
+# def cV_e(vl,vg,Ke,x,psi):
+#     
+#     Kc =1.0/( psi +((1.0 - psi) *(1.0 -psi))/( Ke -psi));
+#     ve =(x* vg + Ke *(1.0 -x)* vl )*(x +(1.0 - x)/Kc);
+#     
+#     return ve
     
-    
-def cV_e(vl,vg,Ke,x,psi):
-    
-    Kc =1.0/( psi +((1.0 - psi) *(1.0 -psi))/( Ke -psi));
-    ve =(x* vg + Ke *(1.0 -x)* vl )*(x +(1.0 - x)/Kc);
-    
-    return ve
-    
-def dvdP_m(Ref,T,P,xL):
-    
-    delta =0.001;
-    
-    return (1.0/ rho_m (Ref,T,P+delta ,xL) -1.0/ rho_m(Ref,T,P,xL))/ delta
+# def dvdP_m(Ref,T,P,xL):
+#     
+#     delta =0.001;
+#     
+#     return (1.0/ rho_m (Ref,T,P+delta ,xL) -1.0/ rho_m(Ref,T,P,xL))/ delta
 
     
-def rho_m(Ref,T,P,xL):
-    if (xL ==0):
-        return 1.0/vol_g(Ref,T,P)
-    if (xL ==1):        
-        return rho_l(T);
-    vG =vol_g (Ref,T,P);
-    vL =1.0/rho_l(T);
-    x=1- xL;
-    rhom =1.0/(vG*x+vL*(1 -x))
-    
-    return rhom
+# def rho_m(Ref,T,P,xL):
+#     if (xL ==0):
+#         return 1.0/vol_g(Ref,T,P)
+#     if (xL ==1):        
+#         return rho_l(T);
+#     vG =vol_g (Ref,T,P);
+#     vL =1.0/rho_l(T);
+#     x=1- xL;
+#     rhom =1.0/(vG*x+vL*(1 -x))
+#     
+#     return rhom
 
 #======================================================================   
 
 "Selected Modelling steps in functions for overall clarity"
 
-
-
-
-def Chisholm_leak(Ref,Area,P1,P2,T1,y):
-    psi = 0.4 #recommended by chisholm?
-    x = 1.0/(1.0+y)
-    N = 20 #Ian used 20 divisions
-    sigma = 0 #nozzle area ratio, taken as zero in Ian's thesis
-    Cd = 0.77
+# def Chisholm_leak(Ref,Area,P1,P2,T1,y):
+#     psi = 0.4 #recommended by chisholm?
+#     x = 1.0/(1.0+y)
+#     N = 20 #Ian used 20 divisions
+#     sigma = 0 #nozzle area ratio, taken as zero in Ian's thesis
+#     Cd = 0.77
+#     
+#     I=0
+#     gamma = gamma_mix(Ref,T1,P1,0) #Ref only in Ian's
+#     T=T1
+#     dP = (P1 - P2)/N
+#     P = P1
+#     vl = vol_l(T)
+#     vg = vol_g(Ref,T,P)
+#     vg0 = vg
+#     xg = x
+#     Ke = cK_e(vl,vg,xg,psi)
+#     ve1 = cV_e(vl,vg,Ke,xg,psi)
+#     ve_high = ve1
+#     
+#     gamma_mixture = gamma_mix(Ref,T1,P1,y)
+#     P_Crit = P1*pow((2/(gamma_mixture+1)),(gamma_mixture/(gamma_mixture-1)))
+#     
+#     for kk in xrange(1,N):
+#         P = P - dP  #kPa
+#         vg = vol_g(Ref,T,P)
+#         Ke = cK_e(vl,vg,xg,psi)
+#         ve2 = cV_e(vl,vg,Ke,xg,psi)
+#         dI = dP/2.0 * (ve1 + ve2)
+#         I = I + dI
+#         ve1 = ve2
+#         
+#         if P < P_Crit:
+#             break
+# 
+#     "Two phase discharge coefficient from Morris"        
+#     beta = math.sqrt(sigma)
+#     ve_thr = ve2
+#     G_thr = math.sqrt (2.0* I/( pow ( ve_thr ,2.0) -pow (beta ,4.0) * pow (ve1 ,2.0) ) )
+#     
+# #    "two phase choking"  
+# #    G_max = math.sqrt ( -1000.0/( xg* dvdP_m(Ref,T,P2 ,0) +(1 - xg)* dvdP_m (Ref,T,P2,1) ))
+# #    M= G_thr*math.sqrt((-xg* dvdP_m(Ref,T,P2,0) -(1-xg)*dvdP_m (Ref,T,P2 ,1)) /1000.0)
+# #    
+# #    if (M >1):
+# #        G_thr = G_max 
+#     
+#     T2 = T1
+#     mdot = Cd*G_thr *Area
+# #    Ma=M
+#     
+#     return mdot
     
-    I=0
-    gamma = gamma_mix(Ref,T1,P1,0) #Ref only in Ian's
-    T=T1
-    dP = (P1 - P2)/N
-    P = P1
-    vl = vol_l(T)
-    vg = vol_g(Ref,T,P)
-    vg0 = vg
-    xg = x
-    Ke = cK_e(vl,vg,xg,psi)
-    ve1 = cV_e(vl,vg,Ke,xg,psi)
-    ve_high = ve1
     
-    gamma_mixture = gamma_mix(Ref,T1,P1,y)
-    P_Crit = P1*pow((2/(gamma_mixture+1)),(gamma_mixture/(gamma_mixture-1)))
-    
-    for kk in xrange(1,N):
-        P = P - dP  #kPa
-        vg = vol_g(Ref,T,P)
-        Ke = cK_e(vl,vg,xg,psi)
-        ve2 = cV_e(vl,vg,Ke,xg,psi)
-        dI = dP/2.0 * (ve1 + ve2)
-        I = I + dI
-        ve1 = ve2
-        
-        if P < P_Crit:
-            break
 
-    "Two phase discharge coefficient from Morris"        
-    beta = math.sqrt(sigma)
-    ve_thr = ve2
-    G_thr = math.sqrt (2.0* I/( pow ( ve_thr ,2.0) -pow (beta ,4.0) * pow (ve1 ,2.0) ) )
+# def Chisholm_suc(Ref,Area,mg,ml,P1,T1):
+#     
+#     psi = 0.4 #recommended by chisholm?
+#     x = mg/(ml+mg)
+#     y = ml/mg
+#     mDot = mg+ml
+#     Cd = 0.77
+#     sigma=0
+#     
+#     gamma = gamma_mix(Ref,T1,P1,y)
+#     P_Crit = P1*pow((2/(gamma+1)),(gamma/(gamma-1)))  #serve as bound on itntegration
+#     dP = 2 #pressure step [kPa]
+#     
+#     "inlet conditions"
+#     s1 = (PropsSI('S','T',T1,'P',P1,Ref)+y*s_l(T1))/(1+y)
+#     h1 = (PropsSI('H','T',T1,'P',P1,Ref)+y*h_l(T1,P1))/(1+y)
+#     
+#     I=0
+#     mChis = 0
+#     
+#     gamma = gamma_mix(Ref,T1,P1,0) #Ref only in Ian's
+#     T=T1
+#     P = P1
+#     vl = vol_l(T)
+#     vg = vol_g(Ref,T,P)
+#     vg0 = vg
+#     xg = x
+#     Ke = cK_e(vl,vg,xg,psi)
+#     ve1 = cV_e(vl,vg,Ke,xg,psi)
+#     ve_high = ve1
+# 
+#     P2 = P1
+# 
+#     
+#     while mChis < mDot and P2 > P_Crit:
+#         P2 = P2-dP
+#         
+#         
+#         T2 = T1#T_mix_s(Ref,s1,P2,y,T1) #isentropic.
+#         
+#         vg = vol_g(Ref,T2,P2)
+#         Ke = cK_e(vl,vg,xg,psi)
+#         ve2 = cV_e(vl,vg,Ke,xg,psi)
+#         dI = dP/2.0 * (ve1 + ve2)
+#         I = I + dI       
+#         ve1 = ve2
+#         
+#         beta = math.sqrt(sigma)
+#         ve_thr = ve2
+#         G_thr = math.sqrt (2.0* I/( pow ( ve_thr ,2.0) -pow (beta ,4.0) * pow (ve1 ,2.0) ) )
+#         mChis = Cd*G_thr *Area
+#         
+#         
+#     if P2<P_Crit:
+#         raise Exception("Chisholm choke")
+#         
+#     T2 = T_mix_h(Ref,h1,P2,y,T1) #isobaric diffuser
+#         
+#     
+#     return [P2,T2]  
     
-#    "two phase choking"  
-#    G_max = math.sqrt ( -1000.0/( xg* dvdP_m(Ref,T,P2 ,0) +(1 - xg)* dvdP_m (Ref,T,P2,1) ))
-#    M= G_thr*math.sqrt((-xg* dvdP_m(Ref,T,P2,0) -(1-xg)*dvdP_m (Ref,T,P2 ,1)) /1000.0)
+    
+# def Chisholm_ex(Ref,Area,mg,ml,P2,T2):
+#     
+#     psi = 0.4 #recommended by chisholm?
+#     x = mg/(ml+mg)
+#     y = ml/mg
+#     mDot = mg+ml
+#     Cd = 0.77
+#     sigma=0
+#     
+#     gamma = gamma_mix(Ref,T2,P2,y)
+# 
+#     dP = 2 #pressure step [kPa]
+#     
+# #    "inlet conditions"
+# #    s2 = (PropsSI('S','T',T2,'P',P2,Ref)+y*s_l(T2))/(1+y)
+# #    h2 = (PropsSI('H','T',T2,'P',P2,Ref)+y*h_l(T2,P2))/(1+y)
 #    
-#    if (M >1):
-#        G_thr = G_max 
-    
-    T2 = T1
-    mdot = Cd*G_thr *Area
-#    Ma=M
-    
-    return mdot
+#     
+#     I=0
+#     mChis = 0
+#     
+#     gamma = gamma_mix(Ref,T2,P2,0) #Ref only in Ian's
+#     
+#     T=T2
+#     P = P2
+#     vl = vol_l(T)
+#     vg = vol_g(Ref,T,P)
+#     vg0 = vg
+#     xg = x
+#     Ke = cK_e(vl,vg,xg,psi)
+#     ve2 = cV_e(vl,vg,Ke,xg,psi)
+# #    ve_high = ve1
+# 
+#     P1 = P2
+#     
+# 
+#     while mChis < mDot:
+#         P1 = P1 + dP
+#         
+#         T1 = T2
+#         
+#         vg = vol_g(Ref,T1,P1)
+#         Ke = cK_e(vl,vg,xg,psi)
+#         ve1 = cV_e(vl,vg,Ke,xg,psi)
+#         dI = dP/2.0 * (ve1 + ve2)
+#         I = I + dI       
+#         ve2 = ve1
+#         
+#         beta = math.sqrt(sigma)
+#         ve_thr = ve2
+#         G_thr = math.sqrt (2.0* I/( pow ( ve_thr ,2.0) -pow (beta ,4.0) * pow (ve1 ,2.0) ))
+#         mChis = Cd*G_thr *Area
+#         
+#         
+#     if P1*pow((2/(gamma+1)),(gamma/(gamma-1))) > P2:
+#         raise Exception("Chisholm choke")        
+#         
+# 
+#     
+#     return [P1,T1]    
 
-
-
-def leakage(Ref,T_preleak,P_preleak,P_postleak,A_leak):
-    
-    y_star = 0
-    gamma_leak = gamma_mix(Ref,T_preleak,P_preleak,y_star)
-    P_leak_crit = P_preleak*pow((2.0/(gamma_leak+1)),gamma_leak/(gamma_leak-1))
-    P_leak_thr = max(P_postleak,P_leak_crit) #choke flow in leakage
-    s_preleak = (PropsSI('S','T',T_preleak,'P',P_preleak,Ref)+y_star*s_l(T_preleak))/(1+y_star)
-    h_preleak = (PropsSI('H','T',T_preleak,'P',P_preleak,Ref)+y_star*h_l(T_preleak,P_preleak))/(1+y_star)
-    v_leak_thr = 1.0/PropsSI('D','S',s_preleak,'P',P_leak_thr,Ref)
-    h_leak_thr = PropsSI('H','S',s_preleak,'P',P_leak_thr,Ref)
-    vel_leak_thr = math.sqrt(2.0*(h_preleak - h_leak_thr)) #J/kg
-    m_leak = 1.0/v_leak_thr*vel_leak_thr*A_leak
-    
-    return m_leak
-    
-    
-
-def Chisholm_suc(Ref,Area,mg,ml,P1,T1):
-    
-    psi = 0.4 #recommended by chisholm?
-    x = mg/(ml+mg)
-    y = ml/mg
-    mDot = mg+ml
-    Cd = 0.77
-    sigma=0
-    
-    gamma = gamma_mix(Ref,T1,P1,y)
-    P_Crit = P1*pow((2/(gamma+1)),(gamma/(gamma-1)))  #serve as bound on itntegration
-    dP = 2 #pressure step [kPa]
-    
-    "inlet conditions"
-    s1 = (PropsSI('S','T',T1,'P',P1,Ref)+y*s_l(T1))/(1+y)
-    h1 = (PropsSI('H','T',T1,'P',P1,Ref)+y*h_l(T1,P1))/(1+y)
-    
-    I=0
-    mChis = 0
-    
-    gamma = gamma_mix(Ref,T1,P1,0) #Ref only in Ian's
-    T=T1
-    P = P1
-    vl = vol_l(T)
-    vg = vol_g(Ref,T,P)
-    vg0 = vg
-    xg = x
-    Ke = cK_e(vl,vg,xg,psi)
-    ve1 = cV_e(vl,vg,Ke,xg,psi)
-    ve_high = ve1
-
-    P2 = P1
-
-    
-    while mChis < mDot and P2 > P_Crit:
-        P2 = P2-dP
-        
-        
-        T2 = T1#T_mix_s(Ref,s1,P2,y,T1) #isentropic.
-        
-        vg = vol_g(Ref,T2,P2)
-        Ke = cK_e(vl,vg,xg,psi)
-        ve2 = cV_e(vl,vg,Ke,xg,psi)
-        dI = dP/2.0 * (ve1 + ve2)
-        I = I + dI       
-        ve1 = ve2
-        
-        beta = math.sqrt(sigma)
-        ve_thr = ve2
-        G_thr = math.sqrt (2.0* I/( pow ( ve_thr ,2.0) -pow (beta ,4.0) * pow (ve1 ,2.0) ) )
-        mChis = Cd*G_thr *Area
-        
-        
-    if P2<P_Crit:
-        raise Exception("Chisholm choke")
-        
-    T2 = T_mix_h(Ref,h1,P2,y,T1) #isobaric diffuser
-        
-    
-    return [P2,T2]  
-    
-    
-def Chisholm_ex(Ref,Area,mg,ml,P2,T2):
-    
-    psi = 0.4 #recommended by chisholm?
-    x = mg/(ml+mg)
-    y = ml/mg
-    mDot = mg+ml
-    Cd = 0.77
-    sigma=0
-    
-    gamma = gamma_mix(Ref,T2,P2,y)
-
-    dP = 2 #pressure step [kPa]
-    
-#    "inlet conditions"
-#    s2 = (PropsSI('S','T',T2,'P',P2,Ref)+y*s_l(T2))/(1+y)
-#    h2 = (PropsSI('H','T',T2,'P',P2,Ref)+y*h_l(T2,P2))/(1+y)
-   
-    
-    I=0
-    mChis = 0
-    
-    gamma = gamma_mix(Ref,T2,P2,0) #Ref only in Ian's
-    
-    T=T2
-    P = P2
-    vl = vol_l(T)
-    vg = vol_g(Ref,T,P)
-    vg0 = vg
-    xg = x
-    Ke = cK_e(vl,vg,xg,psi)
-    ve2 = cV_e(vl,vg,Ke,xg,psi)
-#    ve_high = ve1
-
-    P1 = P2
-    
-
-    while mChis < mDot:
-        P1 = P1 + dP
-        
-        T1 = T2
-        
-        vg = vol_g(Ref,T1,P1)
-        Ke = cK_e(vl,vg,xg,psi)
-        ve1 = cV_e(vl,vg,Ke,xg,psi)
-        dI = dP/2.0 * (ve1 + ve2)
-        I = I + dI       
-        ve2 = ve1
-        
-        beta = math.sqrt(sigma)
-        ve_thr = ve2
-        G_thr = math.sqrt (2.0* I/( pow ( ve_thr ,2.0) -pow (beta ,4.0) * pow (ve1 ,2.0) ))
-        mChis = Cd*G_thr *Area
-        
-        
-    if P1*pow((2/(gamma+1)),(gamma/(gamma-1))) > P2:
-        raise Exception("Chisholm choke")        
-        
-
-    
-    return [P1,T1]    
-
-
-
-
-
-
-
-def SuctionNozzle(Ref,Area,mg,P1,T1,h1,s1):
-    
-    
-    y = 0
-
-    
-    gamma = gamma_mix(Ref,T1,P1,y)
-    P_Crit = P1*pow((2/(gamma+1)),(gamma/(gamma-1)))  #serve as bound on iterations
-    
-    
-    
-    PHigh = P1-1
-    PLow = P_Crit
-    
-    FHigh = Suction_helper(Ref,h1,s1,T1,PHigh,Area,mg)
-    FLow = Suction_helper(Ref,h1,s1,T1,PLow,Area,mg)  
-   
-    if FLow>FHigh:
-        signChange = -1.0
-    else:
-        signChange = 1.0
-    
-    FHigh = FHigh*signChange
-    FLow = FLow*signChange
-    
-#    print "Fhigh: ",FHigh
-#    print "FLow: ",FLow
-    
-    NumSections = 0
-    FMid = 10
-    
-    while abs(FMid) > numTol:
-       
-        NumSections = NumSections+1
-        PMid = (PHigh+PLow)/2.0
-        FMid = signChange*Suction_helper(Ref,h1,s1,T1,PMid,Area,mg) 
-        
-        if FMid>0:
-            PHigh = PMid
-        else:
-            PLow = PMid
-        
-        
-        if NumSections>100:
-#            print "Phigh: ",PHigh
-#            print "Plow: ",PLow
-#            print "PMid: ",PMid
-#            print "Fmid: ",FMid
-            raise Exception("Nozzle not converging after 100x")
-    
-    P2 = PMid    
-    
-    "recover static enthalpy in isobaric diffuser"
-    T2 = PropsSI('T','H',h1,'P',P2,Ref)#T_mix_h(Ref,h1,P2,y,T1)
-#    print "Pnoz numSecs: ",NumSections
-    
-    return [T2,P2]
-    
-    
-def Suction_helper(Ref,h1,s1,T1,P2,Area,mg):
-    
-    T2 = PropsSI('T','S',s1,'P',P2,Ref)#T_mix_s(Ref,s1,P2,y,T1) #isentropic nozzle
-    h2 = PropsSI('H','S',s1,'P',P2,Ref)
-    v2 = 1.0/(PropsSI('D','H',h2,'P',P2,Ref))#(vol_g(Ref,T2,P2) +y*vol_l(T2))/(1+y)
-    vel2 = (mg)/(Area/v2)
-    KE2 = 0.5*vel2**2.0
-    Ebal = h1 - (h2 + KE2)        
-    
-    return Ebal  
-
-
-
-
-def IsentropicCompression(Ref,s1,T1,P1,v2,v_ratio,P_ex):
-    "Perform isentropic compression along the volume ratio of the machine"
-    "Assume oil and Ref not perfectly mixed immediately after injection but mixed after compression"
-    
-    
-    y=0
-#    s1 = (PropsSI('S','T',T1,'P',P1,Ref)+y*s_l(T1_oil))/(1+y)
-    
-    "guess outlet pressure"
-    P= [P1*v_ratio,0.95*P1*v_ratio]
-    
-    i=0 #secant array index for pressure
-    f = [10.0000] #initialize convergence function (unlikely to be a naturally occuring soln)
-            
-    while abs(f[i]) > numTol:        
-        if f[i] != 10.0000: #only increase index after 1st iteration
-            i=i+1
-        
-        "ride herd on Pressure"
-        if P[i] < P1:
-            P[i] = P_ex - random()*(P1-P_ex)
-#        if P[i] < P1/(v_ratio*2.0):
-#            P[i] = P_ex + random()*(P1-P_ex)
-        
-        "guess outlet temperature"
-        if y > 1:
-            T = [T1+5,T1+15]
-        else:
-            T= [T1+20,T1+40]
-        
-        j = 0 #secant array index for temperature
-        g = [10.0000] #initialize convergence function (unlikely to be a naturally occuring soln)
-        
-        
-        
-        T_s = PropsSI('T','S',s1,'P',P[i],Ref)    
-        
-        "Mass (volume) Balance"
-        v_out = 1.0/PropsSI('D','S',s1,'P',P[i],Ref)
-        Mbal = v2 - v_out
-        
-        if i > 0:
-            f = np.append(f, Mbal)              
-            P = np.append(P, P[i] - (f[i]*(P[i]-P[i-1]))/(f[i]-f[i-1]))            
-        else:                    
-            f = [Mbal]         
-        if i>50:  
-#            print "Mbal: isenExp: ",Mbal                                 
-#            raise Exception("IsenExp-P not converging after 50x")
-            break
-            
-    P = P[i]
-    T = T_s
-#    print "P: ",P
-#    print "T: ",T
-
-    return [T,P]
-    
-
-
-
-def ExhaustNozzle(Ref,Area,mg,P2,T2,pin_r):
-
-    
-    "Calculate Nozzle inlet pressure"
-    h2 = PropsSI('H','T',T2,'P',P2,Ref)
-    s2 = PropsSI('S','T',T2,'P',P2,Ref)
-    v2 = vol_g(Ref,T2,P2)
-    vel2 = (mg)/(Area/v2)
-    KE = 0.5*vel2**2
-    h1 = h2 + KE
-    s1=s2
-    
-    P1 = [P2+10000,P2+50000]  #guess nozzle inlet pressure"
-    
-    j=0
-    g=[10.0000]
-    
-    while abs(g[j])> numTol:
-        if g[j] != 10.0000: #only increase index after 1st iteration
-            j=j+1   
-        
-        "ride herd on Pressure"
-        if P1[j]>10000000:
-            P1[j] = pin_r + 100*random()
-        if P1[j] < 100000:
-            P1[j] = pin_r + 100*random()
-            
-        h1_check = PropsSI('H','S',s1,'P',P1[j],Ref)
-        Ebal = h1 - h1_check
-        
-        if j > 0:
-            g = np.append(g, Ebal)              
-            P1 = np.append(P1, P1[j] - (g[j]*(P1[j]-P1[j-1]))/(g[j]-g[j-1]))            
-        else:                    
-            g = [Ebal]         
-        if j>30:    
-#            print "Ebal: ", Ebal
-#            print "P: ",P1
-            raise Exception("Exhaust Nozzle P not converging after 30x") 
-    
-    T1 = PropsSI('T','P',P1[j],'S',s1,Ref) #isentropic nozzle
-        
-        
-    return [T1,P1[j]]
 
 
 class VISemiEmpCompressorClass():
     """
-    Compressor Model based on 10-coefficient Model from `ANSI/AHRI standard 540 <http://www.ahrinet.org/App_Content/ahri/files/standards%20pdfs/ANSI%20standards%20pdfs/ANSI-ARI-540-2004%20latest.pdf>`_
+    Semi-empirical Vapor Injection Compressor model
     
     Required Parameters:
         
@@ -822,9 +610,193 @@ class VISemiEmpCompressorClass():
         ]
 
     
+    # Functions ==============================================================
+    
+    
+    def leakage(self,T_preleak,P_preleak,P_postleak,A_leak):
+    
+        y_star = 0
+        gamma_leak = gamma_mix(self.Ref,T_preleak,P_preleak,y_star)
+        P_leak_crit = P_preleak*pow((2.0/(gamma_leak+1)),gamma_leak/(gamma_leak-1))
+        P_leak_thr = max(P_postleak,P_leak_crit) #choke flow in leakage
+        s_preleak = (PropsSI('S','T',T_preleak,'P',P_preleak,self.Ref)+y_star*s_l(T_preleak))/(1+y_star)
+        h_preleak = (PropsSI('H','T',T_preleak,'P',P_preleak,self.Ref)+y_star*h_l(T_preleak,P_preleak))/(1+y_star)
+        v_leak_thr = 1.0/PropsSI('D','S',s_preleak,'P',P_leak_thr,self.Ref)
+        h_leak_thr = PropsSI('H','S',s_preleak,'P',P_leak_thr,self.Ref)
+        vel_leak_thr = math.sqrt(2.0*(h_preleak - h_leak_thr)) #J/kg
+        m_leak = 1.0/v_leak_thr*vel_leak_thr*A_leak    
+        return m_leak
+    
+    def Suction_helper(self,h1,s1,T1,P2,Area,mg):
+        
+        T2 = PropsSI('T','S',s1,'P',P2,self.Ref)#T_mix_s(Ref,s1,P2,y,T1) #isentropic nozzle
+        h2 = PropsSI('H','S',s1,'P',P2,self.Ref)
+        v2 = 1.0/(PropsSI('D','H',h2,'P',P2,self.Ref))#(vol_g(Ref,T2,P2) +y*vol_l(T2))/(1+y)
+        vel2 = (mg)/(Area/v2)
+        KE2 = 0.5*vel2**2.0
+        Ebal = h1 - (h2 + KE2)        
+        return Ebal  
+
+    def SuctionNozzle(self,Area,mg,P1,T1,h1,s1):
+    
+        y = 0
+        gamma = gamma_mix(self.Ref,T1,P1,y)
+        P_Crit = P1*pow((2/(gamma+1)),(gamma/(gamma-1)))  #serve as bound on iterations
+        
+        PHigh = P1-1
+        PLow = P_Crit
+        
+        FHigh = self.Suction_helper(h1,s1,T1,PHigh,Area,mg)
+        FLow = self.Suction_helper(h1,s1,T1,PLow,Area,mg)  
+       
+        if FLow>FHigh:
+            signChange = -1.0
+        else:
+            signChange = 1.0
+        
+        FHigh = FHigh*signChange
+        FLow = FLow*signChange
+        
+    #    print "Fhigh: ",FHigh
+    #    print "FLow: ",FLow
+        
+        NumSections = 0
+        FMid = 10
+        
+        while abs(FMid) > numTol:
+           
+            NumSections = NumSections+1
+            PMid = (PHigh+PLow)/2.0
+            FMid = signChange*self.Suction_helper(h1,s1,T1,PMid,Area,mg) 
+            
+            if FMid>0:
+                PHigh = PMid
+            else:
+                PLow = PMid
+            
+            if NumSections>100:
+    #            print "Phigh: ",PHigh
+    #            print "Plow: ",PLow
+    #            print "PMid: ",PMid
+    #            print "Fmid: ",FMid
+                raise Exception("Nozzle not converging after 100x")
+        
+        P2 = PMid    
+        
+        "recover static enthalpy in isobaric diffuser"
+        T2 = PropsSI('T','H',h1,'P',P2,self.Ref)#T_mix_h(Ref,h1,P2,y,T1)
+    #    print "Pnoz numSecs: ",NumSections
+        
+        return [T2,P2]
+
+    def IsentropicCompression(self,s1,T1,P1,v2,v_ratio,P_ex):
+        "Perform isentropic compression along the volume ratio of the machine"
+        "Assume oil and Ref not perfectly mixed immediately after injection but mixed after compression"
+        
+        
+        y=0
+    #    s1 = (PropsSI('S','T',T1,'P',P1,Ref)+y*s_l(T1_oil))/(1+y)
+        
+        "guess outlet pressure"
+        P= [P1*v_ratio,0.95*P1*v_ratio]
+        
+        i=0 #secant array index for pressure
+        f = [10.0000] #initialize convergence function (unlikely to be a naturally occuring soln)
+                
+        while abs(f[i]) > numTol:        
+            if f[i] != 10.0000: #only increase index after 1st iteration
+                i=i+1
+            
+            "ride herd on Pressure"
+            if P[i] < P1:
+                P[i] = P_ex - random()*(P1-P_ex)
+    #        if P[i] < P1/(v_ratio*2.0):
+    #            P[i] = P_ex + random()*(P1-P_ex)
+            
+            "guess outlet temperature"
+            if y > 1:
+                T = [T1+5,T1+15]
+            else:
+                T= [T1+20,T1+40]
+            
+            j = 0 #secant array index for temperature
+            g = [10.0000] #initialize convergence function (unlikely to be a naturally occuring soln)
+            
+            
+            
+            T_s = PropsSI('T','S',s1,'P',P[i],self.Ref)    
+            
+            "Mass (volume) Balance"
+            v_out = 1.0/PropsSI('D','S',s1,'P',P[i],self.Ref)
+            Mbal = v2 - v_out
+            
+            if i > 0:
+                f = np.append(f, Mbal)              
+                P = np.append(P, P[i] - (f[i]*(P[i]-P[i-1]))/(f[i]-f[i-1]))            
+            else:                    
+                f = [Mbal]         
+            if i>50:  
+    #            print "Mbal: isenExp: ",Mbal                                 
+    #            raise Exception("IsenExp-P not converging after 50x")
+                break
+                
+        P = P[i]
+        T = T_s
+    #    print "P: ",P
+    #    print "T: ",T
+        return [T,P]
+    
+    def ExhaustNozzle(self,mg,T2):
+        "Calculate Nozzle inlet pressure"
+        #define variables
+        Area = self.A_dis
+        P2 = self.pout_r
+        pin_r = self.pin_r
+        
+        
+        h2 = PropsSI('H','T',T2,'P',P2,self.Ref)
+        s2 = PropsSI('S','T',T2,'P',P2,self.Ref)
+        v2 = vol_g(self.Ref,T2,P2)
+        vel2 = (mg)/(Area/v2)
+        KE = 0.5*vel2**2
+        h1 = h2 + KE
+        s1=s2
+        
+        P1 = [P2+10000,P2+50000]  #guess nozzle inlet pressure"
+        
+        j=0
+        g=[10.0000]
+        
+        while abs(g[j])> numTol:
+            if g[j] != 10.0000: #only increase index after 1st iteration
+                j=j+1   
+            
+            "ride herd on Pressure"
+            if P1[j]>10000000:
+                P1[j] = pin_r + 100*random()
+            if P1[j] < 100000:
+                P1[j] = pin_r + 100*random()
+                
+            h1_check = PropsSI('H','S',s1,'P',P1[j],self.Ref)
+            Ebal = h1 - h1_check
+            
+            if j > 0:
+                g = np.append(g, Ebal)              
+                P1 = np.append(P1, P1[j] - (g[j]*(P1[j]-P1[j-1]))/(g[j]-g[j-1]))            
+            else:                    
+                g = [Ebal]         
+            if j>30:    
+    #            print "Ebal: ", Ebal
+    #            print "P: ",P1
+                raise Exception("Exhaust Nozzle P not converging after 30x") 
+        
+        T1 = PropsSI('T','P',P1[j],'S',s1,self.Ref) #isentropic nozzle
+            
+        return [T1,P1[j]]
+
+
     # Main Solver ==============================================================
-    
-    
+
     def Calculate(self):
         "Solution method for semi-emperical scroll expander with oil Injection"
         "suction port dry refrigerant until oil mixed"
@@ -839,7 +811,7 @@ class VISemiEmpCompressorClass():
         
         "generate a starting guess for massflow iterations"
         mguess = self.V_suc_comp*(N_comp/60)/(vol_g(self.Ref,self.Tin_r,self.pin_r))
-        mLeak_guess = leakage(self.Ref,self.Tin_r+100,self.pout_r,self.pin_r,self.A_leak)
+        mLeak_guess = self.leakage(self.Tin_r+100,self.pout_r,self.pin_r,self.A_leak)
     
         mguess = mguess - mLeak_guess
         
@@ -891,14 +863,14 @@ class VISemiEmpCompressorClass():
                 if time.time() - nozzle_start_time > 5.0: #kill runs taking too long (s)"
                     raise Exception("Time's up")            
     #            [P_suc1,T_suc1] = Chisholm_suc(Ref,A_suc,m_g,m_l,pin_r,Tin_r)
-                try:  
-                    "Using Isentropic nozzle since no liquid at suction" 
-                    [T_suc1,P_suc1] = SuctionNozzle(self.Ref,self.A_suc,m_ref,self.pin_r,self.Tin_r,h_suc,s_suc)
-                    h_suc1 = PropsSI('H','T',T_suc1,'P',P_suc1,self.Ref)
-                    s_suc1 = PropsSI('S','T',T_suc1,'P',P_suc1,self.Ref)
-                    nozzlePass = True
-                except:
-                    M_dot[i] = M_dot[i]*(0.95-nozReduce*0.02) #gradually decrease till a sufficient mass flow range is found
+                #try:  
+                "Using Isentropic nozzle since no liquid at suction" 
+                [T_suc1,P_suc1] = self.SuctionNozzle(self.A_suc,m_ref,self.pin_r,self.Tin_r,h_suc,s_suc)
+                h_suc1 = PropsSI('H','T',T_suc1,'P',P_suc1,self.Ref)
+                s_suc1 = PropsSI('S','T',T_suc1,'P',P_suc1,self.Ref)
+                nozzlePass = True
+#                 except:
+#                     M_dot[i] = M_dot[i]*(0.95-nozReduce*0.02) #gradually decrease till a sufficient mass flow range is found
             
             
             
@@ -912,7 +884,7 @@ class VISemiEmpCompressorClass():
             V_dot_suc_comp = self.V_suc_comp*(N_comp/60.0)
             v_dis3 = (V_dot_suc_comp/(self.VR1*self.VR2))/(M_dot[i]+mLeak_guess)
             pseudo_s1 = s_suc1
-            [T_dis3,P_dis3] = IsentropicCompression(self.Ref,pseudo_s1,T_suc1,P_suc1,v_dis3,(self.VR1*self.VR2),self.pout_r)
+            [T_dis3,P_dis3] = self.IsentropicCompression(pseudo_s1,T_suc1,P_suc1,v_dis3,(self.VR1*self.VR2),self.pout_r)
             h_dis3 = PropsSI('H','T',T_dis3,'P',P_dis3,self.Ref)
             pseudo_hsuc1 = h_suc1
             w_comp_int_s = h_dis3 - pseudo_hsuc1        
@@ -972,15 +944,11 @@ class VISemiEmpCompressorClass():
                     
                     
     #                print "inj ratio: ", m_inj_guess[j]/m_ref
-                    [T_dis1,P_dis1] = ExhaustNozzle(self.Ref,self.A_dis,(m_ref + m_inj_guess[j]),self.pout_r,T_dis,self.pin_r)
+                    [T_dis1,P_dis1] = self.ExhaustNozzle((m_ref + m_inj_guess[j]),T_dis)
                     h_dis1 = PropsSI('H','T',T_dis1,'P',P_dis1,self.Ref)
-    
-    
-                    
-                    
                     
                     "Leakage mass flow"
-                    m_Leak = leakage(self.Ref,T_dis1,P_dis1,P_suc1,self.A_leak)
+                    m_Leak = self.leakage(T_dis1,P_dis1,P_suc1,self.A_leak)
                     
                     
                     
@@ -997,7 +965,7 @@ class VISemiEmpCompressorClass():
                     T_suc2 = PropsSI('T','H',h_suc2,'P',P_suc2,self.Ref)
                     v_suc2 = 1.0/PropsSI('D','H',h_suc2,'P',P_suc2,self.Ref)
                     
-                    [T_int1,P_int1] = IsentropicCompression(self.Ref,s_suc2,T_suc2,P_suc2,v_int1,self.VR1,P_suc2*self.VR1)
+                    [T_int1,P_int1] = self.IsentropicCompression(s_suc2,T_suc2,P_suc2,v_int1,self.VR1,P_suc2*self.VR1)
                     h_int1 = PropsSI('H','T',T_int1,'P',P_int1,self.Ref)
                     
                     
@@ -1069,7 +1037,7 @@ class VISemiEmpCompressorClass():
                     T_int2 = PropsSI('T','H',h_int2,'P',P_int2,self.Ref)
                     
                     
-                    [T_int3,P_int3] = IsentropicCompression(self.Ref,s_int2,T_int2,P_int2,v_int3,self.VR2,P_int2*self.VR2)
+                    [T_int3,P_int3] = self.IsentropicCompression(s_int2,T_int2,P_int2,v_int3,self.VR2,P_int2*self.VR2)
                     h_int3 = PropsSI('H','T',T_int3,'P',P_int3,self.Ref)    
     
                     
@@ -1220,6 +1188,7 @@ if __name__=='__main__':
         'Tin_r':283.2, #Suction temp [K]
         'Tinj_r':298.2, #Injection temp [K]
         
+        
         'N_comp':3600, #compressor speed [RPM]
         'Ref':'R407C',
         
@@ -1238,9 +1207,9 @@ if __name__=='__main__':
         'fp':0.15, #Fraction of electrical power lost as heat to ambient
         'Vdot_ratio': 1.0, #Displacement Scale factor
     }
+    t1=time.time()
     Comp=VISemiEmpCompressorClass(**kwds)
     Comp.Calculate()
-    t1=time.time()
     
     print "Work [W]: ",Comp.W
     print "Suction massFlow [kg/s]: ",Comp.mdot_r
