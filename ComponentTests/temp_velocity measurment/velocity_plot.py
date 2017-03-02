@@ -15,6 +15,8 @@ import scipy.ndimage as ndimage
 #import matplotlib.mlab as mlab
 #import matplotlib.cm as cm
 #from pylab import contourf, clf
+import matplotlib as mpl # to get the old version of Jet color for matplotlib 
+mpl.rcParams['image.cmap'] = 'jet'
 
 #===============================================================================
 # Latex render
@@ -309,8 +311,8 @@ for i in range(len(Test)):
     plt.figure()
    #im = plt.imshow(V_data[i], interpolation='bicubic',extent=[0, 24.875, 0, 22.5], vmax=6, vmin=0)
     CS = plt.contour(V_data[i], extent=[0, 631.825, 0, 571.5],vmax=6, vmin=0,linewidths=0.5, colors='k')
-    plt.clabel(CS,inline=1, fontsize=6,fmt='%1.1f')
-    im = plt.contourf(V_data[i],100,rasterized=True, extent=[0, 631.825, 0, 571.5],vmax=6, vmin=0)  
+    plt.clabel(CS,inline=1, fontsize=8,fmt='%1.1f')
+    im = plt.contourf(V_data[i],100,rasterized=True,extent=[0, 631.825, 0, 571.5],vmax=6, vmin=0)  
    #cbar = plt.colorbar(im)
    #cbar.ax.set_ylabel(r'Velocity [m/s]')
     plt.ylim(0,571.5)
