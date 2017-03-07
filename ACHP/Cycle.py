@@ -1395,7 +1395,7 @@ class ECU_VICompCycleClass():
                 print 'pass PHEX'
                 pass
             #print x_in_PHEHX_actual
-            #Solve PHEHX one more time for the actual value of the inlet enthapy (cold side)
+            #Solve PHEHX one more time for the actual value of the inlet enthalpy (cold side)
 #             AS.update(CP.PQ_INPUTS,psat_inj,float(x_in_PHEHX_actual))
 #             h_in_PHEHX = AS.hmass()
 #             params={

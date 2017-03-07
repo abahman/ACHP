@@ -629,9 +629,23 @@ class VISemiEmpCompressorClass():
     
     def Suction_helper(self,h1,s1,T1,P2,Area,mg):
         
-        T2 = PropsSI('T','S',s1,'P',P2,self.Ref)#T_mix_s(Ref,s1,P2,y,T1) #isentropic nozzle
-        h2 = PropsSI('H','S',s1,'P',P2,self.Ref)
-        v2 = 1.0/(PropsSI('D','H',h2,'P',P2,self.Ref))#(vol_g(Ref,T2,P2) +y*vol_l(T2))/(1+y)
+        try:
+            T2 = PropsSI('T','S',s1,'P',P2,self.Ref)#T_mix_s(Ref,s1,P2,y,T1) #isentropic nozzle
+            h2 = PropsSI('H','S',s1,'P',P2,self.Ref)
+            v2 = 1.0/(PropsSI('D','H',h2,'P',P2,self.Ref))#(vol_g(Ref,T2,P2) +y*vol_l(T2))/(1+y)
+        except:
+            "mostly if two-phase"
+            sf = PropsSI('S','Q',0,'P',P2,self.Ref)
+            hf = PropsSI('H','Q',0,'P',P2,self.Ref)
+            vf = 1.0/PropsSI('D','Q',0,'P',P2,self.Ref)
+            sg = PropsSI('S','Q',1,'P',P2,self.Ref)
+            hg = PropsSI('H','Q',1,'P',P2,self.Ref)
+            vg = 1.0/PropsSI('D','Q',1,'P',P2,self.Ref)    
+            x = (s1-sf)/(sg-sf)
+            print "two-phase, x = ", x
+            h2 = hf + x*(hg-hf)
+            v2 = vf + x*(vg-vf)
+        
         vel2 = (mg)/(Area/v2)
         KE2 = 0.5*vel2**2.0
         Ebal = h1 - (h2 + KE2)        
@@ -863,14 +877,14 @@ class VISemiEmpCompressorClass():
                 if time.time() - nozzle_start_time > 5.0: #kill runs taking too long (s)"
                     raise Exception("Time's up")            
     #            [P_suc1,T_suc1] = Chisholm_suc(Ref,A_suc,m_g,m_l,pin_r,Tin_r)
-                #try:  
-                "Using Isentropic nozzle since no liquid at suction" 
-                [T_suc1,P_suc1] = self.SuctionNozzle(self.A_suc,m_ref,self.pin_r,self.Tin_r,h_suc,s_suc)
-                h_suc1 = PropsSI('H','T',T_suc1,'P',P_suc1,self.Ref)
-                s_suc1 = PropsSI('S','T',T_suc1,'P',P_suc1,self.Ref)
-                nozzlePass = True
-#                 except:
-#                     M_dot[i] = M_dot[i]*(0.95-nozReduce*0.02) #gradually decrease till a sufficient mass flow range is found
+                try:  
+                    "Using Isentropic nozzle since no liquid at suction" 
+                    [T_suc1,P_suc1] = self.SuctionNozzle(self.A_suc,m_ref,self.pin_r,self.Tin_r,h_suc,s_suc)
+                    h_suc1 = PropsSI('H','T',T_suc1,'P',P_suc1,self.Ref)
+                    s_suc1 = PropsSI('S','T',T_suc1,'P',P_suc1,self.Ref)
+                    nozzlePass = True
+                except:
+                    M_dot[i] = M_dot[i]*(0.95-nozReduce*0.02) #gradually decrease till a sufficient mass flow range is found
             
             
             
@@ -1182,12 +1196,23 @@ if __name__=='__main__':
     
     kwds = {
         #System Conditions
-        'pin_r':445.1*1000, #Suction pressure [Pa]
-        'pout_r':2221.1*1000, #Discharge pressure [Pa]
-        'pinj_r':859.1*1000, #Inj pressure [Pa]
-        'Tin_r':283.2, #Suction temp [K]
-        'Tinj_r':298.2, #Injection temp [K]
+#         'pin_r':445.1*1000, #Suction pressure [Pa]
+#         'pout_r':2221.1*1000, #Discharge pressure [Pa]
+#         'pinj_r':859.1*1000, #Inj pressure [Pa]
+#         'Tin_r':283.2, #Suction temp [K]
+#         'Tinj_r':298.2, #Injection temp [K]
         
+#         'pin_r':460.7*1000, #Suction pressure [Pa]
+#         'pout_r':2528.5*1000, #Discharge pressure [Pa]
+#         'pinj_r':1079.3*1000, #Inj pressure [Pa]
+#         'Tin_r':278.5, #Suction temp [K]
+#         'Tinj_r':305.12, #Injection temp [K]
+        
+        'pin_r':764818.736321, #Evap. pressure [kPa]
+        'pout_r':2698958.54152, #Cond. pressure [kPa]
+        'pinj_r':840855.461302, #Inj. pressure [kPa]
+        'Tin_r':304.958787505, #Suction temp [K]
+        'Tinj_r':296.629799739, #Injection temp [K]
         
         'N_comp':3600, #compressor speed [RPM]
         'Ref':'R407C',
