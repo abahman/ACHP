@@ -20,6 +20,7 @@ import scipy.ndimage as ndimage
 # Latex render
 #===============================================================================
 import matplotlib as mpl
+mpl.style.use('classic')
 from numpy import integer
 from numba.targets.randomimpl import f_impl
 #mpl.use('pgf')
@@ -206,17 +207,18 @@ for i in range(len(Test)):
     print ' '
     
     ##########plot air velocity percentages##########
-#     #ax = plt.subplot(1, 3, i+1)
-#     plt.bar(np.arange(1,7,1)-0.4,percentage*100,label=r'velocity percentage')
-#     plt.ylim(0,25)
-#     plt.xlim(0,7)
-#     plt.xticks([0, 1, 2, 3, 4, 5, 6, 7],
-#                [r'$top$', r'$1$', r'$2$', r'$3$',r'$4$', r'$5$', r'$6$', r'$bottom$'])
-#     plt.xlabel('Circuit number')
-#     plt.ylabel('Percentage [\%]')
-#     plt.title('Air Velocity \% of Test '+Test[i])
-#     #plt.savefig('velocity_profile_v2/velocity_percent_test'+Test[i]+'.pdf')
-#     plt.show()    
+    #ax = plt.subplot(1, 3, i+1)
+    plt.bar(np.arange(1,7,1)-0.4,percentage*100,label=r'velocity percentage')
+    plt.ylim(0,25)
+    plt.xlim(0,7)
+    plt.xticks([0, 1, 2, 3, 4, 5, 6, 7],
+               [r'$top$', r'$1$', r'$2$', r'$3$',r'$4$', r'$5$', r'$6$', r'$bottom$'])
+    plt.xlabel('Circuit number')
+    plt.ylabel('Percentage [\%]')
+    #plt.title('Air Velocity \% of Test '+Test[i])
+    plt.savefig('velocity_profile_v2/velocity_percent_test'+Test[i]+'.pdf')
+    plt.tight_layout()
+    plt.show()    
     
     #########plot air velocity fit#############    
 #     #plt.figure()
@@ -255,6 +257,7 @@ for i in range(len(Test)):
     frame  = leg.get_frame()  
     frame.set_linewidth(0.5)
     plt.savefig('velocity_profile_v2/velocity_curve_test'+Test[i]+'_SI.pdf')
+    plt.tight_layout()
     plt.show()
     
     
