@@ -206,19 +206,40 @@ for i in range(len(Test)):
     print "Air velocity percentage = ", percentage
     print ' '
     
-    ##########plot air velocity percentages##########
+    ##########plot air velocity percentages on vertical bars##########
+#     #ax = plt.subplot(1, 3, i+1)
+#     plt.hbar(np.arange(1,7,1)-0.4,percentage*100,label=r'velocity percentage')
+#     plt.ylim(0,25)
+#     plt.xlim(0,7)
+#     plt.xticks([0, 1, 2, 3, 4, 5, 6, 7],
+#                [r'$top$', r'$1$', r'$2$', r'$3$',r'$4$', r'$5$', r'$6$', r'$bottom$'])
+#     plt.xlabel('Circuit number')
+#     plt.ylabel('Percentage [\%]')
+#     plt.tight_layout()
+#     #plt.title('Air Velocity \% of Test '+Test[i])
+#     #plt.savefig('velocity_profile_v2/velocity_percent_test'+Test[i]+'.pdf')
+#     plt.show()
+#     plt.close()
+    
+    ##########plot air velocity percentages on horizontal bars##########
     #ax = plt.subplot(1, 3, i+1)
-    plt.bar(np.arange(1,7,1)-0.4,percentage*100,label=r'velocity percentage')
-    plt.ylim(0,25)
-    plt.xlim(0,7)
-    plt.xticks([0, 1, 2, 3, 4, 5, 6, 7],
-               [r'$top$', r'$1$', r'$2$', r'$3$',r'$4$', r'$5$', r'$6$', r'$bottom$'])
-    plt.xlabel('Circuit number')
-    plt.ylabel('Percentage [\%]')
+    fig, ax = plt.subplots()
+    pos = np.arange(0, 571.5,571.5/6)+(571.5/6)/4
+    print pos
+    plt.barh(pos,percentage[::-1]*100,height=50,color='r',label=r'velocity percentage') #percentage[::-1] to reverse the array so it arrange accordingly
+    plt.ylim(0, 571.5)
+    plt.xlim(0,30)
+    plt.yticks([0, 95, 190, 285, 380, 475, 571.5],
+          [r'$0$', r'$95$', r'$190$', r'$285$',r'$380$', r'$475$', r'$571.5$'])
+    for j, v in enumerate(percentage[::-1]*100):
+        ax.text(v-4, pos[j] +(571.5/6)/5, 'circuit '+str(6-j), color='k')
+    plt.ylabel('Evaporator height [mm]')
+    plt.xlabel('Percentage [\%]')
+    plt.tight_layout()
     #plt.title('Air Velocity \% of Test '+Test[i])
     plt.savefig('velocity_profile_v2/velocity_percent_test'+Test[i]+'.pdf')
-    plt.tight_layout()
-    plt.show()    
+    plt.show()
+    plt.close() 
     
     #########plot air velocity fit#############    
 #     #plt.figure()
@@ -250,15 +271,16 @@ for i in range(len(Test)):
     plt.xlim(0,6)
     plt.yticks([0, 95, 190, 285, 380, 475, 571.5],
           [r'$0$', r'$95$', r'$190$', r'$285$',r'$380$', r'$475$', r'$571.5$'])
-    plt.xlabel('Velocity [m/s]')
+    plt.xlabel('Velocity [m s$^{-1}$]')
     plt.ylabel('Evaporator height [mm]')
     #plt.title('Velocity fit of Test '+Test[i])
     leg = plt.legend(loc='best',fancybox=False,numpoints=1)
     frame  = leg.get_frame()  
     frame.set_linewidth(0.5)
-    plt.savefig('velocity_profile_v2/velocity_curve_test'+Test[i]+'_SI.pdf')
     plt.tight_layout()
+    plt.savefig('velocity_profile_v2/velocity_curve_test'+Test[i]+'_SI.pdf')
     plt.show()
+    plt.close()
     
     
 #fig.set_tight_layout(True)
