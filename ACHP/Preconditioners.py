@@ -1,5 +1,5 @@
 from CoolProp.CoolProp import HAPropsSI 
-from scipy.optimize import fsolve
+from scipy.optimize import fsolve, minimize
 import Correlations
 from math import pi
 from Solvers import MultiDimNewtRaph
@@ -338,28 +338,28 @@ def VICompPreconditioner(Cycle,epsilon=0.96):
             Qcond_enthalpy=Cycle.Compressor.mdot_tot*(Cycle.Compressor.hout_r-h_target)
         
         #New analysis for the economizer
-        cp_c = cp_inj #[J/kg-K] taken at average injection state
-        cp_h = cp_cond #[J/kg-K] specific heat at the inlet of hot side
-        Cc = Cycle.Compressor.mdot_inj * cp_c
-        Ch = Cycle.Compressor.mdot_tot * cp_h
-        if Ch < Cc: Cmin = Ch
-        else: Cmin = Cc
-        #Temperature at the inlet of cold side (two phase)
-        Ty = (Cc * (Tdew_inj+Cycle.PHEHX.DT_sh_target) - epsilon * Cmin * (Tcond-Cycle.DT_sc_target)) /(Cc - epsilon*Cmin) 
-        #Enthalpy at the inlet of cold side (two phase), approximated qaulity becasue it should be 2-phase
-        xy=(Ty-Tbubble_inj)/(Tdew_inj-Tbubble_inj)
-        if xy <= 0:
-            xy = 0.00001
-        elif xy >= 1:
-            xy = 0.99999
-        Cycle.AS.update(CP.PQ_INPUTS,pinj,xy)
-        hy = Cycle.AS.hmass() #[J/kg]
+#         cp_c = cp_inj #[J/kg-K] taken at average injection state
+#         cp_h = cp_cond #[J/kg-K] specific heat at the inlet of hot side
+#         Cc = Cycle.Compressor.mdot_inj * cp_c
+#         Ch = Cycle.Compressor.mdot_tot * cp_h
+#         if Ch < Cc: Cmin = Ch
+#         else: Cmin = Cc
+#         #Temperature at the inlet of cold side (two phase)
+#         Ty = (Cc * (Tdew_inj+Cycle.PHEHX.DT_sh_target) - epsilon * Cmin * (Tcond-Cycle.DT_sc_target)) /(Cc - epsilon*Cmin) 
+#         #Enthalpy at the inlet of cold side (two phase), approximated qaulity becasue it should be 2-phase
+#         xy=(Ty-Tbubble_inj)/(Tdew_inj-Tbubble_inj)
+#         if xy <= 0:
+#             xy = 0.00001
+#         elif xy >= 1:
+#             xy = 0.99999
+#         Cycle.AS.update(CP.PQ_INPUTS,pinj,xy)
+#         hy = Cycle.AS.hmass() #[J/kg]
         #Enthalpy at the inlet of evaporator
         hevap = Cycle.Compressor.hin_r - Qevap/Cycle.Compressor.mdot_r
         #Enthalpy at the exit of the hot side (single phase)
-        hx = (Cycle.Compressor.mdot_r * hevap + Cycle.Compressor.mdot_inj * hy) / Cycle.Compressor.mdot_tot
-        Q_c = Cycle.Compressor.mdot_inj * (Cycle.Compressor.hinj_r - hy)
-        Q_h = Cycle.Compressor.mdot_tot * (h_target - hx)
+        #hx = (Cycle.Compressor.mdot_r * hevap + Cycle.Compressor.mdot_inj * hy) / Cycle.Compressor.mdot_tot
+        Q_c = Cycle.Compressor.mdot_inj * (Cycle.Compressor.hinj_r - hevap)
+        Q_h = Cycle.Compressor.mdot_tot * (h_target - hevap)
 #         Cycle.AS.update(CP.HmassP_INPUTS,hevap,pcond)
 #         Tz = Cycle.AS.T()
 #         Tx = Ty = Tz
@@ -396,6 +396,10 @@ def VICompPreconditioner(Cycle,epsilon=0.96):
     #First try using the fsolve algorithm
 #     try:
     x=fsolve(OBJECTIVE,[Tevap_init,Tcond_init,Tdew_inj_init])
+#     cons = ()
+#     bnds = ((None,Cycle.Evaporator.Fins.Air.Tdb), (Cycle.Condenser.Fins.Air.Tdb,None), (Cycle.Evaporator.Fins.Air.Tdb,Cycle.Condenser.Fins.Air.Tdb))
+#     guess = (Tevap_init,Tcond_init,Tdew_inj_init)
+#     res = minimize(OBJECTIVE, guess, method='SLSQP', bounds=bnds, constraints=cons, tol=1e-6)
 #     except:
 #         #If that doesnt work, try the Mult-Dimensional Newton-raphson solver
 #         try:
