@@ -1,9 +1,12 @@
-from __future__ import division
-from CoolProp.CoolProp import PropsSI
-from Correlations import f_h_1phase_Tube,TrhoPhase_ph
-from math import log,pi,exp
-from convert_units import F2K, kPa2Pa, in2m,mm2m
+from __future__ import division, print_function,absolute_import
+
 import CoolProp as CP
+from CoolProp.CoolProp import PropsSI
+
+from .Correlations import f_h_1phase_Tube,TrhoPhase_ph
+from math import log,pi,exp
+from .convert_units import F2K, kPa2Pa, in2m,mm2m
+
 
 class LineSetClass():
     def __init__(self,**kwargs):
@@ -142,5 +145,5 @@ if __name__=='__main__':
     LineSetReturn.ID=0.017526
     LineSetReturn.Calculate()    
 
-    print LineSetSupply.OutputList()
-    print LineSetReturn.OutputList()
+    print(LineSetSupply.OutputList())
+    print(LineSetReturn.OutputList())

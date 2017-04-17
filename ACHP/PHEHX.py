@@ -1,14 +1,15 @@
-from __future__ import division
+from __future__ import division, absolute_import, print_function
 from CoolProp.CoolProp import PropsSI
 import CoolProp as CP
 
-from Correlations import ShahEvaporation_Average,PHE_1phase_hdP,Cooper_PoolBoiling,TwoPhaseDensity,TrhoPhase_ph,Phase_ph,LMPressureGradientAvg,KandlikarPHE,Bertsch_MC,AccelPressureDrop,ShahCondensation_Average,LongoCondensation
 from math import pi,exp,log,sqrt,tan,cos,sin
 from scipy.optimize import brentq,fsolve
 import numpy as np
 import pylab
 from convert_units import *
 import matplotlib.pyplot as plt
+
+from .Correlations import ShahEvaporation_Average,PHE_1phase_hdP,Cooper_PoolBoiling,TwoPhaseDensity,TrhoPhase_ph,Phase_ph,LMPressureGradientAvg,KandlikarPHE,Bertsch_MC,AccelPressureDrop,ShahCondensation_Average,LongoCondensation
 
 class PHEHXClass():
     """
@@ -480,6 +481,7 @@ class PHEHXClass():
         rho_c=AS_c.rhomass()#[kg/m^3]
         Charge_c = w * self.V_c * rho_c
         
+        
         #Pack outputs
         Outputs={
             'w': w,
@@ -493,7 +495,10 @@ class PHEHXClass():
             'h_c':h_c,
             
         }
-        return dict(Inputs.items()+Outputs.items())
+        o = Inputs
+        o.update(**Outputs)
+        return o
+        
 
     def _OnePhaseH_TwoPhaseC_Qimposed(self,Inputs):
         """
@@ -574,7 +579,9 @@ class PHEHXClass():
             'h_c':h_c_2phase,
             'q_flux':q_flux
         }
-        return dict(Inputs.items()+Outputs.items())
+        o = Inputs
+        o.update(**Outputs)
+        return o
     
     
     def _TwoPhaseH_OnePhaseC_Qimposed(self,Inputs):
@@ -850,7 +857,7 @@ class PHEHXClass():
                     wList.append(Outputs['w'])
                     cellList.append(Outputs)
                     if self.Verbosity>6:
-                        print 'w[1-1]: ', Outputs['w']
+                        print('w[1-1]: ', Outputs['w'])
                 elif Phase_h=='TwoPhase' and Phase_c in ['Subcooled','Superheated']:
                     # Hot stream is condensing, and cold stream is single-phase (SH or SC)
                     # TODO: bounding state can be saturated state if hot stream is condensing
@@ -874,7 +881,7 @@ class PHEHXClass():
                     }
                     Outputs=self._TwoPhaseH_OnePhaseC_Qimposed(Inputs)
                     if self.Verbosity>6:
-                        print 'w[2-1]: ', Outputs['w']
+                        print('w[2-1]: ', Outputs['w'])
                     wList.append(Outputs['w'])
                     cellList.append(Outputs)
                 elif Phase_c=='TwoPhase' and Phase_h in ['Subcooled','Superheated']:
@@ -901,7 +908,7 @@ class PHEHXClass():
                     }
                     Outputs=self._OnePhaseH_TwoPhaseC_Qimposed(Inputs)
                     if self.Verbosity>6:
-                        print 'w[1-2]: ', Outputs['w']
+                        print('w[1-2]: ', Outputs['w'])
                     wList.append(Outputs['w'])
                     cellList.append(Outputs)
                     
@@ -910,13 +917,12 @@ class PHEHXClass():
                 
             self.cellList=cellList
             if self.Verbosity>6:
-                print 'wsum:', np.sum(wList)
-            return 1.0 - np.sum(wList)
+                print('wsum:', np.sum(wList))
+            return np.sum(wList)-1.0
         try:
             brentq(GivenQ,0.0000001*self.Qmax,0.999999999*self.Qmax,xtol=0.000001*self.Qmax)#,xtol=0.000001*self.Qmax) is commented
         except ValueError:
-            print 
-            print 'lower bound:',GivenQ(0.0000001*self.Qmax),' upperbound:',GivenQ(0.999999999*self.Qmax)
+            print(GivenQ(0.0000001*self.Qmax),GivenQ(0.999999999*self.Qmax))
             raise
         # Collect parameters from all the pieces
         self.PostProcess(self.cellList)
@@ -1043,7 +1049,7 @@ def SWEPVariedmdot():
         }
         PHE=PHEHXClass(**params)
         PHE.Calculate()
-        print PHE.Q,',',PHE.h_subcooled_h,',',-PHE.DP_h/1000
+        print(PHE.Q,',',PHE.h_subcooled_h,',',-PHE.DP_h/1000)
 
 def SamplePHEHX():
     
@@ -1079,7 +1085,7 @@ def SamplePHEHX():
 #        PHE.Calculate()
 #        QQ.append(PHE.Q)
 #        TT.append(Tin)
-#        print PHE.Q, PHE.Q/PHE.Qmax
+#        print(PHE.Q, PHE.Q/PHE.Qmax)
 #    pylab.plot(TT,QQ)
 #    pylab.show()
 #    
@@ -1119,12 +1125,12 @@ def SamplePHEHX():
         TT.append(Tin)
         QQ.append(PHE.h_2phase_c)#PHE.Q/PHE.Qmax)
         Q1.append(PHE.q_flux)#w_2phase_c)#PHE.Q/PHE.Qmax)
-#        print PHE.Q/PHE.Qmax,PHE.Q
-        print PHE.Q,',',PHE.h_subcooled_h,',',-PHE.DP_h/1000
-        print PHE.OutputList()
-    print TT
-    print QQ
-    print Q1
+#        print(PHE.Q/PHE.Qmax,PHE.Q)
+        print(PHE.Q,',',PHE.h_subcooled_h,',',-PHE.DP_h/1000)
+        print(PHE.OutputList())
+    print(TT)
+    print(QQ)
+    print(Q1)
 #    pylab.plot(TT,QQ)
 #    pylab.show()
         

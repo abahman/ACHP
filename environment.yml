@@ -1,0 +1,10 @@
+name: achp_build
+dependencies:
+  - python=3.5
+  - numpy
+  - scipy
+  - matplotlib
+  - IPython
+  - pip:
+    - CoolProp
+    - sphinx
