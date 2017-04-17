@@ -1,5 +1,5 @@
-from scipy.optimize import fsolve, minimize
 from __future__ import absolute_import
+from scipy.optimize import fsolve, minimize
 
 from math import pi
 import numpy as np

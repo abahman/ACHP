@@ -68,7 +68,7 @@ class LineSetClass():
         self.Tin,self.rhoin,self.Phasein=TrhoPhase_ph(self.AS,self.pin,self.hin,self.Tbubble,self.Tdew)
         ###Solver shows TwoPhase in the first iteration, the following if statement just to avoid ValueError with CoolProp for pseudo-pure refrigerants
         if self.Phasein =='TwoPhase':
-            print "Cauation::two phase at the inlet of LineSet during iterartion"
+            print ("Cauation::two phase at the inlet of LineSet during iterartion")
             self.f_fluid, self.h_fluid, self.Re_fluid=f_h_1phase_Tube(self.mdot, self.ID, self.Tin-1, self.pin, self.AS, self.Phasein)
             AS.update(CP.PT_INPUTS, self.pin, self.Tin-1)
             # Specific heat capacity [J/kg-K]                        

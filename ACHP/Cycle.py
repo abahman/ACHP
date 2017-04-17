@@ -1,24 +1,25 @@
 from __future__ import division, absolute_import,print_function
 import sys
 
-from .Compressor import CompressorClass  #Compressor
-from .VICompressor import VICompressorClass #VI compressor
-from .VICompressorTello import VICompressorTelloClass #VI compressor Tello-correlation
-from .VISemiEmpCompressor import VISemiEmpCompressorClass
-from .Condenser import CondenserClass    #Condenser
-from .Evaporator import EvaporatorClass  #Evaporator
-from .CoolingCoil import CoolingCoilClass #Cooling Coil
-from .MultiCircuitEvaporator import MultiCircuitEvaporatorClass
-from .CoaxialHX import CoaxialHXClass #Coaxial internal heat exchanger
-from .PHEHX import PHEHXClass #Plate-Heat-Exchanger 
-from .LineSet import LineSetClass #Line set class
-from .Pump import PumpClass # Secondary loop pump class
-from .SightGlassFilterDrierMicroMotion import SightGlassFilterDrierMicroMotionClass
-from .FinCorrelations import FinInputs     #fin correlations
-from .MicroFinCorrelations import MicroFinInputs #Micro-fin correlations
-from .Correlations import TrhoPhase_ph            
-from .Solvers import MultiDimNewtRaph, Broyden
-from .Preconditioners import DXPreconditioner,SecondaryLoopPreconditioner,VICompPreconditioner
+from ACHP.Compressor import CompressorClass  #Compressor
+from ACHP.VICompressor import VICompressorClass #VI compressor
+from ACHP.VICompressorTello import VICompressorTelloClass #VI compressor Tello-correlation
+from ACHP.VISemiEmpCompressor import VISemiEmpCompressorClass
+from ACHP.Condenser import CondenserClass    #Condenser
+from ACHP.MicroChannelCondenser import MicroCondenserClass #Microchannel condenser
+from ACHP.Evaporator import EvaporatorClass  #Evaporator
+from ACHP.CoolingCoil import CoolingCoilClass #Cooling Coil
+from ACHP.MultiCircuitEvaporator import MultiCircuitEvaporatorClass
+from ACHP.CoaxialHX import CoaxialHXClass #Coaxial internal heat exchanger
+from ACHP.PHEHX import PHEHXClass #Plate-Heat-Exchanger 
+from ACHP.LineSet import LineSetClass #Line set class
+from ACHP.Pump import PumpClass # Secondary loop pump class
+from ACHP.SightGlassFilterDrierMicroMotion import SightGlassFilterDrierMicroMotionClass
+from ACHP.FinCorrelations import FinInputs     #fin correlations
+from ACHP.MicroFinCorrelations import MicroFinInputs #Micro-fin correlations
+from ACHP.Correlations import TrhoPhase_ph            
+from ACHP.Solvers import MultiDimNewtRaph, Broyden
+from ACHP.Preconditioners import DXPreconditioner,SecondaryLoopPreconditioner,VICompPreconditioner
 
 from scipy.optimize import brentq, fsolve,newton 
 
@@ -819,14 +820,14 @@ class DXCycleClass():
         
         if self.Verbosity>0:
 
-            print 'Capacity: ', self.Capacity
-            print 'COP: ',self.COP
-            print 'COP (w/ both fans): ',self.COSP
-            print 'SHR: ',self.SHR
-            print 'UA_r_evap',self.Evaporator.UA_r
-            print 'UA_a_evap',self.Evaporator.UA_a
-            print 'UA_r_cond',self.Condenser.UA_r
-            print 'UA_a_cond',self.Condenser.UA_a
+            print ('Capacity: ', self.Capacity)
+            print ('COP: ',self.COP)
+            print ('(COP (w/ both fans): ',self.COSP)
+            print ('SHR: ',self.SHR)
+            print ('UA_r_evap',self.Evaporator.UA_r)
+            print ('UA_a_evap',self.Evaporator.UA_a)
+            print ('UA_r_cond',self.Condenser.UA_r)
+            print ('UA_a_cond',self.Condenser.UA_a)
 
 
 class ECU_DXCycleClass():
@@ -892,7 +893,7 @@ class ECU_DXCycleClass():
                 Difference in temperature [K] between condenser air inlet temperature and refrigeant dew temperature 
         """
         if self.Verbosity>1:
-            print 'DTevap %7.4f DTcond %7.4f,' %(DT_evap,DT_cond)
+            print ('DTevap %7.4f DTcond %7.4f,' %(DT_evap,DT_cond))
         #AbstractState
         if hasattr(self,'Backend'): #check if backend is given
             AS = CP.AbstractState(self.Backend, self.Ref)
@@ -957,7 +958,7 @@ class ECU_DXCycleClass():
 #             self.Compressor.Update(**params)
 #             self.Compressor.Calculate()
             if self.Verbosity>1:
-                print 'Comp DP L H',self.DP_low,self.DP_high
+                print ('Comp DP L H',self.DP_low,self.DP_high)
              
             params={
                 'mdot_r': self.Compressor.mdot_r,
@@ -1016,7 +1017,7 @@ class ECU_DXCycleClass():
                 resid[1]=self.Charge-self.Charge_target
             
             if self.Verbosity>1:
-                print resid
+                print (resid)
             
             self.Capacity=self.Evaporator.Q
             self.Power=self.Compressor.W+self.Evaporator.Fins.Air.FanPower+self.Condenser.Fins.Air.FanPower
@@ -1099,7 +1100,7 @@ class ECU_DXCycleClass():
         else:
             ValueError("DX Cycle mode must be 'AC', or 'HP'")
         if self.Verbosity>1:
-            print 'DTevap %7.4f DTcond %7.4f Qres % 12.6e DTsc: % 12.6e Charge %10.4f SC: %8.4f' %(DT_evap,DT_cond,resid[0],resid[1],self.Charge,self.Condenser.DT_sc)
+            print ('DTevap %7.4f DTcond %7.4f Qres % 12.6e DTsc: % 12.6e Charge %10.4f SC: %8.4f' %(DT_evap,DT_cond,resid[0],resid[1],self.Charge,self.Condenser.DT_sc))
         self.DT_evap=DT_evap
         self.DT_cond=DT_cond
         return resid
@@ -1147,25 +1148,25 @@ class ECU_DXCycleClass():
                     if delta_low<1 and delta_high<1:
                         DP_converged=True
                     if self.Verbosity>4:
-                        print self.DP_HighPressure,self.DP_LowPressure,'DPHP'
+                        print (self.DP_HighPressure,self.DP_LowPressure,'DPHP')
                     GoodRun=True
             except AttributeError:
                 # This will be a fatal error !! Should never have attribute error
                 raise 
             except:
-                print "--------------  Exception Caught ---------------- " 
-                print "Error of type",sys.exc_info()[0]," is: " + sys.exc_info()[1].message
+                print ("--------------  Exception Caught ---------------- ") 
+                print ("Error of type",sys.exc_info()[0]," is: " + sys.exc_info()[1].message)
                 raise
         
         if self.Verbosity>0:
-            print 'Capacity: ', self.Capacity
-            print 'COP: ',self.COP
-            print 'COP (w/ both fans): ',self.COSP
-            print 'SHR: ',self.SHR
-            print 'UA_r_evap',self.Evaporator.UA_r
-            print 'UA_a_evap',self.Evaporator.UA_a
-            print 'UA_r_cond',self.Condenser.UA_r
-            print 'UA_a_cond',self.Condenser.UA_a
+            print ('Capacity: ', self.Capacity)
+            print ('COP: ',self.COP)
+            print ('COP (w/ both fans): ',self.COSP)
+            print ('SHR: ',self.SHR)
+            print ('UA_r_evap',self.Evaporator.UA_r)
+            print ('UA_a_evap',self.Evaporator.UA_a)
+            print ('UA_r_cond',self.Condenser.UA_r)
+            print ('UA_a_cond',self.Condenser.UA_a)
 
 class ECU_VICompCycleClass():
     def __init__(self):
@@ -1237,7 +1238,7 @@ class ECU_VICompCycleClass():
                 Dew point temperature at the injection state
         """
         if self.Verbosity>1:
-            print 'Inputs DTevap %7.4f, DTcond %7.4f, Tdew_inj %7.4f' %(DT_evap,DT_cond,Tdew_inj)
+            print ('Inputs DTevap %7.4f, DTcond %7.4f, Tdew_inj %7.4f' %(DT_evap,DT_cond,Tdew_inj))
         #AbstractState
         if hasattr(self,'Backend'): #check if backend is given
             AS = CP.AbstractState(self.Backend, self.Ref)
@@ -1312,7 +1313,7 @@ class ECU_VICompCycleClass():
 #             self.Compressor.Update(**params)
 #             self.Compressor.Calculate()
             if self.Verbosity>1:
-                print 'Comp DP L H I',self.DP_low,self.DP_high,self.DP_int
+                print ('Comp DP L H I',self.DP_low,self.DP_high,self.DP_int)
              
             params={
                 'mdot_r': self.Compressor.mdot_tot,
@@ -1444,7 +1445,7 @@ class ECU_VICompCycleClass():
             resid[2]=self.Compressor.mdot_inj*(self.Compressor.hinj_r - self.PHEHX.hout_c)
             
             if self.Verbosity>1:
-                print resid
+                print (resid)
             
             self.Capacity=self.Evaporator.Q
             self.Power=self.Compressor.W+self.Evaporator.Fins.Air.FanPower+self.Condenser.Fins.Air.FanPower
@@ -1533,7 +1534,7 @@ class ECU_VICompCycleClass():
         else:
             ValueError("DX Cycle mode must be 'AC', or 'HP'")
         if self.Verbosity>1:
-            print 'DT_evap: %7.4f, DT_cond: %7.4f, Tdew_inj: %7.4f, res[0]: % 12.6e, res[1]: % 12.6e, res[2]: % 12.6e, Charge %10.4f, T_sub: %8.4f, T_sup: %8.4f, T_sup_inj: %8.4f' %(DT_evap,DT_cond,Tdew_inj,resid[0],resid[1],resid[2],self.Charge,self.Condenser.DT_sc,self.DT_sh,self.DT_sh_inj)
+            print ('DT_evap: %7.4f, DT_cond: %7.4f, Tdew_inj: %7.4f, res[0]: % 12.6e, res[1]: % 12.6e, res[2]: % 12.6e, Charge %10.4f, T_sub: %8.4f, T_sup: %8.4f, T_sup_inj: %8.4f' %(DT_evap,DT_cond,Tdew_inj,resid[0],resid[1],resid[2],self.Charge,self.Condenser.DT_sc,self.DT_sh,self.DT_sh_inj))
         
         return resid
     
@@ -1584,25 +1585,25 @@ class ECU_VICompCycleClass():
                     if delta_low<1 and delta_high<1 and delta_int<1:
                         DP_converged=True
                     if self.Verbosity>0:
-                        print self.DP_HighPressure,self.DP_LowPressure,self.DP_IntPressure,'DPHPIP'
+                        print (self.DP_HighPressure,self.DP_LowPressure,self.DP_IntPressure,'DPHPIP')
                     GoodRun=True
             except AttributeError:
                 # This will be a fatal error !! Should never have attribute error
                 raise 
             except:
-                print "--------------  Exception Caught ---------------- " 
-                print "Error of type",sys.exc_info()[0]," is: " + sys.exc_info()[1].message
+                print ("--------------  Exception Caught ---------------- ") 
+                print ("Error of type",sys.exc_info()[0]," is: " + sys.exc_info()[1].message)
                 raise
           
         if self.Verbosity>0:
-            print 'Capacity: ', self.Capacity
-            print 'COP: ',self.COP
-            print 'COP (w/ both fans): ',self.COSP
-            print 'SHR: ',self.SHR
-            print 'UA_r_evap',self.Evaporator.UA_r
-            print 'UA_a_evap',self.Evaporator.UA_a
-            print 'UA_r_cond',self.Condenser.UA_r
-            print 'UA_a_cond',self.Condenser.UA_a
+            print ('Capacity: ', self.Capacity)
+            print ('COP: ',self.COP)
+            print ('COP (w/ both fans): ',self.COSP)
+            print ('SHR: ',self.SHR)
+            print ('UA_r_evap',self.Evaporator.UA_r)
+            print ('UA_a_evap',self.Evaporator.UA_a)
+            print ('UA_r_cond',self.Condenser.UA_r)
+            print ('UA_a_cond',self.Condenser.UA_a)
     
     def PreconditionedSolve_new(self,PrecondValues=None):
         '''
@@ -1642,9 +1643,9 @@ class ECU_VICompCycleClass():
             return self.residSL
             
         def PrintDPs():
-            print 'DP_LP :: Input:',self.DP_low,'Pa / Model calc:',self.DP_LowPressure,'Pa'
-            print 'DP_HP :: Input:',self.DP_high,'Pa / Model calc:',self.DP_HighPressure,'Pa'
-            print 'DP_HP :: Input:',self.DP_int,'Pa / Model calc:',self.DP_IntPressure,'Pa'   
+            print ('DP_LP :: Input:',self.DP_low,'Pa / Model calc:',self.DP_LowPressure,'Pa')
+            print ('DP_HP :: Input:',self.DP_high,'Pa / Model calc:',self.DP_HighPressure,'Pa')
+            print ('DP_HP :: Input:',self.DP_int,'Pa / Model calc:',self.DP_IntPressure,'Pa')   
         
         #Some variables need to be initialized
         self.DP_low=0 #The actual low-side pressure drop to be used in Pa
@@ -1676,7 +1677,7 @@ class ECU_VICompCycleClass():
                 
                 if self.Verbosity>0:
                     PrintDPs()
-                    print 'Max pressure drop error [inner loop] is',max_error_DP,'Pa'
+                    print ('Max pressure drop error [inner loop] is',max_error_DP,'Pa')
                         
                 #Update the pressure drop terms
                 self.DP_low=self.DP_LowPressure
@@ -1686,7 +1687,7 @@ class ECU_VICompCycleClass():
                 iter_inner+=1
                 
             if self.Verbosity > 0:
-                print "Done with the inner loop on pressure drop"
+                print ("Done with the inner loop on pressure drop")
             
             # Use Newton-Raphson solver
             (self.DT_evap,self.DT_cond,self.Tdew_inj)=MultiDimNewtRaph(OBJECTIVE,[self.DT_evap,self.DT_cond,self.Tdew_inj],dx=0.1)
@@ -1700,13 +1701,13 @@ class ECU_VICompCycleClass():
             
             if self.Verbosity>0:
                 PrintDPs()    
-                print 'Max pressure drop error [outer loop] is',max_error_DP,'Pa'
+                print ('Max pressure drop error [outer loop] is',max_error_DP,'Pa')
         
         if self.Verbosity>1:
-            print 'Capacity: ', self.Capacity
-            print 'COP: ',self.COP
-            print 'COP (w/ both fans): ',self.COSP
-            print 'SHR: ',self.SHR
+            print ('Capacity: ', self.Capacity)
+            print ('COP: ',self.COP)
+            print ('COP (w/ both fans): ',self.COSP)
+            print ('SHR: ',self.SHR)
         return
     
 class ECU_VISemiEmpCompCycleClass():
@@ -1779,7 +1780,7 @@ class ECU_VISemiEmpCompCycleClass():
                 Dew point temperature at the injection state
         """
         if self.Verbosity>1:
-            print 'Inputs DTevap %7.4f, DTcond %7.4f, Tdew_inj %7.4f' %(DT_evap,DT_cond,Tdew_inj)
+            print ('Inputs DTevap %7.4f, DTcond %7.4f, Tdew_inj %7.4f' %(DT_evap,DT_cond,Tdew_inj))
         #AbstractState
         if hasattr(self,'Backend'): #check if backend is given
             AS = CP.AbstractState(self.Backend, self.Ref)
@@ -1854,7 +1855,7 @@ class ECU_VISemiEmpCompCycleClass():
 #             self.Compressor.Update(**params)
 #             self.Compressor.Calculate()
             if self.Verbosity>1:
-                print 'Comp DP L H I',self.DP_low,self.DP_high,self.DP_int
+                print ('Comp DP L H I',self.DP_low,self.DP_high,self.DP_int)
              
             params={
                 'mdot_r': self.Compressor.mdot_tot,
@@ -1984,7 +1985,7 @@ class ECU_VISemiEmpCompCycleClass():
             resid[2]=self.Compressor.mdot_inj*(self.Compressor.hinj_r - self.PHEHX.hout_c)
             
             if self.Verbosity>1:
-                print resid
+                print (resid)
             
             self.Capacity=self.Evaporator.Q
             self.Power=self.Compressor.W+self.Evaporator.Fins.Air.FanPower+self.Condenser.Fins.Air.FanPower
@@ -2073,7 +2074,7 @@ class ECU_VISemiEmpCompCycleClass():
         else:
             ValueError("DX Cycle mode must be 'AC', or 'HP'")
         if self.Verbosity>1:
-            print 'DT_evap: %7.4f, DT_cond: %7.4f, Tdew_inj: %7.4f, res[0]: % 12.6e, res[1]: % 12.6e, res[2]: % 12.6e, Charge %10.4f, T_sub: %8.4f, T_sup: %8.4f, T_sup_inj: %8.4f' %(DT_evap,DT_cond,Tdew_inj,resid[0],resid[1],resid[2],self.Charge,self.Condenser.DT_sc,self.DT_sh,self.DT_sh_inj)
+            print ('DT_evap: %7.4f, DT_cond: %7.4f, Tdew_inj: %7.4f, res[0]: % 12.6e, res[1]: % 12.6e, res[2]: % 12.6e, Charge %10.4f, T_sub: %8.4f, T_sup: %8.4f, T_sup_inj: %8.4f' %(DT_evap,DT_cond,Tdew_inj,resid[0],resid[1],resid[2],self.Charge,self.Condenser.DT_sc,self.DT_sh,self.DT_sh_inj))
         
         return resid
     
@@ -2124,25 +2125,25 @@ class ECU_VISemiEmpCompCycleClass():
                     if delta_low<1 and delta_high<1 and delta_int<1:
                         DP_converged=True
                     if self.Verbosity>4:
-                        print self.DP_HighPressure,self.DP_LowPressure,self.DP_IntPressure,'DPHPIP'
+                        print (self.DP_HighPressure,self.DP_LowPressure,self.DP_IntPressure,'DPHPIP')
                     GoodRun=True
             except AttributeError:
                 # This will be a fatal error !! Should never have attribute error
                 raise 
             except:
-                print "--------------  Exception Caught ---------------- " 
-                print "Error of type",sys.exc_info()[0]," is: " + sys.exc_info()[1].message
+                print ("--------------  Exception Caught ---------------- ") 
+                print ("Error of type",sys.exc_info()[0]," is: " + sys.exc_info()[1].message)
                 raise
           
         if self.Verbosity>0:
-            print 'Capacity: ', self.Capacity
-            print 'COP: ',self.COP
-            print 'COP (w/ both fans): ',self.COSP
-            print 'SHR: ',self.SHR
-            print 'UA_r_evap',self.Evaporator.UA_r
-            print 'UA_a_evap',self.Evaporator.UA_a
-            print 'UA_r_cond',self.Condenser.UA_r
-            print 'UA_a_cond',self.Condenser.UA_a
+            print ('Capacity: ', self.Capacity)
+            print ('COP: ',self.COP)
+            print ('COP (w/ both fans): ',self.COSP)
+            print ('SHR: ',self.SHR)
+            print ('UA_r_evap',self.Evaporator.UA_r)
+            print ('UA_a_evap',self.Evaporator.UA_a)
+            print ('UA_r_cond',self.Condenser.UA_r)
+            print ('UA_a_cond',self.Condenser.UA_a)
     
     def PreconditionedSolve_new(self,PrecondValues=None):
         '''
@@ -2182,9 +2183,9 @@ class ECU_VISemiEmpCompCycleClass():
             return self.residSL
             
         def PrintDPs():
-            print 'DP_LP :: Input:',self.DP_low,'Pa / Model calc:',self.DP_LowPressure,'Pa'
-            print 'DP_HP :: Input:',self.DP_high,'Pa / Model calc:',self.DP_HighPressure,'Pa'
-            print 'DP_HP :: Input:',self.DP_int,'Pa / Model calc:',self.DP_IntPressure,'Pa'   
+            print ('DP_LP :: Input:',self.DP_low,'Pa / Model calc:',self.DP_LowPressure,'Pa')
+            print ('DP_HP :: Input:',self.DP_high,'Pa / Model calc:',self.DP_HighPressure,'Pa')
+            print ('DP_HP :: Input:',self.DP_int,'Pa / Model calc:',self.DP_IntPressure,'Pa')   
         
         #Some variables need to be initialized
         self.DP_low=0 #The actual low-side pressure drop to be used in Pa
@@ -2216,7 +2217,7 @@ class ECU_VISemiEmpCompCycleClass():
                 
                 if self.Verbosity>0:
                     PrintDPs()
-                    print 'Max pressure drop error [inner loop] is',max_error_DP,'Pa'
+                    print ('Max pressure drop error [inner loop] is',max_error_DP,'Pa')
                         
                 #Update the pressure drop terms
                 self.DP_low=self.DP_LowPressure
@@ -2226,7 +2227,7 @@ class ECU_VISemiEmpCompCycleClass():
                 iter_inner+=1
                 
             if self.Verbosity > 0:
-                print "Done with the inner loop on pressure drop"
+                print ("Done with the inner loop on pressure drop")
             
             # Use Newton-Raphson solver
             (self.DT_evap,self.DT_cond,self.Tdew_inj)=MultiDimNewtRaph(OBJECTIVE,[self.DT_evap,self.DT_cond,self.Tdew_inj],dx=0.1)
@@ -2236,13 +2237,13 @@ class ECU_VISemiEmpCompCycleClass():
             
             if self.Verbosity>0:
                 PrintDPs()    
-                print 'Max pressure drop error [outer loop] is',max_error_DP,'Pa'
+                print ('Max pressure drop error [outer loop] is',max_error_DP,'Pa')
         
         if self.Verbosity>1:
-            print 'Capacity: ', self.Capacity
-            print 'COP: ',self.COP
-            print 'COP (w/ both fans): ',self.COSP
-            print 'SHR: ',self.SHR
+            print ('Capacity: ', self.Capacity)
+            print ('COP: ',self.COP)
+            print ('COP (w/ both fans): ',self.COSP)
+            print ('SHR: ',self.SHR)
         return
 
 class ECU_VICompTelloCycleClass():
@@ -2316,7 +2317,7 @@ class ECU_VICompTelloCycleClass():
                 Dew point temperature at the injection state
         """
         if self.Verbosity>1:
-            print 'Inputs DTevap %7.4f, DTcond %7.4f, Tdew_inj %7.4f' %(DT_evap,DT_cond,Tdew_inj)
+            print ('Inputs DTevap %7.4f, DTcond %7.4f, Tdew_inj %7.4f' %(DT_evap,DT_cond,Tdew_inj))
         #AbstractState
         if hasattr(self,'Backend'): #check if backend is given
             AS = CP.AbstractState(self.Backend, self.Ref)
@@ -2391,7 +2392,7 @@ class ECU_VICompTelloCycleClass():
 #             self.Compressor.Update(**params)
 #             self.Compressor.Calculate()
             if self.Verbosity>1:
-                print 'Comp DP L H I',self.DP_low,self.DP_high,self.DP_int
+                print ('Comp DP L H I',self.DP_low,self.DP_high,self.DP_int)
              
             params={
                 'mdot_r': self.Compressor.mdot_tot,
@@ -2524,7 +2525,7 @@ class ECU_VICompTelloCycleClass():
             resid[2]=self.Compressor.mdot_inj*(self.Compressor.hinj_r - self.PHEHX.hout_c)
             
             if self.Verbosity>1:
-                print resid
+                print (resid)
             
             self.Capacity=self.Evaporator.Q
             self.Power=self.Compressor.W+self.Evaporator.Fins.Air.FanPower+self.Condenser.Fins.Air.FanPower
@@ -2614,7 +2615,7 @@ class ECU_VICompTelloCycleClass():
         else:
             ValueError("DX Cycle mode must be 'AC', or 'HP'")
         if self.Verbosity>1:
-            print 'DT_evap: %7.4f, DT_cond: %7.4f, Tdew_inj: %7.4f, res[0]: % 12.6e, res[1]: % 12.6e, res[2]: % 12.6e, Charge %10.4f, T_sub: %8.4f, T_sup: %8.4f, T_sup_inj: %8.4f' %(DT_evap,DT_cond,Tdew_inj,resid[0],resid[1],resid[2],self.Charge,self.Condenser.DT_sc,self.DT_sh,self.DT_sh_inj)
+            print ('DT_evap: %7.4f, DT_cond: %7.4f, Tdew_inj: %7.4f, res[0]: % 12.6e, res[1]: % 12.6e, res[2]: % 12.6e, Charge %10.4f, T_sub: %8.4f, T_sup: %8.4f, T_sup_inj: %8.4f' %(DT_evap,DT_cond,Tdew_inj,resid[0],resid[1],resid[2],self.Charge,self.Condenser.DT_sc,self.DT_sh,self.DT_sh_inj))
         
         return resid
     
@@ -2665,25 +2666,25 @@ class ECU_VICompTelloCycleClass():
                     if delta_low<1 and delta_high<1 and delta_int<1:
                         DP_converged=True
                     if self.Verbosity>0:
-                        print self.DP_HighPressure,self.DP_LowPressure,self.DP_IntPressure,'DPHPIP'
+                        print (self.DP_HighPressure,self.DP_LowPressure,self.DP_IntPressure,'DPHPIP')
                     GoodRun=True
             except AttributeError:
                 # This will be a fatal error !! Should never have attribute error
                 raise 
             except:
-                print "--------------  Exception Caught ---------------- " 
-                print "Error of type",sys.exc_info()[0]," is: " + sys.exc_info()[1].message
+                print ("--------------  Exception Caught ---------------- ") 
+                print ("Error of type",sys.exc_info()[0]," is: " + sys.exc_info()[1].message)
                 raise
           
         if self.Verbosity>0:
-            print 'Capacity: ', self.Capacity
-            print 'COP: ',self.COP
-            print 'COP (w/ both fans): ',self.COSP
-            print 'SHR: ',self.SHR
-            print 'UA_r_evap',self.Evaporator.UA_r
-            print 'UA_a_evap',self.Evaporator.UA_a
-            print 'UA_r_cond',self.Condenser.UA_r
-            print 'UA_a_cond',self.Condenser.UA_a
+            print ('Capacity: ', self.Capacity)
+            print ('COP: ',self.COP)
+            print ('COP (w/ both fans): ',self.COSP)
+            print ('SHR: ',self.SHR)
+            print ('UA_r_evap',self.Evaporator.UA_r)
+            print ('UA_a_evap',self.Evaporator.UA_a)
+            print ('UA_r_cond',self.Condenser.UA_r)
+            print ('UA_a_cond',self.Condenser.UA_a)
     
     def PreconditionedSolve_new(self,PrecondValues=None):
         '''
@@ -2723,9 +2724,9 @@ class ECU_VICompTelloCycleClass():
             return self.residSL
             
         def PrintDPs():
-            print 'DP_LP :: Input:',self.DP_low,'Pa / Model calc:',self.DP_LowPressure,'Pa'
-            print 'DP_HP :: Input:',self.DP_high,'Pa / Model calc:',self.DP_HighPressure,'Pa'
-            print 'DP_HP :: Input:',self.DP_int,'Pa / Model calc:',self.DP_IntPressure,'Pa'   
+            print ('DP_LP :: Input:',self.DP_low,'Pa / Model calc:',self.DP_LowPressure,'Pa')
+            print ('DP_HP :: Input:',self.DP_high,'Pa / Model calc:',self.DP_HighPressure,'Pa')
+            print ('DP_HP :: Input:',self.DP_int,'Pa / Model calc:',self.DP_IntPressure,'Pa')   
         
         #Some variables need to be initialized
         self.DP_low=0 #The actual low-side pressure drop to be used in Pa
@@ -2757,7 +2758,7 @@ class ECU_VICompTelloCycleClass():
                 
                 if self.Verbosity>0:
                     PrintDPs()
-                    print 'Max pressure drop error [inner loop] is',max_error_DP,'Pa'
+                    print ('Max pressure drop error [inner loop] is',max_error_DP,'Pa')
                         
                 #Update the pressure drop terms
                 self.DP_low=self.DP_LowPressure
@@ -2767,7 +2768,7 @@ class ECU_VICompTelloCycleClass():
                 iter_inner+=1
                 
             if self.Verbosity > 0:
-                print "Done with the inner loop on pressure drop"
+                print ("Done with the inner loop on pressure drop")
             
             # Use Newton-Raphson solver
             (self.DT_evap,self.DT_cond,self.Tdew_inj)=MultiDimNewtRaph(OBJECTIVE,[self.DT_evap,self.DT_cond,self.Tdew_inj],dx=0.1)
@@ -2781,21 +2782,15 @@ class ECU_VICompTelloCycleClass():
             
             if self.Verbosity>0:
                 PrintDPs()    
-                print 'Max pressure drop error [outer loop] is',max_error_DP,'Pa'
+                print ('Max pressure drop error [outer loop] is',max_error_DP,'Pa')
         
         if self.Verbosity>1:
-            print 'Capacity: ', self.Capacity
-            print 'COP: ',self.COP
-            print 'COP (w/ both fans): ',self.COSP
-            print 'SHR: ',self.SHR
-        return
-=======
-            print('Capacity: ', self.Capacity)
-            print('COP: ',self.COP)
-            print('COP (w/ both fans): ',self.COSP)
-            print('SHR: ',self.SHR)
+            print ('Capacity: ', self.Capacity)
+            print ('COP: ',self.COP)
+            print ('COP (w/ both fans): ',self.COSP)
+            print ('SHR: ',self.SHR)
             print('UA_r_evap',self.Evaporator.UA_r)
             print('UA_a_evap',self.Evaporator.UA_a)
             print('UA_r_cond',self.Condenser.UA_r)
             print('UA_a_cond',self.Condenser.UA_a)
->>>>>>> TSTK/master
+        return

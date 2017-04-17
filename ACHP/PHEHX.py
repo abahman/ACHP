@@ -967,7 +967,7 @@ def VICompPHEHX():
             
     #Print PHEHX outputs
     for id, unit, value in PHE.OutputList():
-        print str(id) + ' = ' + str(value) + ' ' + str(unit)
+        print (str(id) + ' = ' + str(value) + ' ' + str(unit))
      
     
 def VICompPHEHX_Res():
@@ -1003,7 +1003,7 @@ def VICompPHEHX_Res():
     PHE=PHEHXClass(**params)
     
     def residual(x_in_PHEHX):
-        print x_in_PHEHX
+        print (x_in_PHEHX)
         params={
         'hin_c':PropsSI('H','P',816322.314008,'Q',x_in_PHEHX,'R407C')
         }
@@ -1014,10 +1014,10 @@ def VICompPHEHX_Res():
         return resid
     
     x_in_PHEHX_actual= brentq(residual,0.00001,0.99999)
-    print 'actual',x_in_PHEHX_actual
+    print ('actual',x_in_PHEHX_actual)
     #Print PHEHX outputs
     for id, unit, value in PHE.OutputList():
-        print str(id) + ' = ' + str(value) + ' ' + str(unit)
+        print (str(id) + ' = ' + str(value) + ' ' + str(unit))
     
         
 def SWEPVariedmdot():

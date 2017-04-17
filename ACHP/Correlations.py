@@ -470,8 +470,8 @@ def f_h_1phase_Annulus(mdot, OD, ID, T, p, AS, Phase='Single'):
         k = AS.conductivity() #[W/m-K]
         rho = AS.rhomass() #[kg/m^3]
     if k<=0.0:
-        print "Warning: property calculation in Correlations.py did not converge, k was: ", k
-        print "T was ", T, " and P was ", p
+        print ("Warning: property calculation in Correlations.py did not converge, k was: ", k)
+        print ("T was ", T, " and P was ", p)
         k=0.000001
         
     Pr = cp * mu / k #[-]
