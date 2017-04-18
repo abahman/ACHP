@@ -948,9 +948,14 @@ def ECUCycle_VICompTello():
     #--------------------------------------
     #Dimensioless compressor map
     if Cycle.Ref=='R407C':
-        K=[-0.3845,0.3296]
-        M=[133.3171898,0.508718380832,-2.15889885692,0.00847246179835,0.009495493298,0.0170835511659,3.65431994895E-05,6.660136064E-06,-4.719716435E-05,-4.61719969253E-05]
-        P=[1.003,0.9998 ,1.134 ,0.9032 ,-0.5003 ,0.5136 ,-0.001366 ,-0.009186 ,0.005756 ,-0.00156 ,1.053] 
+        #Domenique's Data
+        K=[- 0.2312,0.259]
+        M=[-118.9860327,0.332807450243,4.02453985855,-0.00899463863753,0.0167904116,-0.0356288211019,0.000406031661245,-0.0001556645302,-3.534517873E-05,9.99601000292E-05]
+        P=[0.9999,0.9963,0.9886,0.9188,0.7763,0.3154,0.1269,-0.1231,0.03077,-0.00422,0.9943]
+        #Tello's Data
+        #K=[-0.3845,0.3296]
+        #M=[133.3171898,0.508718380832,-2.15889885692,0.00847246179835,0.009495493298,0.0170835511659,3.65431994895E-05,6.660136064E-06,-4.719716435E-05,-4.61719969253E-05]
+        #P=[1.003,0.9998 ,1.134 ,0.9032 ,-0.5003 ,0.5136 ,-0.001366 ,-0.009186 ,0.005756 ,-0.00156 ,1.053] 
 
     params={
             'M':M,
@@ -1129,8 +1134,8 @@ def ECUCycle_VICompTello():
 #     
     
     #Now solve
-    Cycle.PreconditionedSolve()
-    #Cycle.PreconditionedSolve_new()
+    #Cycle.PreconditionedSolve()
+    Cycle.PreconditionedSolve_new()
     
     #Print Cycle outputs
     for id, unit, value in Cycle.OutputList():
@@ -1139,15 +1144,16 @@ def ECUCycle_VICompTello():
     return Cycle
     
 if __name__=='__main__':
+    import time
+    start = time.time()
     #cycle=ECUCycle()
     #cycle2=ECUCycle_NewComp()
     #cycle3=ECUCycle_VIComp()
     #cycle4=ECUCycle_VISemiEmpComp()
     cycle5=ECUCycle_VICompTello()
-    import time
-    start = time.time()
     #Write the outputs to file
-    #Write2CSV(cycle4,open('results/Cycle_60K_Test1_VISemiEmpComp.csv','w'),append=False)
+    #Write2CSV(cycle5,open('results/Cycle_60K_Test1_VICompTello.csv','w'),append=False)
+    #Write2CSV(cycle5,open('results/Cycle_60K_Test1_VICompTello.csv','a'),append=True)
     #Write2CSV(cycle2,open('results/Cycle_60K_Test1.csv','a'),append=True)
     #Write2CSV(cycle3,open('results/Cycle_60K_Test1.csv','a'),append=True)
     print 'Took '+str(time.time()-start)+' seconds to run Cycle model'

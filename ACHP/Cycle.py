@@ -2641,7 +2641,16 @@ class ECU_VICompTelloCycleClass():
             return resids
           
         # Use the preconditioner to determine a reasonably good starting guess
+        print ('-------------------------------------')
+        print ('            Running Preconditioner   ')
+        print ('-------------------------------------')
         DT_evap_init,DT_cond_init,Tdew_inj_init=VICompPreconditioner(self)
+        
+        print ('-------------------------------------')
+        print ('           Preconditioner Completed  ')
+        print ('             Starting Main Cycle     ')
+        print ('-------------------------------------')
+        
         
         GoodRun=False
         while GoodRun==False:
@@ -2685,7 +2694,11 @@ class ECU_VICompTelloCycleClass():
             print ('UA_a_evap',self.Evaporator.UA_a)
             print ('UA_r_cond',self.Condenser.UA_r)
             print ('UA_a_cond',self.Condenser.UA_a)
-    
+        
+        print ('-------------------------------------')
+        print ('     Simulation Completed            ')
+        print ('-------------------------------------')
+        
     def PreconditionedSolve_new(self,PrecondValues=None):
         '''
         PrecondValues = dictionary of values DT_evap, DT_cond and Tdew_inj
