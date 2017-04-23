@@ -19,7 +19,7 @@ The compressor is modeled based on a 10-coefficient ARI compressor map which is 
     from CoolProp.CoolProp import PropsSI
     from CoolProp.Plots import PropertyPlot
     import pylab
-    PropertyPlot('HEOS','R410A')
+    PropertyPlot('HEOS::R410A',"PH")
     ps=PropsSI('P','T',260,'Q',1,'R410A')/1000.0
     pd=PropsSI('P','T',300,'Q',1,'R410A')/1000.0
     hs=PropsSI('H','T',260,'Q',1,'R410A')/1000.0
@@ -124,11 +124,11 @@ Minimal Component Test:
 .. literalinclude:: ComponentTests/CompressorTest.py
     :language: python
     
-If you open an IPython(x,y) shell in the root of the documentation (folder Documentation/Web relative to the main trunk), and run the commands below, you should get
+If you open an IPython shell in the root of the documentation (folder ``Documentation/Web`` relative to the main trunk), and run the commands below, you should get something like
 
 .. ipython::
 
-    In [1]: execfile('ACHPComponents/ComponentTests/CompressorTest.py')
+    In [1]: %run 'ACHPComponents/ComponentTests/CompressorTest.py'
     
 If not, first stop should be the :ref:`FAQS`
 

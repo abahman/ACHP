@@ -1,4 +1,4 @@
-from __future__ import division
+from __future__ import division, print_function, absolute_import
 from math import pi,log,sqrt,exp,cos,sin,tan,log10
 from scipy.integrate import quad,quadrature,trapz,simps,fixed_quad
 from scipy.optimize import brentq,fsolve
@@ -430,6 +430,56 @@ def ShahCondensation_Average(x_min,x_max,AS,G,D,p,TsatL,TsatV):
     else:
         #A single value is given
         return ShahCondensation(x_min,AS,G,D,p)
+
+def f_h_cp_supercritical(Tout,Tin,AS,OD,ID,mdot,p):
+  
+    def SuperCriticalCondensation(T,AS,OD,ID,mdot,p):
+        AS.update(CP.PT_INPUTS,p,T)
+        mu = AS.viscosity() #[Pa-s OR kg/m-s]
+        cp = AS.cpmass() #[J/kg-K]
+        k = AS.conductivity() #[W/m-K]
+        rho = AS.rhomass() #[kg/m^3]
+        Pr = cp * mu / k #[-]
+    
+        Dh = OD - ID
+        Area=pi*(OD**2-ID**2)/4.0
+        u=mdot/(Area*rho)
+        Re=rho*u*Dh/mu
+    
+        # Friction factor of Churchill (Darcy Friction factor where f_laminar=64/Re)
+        e_D = 0
+        A = ((-2.457 * log( (7.0 / Re)**(0.9) + 0.27 * e_D)))**16
+        B = (37530.0 / Re)**16
+        f = 8 * ((8/Re)**12.0 + 1 / (A + B)**(1.5))**(1/12)
+    
+        # Heat Transfer coefficient of Gnielinski
+        Nu = (f/8)*(Re-1000)*Pr/(1+12.7*sqrt(f/8)*(Pr**(2/3)-1)) #[-]
+        h = k*Nu/Dh #W/m^2-K  
+        return (h,f,cp,rho)
+    
+    def SuperCriticalCondensation_h(T,AS,OD,ID,mdot,p):
+        '''return h value'''
+        return SuperCriticalCondensation(T,AS,OD,ID,mdot,p)[0]
+    def SuperCriticalCondensation_f(T,AS,OD,ID,mdot,p):
+        '''return f value'''
+        return SuperCriticalCondensation(T,AS,OD,ID,mdot,p)[1]
+    def SuperCriticalCondensation_cp(T,AS,OD,ID,mdot,p):
+        '''return cp value'''
+        return SuperCriticalCondensation(T,AS,OD,ID,mdot,p)[2]
+    def SuperCriticalCondensation_rho(T,AS,OD,ID,mdot,p):
+        '''return rho value'''
+        return SuperCriticalCondensation(T,AS,OD,ID,mdot,p)[3]
+            
+    if not Tout==Tin:
+        #A proper range is given
+        h = quad(SuperCriticalCondensation_h,Tin,Tout,args=(AS,OD,ID,mdot,p))[0]/(Tout-Tin)
+        f = quad(SuperCriticalCondensation_f,Tin,Tout,args=(AS,OD,ID,mdot,p))[0]/(Tout-Tin)
+        cp = quad(SuperCriticalCondensation_cp,Tin,Tout,args=(AS,OD,ID,mdot,p))[0]/(Tout-Tin)
+        rho = quad(SuperCriticalCondensation_rho,Tin,Tout,args=(AS,OD,ID,mdot,p))[0]/(Tout-Tin)
+        return (h,f,cp,rho)
+    else:
+        #A single value is given
+        return SuperCriticalCondensation(Tout,AS,OD,ID,mdot,p)
     
 def f_h_1phase_Tube(mdot,ID,T, p,AS,Phase='Single'):
     """ 
@@ -1090,9 +1140,9 @@ if __name__=='__main__':
         DP_vals_fric.append(LMPressureGradientAvg(x-0.1,x,AS,0.1,0.01,250,250)*1*1)
         x_vals.append(x)
         
-    print "plot shows accelerational pressure drop as f(x) for 0.1 x segments"
+    print("plot shows accelerational pressure drop as f(x) for 0.1 x segments")
     pylab.plot(x_vals, DP_vals_acc)
     pylab.show()
-    print "plot shows frictional pressure drop as f(x) for 0.1 x segments of a fictional tube with unit length"
+    print("plot shows frictional pressure drop as f(x) for 0.1 x segments of a fictional tube with unit length")
     pylab.plot(x_vals, DP_vals_fric)
     pylab.show()

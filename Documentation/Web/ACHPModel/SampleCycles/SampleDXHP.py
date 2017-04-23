@@ -1,5 +1,7 @@
+from __future__ import print_function
+
 from ACHP.Cycle import DXCycleClass
-from convert_units import F2K 
+from ACHP.convert_units import F2K 
 
 #Instantiate the class
 Cycle=DXCycleClass()
@@ -125,6 +127,6 @@ t1=time()
 Cycle.PreconditionedSolve()
 
 #Outputs
-print 'Took '+str(time()-t1)+' seconds to run Cycle model'
-print 'Cycle coefficient of system performance is '+str(Cycle.COSP)
-print 'Cycle refrigerant charge is '+str(Cycle.Charge)+' kg'
+print('Took '+str(time()-t1)+' seconds to run Cycle model')
+print('Cycle coefficient of system performance is '+str(Cycle.COSP))
+print('Cycle refrigerant charge is '+str(Cycle.Charge)+' kg')
