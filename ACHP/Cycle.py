@@ -2642,7 +2642,7 @@ class ECU_VICompTelloCycleClass():
           
         # Use the preconditioner to determine a reasonably good starting guess
         print ('-------------------------------------')
-        print ('            Running Preconditioner   ')
+        print ('           Running Preconditioner    ')
         print ('-------------------------------------')
         DT_evap_init,DT_cond_init,Tdew_inj_init=VICompPreconditioner(self)
         
@@ -2696,7 +2696,7 @@ class ECU_VICompTelloCycleClass():
             print ('UA_a_cond',self.Condenser.UA_a)
         
         print ('-------------------------------------')
-        print ('     Simulation Completed            ')
+        print ('           Simulation Completed      ')
         print ('-------------------------------------')
         
     def PreconditionedSolve_new(self,PrecondValues=None):
@@ -2748,13 +2748,21 @@ class ECU_VICompTelloCycleClass():
         self.OBJ_SL_counter=0
         
         #Run the preconditioner to get guess values for the temperatures
+        print ('-------------------------------------')
+        print ('            Running Preconditioner   ')
+        print ('-------------------------------------')
         if PrecondValues is None:
             self.DT_evap,self.DT_cond,self.Tdew_inj=VICompPreconditioner(self)
         else:
             self.DT_evap=PrecondValues['DT_evap']
             self.DT_cond=PrecondValues['DT_cond']
             self.Tdew_inj=PrecondValues['Tdew_inj']
-            
+        
+        print ('-------------------------------------')
+        print ('           Preconditioner Completed  ')
+        print ('             Starting Main Cycle     ')
+        print ('-------------------------------------')    
+        
         iter=1
         max_error_DP=999
         #Outer loop with a more relaxed convergence criterion
@@ -2806,4 +2814,9 @@ class ECU_VICompTelloCycleClass():
             print('UA_a_evap',self.Evaporator.UA_a)
             print('UA_r_cond',self.Condenser.UA_r)
             print('UA_a_cond',self.Condenser.UA_a)
+        
+        print ('-------------------------------------')
+        print ('     Simulation Completed            ')
+        print ('-------------------------------------')
+        
         return
