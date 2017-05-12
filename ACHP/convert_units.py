@@ -34,6 +34,9 @@ def F2C(T_F):
 def DeltaF2K(T_F):
     """Convert temperature in Fahrenheit to Celsius"""
     return 5./9.*(T_F)
+def DeltaK2F(T_K):
+    """Convert temperature in Fahrenheit to Celsius"""
+    return 9./5.*(T_K)
 def C2K(T_C):
     """Convert temperature in Celsius to Kelvin"""
     return T_C+273.15
@@ -48,9 +51,9 @@ def K2F(T_K):
     return T_K * 9.0/5.0 - 459.67
 
 """##### Massflow    ####################################"""
-def lbh2kgs(lbm):
-    """Convert pound per minute to kilogramms per second"""
-    return 0.000125998*lbm #0.45359237 [kg/lbm]/3600 [s/h]
+def lbh2kgs(lbh):
+    """Convert pound per hour to kilogramms per second"""
+    return 0.000125998*lbh #0.45359237 [kg/lbm]/3600 [s/h]
 def lbm2kgs(lbm):
     """Convert pound per minute to kilogramms per second"""
     return 0.007559873*lbm #0.45359237 [kg/lbm]/60 [s/h]
@@ -107,6 +110,9 @@ def MPa2Pa(MPa):
 def psi2kPa(Psi):
     """convert PSI to kPa"""
     return Psi*6.894757
+def kPa2psi(kPa):
+    """convert kPa to PSI"""
+    return kPa*0.145038
 
 """##### Length ####################################"""
 def in2m(inch):
