@@ -11,6 +11,8 @@ from CoolProp.HumidAirProp import HAPropsSI
 
 from extra_functions import HPtoTXP
 from EvapCirc import EvapCircuit
+from PRESSURE import dPelbow, dPmom
+from VOLUME import VolumeALL
 
 def Evaporator(Ref, #refrigerant string
                filename, #file nane string
@@ -234,21 +236,21 @@ def EvapTubeBend(Ref,Gr,HPo,m,P):
     ********************************************************************/
     '''
     
-    TXPo = HPtoTXP(HPo, Ref);
+    TXPo = HPtoTXP(HPo, Ref)
 
-    vo = VolumeALL(TXPo,Gr,P['Di'],0);
+    vo = VolumeALL(TXPo,Gr,P['Di'],0, Ref)
 
-    dP = dPelbow(TXPo,Gr,P['Di'],P['Brad']);
+    dP = dPelbow(TXPo,Gr,P['Di'],P['Brad'], Ref)
 
     HPm = {'H':0.0,'P':0.0};
     HPm['H']=HPo['H'];
     HPm['P']=HPo['P']-dP;
     
-    TXPm=HPtoTXP(HPm, Ref);
+    TXPm=HPtoTXP(HPm, Ref)
     
-    vm = VolumeALL(TXPm,Gr,P['Di'],0);
+    vm = VolumeALL(TXPm,Gr,P['Di'],0, Ref)
 
-    dP = dPmom(vo,vm,Gr);
+    dP = dPmom(vo,vm,Gr)
 
     HPo['H']=HPm['H'];
     HPo['P']=HPm['P']-dP;
@@ -276,21 +278,21 @@ def EvapTubeBend_Fwd(Ref,Gr,HPo,m,P):
     ********************************************************************/
     '''
 
-    TXPo = HPtoTXP(HPo, Ref);
+    TXPo = HPtoTXP(HPo, Ref)
 
-    vo = VolumeALL(TXPo,Gr,P['Di'],0);
+    vo = VolumeALL(TXPo,Gr,P['Di'],0, Ref)
     
-    dP = dPelbow(TXPo,Gr,P['Di'],P['Brad']);
+    dP = dPelbow(TXPo,Gr,P['Di'],P['Brad'], Ref)
 
     HPm = {'H':0.0,'P':0.0};
     HPm['H']=HPo['H'];
     HPm['P']=HPo['P']+dP;
     
-    TXPm=HPtoTXP(HPm, Ref);
+    TXPm=HPtoTXP(HPm, Ref)
 
-    vm = VolumeALL(TXPm,Gr,P['Di'],0);
+    vm = VolumeALL(TXPm,Gr,P['Di'],0, Ref)
 
-    dP = dPmom(vo,vm,Gr);
+    dP = dPmom(vo,vm,Gr)
 
     HPo['H']=HPm['H'];
     HPo['P']=HPm['P']-dP;

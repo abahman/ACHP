@@ -8,6 +8,20 @@ from __future__ import division, print_function, absolute_import
 from CoolProp.CoolProp import PropsSI
 
 
+
+def toTXP(T,X,P):
+    '''
+    /********************************************************************
+    Convert T,X,P format to TXP format
+    ********************************************************************/
+    '''
+    txp = {'T':0.0,'X':0.0,'P':0.0};
+    txp['T']=T;
+    txp['X']=X;
+    txp['P']=P;
+    
+    return txp
+
 def HPtoTXP(HP,Ref):
     '''Convert HP format to TXP format.'''
 
@@ -45,6 +59,10 @@ def PropertyTXPth(prop,TXP,Ref):
     '''
     /********************************************************************
     Evaluates properties given TXP data.
+    Refrigerant properties
+    thermodynamic properties (th) - not transport properties
+    pressure and temperature (PT) are independent variables
+
     prop = sting of 
         'T' Temperature, 0
         'H' Enthalpy, 1
@@ -60,9 +78,9 @@ def PropertyTXPth(prop,TXP,Ref):
         if (prop=='T'): #0 is TSAT             
             return Tsat
 
-        if (TXP['T']>Tsat):
+        if (TXP['T']>Tsat): #superheat vapor
             a = PropsSI(prop,'P',TXP['P'],'T',TXP['T'],Ref)
-        else: 
+        else: #saturated vapor
             a = PropsSI(prop,'P',TXP['P'],'Q',1,Ref)
             
     elif (TXP['X']<=0): #Subcooled
@@ -70,9 +88,9 @@ def PropertyTXPth(prop,TXP,Ref):
         if(prop=='T'): #0 is TSAT
             return Tsat
 
-        if (TXP['T']<Tsat):
+        if (TXP['T']<Tsat): #subcooled liquid
             a = PropsSI(prop,'P',TXP['P'],'T',TXP['T'],Ref)
-        else:
+        else: #saturated liquid
             a = PropsSI(prop,'P',TXP['P'],'Q',0,Ref)
     
     else: #two-phase
@@ -84,6 +102,50 @@ def PropertyTXPth(prop,TXP,Ref):
             a = PropsSI(prop,'P',TXP['P'],'Q',TXP['X'],Ref)
 
     return a
- 
+
+def PropertyTXPtr(prop,TXP,Ref):
+    '''
+    /********************************************************************
+    Evaluates properties given TXP data.
+    Refrigerant properties
+    transport properties (tr) - not thermodynamic properties
+    pressure and temperature (PT) are independent variables
+    
+    prop = sting of 
+        'P' *pressure, 0
+        'T' *Temperature, 1
+        'L' conductivity, 2
+        'V' viscosity, 3
+        'C' specific heat, 4
+        'I' surface tension, 5
+    ********************************************************************/
+    '''
+
+    if (TXP['X']>=1): 
+        Tsat = PropsSI('T','P',TXP['P'],'Q',1,Ref)
+
+        if (TXP['T']>Tsat): #superheat vapor
+            a = PropsSI(prop,'P',TXP['P'],'T',TXP['T'],Ref)
+        else: #saturated vapor
+            a = PropsSI(prop,'P',TXP['P'],'Q',1,Ref)
+    
+    elif (TXP.X<=0):
+        Tsat = PropsSI('T','P',TXP['P'],'Q',0,Ref)
+        
+        if (TXP['T']<Tsat): #subcooled liquid
+            a = PropsSI(prop,'P',TXP['P'],'T',TXP['T'],Ref)
+        else: #saturated liquid
+            a = PropsSI(prop,'P',TXP['P'],'Q',0,Ref)
+        
+    else: #two-phase
+        a = PropsSI(prop,'P',TXP['P'],'Q',TXP['X'],Ref)
+        
+        #(commented) No need to average since PropsSI can find the property with given quality value
+        #al = PropsSI(prop,'P',TXP['P'],'Q',0,Ref)
+        #av = PropsSI(prop,'P',TXP['P'],'Q',1,Ref)
+        #a = al + TXP['X']*(av-al);
+           
+    return a
+
 if __name__=='__main__':
     print('Hello world')
