@@ -6,7 +6,7 @@ from scipy.optimize import brentq
 from CoolProp.CoolProp import PropsSI
 
 from extra_functions import PropertyTXPth, PropertyTXPtr, toTXP
-from CORR import Eva_FlowPattern
+from CORR import Eva_FlowPattern, Cond_FlowPattern
 
 
 def Xtt(TXPm, Ref):

@@ -13,6 +13,7 @@ from extra_functions import HPtoTXP
 from EvapCirc import EvapCircuit
 from PRESSURE import dPelbow, dPmom
 from VOLUME import VolumeALL
+from CORR import Circuit_DP_EVAP
 
 def Evaporator(Ref, #refrigerant string
                filename, #file nane string
@@ -211,7 +212,7 @@ def Evaporator(Ref, #refrigerant string
      
     HPo, HPi, TPo, Sm, Aflow, D = EvapCircuit(Ref,D['type'],mr,HPo,Ga,TPi,HPi,TPo,Sm,Aflow,D)
    
-    DP_circuit, TPo, D = Circuit_DP(Ga,TPi,TPo,D)#B.S., calculate the airside pressure drop across the circuit
+    DP_circuit, TPo, D = Circuit_DP_EVAP(Ga,TPi,TPo,D)#B.S., calculate the airside pressure drop across the circuit
     #gOutData.Eva_AirDP = DP_circuit#for output
    
     #B.S.---------------------------------------

@@ -112,12 +112,12 @@ def PropertyTXPtr(prop,TXP,Ref):
     pressure and temperature (PT) are independent variables
     
     prop = sting of 
-        'P' *pressure, 0
-        'T' *Temperature, 1
-        'L' conductivity, 2
-        'V' viscosity, 3
-        'C' specific heat, 4
-        'I' surface tension, 5
+        'P' *pressure [Pa], 0
+        'T' *Temperature [K], 1
+        'L' conductivity [W/m/K], 2
+        'V' viscosity [Pa-s], 3
+        'C' specific heat [J/kg/K], 4
+        'I' surface tension [N/m], 5
     ********************************************************************/
     '''
 

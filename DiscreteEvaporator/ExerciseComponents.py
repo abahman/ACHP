@@ -16,7 +16,7 @@ from EVAP import Evaporator
     
 def ExerciseEvaporator():
     
-    Ref = 'R410A'
+    Ref = 'R407C'
     #design conditions
     SH = 23.004 #superheat (F)
     #SC = 10.9512 #subcooling F (***no effect)
