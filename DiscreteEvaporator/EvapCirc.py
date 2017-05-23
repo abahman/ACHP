@@ -153,7 +153,7 @@ class StructEvap():
         
         if (self.Rev): #reversed calculation
             self._EvapCircuit_Rev(mr,HPo,Ga,TPi,HPi,TPo,Sm,Aflow,P)
-        return 0
+            return 0
     
         self.TPo=TPi;#inlet air state
     
@@ -172,18 +172,13 @@ class StructEvap():
         for j in range(self.RowNum):
             N=0;
             for i in range(self.TubeNum):
-                
-                if(self.Tub[i]['RowNo']==j):
-                
+                if (self.Tub[i]['RowNo']==j):
                     for k in range(self.SegNum):
                         self.Tub[i]['Seg'][k]['TPi']=TPi;
                         self.Tub[i]['Seg'][k]['WHo']['W'] = HAPropsSI("W", "T", TPi['T'], "P", 101325, "R", TPi['P']) #[kg water/kg dry air] ####wair.HumidityRatio(TPi.T,TPi.P)
                         self.Tub[i]['Seg'][k]['WHo']['H'] = HAPropsSI("H", "T", TPi['T'], "P", 101325, "R", TPi['P']) #[J/kg dry air] ####wair.h(TPi.T,TPi.P);
-                        #if(errorLog.IsError()) {
-                        #    errorLog.Add("StructEvap::_EvapCircuit","WHo");
-                        #    return -1;}
         
-                    if(self.Tub[i]['RowNo']>0):#not the first row
+                    if (self.Tub[i]['RowNo']>0):#not the first row
                         Upper = self.Tub[i]['AirUpstreamUpper']
                         Lower = self.Tub[i]['AirUpstreamLower']
                         if (Upper>=0 and Lower>=0):
@@ -221,9 +216,7 @@ class StructEvap():
         for i in range(self.NodNum):#inlet nodes
             if (self.Nod[i]['BranIN'][0]<0):#no inlet branch, only from the distributor
                 Gr = mr/(self.P['Ax']*self.Nod[i]['OutNum']);    
-                #if(errorLog.IsError()) {
-                #errorLog.Add("StructCond::_CondCircuit","CondMan0");
-                #return -1;}
+
                 for j in range(self.Nod[i]['OutNum']):#states flowing out from the node
                     jj = self.Nod[i]['BranOUT'][j];#index of the outlet branches
                     self.Bra[jj]['HPi']=self.HPi;
@@ -386,9 +379,7 @@ class StructEvap():
             print('_EvapCircuit_Fwd :: check TPo that need to be numerically solved!')
             print('Other source of exception might be due to relative humidity ~100%, try to solve TPo with relative humidity of 95%')
             self.TPo = {'T': HAPropsSI('T','P',101325,'H',WH_out['H'],'R',0.995), 'P': 0.995}
-        #if(errorLog.IsError()) {
-        #errorLog.ClearError("StructEvap::_EvapCircuit","WH_out to TPo");
-        #return -1;}
+
     
         #refrigerant outputs
         self.HPo['H']=H_out;
@@ -402,7 +393,8 @@ class StructEvap():
     
     def _EvapCircuit_Rev(self, mr,HPo,Ga,TPi,HPi,TPo,Sm,Aflow,P):
         '''reversed evaporator solver'''
-        pass
+        
+        return 0
     
     def Cal_HP(self, Pos):
         ''''function to calculate the heat transfer and pressure drop'''
@@ -505,24 +497,18 @@ class StructEvap():
                             else:
                                 self.HPi, WHo, mi, self.P = EvapTubeL_Fwd(self.Ref, self.Bra[i]['Gr'],self.HPi,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['TPi'],WHo,mi,self.P)
                 
-                            #if(errorLog.IsError()) {
-                            #errorLog.Add("StructEvap::Cal_HP","EvapTube");
-                            #return -1;}
                             self.Tub[TubeN]['Seg'][realk]['WHo']=WHo;
                             self.Tub[TubeN]['m']['m']=self.Tub[TubeN]['m']['m']+mi['m'];
                             self.Tub[TubeN]['m']['V']=self.Tub[TubeN]['m']['V']+mi['V'];
                             Sm['m']=Sm['m']+mi['m'];
                             Sm['V']=Sm['V']+mi['V'];
                         #end k circle
-                        
+        
                         
                         if (self.Rev):
                             self.HPi, mi, self.P = EvapTubeBend(self.Ref,self.Bra[i]['Gr'],self.HPi,mi,self.P);
                         else:
                             self.HPi, mi, self.P = EvapTubeBend_Fwd(self.Ref,self.Bra[i]['Gr'],self.HPi,mi,self.P);
-                        #if(errorLog.IsError()) {
-                        #errorLog.Add("StructCond::Cal_HP","CondTubeBend");
-                        #return -1;}
                 
                         self.Tub[TubeN]['m']['m']=self.Tub[TubeN]['m']['m']+mi['m'];
                         self.Tub[TubeN]['m']['V']=self.Tub[TubeN]['m']['V']+mi['V'];
@@ -597,3 +583,6 @@ class StructEvap():
         self.P=Bak;
         
         return 0
+
+if __name__=='__main__':
+    print('Hello world')

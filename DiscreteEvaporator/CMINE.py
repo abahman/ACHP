@@ -6,7 +6,7 @@ from math import log,pi,sqrt,exp,cos,sin,tan,log10,tanh
 #from CoolProp.CoolProp import PropsSI
 from CoolProp.HumidAirProp import HAPropsSI
 
-from extra_functions import PropertyTXPtr, #PropertyTXPth, Airside_Dim, InsideTube_Dim
+from extra_functions import PropertyTXPtr#,PropertyTXPth, Airside_Dim, InsideTube_Dim
 from CORR import IsTwoPhase
 
 
