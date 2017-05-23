@@ -1,7 +1,7 @@
 from __future__ import division, print_function, absolute_import
 from math import pi,log,exp
 
-#from scipy.optimize import brentq #solver to find roots (zero points) of functions
+from scipy.optimize import brentq #solver to find roots (zero points) of functions
 #import numpy as np
 import pandas as pd
 
@@ -9,11 +9,12 @@ import pandas as pd
 #from CoolProp.CoolProp import PropsSI
 from CoolProp.HumidAirProp import HAPropsSI
 
-from extra_functions import HPtoTXP
+from extra_functions import HPtoTXP, EVA_Get_Q, toTXP, PreAcc
 from EvapCirc import EvapCircuit
-from PRESSURE import dPelbow, dPmom
+from PRESSURE import dPelbow, dPmom, GET_PreAcc
 from VOLUME import VolumeALL
-from CORR import Circuit_DP_EVAP
+from CORR import Circuit_DP_EVAP, ConvCoeffAir_EVA, FinEffect_Schmidt, ConvCoeffSP
+from CMIN import CmineCrossFlow_dry
 
 def Evaporator(Ref, #refrigerant string
                filename, #file nane string
@@ -229,7 +230,6 @@ def Evaporator(Ref, #refrigerant string
     return (HPo, HPi, TPo, Sm, Aflow, Evap_struc)
 
 
-
 def EvapTubeBend(Ref,Gr,HPo,m,P):
     '''
     /********************************************************************
@@ -315,3 +315,588 @@ def EvapTubeBend_Fwd(Ref,Gr,HPo,m,P):
 
     return (HPo, m, P)
     
+
+# def EvapTubeL_Rev(Gr,#refrigerant mass flux
+#                   HPo,#refrigerant outlet and inlet state
+#                   Ga,#air mass flux
+#                   TPi,#air inlet state
+#                   WHo,#air outlet state
+#                   m,#charge and inner volume in the evaporator
+#                   P):#evaporator struct
+#     '''
+#     /*********************************************************************
+#     Evaporator tube segment model which neglects pressure drops
+#     Inputs:
+#         Gr = refrigerant mass flux (kg/s/m^2)
+#         HPi = refrigerant inlet state (h,P)
+#         Ga = air mass flux (kg/s/m^2)
+#         Tai = air inlet temperature (C)
+#     Outputs:
+#         HPi = refrigerant outlet state (h,P)
+#         hao = air outlet enthalpy (J/kg)
+#         m = mass of charge in return bend (kg)
+#     *********************************************************************/
+#     '''
+# 
+#     double v,hai,ma,mr;
+#     TXP TXPo;
+#     EVA_Get_Q EVA_Get_Q;#B.S., this struct is for storing some parameters for iteration
+#     double y=0;
+#     double hi=0;
+#     double Ri=0,R=0;
+#     double q=0;
+# 
+#     /* Calculate air side resistance */
+#     P->wet=0;
+#     const double ho = P->hAirAdj*ConvCoeffAir_EVA(TPi,Ga,P);#B.S., the airside dry heat transfer coefficient can be got for different fin types
+#     if(errorLog.IsError()) {
+#         errorLog.Add("EvapTubeL", "get ho");
+#         return 0;
+#     }
+# 
+#     const double phi = FinEffect_Schmidt(ho,233,P->th,P->y,P->Do);#B.S. calculate the fin efficiency with the Schmidt equation
+#     if(errorLog.IsError()) {
+#         errorLog.Add("EvapTubeL", "FinEffect_Schmidt");
+#         return 0;
+#     }
+# 
+#     P->Ro = 1/(ho*(P->Apo+phi*P->Af));
+#     P->ho=ho;
+#     P->Ga=Ga;
+# 
+#     
+#     # convert inlet state into TXP format
+#     TXPo = HPtoTXP(*HPo);
+#     if(errorLog.IsError()) {
+#         errorLog.Add("EvapTubeL_new", "(TXPo,1)");
+#         return 0;
+#     }
+# 
+#     #B.S.--------------------------------------
+#     TXP TXP_bak;
+#     TXP_bak = TXPo;#backup the outlet state of this segment
+#     #---------------------------------------B.S.
+# 
+#     # Mass flow rates of air and refrigerant
+#     ma=Ga*P->Aflow;#B.S. Ga is the maximum airflow flux, P->Aflow is the minimun air flow cross-sectional area
+#     mr=Gr*P->Ax;
+# 
+#     # Calculate heat transfered per unit mass of refrigerant.
+# 
+#     const double hi_max=10e4;#largest possible refrigerant side heat tranfer coeffcient
+#     const double hi_min=100;#minimum possible refrigerant side heat transfer coeffcient
+# 
+#     #B.S.-----------------------------
+#     #store the parameters for iteration
+#     EVA_Get_Q.ma=ma;
+#     EVA_Get_Q.mr=mr;
+#     EVA_Get_Q.TPi=TPi;
+#     EVA_Get_Q.Gr=Gr;
+#     EVA_Get_Q.P=*P;
+#     EVA_Get_Q.q=0;
+#     EVA_Get_Q.W=wair.HumidityRatio(TPi.T,TPi.P);
+#     if(errorLog.IsError()) {
+#         errorLog.Add("EvapTubeL_new", "(W)");
+#         return 0;
+#     }
+#     #---------------------------------------B.S.
+# 
+#     const double X1=0.05,X2=0.95;#    const double X1=0.01,X2=0.99;
+#     #for calculating the heat transfer and pressure drop in single-phase or approximated single-phase region
+# 
+#     if(TXPo.X>X2||TXPo.X<X1) {
+# 
+#         if(TXPo.X>=1 || TXPo.X<=0) {#Pure single phase region
+# 
+#             y, P = ConvCoeffSP(TXPo,Gr,P, Ref);#get the single-phase heat transfer coefficient
+#             if(errorLog.IsError()) {
+#                 errorLog.Add("EvapTubeLNew","(hi_SP)");
+#                 return 0;
+#             }
+#         } else if(TXPo.X<X1) {
+#     
+#             TXP TXP1 = toTXP(TXPo.T,0.0,TXPo.P);
+#             TXP TXP2 = toTXP(TXPo.T,X1,TXPo.P);
+# 
+#             y1, P = ConvCoeffSP(TXP1,Gr,P, Ref);
+#             if(errorLog.IsError()) {
+#                 errorLog.Add("EvapTubeLNew","(hi_SP)");
+#                 return 0;
+#             }
+#         
+#             EVA_Get_Q.TXPo=TXP2;#local refrigerant state
+#             hi = Zbrent(hi_max,hi_min,Get_Q_EVA,1e-5,&EVA_Get_Q);#B.S., get the heat transfer coefficient at the two-phase region
+#             if(errorLog.IsError()) {
+#                 errorLog.Add("EvapTubeLNew","Zbrent1");
+#                 return 0;
+#             }
+# 
+#             double y2 = hi/P->hRefAdj;#B.S., calculate the two-phase heat transfer coefficient at this region
+#             
+#             if(y1>y2) y1=y2;#B.S., make the single phase flow less than two phase
+#             y = y1+TXPo.X*(y2-y1)/X1;#B.S., get the heat transfer coefficient in this region with intropolation
+#         } else {
+# 
+#             TXP TXP1 = toTXP(TXPo.T,X2,TXPo.P);
+#             TXP TXP2 = toTXP(TXPo.T,1,TXPo.P);
+#     
+#             EVA_Get_Q.TXPo = TXP1;
+#             hi = Zbrent(hi_max,hi_min,Get_Q_EVA,1e-5,&EVA_Get_Q);#two-phase refrigerant heat transfer coefficient
+#             #B.S., get the heat transfer coefficient at the two-phase region
+#             if(errorLog.IsError()) {
+#                 char msg[256];
+#                 sprintf(msg,"Zbrent2: TXPo.T=%.2lf, T_max=%.2lf, T_min=%.2lf",TXPo.T,hi_max,hi_min);
+#                 errorLog.Add("EvapTubeLNew",msg);
+#                 return 0;
+#             }
+# 
+#             double y1 = hi/P->hRefAdj;#ConvCoeffEvapTP_microfin(TXP1,Gr,P);#B.S. get two-phase heat transfer coefficient at this region    
+#         
+#             y2, P = ConvCoeffSP(TXP2,Gr,P, Ref);#B.S., single-phase heat transfer coefficient
+# 
+#             if(y2>y1) y2=y1; #B.S., for making the single phase flow less than two phase
+#             y = y2-(1-TXPo.X)*(y2-y1)/(1-X2);#B.S., get the heat transfer coefficient in this region with intropolation
+#         } 
+# 
+#         hi = P->hRefAdj*y;#B.S., heat transfer coefficient at this region
+#         Ri = 1/(hi*P->Api);#B.S., inside thermal resistance
+#         const double R_W=log(P->Do/(P->Do-2.0*P->xp))/(2.0*3.1415*P->K_T*P->Ls);
+#         R = P->Ro+R_W+Ri;#overall thermal resistance
+#     
+#         #B.S., prepare the parameters for iteration
+#         EVA_Get_Q.TXPo = TXPo;
+#         EVA_Get_Q.Cmin = CmineCrossFlow_dry(R,mr,ma,TXPo,TPi, Ref);
+#         EVA_Get_Q.HPo = *HPo;
+#         
+#         if(errorLog.IsError()) {
+#                 errorLog.Add("EvapTubeL_new", "T_sat");
+#                 return 0;
+#             }
+# 
+#         if(0/*TXPo.T<T_sat+1*/) {
+#             # TXPo.T is actually the outlet refrigerant temperature
+#             # however TXPo.T = TXPi.T in the two phase region and
+#             # TXPo.T ~ to TXPi.T in the superheated region if steps are small
+# 
+#             q = (TPi.T-TXPo.T)/mr*CmineCrossFlow_dry(R,mr,ma,TXPo,TPi, Ref);
+# 
+#             if(errorLog.IsError()) {
+#                 errorLog.Add("EvapTubeL_new", "(q_singlephase)");
+#                 return 0;
+#             }    
+# 
+#         } else {#when it is close to the saturated state, the function zbrent can not converge
+# 
+#             const double H_max=HPo->H;
+#             const double H_min=HPo->H-4e4;
+#             EVA_Get_Q.hi=hi;#input the refrigerant side heat transfer coefficient
+#             Zbrent(H_max,H_min,Get_Q_Single,1e-7,&EVA_Get_Q);#B.S., to calculate the single-phase heat transfer and pressure drop at this region
+#             q=EVA_Get_Q.q;
+#         }
+# 
+#         if(errorLog.IsError()) {
+#             errorLog.ClearError("EvapTubeL_new", "(q_singlephase)");
+#             q = (TPi.T-TXPo.T)/mr*CmineCrossFlow_dry(R,mr,ma,TXPo,TPi, Ref);
+#         }/**#/don't delete this
+# 
+#         #when the superheat is setted too high, there might exist a problem
+#     /*    if(q<=0) {#B.S., to remove the wrong result
+#             q=0;
+#         }*#/don't delete this
+# 
+#         if(errorLog.IsError()) {
+#             errorLog.Add("EvapTubeL_new", "(q_singlephase)");
+#             return 0;
+#         }    
+# 
+#     
+#         #B.S.---------------------------------------------
+#     
+#         if(TXPo.X>=0.9999999) {#B.S., the following caculate the whole thermal resistances separately, prepared to adjust them separately.    
+#             R = (P->Ro+Ri);
+#             P->UA_Vap=P->UA_Vap+1/R;#B.S., vapor heat transfer conductance
+#             P->VapL = P->VapL+ P->Ls;#B.S., vapor length
+#         } else if(TXPo.X<=0.00000001) {
+#             R = (P->Ro + Ri);
+#             P->LiqL = P->LiqL+ P->Ls;#B.S., keep the liquid length in the evaporator
+#             P->UA_Liq=P->UA_Liq+1/R;#B.S. liquid heat transfer conductance    
+#         } else {
+#             R = P->Ro+Ri;
+#             P->UA_TP=P->UA_TP+1/R;#B.S., dry thermal resistance of the two-phase heat transfer
+#             P->TPL = P->TPL+ P->Ls;#B.S., length of two-phase flow
+#         }
+#     #-----------------------------------------B.S.
+# 
+#     } else {#calculating the heat transfer in the two-phase region
+# 
+# 
+#         EVA_Get_Q.TXPo=TXPo;
+#         hi = Zbrent(hi_max,hi_min,Get_Q_EVA,1e-5,&EVA_Get_Q);#iterate the heat transfer coefficient
+# 
+#         if(errorLog.IsError()) {
+#             # plot error vs. T to see whgat function looks like that caused error
+#         #    ZbrentPlot(hi_max,hi_min,Get_Q_EVA,1e-4,&EVA_Get_Q);#Haorong change from -7 to-2
+#             char msg[2048];
+#             sprintf(msg,"(Zbrent3) T=%.4lf, T_min=%.4lf, T_max=%.4lf",hi,hi_min,hi_max);
+#             errorLog.Add("EvapTubeLnew", msg);
+#             return 0;
+#         }; 
+# 
+#         q=EVA_Get_Q.q;
+# 
+#         #B.S.-----------------------------------
+#         P->Qtp_wet = P->Qtp_wet+EVA_Get_Q.P.Qtp_wet;#wet heat transfer amount
+#         P->Qtp_dry =P->Qtp_dry+EVA_Get_Q.P.Qtp_dry;#dry heat transfer amount
+#         P->UAw_TP = EVA_Get_Q.P.UAw_TP+P->UAw_TP;#heat conductance of two-phase wet heat transfer
+#         P->UA_TP = EVA_Get_Q.P.UA_TP+P->UA_TP;#heat conductance of two-phase dry heat transfer
+#         P->L_wet = EVA_Get_Q.P.L_wet + P->L_wet;#wet heat transfer length in the two-phase region
+#         P->L_dry = EVA_Get_Q.P.L_dry + P->L_dry;#wet heat transfer length in the two-phase region
+#         P->TPL = P->TPL+ P->Ls;#length of the two-phase heat transfer
+#         #------------------------------------------B.S.
+#     }
+# 
+#     HPo->H-=q;
+# 
+#     # calculate pressure drop
+#     double P_out;
+# 
+#     Gr = mr/P->Acs;#this mass flux is for calculating the pressure drop
+#     const double DP_FR = FricDP(TXPo, Gr, q, P);
+#     
+#     if(errorLog.IsError()) {
+#         errorLog.Add("EvapTubeL_new", "DP_FR");
+#         return 0;
+#     }
+#     
+# 
+#     if(TXPo.X>0.05&&TXPo.X<0.99)
+#     {
+#     #B.S., prepared to calculate the two-phase acceleration pressure drop
+#     PreAcc Preacc;
+#     Preacc.DP_FR=-1*DP_FR;
+#     Preacc.G=Gr;
+#     Preacc.H_OUT=HPo->H;
+#     Preacc.P_IN=TXPo.P;
+#     Preacc.X_IN=TXPo.X;
+#     
+#     const double DP_ACC=Zbrent(10,-10,GET_PreAcc,1e-7,&Preacc);#B.S., calculate the acceleration pressure drop 
+#     if(errorLog.IsError()) {
+#         errorLog.Add("EvapTubeL_new", "(Preacc)");
+#         return 0;
+#     }
+#     P_out=TXPo.P+DP_FR-DP_ACC;
+#     }
+#     else {
+#     P_out=TXPo.P+DP_FR;
+#     }
+# 
+#     HPo->P=P_out;
+# 
+#     # Determine mass of charge.  It is based on the inlet state.
+#     # The specific volume is recalculated so that a different model
+#     # can be used from the one used to calculate the pressure drop.
+# 
+#     TXPo = HPtoTXP(*HPo);
+#     if(errorLog.IsError()) {
+#         errorLog.Add("EvapTubeLnew", "(TXPo,2)");
+#         return 0;
+#     }
+# 
+#     v = VolumeALL(TXPo,Gr,P->Di,mr*q/P->Api);        # seperate flow model
+#     # v = PropertyTXP(VOL,TXPo);        # homogeneous flow model
+#     if(errorLog.IsError()) {
+#         errorLog.Add("EvapTubeLnew", "(v)");
+#         return 0;
+#     }
+# 
+#     m->V=P->Ls*P->Acs;#B.S., use the real cross-sectional area to calculate the inner volume
+#     m->m=m->V/v;
+# 
+#     # Calculate output air state
+#     hai = wair.h(TPi.T,TPi.P);
+#     if(errorLog.IsError()) {
+#         errorLog.Add("EvapTubeLnew", "(hai)");
+#         return 0;
+#     }
+# 
+#     const double W_I=wair.HumidityRatio(TPi.T,TPi.P);
+#     if(errorLog.IsError()) {
+#         errorLog.Add("EvapTubeLnew", "(W_I)");
+#         return 0;
+#     }
+# 
+#     const double HF_water=(EVA_Get_Q.T_S_O*4.1877+0.0594)*1e3;
+# 
+#     WHo->H=hai-q*mr/ma-HF_water*(W_I-EVA_Get_Q.W);
+# 
+#     WHo->W = EVA_Get_Q.W;#B.S. the outlet air humidity is calculated with the fuction Get_Q_EVA below.
+#     if(errorLog.IsError()) {
+#         errorLog.Add("EvapTubenew");
+#         return 0;
+#     }
+# 
+#     
+#     #B.S.----------------------------------------
+#     if(TXPo.X>=0.999999999999)#B.S., the following caculate the whole thermal resistances separately, prepared to adjust them separately.    
+#     {
+#     P->m_Vap = P->m_Vap+m->V/v;#B.S.vapor mass
+#     P->V_Vap = P->V_Vap + m->V;#B.S.vapor volume
+#     }
+#     else if(TXPo.X<=0.0000001)
+#     {
+#     P->m_Liq = P->m_Liq+m->V/v;#B.S., liquid mass
+#     P->V_Liq = P->V_Liq + m->V;#B.S., liquid volume
+#     
+#     if(TXP_bak.X>0.0000001)
+#     {
+#     P->HP_TP1.H=P->HP_TP1.H+mr*HPo->H;#B.S., corresponding to the first segment that involves with two-phase heat transfer, counted from the entrance of the evaporator
+#     P->HP_TP1.P=P->HP_TP1.P+mr*HPo->P;#B.S., corresponding to the first segment that involves with two-phase heat transfer, counted from the entrance of the evaporator
+#     P->count1 = P->count1+mr;#B.S., this addition is for counting how many evaporator circuits that involved with heat transfer calculation
+#     }
+# 
+#     }
+#     else 
+#     {
+#     P->m_TP = P->m_TP+m->V/v;#B.S., mass of two-phase flow
+#     P->V_TP = P->V_TP + m->V;#B.S., volume of two-phase flow
+# 
+#     if(TXP_bak.X>=0.999999999999)
+#     {
+#     P->HP_TP2.H=P->HP_TP2.H+mr*HPo->H;#B.S. corresponding to the last segment that involves with two-phase heat transfer, counted from the entrance of the evaporator
+#     P->HP_TP2.P=P->HP_TP2.P+mr*HPo->P;#B.S. corresponding to the last segment that involves with two-phase heat transfer, counted from the entrance of the evaporator
+#     P->count2 = P->count2+mr;#B.S., this addition is for counting how many evaporator circuits that involved with heat transfer calculation
+#     }
+#     }
+#     #---------------------------------------------B.S.
+# 
+#     return (HPo, WHo, m, P)
+
+
+def EvapTubeL_Fwd(Ref, #refrigerant 
+                  Gr,#refrigerant mass flux
+                  HPo,#refrigerant outlet and inlet state
+                  Ga,#air mass flux
+                  TPi,#air inlet state
+                  WHo,#air outlet state
+                  m,#charge and inner volume in the evaporator
+                  P):#evaporator struct
+    '''
+    /*********************************************************************
+    Evaporator tube segment model which neglects pressure drops
+    Inputs:
+        Gr = refrigerant mass flux (kg/s/m^2)
+        HPi = refrigerant inlet state (h,P)
+        Ga = air mass flux (kg/s/m^2)
+        Tai = air inlet temperature (C)
+    Outputs:
+        HPi = refrigerant outlet state (h,P)
+        hao = air outlet enthalpy (J/kg)
+        m = mass of charge in return bend (kg)
+    *********************************************************************/
+    '''
+    
+    TXPo = {'T':0.0,'X':0.0,'P':0.0};
+    
+    #B.S., this dictionary struct is for storing some parameters for iteration
+    EVA_Get_Q = EVA_Get_Q()
+    
+    y=0;
+    hi=0;
+    Ri=0;R=0;
+    q=0;
+
+    ### Calculate air side resistance ###
+    P['wet']=0;#without considering wet heat tranfer adjustment
+
+    ho, P = P['hAirAdj']*ConvCoeffAir_EVA(TPi,Ga,P);#B.S., the airside dry heat transfer coefficient can be got for different fin types
+
+    phi = FinEffect_Schmidt(ho,233,P['th'],P['y'],P['Do']);#B.S. calculate the fin efficiency with the Schmidt equation
+
+    P['Ro'] = 1/(ho*(P['Apo']+phi*P['Af']));
+    P['ho']=ho;
+    P['Ga']=Ga;
+
+    # convert inlet state into TXP format
+    TXPo = HPtoTXP(HPo);
+
+    TXP_bak = TXPo.copy();#backup the inlet state of this segment
+
+    # Mass flow rates of air and refrigerant
+    ma=Ga*P['Aflow'];#B.S. Ga is the maximum airflow flux, P['Aflow'] is the minimun air flow cross-sectional area
+    mr=Gr*P['Ax'];
+
+    # Calculate heat transfered per unit mass of refrigerant.
+
+    hi_max=10e4;#largest possible refrigerant side heat tranfer coeffcient
+    hi_min=100;#minimum possible refrigerant side heat transfer coeffcient
+
+    #store the parameters for iteration
+    EVA_Get_Q['ma']=ma;
+    EVA_Get_Q['mr']=mr;
+    EVA_Get_Q['TPi']=TPi;
+    EVA_Get_Q['Gr']=Gr;
+    EVA_Get_Q['P']=P;
+    EVA_Get_Q['q']=0;
+    EVA_Get_Q['W']= HAPropsSI('W','T',TPi['T'],'P',101325,'R',TPi['P']) #wair.HumidityRatio(TPi.T,TPi.P); #[kg water/kg dry air]
+
+
+    X1=0.05; X2=0.95;   # X1=0.01,X2=0.99;
+    #for calculating the heat transfer and pressure drop in single-phase or approximated single-phase region
+    if(TXPo['X']>X2 or TXPo['X']<X1):
+        if (TXPo['X']>=1 or TXPo['X']<=0):#Pure single phase region (subcooled or superheated)
+            y, P = ConvCoeffSP(TXPo,Gr,P, Ref) #get the single-phase heat transfer coefficient
+        elif (TXPo['X']<X1): #transition from saturated liquid and subcooled
+            TXP1 = toTXP(TXPo['T'],0.0,TXPo['P']);
+            TXP2 = toTXP(TXPo['T'],X1,TXPo['P']);
+            y1, P = ConvCoeffSP(TXP1,Gr,P, Ref);
+            EVA_Get_Q['TXPo']=TXP2;#local refrigerant state
+            #two-phase refrigerant heat transfer coefficient
+            hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q),xtol=1e-5,rtol=6e-8,maxiter=40) #xtol, rtol and maxiter are changed to match "Zbrent" solver in ACMODEL
+            y2 = hi/P['hRefAdj'];#ConvCoeffEvapTP_microfin(TXP2,Gr,P)
+            if (y1>y2):
+                y1=y2;#B.S., make the single phase flow less than two phase
+            y = y1+TXPo['X']*(y2-y1)/X1;#B.S., get the heat transfer coefficient in this region with intropolation
+        else: #transition from saturated vapor and superheat
+            TXP1 = toTXP(TXPo['T'],X2,TXPo['P']);
+            TXP2 = toTXP(TXPo['T'],1,TXPo['P']);
+            EVA_Get_Q['TXPo'] = TXP1;
+            #two-phase refrigerant heat transfer coefficient
+            hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q),xtol=1e-5,rtol=6e-8,maxiter=40) #xtol, rtol and maxiter are changed to match "Zbrent" solver in ACMODEL
+            #B.S., get the heat transfer coefficient at the two-phase region
+            y1 = hi/P['hRefAdj'];#B.S. get two-phase heat transfer coefficient at this region    
+            y2, P = ConvCoeffSP(TXP2,Gr,P, Ref);#B.S., single-phase heat transfer coefficient
+            if (y2>y1):
+                y2=y1; #B.S., for making the single phase flow less than two phase
+            y = y2-(1-TXPo['X'])*(y2-y1)/(1-X2);#B.S., get the heat transfer coefficient in this region with intropolation
+    
+        hi = P['hRefAdj']*y;#B.S., heat transfer coefficient at this region
+        Ri = 1/(hi*P['Api']);#B.S., inside thermal resistance
+        R_W=log(P['Do']/(P['Do']-2.0*P['xp']))/(2.0*3.1415*P['K_T']*P['Ls']);
+        R = P['Ro']+R_W+Ri;#overall thermal resistance
+    
+        #B.S., prepare the parameters for iteration
+        EVA_Get_Q['TXPo'] = TXPo;
+        EVA_Get_Q['Cmin'] = CmineCrossFlow_dry(R,mr,ma,TXPo,TPi, Ref);
+        EVA_Get_Q['HPo'] = HPo;
+    
+        if (0):#TXPo['T']<T_sat+1
+            # TXPo['T'] is actually the outlet refrigerant temperature
+            # however TXPo['T'] = TXPi['T'] in the two phase region and
+            # TXPo['T'] ~ to TXPi['T'] in the superheated region if steps are small
+            q = (TPi['T']-TXPo['T'])/mr*CmineCrossFlow_dry(R,mr,ma,TXPo,TPi, Ref);
+        else: #when it is close to the saturated state, the function zbrent can not converge
+            EVA_Get_Q['hi']=hi;#input the refrigerant side heat transfer coefficient
+            HPo, EVA_Get_Q = Get_Q_Single_For(HPo, EVA_Get_Q);   
+            q=EVA_Get_Q['q'];
+    
+    
+        if (TXPo['X']>=0.9999999): #B.S., the following caculate the whole thermal resistances separately, prepared to adjust them separately.    
+            R = (P['Ro']+R_W+Ri);
+            P['UA_Vap']=P['UA_Vap']+1/R;#B.S., vapor heat transfer conductance
+            P['VapL'] = P['VapL']+ P['Ls'];#B.S., vapor length
+        elif (TXPo['X']<=0.00000001):
+            R = (P['Ro'] + R_W+ Ri);
+            P['LiqL'] = P['LiqL']+ P['Ls'];#B.S., keep the liquid length in the evaporator
+            P['UA_Liq']=P['UA_Liq']+1/R;#B.S. liquid heat transfer conductance    
+        else:
+            R = P['Ro']+ R_W+ Ri;
+            P['UA_TP']=P['UA_TP']+1/R;#B.S., dry thermal resistance of the two-phase heat transfer
+            P['TPL'] = P['TPL']+ P['Ls'];#B.S., length of two-phase flow
+
+
+    
+    else: #calculating the heat transfer in the two-phase region
+        EVA_Get_Q['TXPo']=TXPo;
+        #iterate the heat transfer coefficient
+        try:
+            hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q),xtol=1e-5,rtol=6e-8,maxiter=40) #xtol, rtol and maxiter are changed to match "Zbrent" solver in ACMODEL
+        except: #if failed, try again
+            EVA_Get_Q['TXPo']['X'] = EVA_Get_Q['TXPo']['X']+0.05
+            hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q),xtol=1e-5,rtol=6e-8,maxiter=40)
+            EVA_Get_Q['TXPo']['X'] = EVA_Get_Q['TXPo']['X']-0.05;
+            dhi = Get_Q_EVA(hi,EVA_Get_Q)
+            ## plot error vs. T to see whgat function looks like that caused error
+            #ZbrentPlot(hi_max,hi_min,Get_Q_EVA,1e-4,&EVA_Get_Q);#Haorong change from -7 to-2
+            print("EVAP::EvapTubeL_Fwd (brentq) dhi= ",str(dhi))
+            print("EVAP::EvapTubeL_Fwd (brentq) h={:f}, h_min={:f}, h_max={:f}".format(hi,hi_min,hi_max));
+
+
+        q=EVA_Get_Q['q'];
+
+        P['Qtp_wet'] = P['Qtp_wet']+EVA_Get_Q['P']['Qtp_wet'];#wet heat transfer amount
+        P['Qtp_dry'] =P['Qtp_dry']+EVA_Get_Q['P']['Qtp_dry'];#dry heat transfer amount
+        P['UAw_TP'] = EVA_Get_Q['P']['UAw_TP']+P['UAw_TP'];#heat conductance of two-phase wet heat transfer
+        P['UA_TP'] = EVA_Get_Q['P']['UA_TP']+P['UA_TP'];#heat conductance of two-phase dry heat transfer
+        P['L_wet'] = EVA_Get_Q['P']['L_wet'] + P['L_wet'];#wet heat transfer length in the two-phase region
+        P['L_dry'] = EVA_Get_Q['P']['L_dry'] + P['L_dry'];#wet heat transfer length in the two-phase region
+        P['TPL'] = P['TPL']+ P['Ls'];#length of the two-phase heat transfer
+
+
+    HPo['H']+=q;
+
+    #===========================================================================
+    # calculate pressure drop
+    #===========================================================================
+    Gr = mr/P['Acs'];#this mass flux is for calculating the pressure drop
+    DP_FR, P = FricDP(TXPo, Gr, q, P);
+
+    if (TXPo['X']>0.05 and TXPo['X']<0.99):
+        #B.S., prepared to calculate the two-phase acceleration pressure drop 
+        Preacc = PreAcc()
+        Preacc['DP_FR']=DP_FR;
+        Preacc['G']=Gr;
+        Preacc['H_OUT']=HPo['H'];
+        Preacc['P_IN']=TXPo['P'];
+        Preacc['X_IN']=TXPo['X'];
+        
+        #B.S., calculate the acceleration pressure drop
+        DP_ACC = brentq(GET_PreAcc,10,-10,args=(Preacc, Ref),xtol=1e-7,rtol=6e-8,maxiter=40) 
+        P_out=TXPo['P']-(DP_FR+DP_ACC)*P['PRefAdj'];
+    else:
+        P_out=TXPo['P']-DP_FR*P['PRefAdj'];
+
+    HPo['P']=P_out;
+
+    # Determine mass of charge.  It is based on the inlet state.
+    # The specific volume is recalculated so that a different model
+    # can be used from the one used to calculate the pressure drop.
+
+    v = VolumeALL(TXPo,Gr,P['Di'],mr*q/P['Api'], Ref);        # seperate flow model
+    #v = 1/PropertyTXP('D',TXPo, Ref);        # homogeneous flow model
+
+    m['V']=P['Ls']*P['Acs'];#B.S., use the real cross-sectional area to calculate the inner volume
+    m['m']=m['V']/v;
+
+    TXPo = HPtoTXP(HPo);
+
+    # Calculate output air state
+    hai = HAPropsSI('Hha','T',TPi['T'],'P',101325,'R',TPi['P']) #wair.h(TPi.T,TPi.P); #[J/kg humid air]
+    W_I = HAPropsSI('W','T',TPi['T'],'P',101325,'R',TPi['P']) #wair.HumidityRatio(TPi.T,TPi.P); #[kg water/kg dry air]
+    HF_water=(EVA_Get_Q['T_S_O']*4.1877+0.0594)*1e3;
+
+    WHo['H']=hai-q*mr/ma-HF_water*(W_I-EVA_Get_Q['W']);
+
+    WHo['W'] = EVA_Get_Q['W'];#B.S. the outlet air humidity is calculated with the fuction Get_Q_EVA below.
+
+    
+    #B.S.----------------------------------------
+    if (TXP_bak['X']>=0.999999999999):#B.S., the following caculate the whole thermal resistances separately, prepared to adjust them separately.    
+        P['m_Vap'] = P['m_Vap']+m['V']/v;#B.S.vapor mass
+        P['V_Vap'] = P['V_Vap'] + m['V'];#B.S.vapor volume
+    elif (TXP_bak['X']<=0.0000001):
+        P['m_Liq'] = P['m_Liq']+m['V']/v;#B.S., liquid mass
+        P['V_Liq'] = P['V_Liq'] + m['V'];#B.S., liquid volume
+        if (TXPo['X']>0.0000001):
+            P['HP_TP1']['H']=P['HP_TP1']['H']+mr*HPo['H'];#B.S., corresponding to the first segment that involves with two-phase heat transfer, counted from the entrance of the evaporator
+            P['HP_TP1']['P']=P['HP_TP1']['P']+mr*HPo['P'];#B.S., corresponding to the first segment that involves with two-phase heat transfer, counted from the entrance of the evaporator
+            P['count1'] = P['count1']+mr;#B.S., this addition is for counting how many evaporator circuits that involved with heat transfer calculation
+    else: 
+        P['m_TP'] = P['m_TP']+m['V']/v;#B.S., mass of two-phase flow
+        P['V_TP'] = P['V_TP'] + m['V'];#B.S., volume of two-phase flow
+        if (TXPo['X']>=0.999999999999):
+            P['HP_TP2']['H']=P['HP_TP2']['H']+mr*HPo['H'];#B.S. corresponding to the last segment that involves with two-phase heat transfer, counted from the entrance of the evaporator
+            P['HP_TP2']['P']=P['HP_TP2']['P']+mr*HPo['P'];#B.S. corresponding to the last segment that involves with two-phase heat transfer, counted from the entrance of the evaporator
+            P['count2'] = P['count2']+mr;#B.S., this addition is for counting how many evaporator circuits that involved with heat transfer calculation
+    #---------------------------------------------B.S.
+
+    return (HPo, WHo, m, P)

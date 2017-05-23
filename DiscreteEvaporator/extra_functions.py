@@ -8,6 +8,154 @@ from __future__ import division, print_function, absolute_import
 from CoolProp.CoolProp import PropsSI
 
 
+def PreAcc():
+    
+    pre_acc = {'DP_FR':0.0,'P_IN':0.0,'H_OUT':0.0,'G':0.0,'X_IN':0.0}
+
+    return pre_acc
+
+def InsideTube_Dim():
+    '''
+    returns dictionary for storing the parameters for micro-fin tube
+    '''
+    inside_tube_dim = {'Microfin':0, #microfin type, 0=smooth tube, 1=helical, 2=cross-grooved, 3=herringbone
+                      'finN':0.0,   #fin number in a micro-fin tube
+                      'Di':0.0,     #inside diameter at the fin tip
+                      'gama':0.0,   #fin apex angle in a micro-fin tube
+                      'beta':0.0,   #fin helix angle in a micro-fin tube
+                      'finH':0.0,   #fin height in a micro-fin tube
+                      'w_b':0.0,    #base width of a single fin
+                      'w_e':0.0,    #top width of a single fin
+                      'w_z':0.0,    #base distance between two neighboring fins
+                      'K_T':0.0,    #400, this is the conductance factor of copper
+                      'Ls':0.0,     #tube unit length
+                      'D_b':0.0,    #tube diameter at the base of the fin
+                      'Do':0.0,     #Pipe outside diameter.
+                      'D_m':0.0,    #mean diameter of the micro-fin tube
+                      'P_H':0.0,    #the hydraulical circumference
+                      'Acs':0.0,    #cross area of the micro-fin tube, this is the actual cross-section area
+                      'Dh_i':0.0,   #Inside hydraulical diameter 
+                      'Ax':0.0,     #Inside pipe cross sectional area, based on fin tips
+                      'Api':0.0}    #Inside pipe surface area (one tube segment), based on fin tips
+    
+    return inside_tube_dim
+
+def Airside_Dim():
+    '''
+    returns dictionary for storing the parameters for airside fins
+    '''
+    airside_dim = {'evap':0,    #1 represent evaporator
+                   'T':0.0,     #air temperature
+                   'P':0.0,     #air humidity ratio
+                   'Do':0.0,    #tube outside diameter
+                   'Df':0.0,    #fin outside diameter
+                   'z':0.0,     #space between fins (m)
+                   'th':0.0,    #fin thickness (m)
+                   'vsp':0.0,   #vertical tube spacing (m)
+                   'P_l':0.0,   #B.S. tube spacing along the airflow direction (m)
+                   'Apo':0.0,   #nominal air mass flux (kg/s/m^2)
+                   'Ndeep':0.0, #B.S. number of high rows
+                   'airFin':0,  #fin type
+                   'K_F':0.0,   #conductance factor of the fin material         
+                   'y':0.0,     #Distance from outside of pipe to edge of fin.
+                   'N':0.0,     #Number of fins along one tube segment.
+                   'Af':0.0,    #Fin wetted area (one tube segment).
+                   'Aflow':0.0, #Air flow area (one tube segment).
+                   'Dh':0.0,    #Hydrolic diameter
+                   'sub1':0.0,'sub2':0.0,'sub3':0.0,'sub4':0.0,'sub5':0.0,  #possible sub-structures for different fin surface
+                   'ho':0.0,'wetadj':0.0,   #for output the calculation result
+                   'Ls':0.0}
+    
+    return airside_dim
+
+def ETdim():
+    '''
+    This function return an initialized dictionary (with zeros) for all evaporator structure
+    '''
+    Evap_struc={'Di':0.0,'L':0.0,'xp':0.0,'Df':0.0,'z':0.0,'th':0.0,'vsp':0.0,'Brad':0.0,
+                'NSeg':int(0),
+                'Dh':0.0,'Do':0.0,'y':0.0,'Ls':0.0,'N':0.0,'Ax':0.0,'Api':0.0,'Apo':0.0,'Af':0.0,'Aflow':0.0,'Vs':0.0,'Blen':0.0,'BVs':0.0,
+                'Ro:':0.0,
+                'Gr':0.0,'Ga':0.0,
+                'HPo':{'H':0.0,'P':0.0},
+                'TXPo':{'T':0.0,'X':0.0,'P':0.0},
+                'TPi':{'T':0.0,'P':0.0},
+                'hAirAdj':0.0,'hRefAdj':0.0,'PRefAdj':0.0,'WAirAdj':0.0,
+                'type':int(0),
+                'Nrows':int(0),'Ndeep':int(0),
+                'NBranchs':int(0), 'NBraTube':int(0),
+                'P_l':0.0, #spacing between tubs in the longitudual direction (m)
+                'microfin':int(0), #new parameters for micro-fin tubes, and specially configured fins #decide whether is micro-fin tubes microfin=1
+                'w_b':0.0, #base length for single micro-fin
+                'w_e':0.0, #top length for single micro-fin
+                'w_z':0.0,    #width between the neighboring micro-fins
+                'finH':0.0,    #micro-fin height
+                'beta':0.0,#micro-fin helical angle
+                'gama':0.0,    #micro-fin apex angle
+                'finN':0.0,    #total micro-fin number
+                'Acs':0.0,    # micro-fin cross-sectional area
+                'P_H':0.0,    #micro-fin hydraulic circumference
+                'Dh_i':0.0,    #micro-fin tube hydraulic diameter
+                'K_T':0.0,    #conductance factor of tube wall
+                'K_F':0.0,    #conductance factor of fin material
+                'L_F':0.0,    #reference fin length for Schimidt fin efficiency calculation
+                'D_b':0.0,'D_m':0.0,    #fin base diameter, and mean diameter
+                'airFin':int(0),
+                'sub1':0.0,'sub2':0.0,'sub3':0.0,'sub4':0.0,'sub5':0.0,#for inputing sub-structures of fin surface
+                'ho':0.0, 'wetadj':0.0,#airside heat transfer coefficient
+                'Frontal_A':0.0,#frontal area
+                'GetP':0.0,#calculate the airside pressure drop
+                #variables for generating the simple evaporator function
+                'V_TOT':0.0, 'V_TP':0.0, 'V_Liq':0.0, 'V_Vap':0.0,#inner volume of different phase
+                'L_TOT':0.0,'LiqL':0.0,'VapL':0.0,'TPL':0.0,#tube length of different phase
+                'L_dry':0.0, 'L_wet':0.0,#tube length of dry and wet heat transfer
+                'A_TOT':0.0,'A_Liq':0.0,'A_Vap':0.0,'A_TP':0.0,#heat transfer surface area of different phase
+                'm_TOT':0.0, 'm_TP':0.0, 'm_Liq':0.0, 'm_Vap':0.0,#airflow rate across different phase
+                'rho_TOT':0.0, 'rho_TP':0.0, 'rho_Liq':0.0, 'rho_Vap':0.0,#average density of different phase
+                'U_TP':0.0, 'U_Liq':0.0, 'U_Vap':0.0,#averge dry heat conductance of different phase 
+                'Uw_TP':0.0, 'Uw_Liq':0.0, 'Uw_Vap':0.0,#average wet heat conductance of different phase
+                'DP_TOT':0.0, 'DP_TP':0.0, 'DP_Liq':0.0, 'DP_Vap':0.0,#average pressure gradient of different phase
+                'UA_TOT':0.0, 'UA_Liq':0.0,'UA_Vap':0.0,'UA_TP':0.0,#overall dry heat conductance of different phase
+                'UAw_TOT':0.0, 'UAw_Liq':0.0,'UAw_Vap':0.0,'UAw_TP':0.0,#overall wet heat conductance of different phase
+                'mr':0.0, 'ma_TOT':0.0,#overall refrigerant and air mass flow rate
+                'Ga_meanL':0.0,#average air flow rate per tube length
+                'HP_out':{'H':0.0,'P':0.0}, 'HP_dry':{'H':0.0,'P':0.0}, 'HP_wet':{'H':0.0,'P':0.0}, 'HP_in':{'H':0.0,'P':0.0},'HP_TP1':{'H':0.0,'P':0.0},'HP_TP2':{'H':0.0,'P':0.0},#state parameters at important locations
+                'count1':0.0,'count2':0.0,#count the state points of two-phase flow begin point and end point 
+                'Qtp_dry':0.0, 'Qtp_wet':0.0,#two-phase dry heat transfer and wet heat transfer amount
+                'r_v':0.0, 'r_l':0.0,'r_tp':0.0,#parameters for adjusting the theoretical heat transfer effectiveness of each phase
+                'H2_residual':0.0,#for the consistency of the moving boundary model analysis
+                #------------------------------B.S.
+                'q_flux':0.0, 'T_w':0.0,#segment heat flux and inside tube wall temperature
+                'wet':int(0),#wet=0 to calculate dry heat transfer, wet=1 to calculate wet heat transfer
+                'REV':int(0),
+                'cfma':0.0,
+                'Hout8':[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],'DPr':[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],#superheat and pressure drop at each evaporator branch (array of 10 elements)
+                }
+
+    return Evap_struc
+
+def EVA_Get_Q():
+    '''
+    This function return an initialized dictionary (with zeros)
+    #add for evaporative heat transfer iteration, since most of the evporating heat transfer calculation contains the nucleate boiling component, 
+    #which needs to know the tube wall temperature at first
+    '''
+    eva_get_q = {'ma':0.0,  #air mass flow rate
+                 'mr':0.0, #refrigerant mass flow rate
+                 'TXPo':{'T':0.0,'X':0.0,'P':0.0},   #refrigerant state in the segment
+                 'TPi':{'T':0.0,'P':0.0},     #air inlet state of the segment
+                 'Gr':0.0,  #mass flow flux
+                 'q':0.0,   #heat flux
+                 'T_w':0.0, #inside tube wall temperature
+                 'P':ETdim(), #evaporator struct
+                 'W':0.0,   #outlet air humidity 
+                 'Cmin':0.0,#Cmine
+                 'hi':0.0,  #inside refrigerant heat transfer coefficent
+                 'HPo':{'T':0.0,'P':0.0},     #inlet state of the refrigerant
+                 'T_S_O':0.0}#effective tube surface temperature
+    
+    
+    return eva_get_q
 
 def toTXP(T,X,P):
     '''

@@ -7,7 +7,7 @@ from math import log,pi,sqrt,exp,cos,sin,tan,log10
 #import CoolProp
 from CoolProp.CoolProp import PropsSI
 
-from extra_functions import toTXP, PropertyTXPtr, PropertyTXPth, HPtoTXP
+from extra_functions import toTXP, PropertyTXPtr, PropertyTXPth, HPtoTXP, PreAcc
 from VOLUME import Xtt, VolumeALL
 
 
@@ -368,8 +368,8 @@ def GET_PreAcc(DP_ACC, Params, Ref):
     B.S. add for getting the acceleration pressure drop (Pa)
     ********************************************************/
     '''
-    PreAcc = {'DP_FR':0.0,'P_IN':0.0,'H_OUT':0.0,'G':0.0,'X_IN':0.0}
-    Preacc = PreAcc
+
+    Preacc = PreAcc()
     Preacc = Params;
 
     DP_FR=Preacc['DP_FR'];

@@ -1,63 +1,13 @@
 from __future__ import division, print_function, absolute_import
-from math import log,pi,sqrt,exp,cos,sin,tan,log10
+from math import log,pi,sqrt,exp,cos,sin,tan,log10,tanh
 #from scipy.integrate import quad,quadrature,trapz,simps,fixed_quad
 from scipy.optimize import brentq
 
 from CoolProp.CoolProp import PropsSI
 from CoolProp.HumidAirProp import HAPropsSI
 
-from extra_functions import PropertyTXPth, PropertyTXPtr, toTXP
-
+from extra_functions import PropertyTXPth, PropertyTXPtr, Airside_Dim, InsideTube_Dim
 #from MYBESSEL import bessk0, bessk1
-
-
-#storing the parameters for airside fins
-Airside_Dim = {'evap':0,    #1 represent evaporator
-               'T':0.0,     #air temperature
-               'P':0.0,     #air humidity ratio
-               'Do':0.0,    #tube outside diameter
-               'Df':0.0,    #fin outside diameter
-               'z':0.0,     #space between fins (m)
-               'th':0.0,    #fin thickness (m)
-               'vsp':0.0,   #vertical tube spacing (m)
-               'P_l':0.0,   #B.S. tube spacing along the airflow direction (m)
-               'Apo':0.0,   #nominal air mass flux (kg/s/m^2)
-               'Ndeep':0.0, #B.S. number of high rows
-               'airFin':0,  #fin type
-               'K_F':0.0,   #conductance factor of the fin material         
-               'y':0.0,     #Distance from outside of pipe to edge of fin.
-               'N':0.0,     #Number of fins along one tube segment.
-               'Af':0.0,    #Fin wetted area (one tube segment).
-               'Aflow':0.0, #Air flow area (one tube segment).
-               'Dh':0.0,    #Hydrolic diameter
-               'sub1':0.0,'sub2':0.0,'sub3':0.0,'sub4':0.0,'sub5':0.0,  #possible sub-structures for different fin surface
-               'ho':0.0,'wetadj':0.0,   #for output the calculation result
-               'Ls':0.0}
-
-#storing the parameters for micro-fin tube
-InsideTube_Dim = {'Microfin':0, #microfin type, 0=smooth tube, 1=helical, 2=cross-grooved, 3=herringbone
-                  'finN':0.0, #fin number in a micro-fin tube
-                  'Di':0.0,#inside diameter at the fin tip
-                  'gama':0.0,#fin apex angle in a micro-fin tube
-                  'beta':0.0,    #fin helix angle in a micro-fin tube
-                  'finH':0.0, #fin height in a micro-fin tube
-                  'w_b':0.0, #base width of a single fin
-                  'w_e':0.0, #top width of a single fin
-                  'w_z':0.0, #base distance between two neighboring fins
-                  'K_T':0.0,#400, this is the conductance factor of copper
-                  'Ls':0.0,#tube unit length
-                  'D_b':0.0,#tube diameter at the base of the fin
-                  'Do':0.0, #Pipe outside diameter.
-                  'D_m':0.0, #mean diameter of the micro-fin tube
-                  'P_H':0.0,# the hydraulical circumference
-                  'Acs':0.0,#cross area of the micro-fin tube, this is the actual cross-section area
-                  'Dh_i':0.0,#inside hydraulical diameter 
-                  'Ax':0.0,# Inside pipe cross sectional area, based on fin tips
-                  'Api':0.0}# Inside pipe surface area (one tube segment), based on fin tips
-
-#dictionary variable for getting the stratified angle in Kattan-Thome flow map by iteration
-theta_strat_ev = {'A_Ld': 0.0}
-     
 
 
 def ConvCoeffAir_EVA(TPi,#air state
@@ -67,29 +17,8 @@ def ConvCoeffAir_EVA(TPi,#air state
     #B.S., ------------------------------------------------
     #interface function for calling the airside heat transfer and friction factor for evaporator
     '''
-    Airside_Dim = {'evap':0,    #1 represent evaporator
-                   'T':0.0,     #air temperature
-                   'P':0.0,     #air humidity ratio
-                   'Do':0.0,    #tube outside diameter
-                   'Df':0.0,    #fin outside diameter
-                   'z':0.0,     #space between fins (m)
-                   'th':0.0,    #fin thickness (m)
-                   'vsp':0.0,   #vertical tube spacing (m)
-                   'P_l':0.0,   #B.S. tube spacing along the airflow direction (m)
-                   'Apo':0.0,   #nominal air mass flux (kg/s/m^2)
-                   'Ndeep':0.0, #B.S. number of high rows
-                   'airFin':0,  #fin type
-                   'K_F':0.0,   #conductance factor of the fin material         
-                   'y':0.0,     #Distance from outside of pipe to edge of fin.
-                   'N':0.0,     #Number of fins along one tube segment.
-                   'Af':0.0,    #Fin wetted area (one tube segment).
-                   'Aflow':0.0, #Air flow area (one tube segment).
-                   'Dh':0.0,    #Hydrolic diameter
-                   'sub1':0.0,'sub2':0.0,'sub3':0.0,'sub4':0.0,'sub5':0.0,  #possible sub-structures for different fin surface
-                   'ho':0.0,'wetadj':0.0,   #for output the calculation result
-                   'Ls':0.0}
     
-    D = Airside_Dim;
+    D = Airside_Dim(); #Dictionary for storing the parameters for airside fins
     D['evap'] =1;#evaporating conditions
     D['T'] = TPi['T'];#air temperature
     D['P'] = TPi['P'];#air humidity ratio
@@ -178,29 +107,8 @@ def ConvCoeffAir_CON(T,#air temperature
     #interface function for calling the airside heat transfer and friction factor for condenser
      
     '''
-    Airside_Dim = {'evap':0,    #1 represent evaporator
-                   'T':0.0,     #air temperature
-                   'P':0.0,     #air humidity ratio
-                   'Do':0.0,    #tube outside diameter
-                   'Df':0.0,    #fin outside diameter
-                   'z':0.0,     #space between fins (m)
-                   'th':0.0,    #fin thickness (m)
-                   'vsp':0.0,   #vertical tube spacing (m)
-                   'P_l':0.0,   #B.S. tube spacing along the airflow direction (m)
-                   'Apo':0.0,   #nominal air mass flux (kg/s/m^2)
-                   'Ndeep':0.0, #B.S. number of high rows
-                   'airFin':0,  #fin type
-                   'K_F':0.0,   #conductance factor of the fin material         
-                   'y':0.0,     #Distance from outside of pipe to edge of fin.
-                   'N':0.0,     #Number of fins along one tube segment.
-                   'Af':0.0,    #Fin wetted area (one tube segment).
-                   'Aflow':0.0, #Air flow area (one tube segment).
-                   'Dh':0.0,    #Hydrolic diameter
-                   'sub1':0.0,'sub2':0.0,'sub3':0.0,'sub4':0.0,'sub5':0.0,  #possible sub-structures for different fin surface
-                   'ho':0.0,'wetadj':0.0,   #for output the calculation result
-                   'Ls':0.0}
     
-    C = Airside_Dim;
+    C = Airside_Dim(); #dictionary for storing the parameters for airside fins
     C['evap'] =0;#evaporating conditions
     C['T'] = T;#air temperature
     C['P'] = 0.1;#air humidity ratio
@@ -248,7 +156,7 @@ def ConvCoeffAir_CON(T,#air temperature
             h= 86
                      
         C['ho'] = h;#86;
-        C['wetadj'] = 1;#for output the calculation result*/
+        C['wetadj'] = 1;#for output the calculation result
      
         return h, P
   
@@ -292,80 +200,58 @@ def ConvCoeffAir_Plain(G,#air flux
     ******************************************************/
     '''
  
-    const double th = P->th;#fin thichness
-    const double D = P->Do+2*th;#collar diameter
-    const double D_h= P->Dh;#hydraulic diameter
-    const double F_p = P->z;#fin pitch
-    const double P_t=P->vsp;#tube pitch perpendicular to the airflow
-    const double P_l=P->P_l;#tube pitch in the airflow direction
-    const double N=P->Ndeep;#tube number in the airflow direction
-    const double F_s=F_p-th;#fin space
-    double j=0;#jbraun number
-    double h=0;#airside heat transfer coefficient
-    const double T = P->T;#air temperature
+    th = P['th'];#fin thickness
+    D = P['Do']+2*th;#collar diameter
+    D_h= P['Dh'];#hydraulic diameter
+    F_p = P['z'];#fin pitch
+    P_t=P['vsp'];#tube pitch perpendicular to the airflow
+    P_l=P['P_l'];#tube pitch in the airflow direction
+    N=P['Ndeep'];#tube number in the airflow direction
+    F_s=F_p-th;#fin space
+    T = P['T'];#air temperature
      
     # calc Prantl and Reynold number
-    const double mu = air.mu(T);#air viscosity
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_Plain","mu");
-        return -1;
-    }
-    double cp = 0;#air specific heat
-    if(P->evap) {#during the conditions of evaporation
-    cp=wair.Cp(P->T,P->P);
-    if(errorLog.IsError()) {
-        errorLog.Add("Plain", "get_wair CP");
-        return -1;
-    }
-    }
-    else {#during the conditions of condensation
-    cp = air.Cp(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_Plain","cp");
-        return -1;
-    }
-    }
- 
-    const double k = air.k(T);#air heat conductance
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_Plain","k");
-        return -1;
-    }
-    const double Pr = mu*cp/k;#prontal number
-    if(Pr<0.0) {
-        errorLog.Add("ConvCoeffAir_Plain","Pr<0.0");
-        return -1;
-    }
-    const double Re = G*D/mu;#Reynolds number based on the collar diameter
-    if(Re<0.0) {
-        errorLog.Add("ConvCoeffAir_Plain","Re<0.0");
-        return -1;
-    }
-    if(N<=1)#tube row less than 2
-    {
-    const double P1 = 1.9-0.23*log(Re);
-    const double P2 = -0.236+0.126*log(Re);
-    j = 0.108*pow(Re,-0.29)*pow(P_t/P_l,P1)*pow(F_p/D,-1.084)*pow(F_p/D_h,-0.786)*pow(F_p/P_t,P2);
-    }
-    else#tube row larger than 1
-    {
-    const double P3 = -0.361-0.042*N/(log(Re))+0.1581*log(N*pow(F_p/D,0.41));
-    const double P4 = -1.224-0.076*pow(P_l/D_h,1.42)/log(Re);
-    const double P5 = -0.083 + 0.058*N/log(Re);
-    const double P6 = -5.735+1.211*log(Re/N);
-    j = 0.086*pow(Re,P3)*pow(N,P4)*pow(F_p/D,P5)*pow(F_p/D_h,P6)*pow(F_p/P_t,-0.93);
-    }
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    
+    #air specific heat
+    if (P['evap']): #during the conditions of evaporation
+        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #wair.Cp(P->T,P->P); #[J/kg humid air/K]
+    else: #during the conditions of condensation
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #air.Cp(T); #[J/kg dry air/K]
+    
+    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air.k(T);#air heat conductance [W/m/K]
+    
+    Pr = mu*cp/k;#prandtl number
+    if (Pr<0.0):
+        print("ConvCoeffAir_Plain::ConvCoeffAir_Plain","Pr<0.0")
+        
+    Re = G*D/mu;#Reynold's number based on the collar diameter
+    if (Re<0.0):
+        print("ConvCoeffAir_Plain::ConvCoeffAir_Plain","Re<0.0")
+    
+    #jbraun number
+    if (N<=1):#tube row less than 2
+        P1 = 1.9-0.23*log(Re);
+        P2 = -0.236+0.126*log(Re);
+        j = 0.108*pow(Re,-0.29)*pow(P_t/P_l,P1)*pow(F_p/D,-1.084)*pow(F_p/D_h,-0.786)*pow(F_p/P_t,P2);
+    else: #tube row larger than 1
+        P3 = -0.361-0.042*N/(log(Re))+0.1581*log(N*pow(F_p/D,0.41));
+        P4 = -1.224-0.076*pow(P_l/D_h,1.42)/log(Re);
+        P5 = -0.083 + 0.058*N/log(Re);
+        P6 = -5.735+1.211*log(Re/N);
+        j = 0.086*pow(Re,P3)*pow(N,P4)*pow(F_p/D,P5)*pow(F_p/D_h,P6)*pow(F_p/P_t,-0.93);
+    
+    #airside heat transfer coefficient
     h = j*G*cp/pow(Pr,0.666667);
  
-    if(!P->wetadj)
-    {
-    const double W4 = -0.213+0.0176*log(Re)+0.0172*(D/F_p);
-    const double W5=0.551-2.63*(F_p/D)-0.012*N;
-    P->wetadj=0.968*pow(Re,W4)*pow((F_p/D),W5);
-    }
+    if (not P['wetadj']):
+        W4 = -0.213+0.0176*log(Re)+0.0172*(D/F_p);
+        W5 = 0.551-2.63*(F_p/D)-0.012*N;
+        P['wetadj']=0.968*pow(Re,W4)*pow((F_p/D),W5);
+    
     return h, P
 
-def ConvCoeffAir_Corrugated(G, P):
+def ConvCoeffAir_Corrugated(G,P):
     '''
     /*****************************************************
     Corrugated fin, B.S.
@@ -383,87 +269,64 @@ def ConvCoeffAir_Corrugated(G, P):
     *********************************************************/
     '''
      
-    double h=0, j=0;
-    const double th = P->th;
-    const double D = P->Do+2*th;
-    const double D_h= P->Dh;
-    const double F_p = P->z;
-    const double P_t=P->vsp;
-    const double P_l=P->P_l;
-    const double N=P->Ndeep;
-    const double T = P->T;
-    const double F_s=F_p-th;
-    const double X_f=P_l/4;#projected fin pattern length for one-half wavy length, typical structure from the paper
-    const double P_d=1.32*0.001;#waffle height, from the paper
-    double tg_angle=0;# tan of the corrugation angle
-    double sec_angle=0;# sec of the corrugation angle
- 
+    th = P['th'];
+    D = P['Do']+2*th;
+    D_h= P['Dh'];
+    F_p = P['z'];
+    P_t=P['vsp'];
+    P_l=P['P_l'];
+    N=P['Ndeep'];
+    T = P['T'];
+    F_s=F_p-th;
+    X_f=P_l/4;#projected fin pattern length for one-half wavy length, typical structure from the paper
+    P_d=1.32*0.001;#waffle height, from the paper
+    
+    # sec of the corrugation angle
     sec_angle=pow((pow(X_f,2.0)+pow(P_d,2.0)),0.5)/X_f;# calculate the sec of the corrugation angle
+    # tan of the corrugation angle
     tg_angle=pow((pow(sec_angle,2.0)-1.0),0.5);#calculate the tan of the corrugation angle
  
-    #const double beta=3.1415926*pow(D,2.0)/(4*P_l*P_t);#possible method for calculating hydraulic diameter for wavy fin, but not used here
+    #beta=3.1415926*pow(D,2.0)/(4*P_l*P_t);#possible method for calculating hydraulic diameter for wavy fin, but not used here
     #D_h=2*F_p*(1-beta)/((1-beta)*sec_angle+2*F_p*beta/D);
     # calc Prantl and Reynold number
+    
+    # calc Prantl and Reynold number
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    
+    #air specific heat
+    if (P['evap']): #during the conditions of evaporation
+        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #wair.Cp(P->T,P->P); #[J/kg humid air/K]
+    else: #during the conditions of condensation
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #air.Cp(T); #[J/kg dry air/K]
+    
+    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air.k(T);#air heat conductance [W/m/K]
      
-    const double mu = air.mu(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_Corrugated","mu");
-        return -1;
-    }
-    double cp = 0;
-    if(P->evap) {
-    cp=wair.Cp(P->T,P->P);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_Corrugated", "get_wair CP");
-        return -1;
-    }
-    }
-    else {cp = air.Cp(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_Corrugated","cp");
-        return -1;
-    }
-    }
- 
-    const double k = air.k(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_Corrugated","k");
-        return -1;
-    }
-    const double Pr = mu*cp/k;
-    if(Pr<0.0) {
-        errorLog.Add("ConvCoeffAir_Corrugated","Pr<0.0");
-        return -1;
-    }
-    const double Re = G*D/mu;
-    if(Re<0.0) {
-        errorLog.Add("ConvCoeffAir_Corrugated","Re<0.0");
-        return -1;
-    }
-    if(D<=25.4e-3/2)
-    {
-    const double J_1=-0.229+0.115*pow((F_p/D),0.6)*pow((P_l/D_h),0.54)*pow(double(N),(-0.284))*log(0.5*tg_angle);
-    const double J_2=-0.251+0.232*pow(double(N),1.37)/(log(Re)-2.303);
-    const double J_3=-0.439*pow((F_p/D_h),0.09)*pow((P_l/P_t),(-1.75))*pow(double(N),(-0.93));
-    const double J_4=0.502*(log(Re)-2.54);
-    # the 'j-factor' correlation
-    j =0.324*pow(Re,(J_1))*pow((F_p/P_l),(J_2))*pow((tg_angle),(J_3))*pow((P_l/P_t),J_4)*pow(double(N),0.428);
-    }
-    else
-    {
-    const double J_5=-0.1707-1.374*pow(P_l/th,-0.493)*pow(F_p/D,-0.886)*pow(N,-0.143)*pow(P_d/X_f,-0.0296);
-    # the 'j-factor' correlation
-    j = 1.79097*pow(Re,J_5)*pow(P_l/th,-0.456)*pow(N,-0.27)*pow(F_p/D,-1.343)*pow(P_d/X_f,0.317);
-    }
+    Pr = mu*cp/k;#prandtl number
+    if (Pr<0.0):
+        print("ConvCoeffAir_Corrugated::ConvCoeffAir_Corrugated","Pr<0.0")
+        
+    Re = G*D/mu;#Reynold's number based on the collar diameter
+    if (Re<0.0):
+        print("ConvCoeffAir_Corrugated::ConvCoeffAir_Corrugated","Re<0.0")
+    
+    if (D<=25.4e-3/2):
+        J_1=-0.229+0.115*pow((F_p/D),0.6)*pow((P_l/D_h),0.54)*pow(N,(-0.284))*log(0.5*tg_angle);
+        J_2=-0.251+0.232*pow(N,1.37)/(log(Re)-2.303);
+        J_3=-0.439*pow((F_p/D_h),0.09)*pow((P_l/P_t),(-1.75))*pow(N,(-0.93));
+        J_4=0.502*(log(Re)-2.54);
+        # the 'j-factor' correlation
+        j =0.324*pow(Re,(J_1))*pow((F_p/P_l),(J_2))*pow((tg_angle),(J_3))*pow((P_l/P_t),J_4)*pow(N,0.428);
+    else:
+        J_5=-0.1707-1.374*pow(P_l/th,-0.493)*pow(F_p/D,-0.886)*pow(N,-0.143)*pow(P_d/X_f,-0.0296);
+        # the 'j-factor' correlation
+        j = 1.79097*pow(Re,J_5)*pow(P_l/th,-0.456)*pow(N,-0.27)*pow(F_p/D,-1.343)*pow(P_d/X_f,0.317);
  
     # calc conv coeff (h) from 'j-factor'(j)
     h = j*G*cp/pow(Pr,0.666667);
      
-    if(!P->wetadj)
-    {
-    const double W5=0.0374-0.0018*log(Re)-0.00685*(D/F_p);
-    P->wetadj=0.794*pow(Re,W5)*pow((P_t/P_l),0.308)*pow((P_d/X_f),-0.119);
-    }
+    if (not P['wetadj']):
+        W5=0.0374-0.0018*log(Re)-0.00685*(D/F_p);
+        P['wetadj']=0.794*pow(Re,W5)*pow((P_t/P_l),0.308)*pow((P_d/X_f),-0.119);
  
     return h, P
 
@@ -478,81 +341,61 @@ def ConvCoeffAir_Slit(G,P):
     chi-chuan wang, wei-song lee, wen-jenn sheu and jane-sunn Liaw, 2001, INTERNATIONAL JOURNAL OF HEAT EXCHANGERS
     *********************************************************/
     '''
- 
-    double h=0,j=0;
-    const double th = P->th;
-    const double D = P->Do+2*th;
-    const double D_h= P->Dh;
-    const double F_p = P->z;
-    const double P_t=P->vsp;
-    const double P_l=P->P_l;
-    const double N=P->Ndeep;
-    const double T = P->T;
-    const double F_s=F_p-th;
-    const double S_h=0.99*0.001;#height of slit, typical structure from the paper
-    const double S_s=2.2*0.001;#breadth of a slit in the direction of the airflow
-    const double S_w=11*0.001;#width of slit
-    const double S_n=4;#number of slits in an enhanced zone
-     
+    
+    th = P['th'];
+    D = P['Do']+2*th;
+    D_h= P['Dh'];
+    F_p = P['z'];
+    P_t=P['vsp'];
+    P_l=P['P_l'];
+    N=P['Ndeep'];
+    T = P['T'];
+    F_s=F_p-th;
+    S_h=0.99*0.001;#height of slit, typical structure from the paper
+    S_s=2.2*0.001;#breadth of a slit in the direction of the airflow
+    S_w=11*0.001;#width of slit
+    S_n=4;#number of slits in an enhanced zone
+    
     # calc Prantl and Reynold number
-    const double mu = air.mu(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_Slit","mu");
-        return -1;
-    }
-    double cp = 0;
-    if(P->evap) {
-    cp=wair.Cp(P->T,P->P);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_Slit", "get_wair CP");
-        return -1;
-    }
-    }
-    else {cp = air.Cp(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_Slit","cp");
-        return -1;
-    }
-    }
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    
+    #air specific heat
+    if (P['evap']): #during the conditions of evaporation
+        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #wair.Cp(P->T,P->P); #[J/kg humid air/K]
+    else: #during the conditions of condensation
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #air.Cp(T); #[J/kg dry air/K]
  
-    const double k = air.k(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_Slit","k");
-        return -1;
-    }
-    const double Pr = mu*cp/k;
-    if(Pr<0.0) {
-        errorLog.Add("ConvCoeffAir_Slit","Pr<0.0");
-        return -1;
-    }
-    const double Re = G*D/mu;
-    if(Re<0.0) {
-        errorLog.Add("ConvCoeffAir_Slit","Re<0.0");
-        return -1;
-    }
- 
-    const double J_4=-0.535+0.017*P_t/P_l-0.0107*double(N);
-    const double J_5=0.4115+5.5756*pow(double(N)/(Re),0.5)*log(double(N)/Re)+24.2028*pow(double(N)/(Re),0.5);
-    const double J_6=0.2646+1.0491*(S_s/S_h)*log(S_s/S_h)-0.216*pow((S_s/S_h),3.0);
-    const double J_7=0.3749+0.0046*pow(Re,0.5)*log(Re)-0.0433*pow(Re,0.5);
- 
-    const double J_1=-0.255-0.0312/(F_s/D)-0.0487*N;
-    const double J_2=0.9703 - 0.0455*pow(Re,0.5)-0.4986*pow(log(P_t/P_l),2.0);
-    const double J_3=0.2405-0.003*Re+5.5349*(F_s/D);
+    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air.k(T);#air heat conductance [W/m/K]
      
-    if(Re<700)
-    j=0.9047*pow(Re,J_1)*pow(F_s/D,J_2)*pow(P_t/P_l,J_3)*pow((S_s/S_h),-0.0305)*pow(N,0.0782);
-    else# the below is the most important calculation
-    j=1.0691*pow(Re,J_4)*pow(F_s/D,J_5)*pow(S_s/S_h,J_6)*pow(double(N),J_7);
+    Pr = mu*cp/k;#prandtl number
+    if (Pr<0.0):
+        print("ConvCoeffAir_Slit::ConvCoeffAir_Slit","Pr<0.0")
+        
+    Re = G*D/mu;#Reynold's number based on the collar diameter
+    if (Re<0.0):
+        print("ConvCoeffAir_Slit::ConvCoeffAir_Slit","Re<0.0")
+         
+ 
+    J_4=-0.535+0.017*P_t/P_l-0.0107*N;
+    J_5=0.4115+5.5756*pow(double(N)/(Re),0.5)*log(N/Re)+24.2028*pow(N/(Re),0.5);
+    J_6=0.2646+1.0491*(S_s/S_h)*log(S_s/S_h)-0.216*pow((S_s/S_h),3.0);
+    J_7=0.3749+0.0046*pow(Re,0.5)*log(Re)-0.0433*pow(Re,0.5);
+ 
+    J_1=-0.255-0.0312/(F_s/D)-0.0487*N;
+    J_2=0.9703 - 0.0455*pow(Re,0.5)-0.4986*pow(log(P_t/P_l),2.0);
+    J_3=0.2405-0.003*Re+5.5349*(F_s/D);
+     
+    if (Re<700):
+        j=0.9047*pow(Re,J_1)*pow(F_s/D,J_2)*pow(P_t/P_l,J_3)*pow((S_s/S_h),-0.0305)*pow(N,0.0782);
+    else: # the below is the most important calculation
+        j=1.0691*pow(Re,J_4)*pow(F_s/D,J_5)*pow(S_s/S_h,J_6)*pow(N,J_7);
  
     # calc conv coeff (h) from 'j-factor'(j)
     h = j*G*cp/pow(Pr,0.666667);
  
-    if(!P->wetadj)
-    {
-    const double W5=-0.143+0.013*log(Re)+0.166*(F_p/D);
-    P->wetadj= 0.937*pow(Re,W5)*pow((S_s/S_h),0.1344)*pow(double(N),0.0657);
-    }
+    if (not P['wetadj']):
+        W5=-0.143+0.013*log(Re)+0.166*(F_p/D);
+        P['wetadj']= 0.937*pow(Re,W5)*pow((S_s/S_h),0.1344)*pow(N,0.0657);
  
     return h, P
 
@@ -570,80 +413,59 @@ def ConvCoeffAir_Louvered(G,P):
     *********************************************************/
     '''
  
-    double h=0,j=0;
-    const double th = P->th;
-    const double D = P->Do+2*th;
-    const double D_h= P->Dh;
-    const double F_p = P->z;
-    const double P_t=P->vsp;
-    const double P_l=P->P_l;
-    const double N=P->Ndeep;
-    const double T = P->T;
-    const double F_s=F_p-th;
-    const double L_h=1.07*0.001;#Louver height, typical structure from the paper
-    const double L_p=2.4*0.001;#major louver pitch
+    th = P['th'];
+    D = P['Do']+2*th;
+    D_h= P['Dh'];
+    F_p = P['z'];
+    P_t=P['vsp'];
+    P_l=P['P_l'];
+    N=P['Ndeep'];
+    T = P['T'];
+    F_s=F_p-th;
+    L_h=1.07*0.001;#Louver height, typical structure from the paper
+    L_p=2.4*0.001;#major louver pitch
  
-     
     # calc Prantl and Reynold number
-    const double mu = air.mu(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_Louvered","mu");
-        return -1;
-    }
-    double cp = 0;
-    if(P->evap) {
-    cp=wair.Cp(P->T,P->P);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_Louvered", "get_wair CP");
-        return -1;
-    }
-    }
-    else {cp = air.Cp(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_Louvered","cp");
-        return -1;
-    }
-    }
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    
+    #air specific heat
+    if (P['evap']): #during the conditions of evaporation
+        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #wair.Cp(P->T,P->P); #[J/kg humid air/K]
+    else: #during the conditions of condensation
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #air.Cp(T); #[J/kg dry air/K]
  
-    const double k = air.k(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_Louvered","k");
-        return -1;
-    }
-    const double Pr = mu*cp/k;
-    if(Pr<0.0) {
-        errorLog.Add("ConvCoeffAir_Louvered","Pr<0.0");
-        return -1;
-    }
-    const double Re = G*D/mu;
-    if(Re<0.0) {
-        errorLog.Add("ConvCoeffAir_Louvered","Re<0.0");
-        return -1;
-    }
+    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air.k(T);#air heat conductance [W/m/K]
+     
+    Pr = mu*cp/k;#prandtl number
+    if (Pr<0.0):
+        print("ConvCoeffAir_Louvered::ConvCoeffAir_Louvered","Pr<0.0")
+        
+    Re = G*D/mu;#Reynold's number based on the collar diameter
+    if (Re<0.0):
+        print("ConvCoeffAir_Louvered::ConvCoeffAir_Louvered","Re<0.0")
+        
  
-    const double j1 = -0.991-0.1055*pow(P_l/P_t,3.1)*log(L_h/L_p);
-    const double j2 = -0.7344+2.1059*(pow(N,0.55)/(log(Re)-3.2));
-    const double j3 = 0.08485*pow(P_l/P_t,-4.4)*pow(N,-0.68);
-    const double j4 = -0.1741*log(N);
-    const double j5 = -0.6027 + 0.02593*pow(P_l/D_h,0.52)*pow(N,-0.5)*log(L_h/L_p);
-    const double j6 = -0.4776+0.40774*pow(N,0.7)/(log(Re)-4.4);
-    const double j7 = -0.58655*pow(F_p/D_h,2.3)*pow(P_l/P_t,-1.6)*pow(N,-0.65);
-    const double j8 = 0.0814*(log(Re)-3.0);
+    j1 = -0.991-0.1055*pow(P_l/P_t,3.1)*log(L_h/L_p);
+    j2 = -0.7344+2.1059*(pow(N,0.55)/(log(Re)-3.2));
+    j3 = 0.08485*pow(P_l/P_t,-4.4)*pow(N,-0.68);
+    j4 = -0.1741*log(N);
+    j5 = -0.6027 + 0.02593*pow(P_l/D_h,0.52)*pow(N,-0.5)*log(L_h/L_p);
+    j6 = -0.4776+0.40774*pow(N,0.7)/(log(Re)-4.4);
+    j7 = -0.58655*pow(F_p/D_h,2.3)*pow(P_l/P_t,-1.6)*pow(N,-0.65);
+    j8 = 0.0814*(log(Re)-3.0);
  
-    if(Re<1000)
-    j = 14.3117*pow(Re,j1)*pow(F_p/D,j2)*pow(L_h/L_p,j3)*pow(F_p/P_l,j4)*pow(P_l/P_t,-1.724);
-    else
-    j = 1.1373*pow(Re,j5)*pow(F_p/P_l,j6)*pow(L_h/L_p,j7)*pow(P_l/P_t,j8)*pow(N,0.3545);
+    if (Re<1000):
+        j = 14.3117*pow(Re,j1)*pow(F_p/D,j2)*pow(L_h/L_p,j3)*pow(F_p/P_l,j4)*pow(P_l/P_t,-1.724);
+    else:
+        j = 1.1373*pow(Re,j5)*pow(F_p/P_l,j6)*pow(L_h/L_p,j7)*pow(P_l/P_t,j8)*pow(N,0.3545);
      
     # calc conv coeff (h) from 'j-factor'(j)
     h = j*G*cp/pow(Pr,0.666667);
  
-    if(!P->wetadj)
-    {
-    const double W4=-0.0746+0.00115*pow(Re,0.5)+0.00028*pow(F_p/D,-2.0);
-    const double W5=0.303-0.726*(L_h/L_p)+0.041*(L_p/F_p);
-    P->wetadj = 0.263*pow(Re,W4)*pow((L_h/L_p),W5)*pow((F_p/D),-0.72)*pow((P_t/P_l),1.11)*pow((L_p/F_p),-0.742);
-    }
+    if (not P['wetadj']):
+        W4=-0.0746+0.00115*pow(Re,0.5)+0.00028*pow(F_p/D,-2.0);
+        W5=0.303-0.726*(L_h/L_p)+0.041*(L_p/F_p);
+        P['wetadj'] = 0.263*pow(Re,W4)*pow((L_h/L_p),W5)*pow((F_p/D),-0.72)*pow((P_t/P_l),1.11)*pow((L_p/F_p),-0.742);
  
     return h, P
 
@@ -661,67 +483,48 @@ def ConvCoeffAir_ConvexLouvered(G,P):
     *********************************************************/
     '''
  
-    double h=0,j=0;
-    const double th = P->th;
-    const double D = P->Do+2*th;
-    const double D_h= P->Dh;
-    const double F_p = P->z;
-    const double P_t=P->vsp;
-    const double P_l=P->P_l;
-    const double N=P->Ndeep;
-    const double T = P->T;
-    const double F_s=F_p-th;
-    const double pi=4*atan(1.0);
- 
+    th = P['th'];
+    D = P['Do']+2*th;
+    D_h= P['Dh'];
+    F_p = P['z'];
+    P_t=P['vsp'];
+    P_l=P['P_l'];
+    N=P['Ndeep'];
+    T = P['T'];
+    F_s=F_p-th;
+    
     # calc Prantl and Reynold number
-    const double mu = air.mu(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_ConvexLouvered","mu");
-        return -1;
-    }
-    double cp = 0;
-    if(P->evap) {
-    cp=wair.Cp(P->T,P->P);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_ConvexLouvered", "get_wair CP");
-        return -1;
-    }
-    }
-    else {cp = air.Cp(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_ConvexLouvered","cp");
-        return -1;
-    }
-    }
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    
+    #air specific heat
+    if (P['evap']): #during the conditions of evaporation
+        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #wair.Cp(P->T,P->P); #[J/kg humid air/K]
+    else: #during the conditions of condensation
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #air.Cp(T); #[J/kg dry air/K]
  
-    const double k = air.k(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_ConvexLouvered","k");
-        return -1;
-    }
-    const double Pr = mu*cp/k;
-    if(Pr<0.0) {
-        errorLog.Add("ConvCoeffAir_ConvexLouvered","Pr<0.0");
-        return -1;
-    }
-    const double Re = G*D/mu;
-    if(Re<0.0) {
-        errorLog.Add("ConvCoeffAir_ConvexLouvered","Re<0.0");
-        return -1;
-    }
-    const double Coe_fin = ((P->Apo+P->Af)/(P->Ls*P->Do*pi));
-    const double j1 = -1.02*(F_p/D)-0.256;
+    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air.k(T);#air heat conductance [W/m/K]
+     
+    Pr = mu*cp/k;#prandtl number
+    if (Pr<0.0):
+        print("ConvCoeffAir_ConvexLouvered::ConvCoeffAir_ConvexLouvered","Pr<0.0")
+        
+    Re = G*D/mu;#Reynold's number based on the collar diameter
+    if (Re<0.0):
+        print("ConvCoeffAir_ConvexLouvered::ConvCoeffAir_ConvexLouvered","Re<0.0")
+        
+        
+    Coe_fin = ((P['Apo']+P['Af'])/(P['Ls']*P['Do']*pi));
+    j1 = -1.02*(F_p/D)-0.256;
     j = 16.06*pow(Re,j1)*pow(Coe_fin,-0.601)*pow(N,-0.069)*pow(F_p/D,0.84);
      
     # calc conv coeff (h) from 'j-factor'(j)
     h = j*G*cp/pow(Pr,0.666667);
  
-    if(!P->wetadj)#borrow the factor of plain fin
-    {
-    const double W4 = -0.213+0.0176*log(Re)+0.0172*(D/F_p);
-    const double W5=0.551-2.63*(F_p/D)-0.012*N;
-    P->wetadj=0.968*pow(Re,W4)*pow((F_p/D),W5);
-    }    
+    if (not P['wetadj']):#borrow the factor of plain fin
+        W4 = -0.213+0.0176*log(Re)+0.0172*(D/F_p);
+        W5=0.551-2.63*(F_p/D)-0.012*N;
+        P['wetadj']=0.968*pow(Re,W4)*pow((F_p/D),W5);
+   
  
     return h, P
 
@@ -739,63 +542,45 @@ def ConvCoeffAir_SmoothWavy(G,P):
     *********************************************************/
     '''
  
-    double h=0,Nu=0;
-    const double th = P->th;
-    const double D = P->Do+2*th;
-    const double D_h= P->Dh;
-    const double F_p = P->z;
-    const double P_t=P->vsp;
-    const double P_l=P->P_l;
-    const double N=P->Ndeep;
-    const double T = P->T;
-    const double F_s=F_p-th;
-     
-        # calc Prantl and Reynold number
-    const double mu = air.mu(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_SmoothWavy","mu");
-        return -1;
-    }
-    double cp = 0;
-    if(P->evap) {
-    cp=wair.Cp(P->T,P->P);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_SmoothWavy", "get_wair CP");
-        return -1;
-    }
-    }
-    else {cp = air.Cp(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_SmoothWavy","cp");
-        return -1;
-    }
-    }
+    th = P['th'];
+    D = P['Do']+2*th;
+    D_h= P['Dh'];
+    F_p = P['z'];
+    P_t=P['vsp'];
+    P_l=P['P_l'];
+    N=P['Ndeep'];
+    T = P['T'];
+    F_s=F_p-th;
+    
+    # calc Prantl and Reynold number
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    
+    #air specific heat
+    if (P['evap']): #during the conditions of evaporation
+        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #wair.Cp(P->T,P->P); #[J/kg humid air/K]
+    else: #during the conditions of condensation
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #air.Cp(T); #[J/kg dry air/K]
  
-    const double k = air.k(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffAir_SmoothWavy","k");
-        return -1;
-    }
-    const double Pr = mu*cp/k;
-    if(Pr<0.0) {
-        errorLog.Add("ConvCoeffAir_SmoothWavy","Pr<0.0");
-        return -1;
-    }
-    const double Re = G*(2*F_s)/mu;#different from others
-    if(Re<0.0) {
-        errorLog.Add("ConvCoeffAir_SmoothWavy","Re<0.0");
-        return -1;
-    }
+    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air.k(T);#air heat conductance [W/m/K]
+     
+    Pr = mu*cp/k;#prandtl number
+    if (Pr<0.0):
+        print("ConvCoeffAir_SmoothWavy::ConvCoeffAir_SmoothWavy","Pr<0.0")
+        
+    Re = G*D/mu;#Reynold's number based on the collar diameter
+    if (Re<0.0):
+        print("ConvCoeffAir_SmoothWavy::ConvCoeffAir_SmoothWavy","Re<0.0")
+        
+     
     Nu = 0.0197*pow(Re, 0.94)*pow((P_t-D)/(2*F_s), -0.3)*(1+111.9/pow(Re*N*P_l/(2*F_s),1.2))*pow(Pr,1.0/3.0);
     h=Nu*k/(2*F_s);#it appears too small, around 34
  
-    if(!P->wetadj)#borrow the factor of plain fin
-    {
-    const double W4 = -0.213+0.0176*log(Re)+0.0172*(D/F_p);
-    const double W5=0.551-2.63*(F_p/D)-0.012*N;
-    P->wetadj=0.968*pow(Re,W4)*pow((F_p/D),W5);
-    }    
-    P->wetadj=1.0;
+    if (not P['wetadj']):#borrow the factor of plain fin
+        W4 = -0.213+0.0176*log(Re)+0.0172*(D/F_p);
+        W5=0.551-2.63*(F_p/D)-0.012*N;
+        P['wetadj']=0.968*pow(Re,W4)*pow((F_p/D),W5);
+      
+    P['wetadj']=1.0;
      
     return h, P
 
@@ -820,15 +605,15 @@ def Circuit_DP_EVAP(Ga,TPi,TPo,P):
 
     P['GetP'] =1;#set the request for calculating the friction factor.
     
-    rho1 = 1/HAPropsSI('Vda','T',TPi['T'],'R',TPi['P'],'P',101325) #air.v(TPi.T)#inlet air density
+    rho1 = 1/HAPropsSI('Vda','T',TPi['T'],'P',101325,'R',TPi['P']) #air.v(TPi.T)#inlet air density
     
-    rho2 = 1/HAPropsSI('Vda','T',TPo['T'],'R',TPo['P'],'P',101325) #air.v(TPo.T);#outlet air density
+    rho2 = 1/HAPropsSI('Vda','T',TPo['T'],'P',101325,'R',TPo['P']) #air.v(TPo.T);#outlet air density
     
     rho_m=(rho1+rho2)/2;#mean air density
     
     f, P = ConvCoeffAir_EVA(TPi, Ga, P);#calculate the friction factor
     
-    mu = HAPropsSI('mu','T',TPi['T'],'R',TPi['P'],'P',101325) #air.mu(TPi.T);#air viscosity
+    mu = HAPropsSI('mu','T',TPi['T'],'P',101325,'R',TPi['P']) #air.mu(TPi.T);#air viscosity
     
     Re = Ga*P['Do']/mu;#Reynolds number based on tube outside diameter
     if (Re<0.0):
@@ -854,15 +639,15 @@ def Circuit_DP_COND(Ga,Tai,Tao,P):
     
     P['GetP'] =1;#set the request for calculating the friction factor.
     
-    rho1 = 1/HAPropsSI('Vda','T',Tai['T'],'R',Tai['P'],'P',101325) #air.v(Tai.T)#inlet air density
+    rho1 = 1/HAPropsSI('Vda','T',Tai['T'],'P',101325,'R',Tai['P']) #air.v(Tai.T)#inlet air density
     
-    rho2 = 1/HAPropsSI('Vda','T',Tao['T'],'R',Tao['P'],'P',101325) #air.v(Tao.T);#outlet air density
+    rho2 = 1/HAPropsSI('Vda','T',Tao['T'],'P',101325,'R',Tao['P']) #air.v(Tao.T);#outlet air density
     
     rho_m=(rho1+rho2)/2;#mean air density
     
     f, P = ConvCoeffAir_CON(Tai, Ga, P);#calculate the friction factor
     
-    mu = HAPropsSI('mu','T',Tai['T'],'R',Tai['P'],'P',101325) #air.mu(TPi.T);#air viscosity
+    mu = HAPropsSI('mu','T',Tai['T'],'P',101325,'R',Tai['P']) #air.mu(TPi.T);#air viscosity
     
     Re = Ga*P['Do']/mu;#Reynolds number based on tube outside diameter
     if (Re<0.0):
@@ -893,35 +678,28 @@ def FricAir_Plain(G,#air flux
     2000, pp. 2693-2700>>
     ******************************************************/
     '''
+    th = P['th'];#fin thichness
+    D = P['Do']+2*th;#collar diameter
+    D_h= P['Dh'];#hydraulic diameter
+    F_p = P['z'];#fin pitch
+    P_t=P['vsp'];#tube pitch perpendicular to the airflow
+    P_l=P['P_l'];#tube pitch in the airflow direction
+    N=P['Ndeep'];#tube number in the airflow direction
+    F_s=F_p-th;#fin space
+    T = P['T'];#air temperature
+    
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+            
+    Re = G*D/mu;#Reynold's number based on the collar diameter
+    if (Re<0.0):
+        print("FricAir_Plain::FricAir_Plain","Re<0.0")
+        
      
-    const double th = P->th;#fin thichness
-    const double D = P->Do+2*th;#collar diameter
-    const double D_h= P->Dh;#hydraulic diameter
-    const double F_p = P->z;#fin pitch
-    const double P_t=P->vsp;#tube pitch perpendicular to the airflow
-    const double P_l=P->P_l;#tube pitch in the airflow direction
-    const double N=P->Ndeep;#tube number in the airflow direction
-    const double F_s=F_p-th;#fin space
-    double f=0;#airside heat transfer coefficient
-    const double T = P->T;#air temperature
-     
-    # calc Prantl and Reynold number
-    const double mu = air.mu(T);#air viscosity
-    if(errorLog.IsError()) {
-        errorLog.Add("FricAir_Plain","mu");
-        return -1;
-    }
- 
-    const double Re = G*D/mu;#Reynolds number based on the collar diameter
-    if(Re<0.0) {
-        errorLog.Add("FricAir_Plain","Re<0.0");
-        return -1;
-    }
-     
-    const double F1=-0.764+0.739*(P_t/P_l)+0.177*F_p/D-0.00758/N;
-    const double F2=-15.689+64.021/log(Re);
-    const double F3=1.696-15.695/log(Re);
- 
+    F1=-0.764+0.739*(P_t/P_l)+0.177*F_p/D-0.00758/N;
+    F2=-15.689+64.021/log(Re);
+    F3=1.696-15.695/log(Re);
+    
+    #airside heat transfer coefficient
     f = 0.0267*pow(Re,F1)*pow(P_t/P_l, F2)*pow(F_p/D,F3);
  
     return f, P
@@ -942,56 +720,42 @@ def FricAir_Corrugated(G,P):
     *********************************************************/
     '''
  
-    double f=0;
-    const double th = P->th;
-    const double D = P->Do+2*th;
-    const double D_h= P->Dh;
-    const double F_p = P->z;
-    const double P_t=P->vsp;
-    const double P_l=P->P_l;
-    const double N=P->Ndeep;
-    const double T = P->T;
-    const double F_s=F_p-th;
-    const double X_f=P_l/4;#projected fin pattern length for one-half wavy length, typical structure from the paper
-    const double P_d=1.32*0.001;#waffle height, from the paper
-    double tg_angle=0;# tan of the corrugation angle
-    double sec_angle=0;# sec of the corrugation angle
-    const double pi=4*atan(1.0);
+    th = P['th'];#fin thichness
+    D = P['Do']+2*th;#collar diameter
+    D_h= P['Dh'];#hydraulic diameter
+    F_p = P['z'];#fin pitch
+    P_t=P['vsp'];#tube pitch perpendicular to the airflow
+    P_l=P['P_l'];#tube pitch in the airflow direction
+    N=P['Ndeep'];#tube number in the airflow direction
+    F_s=F_p-th;#fin space
+    T = P['T'];#air temperature
+    X_f=P_l/4;#projected fin pattern length for one-half wavy length, typical structure from the paper
+    P_d=1.32*0.001;#waffle height, from the paper
     sec_angle=pow((pow(X_f,2.0)+pow(P_d,2.0)),0.5)/X_f;# calculate the sec of the corrugation angle
     tg_angle=pow((pow(sec_angle,2.0)-1.0),0.5);#calculate the tan of the corrugation angle
  
-    #const double beta=3.1415926*pow(D,2.0)/(4*P_l*P_t);#possible method for calculating hydraulic diameter for wavy fin, but not used here
+    #beta=3.1415926*pow(D,2.0)/(4*P_l*P_t);#possible method for calculating hydraulic diameter for wavy fin, but not used here
     #D_h=2*F_p*(1-beta)/((1-beta)*sec_angle+2*F_p*beta/D);
-    # calc Prantl and Reynold number
+    
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+            
+    Re = G*D/mu;#Reynold's number based on the collar diameter
+    if (Re<0.0):
+        print("FricAir_Corrugated::FricAir_Corrugated","Re<0.0")
      
-    const double mu = air.mu(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("FricAir_Corrugated","mu");
-        return -1;
-    }
- 
-    const double Re = G*D/mu;
-    if(Re<0.0) {
-        errorLog.Add("FricAir_Corrugated","Re<0.0");
-        return -1;
-    }
      
-    const double Coe_fin = ((P->Apo+P->Af)/(P->Ls*P->Do*pi));
+    Coe_fin = ((P['Apo']+P['Af'])/(P['Ls']*P['Do']*pi));
  
-    if(D<=25.4e-3/2)
-    {
-    const double F1=0.4604-0.01336*pow(F_p/P_l, 0.58)*log(Coe_fin)*pow(tg_angle,-1.5);
-    const double F2 = 3.247*pow(F_p/P_t,1.4)*log(Coe_fin);
-    const double F3= -20.113/log(Re);
-    f = 0.01915*pow(Re,F1)*pow(tg_angle,F2)*pow(F_p/P_l,F3)*pow(log(Coe_fin),-5.35)*pow(P->Dh/D,1.3796)*pow(N,-0.0916);
-    }
-    else
-    {
-    const double f1=0.1714-0.07372*pow(F_p/P_l,0.25)*log(Coe_fin)*pow(P_d/X_f, -0.2);
-    const double f2 = 0.426*pow(F_p/P_t,0.3)*log(Coe_fin);
-    const double f3 = -10.2192/(log(Re));
-    f = 0.05273*pow(Re,f1)*pow(P_d/X_f, f2)*pow(F_p/P_t,f3)*pow(log(Coe_fin),-2.726)*pow(P->Dh/D,0.1325)*pow(N,0.02305);
-    }
+    if (D<=25.4e-3/2):
+        F1=0.4604-0.01336*pow(F_p/P_l, 0.58)*log(Coe_fin)*pow(tg_angle,-1.5);
+        F2 = 3.247*pow(F_p/P_t,1.4)*log(Coe_fin);
+        F3= -20.113/log(Re);
+        f = 0.01915*pow(Re,F1)*pow(tg_angle,F2)*pow(F_p/P_l,F3)*pow(log(Coe_fin),-5.35)*pow(P['Dh']/D,1.3796)*pow(N,-0.0916);
+    else:
+        f1=0.1714-0.07372*pow(F_p/P_l,0.25)*log(Coe_fin)*pow(P_d/X_f, -0.2);
+        f2 = 0.426*pow(F_p/P_t,0.3)*log(Coe_fin);
+        f3 = -10.2192/(log(Re));
+        f = 0.05273*pow(Re,f1)*pow(P_d/X_f, f2)*pow(F_p/P_t,f3)*pow(log(Coe_fin),-2.726)*pow(P['Dh']/D,0.1325)*pow(N,0.02305);
  
     return f, P
 
@@ -1005,45 +769,36 @@ def FricAir_Slit(G,P):
     *********************************************************/
     '''
  
-    double f=0;
-    const double th = P->th;
-    const double D = P->Do+2*th;
-    const double D_h= P->Dh;
-    const double F_p = P->z;
-    const double P_t=P->vsp;
-    const double P_l=P->P_l;
-    const double N=P->Ndeep;
-    const double T = P->T;
-    const double F_s=F_p-th;
-    const double S_h=0.99*0.001;#height of slit, typical structure from the paper
-    const double S_s=2.2*0.001;#breadth of a slit in the direction of the airflow
-    const double S_w=11*0.001;#width of slit
-    const double S_n=4;#number of slits in an enhanced zone
+    th = P['th'];#fin thichness
+    D = P['Do']+2*th;#collar diameter
+    D_h= P['Dh'];#hydraulic diameter
+    F_p = P['z'];#fin pitch
+    P_t=P['vsp'];#tube pitch perpendicular to the airflow
+    P_l=P['P_l'];#tube pitch in the airflow direction
+    N=P['Ndeep'];#tube number in the airflow direction
+    F_s=F_p-th;#fin space
+    T = P['T'];#air temperature
+    S_h=0.99*0.001;#height of slit, typical structure from the paper
+    S_s=2.2*0.001;#breadth of a slit in the direction of the airflow
+    S_w=11*0.001;#width of slit
+    S_n=4;#number of slits in an enhanced zone
      
-    # calc Prantl and Reynold number
-    const double mu = air.mu(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("FricAir_Slit","mu");
-        return -1;
-    }
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+            
+    Re = G*D/mu;#Reynold's number based on the collar diameter
+    if (Re<0.0):
+        print("FricAir_Slit::FricAir_Slit","Re<0.0")
+
  
- 
- 
-    const double Re = G*D/mu;
-    if(Re<0.0) {
-        errorLog.Add("FricAir_Slit","Re<0.0");
-        return -1;
-    }
- 
-    const double f1 = -0.1401+0.2567*log(F_s/D)+4.399*exp(-1*S_n);
-    const double f2 = -0.383+0.7998*log(F_s/D)+5.1772/S_n;
-    const double f3 = -1.7266 - 0.1102*log(Re)-1.4501*(F_s/D);
-    const double f4 = 0.4034-0.199*(S_s/S_h)/log(S_s/S_h)+0.4208*log(S_s/S_h)/pow(S_s/S_h,2.0);
-    double N_ref=0;
+    f1 = -0.1401+0.2567*log(F_s/D)+4.399*exp(-1*S_n);
+    f2 = -0.383+0.7998*log(F_s/D)+5.1772/S_n;
+    f3 = -1.7266 - 0.1102*log(Re)-1.4501*(F_s/D);
+    f4 = 0.4034-0.199*(S_s/S_h)/log(S_s/S_h)+0.4208*log(S_s/S_h)/pow(S_s/S_h,2.0);
     N_ref=N;
-    if(N==1) {N_ref = 2;}
-    const double f5 = -9.0566+0.6199*log(Re)+32.8057/log(Re)-0.2881/log(N_ref)+0.9583/pow(N,1.5);
-    const double f6 = -1.4994+1.209*(P_t/P_l)+1.4601/S_n;
+    if (N==1):
+        N_ref = 2;
+    f5 = -9.0566+0.6199*log(Re)+32.8057/log(Re)-0.2881/log(N_ref)+0.9583/pow(N,1.5);
+    f6 = -1.4994+1.209*(P_t/P_l)+1.4601/S_n;
      
     f = 1.201*pow(Re,f1)*pow(F_s/D,f2)*pow(P_t/P_l,f3)*pow(S_s/S_h,f4)*pow(N,f5)*pow(S_n,f6);
  
@@ -1061,54 +816,41 @@ def FricAir_Louvered(G,P):
     *********************************************************/
     '''
  
-    double f=0;
-    const double th = P->th;
-    const double D = P->Do+2*th;
-    const double D_h= P->Dh;
-    const double F_p = P->z;
-    const double P_t=P->vsp;
-    const double P_l=P->P_l;
-    const double N=P->Ndeep;
-    const double T = P->T;
-    const double F_s=F_p-th;
-    const double L_h=1.07*0.001;#Louver height, typical structure from the paper
-    const double L_p=2.4*0.001;#major louver pitch
+    th = P['th'];#fin thichness
+    D = P['Do']+2*th;#collar diameter
+    D_h= P['Dh'];#hydraulic diameter
+    F_p = P['z'];#fin pitch
+    P_t=P['vsp'];#tube pitch perpendicular to the airflow
+    P_l=P['P_l'];#tube pitch in the airflow direction
+    N=P['Ndeep'];#tube number in the airflow direction
+    F_s=F_p-th;#fin space
+    T = P['T'];#air temperature
+    L_h=1.07*0.001;#Louver height, typical structure from the paper
+    L_p=2.4*0.001;#major louver pitch
  
      
-    # calc Prantl and Reynold number
-    const double mu = air.mu(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("FricAir_Louvered","mu");
-        return -1;
-    }
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+            
+    Re = G*D/mu;#Reynold's number based on the collar diameter
+    if (Re<0.0):
+        print("FricAir_Louvered::FricAir_Louvered","Re<0.0")
  
+    
+    Coe_fin = ((P['Apo']+P['Af'])/(P['Ls']*P['Do']*pi));
  
-    const double Re = G*D/mu;
-    if(Re<0.0) {
-        errorLog.Add("FricAir_Louvered","Re<0.0");
-        return -1;
-    }
- 
-    const double pi = 4*atan(1.0);
-    const double Coe_fin = ((P->Apo+P->Af)/(P->Ls*P->Do*pi));
- 
-    if(N>1)
-    {
-    const double F5 = 0.1395-0.0101*pow(F_p/P_l, 0.58)*pow(L_h/L_p,-2.0)*log(Coe_fin)*pow(P_l/P_t, 1.9);
-    const double F6 = -6.4367/log(Re);
-    const double F7 = 0.07191*log(Re);
-    const double F8 = -2.0585*pow(F_p/P_t, 1.67)*log(Re);
-    const double F9 = 0.1036*log(P_l/P_t);
-    f = 0.06393*pow(Re, F5)*pow(F_p/D, F6)*pow(P->Dh/D, F7)*pow(L_h/L_p, F8)*pow(N, F9)*pow(log(Re)-4.0, -1.093);
-    }
-    else
-    {
-    const double F1 = 0.1691+4.4118*pow(F_p/P_l,-0.3)*pow(L_h/L_p,-2.0)*log(P_l/P_t)*pow(F_p/P_t,3.0);
-    const double F2 = -2.6642-14.3809/log(Re);
-    const double F3 = -0.6816*log(F_p/P_l);
-    const double F4 = 6.4668*pow(F_p/P_t,1.7)*log(Coe_fin);
-    f = 0.00317*pow(Re,F1)*pow(F_p/P_l,F2)*pow(P->Dh/D,F3)*pow(L_h/L_p,F4)*pow(log(Coe_fin), -6.0483);
-    }
+    if(N>1):
+        F5 = 0.1395-0.0101*pow(F_p/P_l, 0.58)*pow(L_h/L_p,-2.0)*log(Coe_fin)*pow(P_l/P_t, 1.9);
+        F6 = -6.4367/log(Re);
+        F7 = 0.07191*log(Re);
+        F8 = -2.0585*pow(F_p/P_t, 1.67)*log(Re);
+        F9 = 0.1036*log(P_l/P_t);
+        f = 0.06393*pow(Re, F5)*pow(F_p/D, F6)*pow(P['Dh']/D, F7)*pow(L_h/L_p, F8)*pow(N, F9)*pow(log(Re)-4.0, -1.093);
+    else:
+        F1 = 0.1691+4.4118*pow(F_p/P_l,-0.3)*pow(L_h/L_p,-2.0)*log(P_l/P_t)*pow(F_p/P_t,3.0);
+        F2 = -2.6642-14.3809/log(Re);
+        F3 = -0.6816*log(F_p/P_l);
+        F4 = 6.4668*pow(F_p/P_t,1.7)*log(Coe_fin);
+        f = 0.00317*pow(Re,F1)*pow(F_p/P_l,F2)*pow(P['Dh']/D,F3)*pow(L_h/L_p,F4)*pow(log(Coe_fin), -6.0483);
  
     return f, P
 
@@ -1124,40 +866,30 @@ def FricAir_ConvexLouvered(G,P):
     *********************************************************/
     '''
  
-    double f=0;
-    const double th = P->th;
-    const double D = P->Do+2*th;
-    const double D_h= P->Dh;
-    const double F_p = P->z;
-    const double P_t=P->vsp;
-    const double P_l=P->P_l;
-    const double N=P->Ndeep;
-    const double T = P->T;
-    const double F_s=F_p-th;
-    const double pi=4*atan(1.0);
+    th = P['th'];#fin thichness
+    D = P['Do']+2*th;#collar diameter
+    D_h= P['Dh'];#hydraulic diameter
+    F_p = P['z'];#fin pitch
+    P_t=P['vsp'];#tube pitch perpendicular to the airflow
+    P_l=P['P_l'];#tube pitch in the airflow direction
+    N=P['Ndeep'];#tube number in the airflow direction
+    F_s=F_p-th;#fin space
+    T = P['T'];#air temperature
  
-    # calc Prantl and Reynold number
-    const double mu = air.mu(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("FricAir_ConvexLouvered","mu");
-        return -1;
-    }
- 
- 
-    const double Re = G*D/mu;
-    if(Re<0.0) {
-        errorLog.Add("FricAir_ConvexLouvered","Re<0.0");
-        return -1;
-    }
-    const double Coe_fin = ((P->Apo+P->Af)/(P->Ls*P->Do*pi));
-    if(Re<1e3)
-    {
-    f = 0.264*(0.105+0.708*exp(-1*Re/225))*pow(Re,-0.637)*pow(Coe_fin,0.263)*pow(F_p/D, -0.317);
-    }
-    else
-    {
-    f = 0.768*(0.0494+0.142*exp(-1*Re/1180))*pow(Coe_fin,0.0195)*pow(F_p/D,-0.121);
-    }
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+            
+    Re = G*D/mu;#Reynold's number based on the collar diameter
+    if (Re<0.0):
+        print("FricAir_ConvexLouvered::FricAir_ConvexLouvered","Re<0.0")
+        
+        
+    Coe_fin = ((P['Apo']+P['Af'])/(P['Ls']*P['Do']*pi));
+    
+    if (Re<1e3):
+        f = 0.264*(0.105+0.708*exp(-1*Re/225))*pow(Re,-0.637)*pow(Coe_fin,0.263)*pow(F_p/D, -0.317);
+    else:
+        f = 0.768*(0.0494+0.142*exp(-1*Re/1180))*pow(Coe_fin,0.0195)*pow(F_p/D,-0.121);
+
      
     return f, P
 
@@ -1173,42 +905,30 @@ def FricAir_SmoothWavy(G,P):
     *********************************************************/
     '''
  
-    double f=0;
-    const double th = P->th;
-    const double D = P->Do+2*th;
-    const double D_h= P->Dh;
-    const double F_p = P->z;
-    const double P_t=P->vsp;
-    const double P_l=P->P_l;
-    const double N=P->Ndeep;
-    const double T = P->T;
-    const double F_s=F_p-th;
-    const double wh = 2.38e-3;#typical geometry from the paper, with respect to first three coils in the paper
+    th = P['th'];#fin thichness
+    D = P['Do']+2*th;#collar diameter
+    D_h= P['Dh'];#hydraulic diameter
+    F_p = P['z'];#fin pitch
+    P_t=P['vsp'];#tube pitch perpendicular to the airflow
+    P_l=P['P_l'];#tube pitch in the airflow direction
+    N=P['Ndeep'];#tube number in the airflow direction
+    F_s=F_p-th;#fin space
+    T = P['T'];#air temperature
+    wh = 2.38e-3;#typical geometry from the paper, with respect to first three coils in the paper
      
-        # calc Prantl and Reynold number
-    const double mu = air.mu(T);
-    if(errorLog.IsError()) {
-        errorLog.Add("FricAir_SmoothWavy","mu");
-        return -1;
-    }
- 
- 
-    const double Re = G*(wh)/mu;#different from others
-    if(Re<0.0) {
-        errorLog.Add("FricAir_SmoothWavy","Re<0.0");
-        return -1;
-    }
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+            
+    Re = G*D/mu;#Reynold's number based on the collar diameter
+    if (Re<0.0):
+        print("FricAir_ConvexLouvered::FricAir_ConvexLouvered","Re<0.0")
+        
  
     f = 8.64/pow(Re,0.457)*pow(2*F_s/wh,0.473)*pow(N*P_l/wh,-0.545);
      
-    if(P->P>0.4)#wet condition
-    {
+    if (P['P']>0.4):#wet condition
         f = 2.71/pow(Re,0.737) +f;
-    }
-    else#dry condition
-    {
+    else: #dry condition
         f = f;
-    }
  
     return f, P
 
@@ -1228,39 +948,36 @@ def FricAir_Spine(G,P):
 #===========================================================================
 # single-phase heat transer
 #===========================================================================
-# def ConvCoeffSP(TXP TXP,double G,ETdim* P):
-#     '''
-#     #interface function for calling the single-phase heat transfer calculation for the evaporator
-#     '''
-# 
-#     InsideTube_Dim D;
-#     D.Microfin = P->microfin; #microfin type, 0=smooth tube, 1=helical, 2=cross-grooved, 3=herringbone
-#     D.finN = P->finN; #fin number in a micro-fin tube
-#     D.Di = P->Di;#inside diameter at the fin tip
-#     D.gama =P->gama ;#fin apex angle in a micro-fin tube
-#     D.beta = P->beta ;    #fin helix angle in a micro-fin tube
-#     D.finH = P->finH; #fin height in a micro-fin tube
-#     D.w_b = P->w_b ; #base width of a single fin
-#     D.w_e = P->w_e; #top width of a single fin
-#     D.w_z = P->w_z; #base distance between two neighboring fins
-#     D.K_T = P->K_T;#400, this is the conductance factor of copper
-#     D.Ls = P->Ls;#tube unit length
-#     D.D_b = P->D_b;#tube diameter at the base of the fin
-#     D.Do = P->Do; #Pipe outside diameter.
-#     D.D_m = P->D_m; #mean diameter of the micro-fin tube
-#     D.P_H = P->P_H;# the hydraulical circumference
-#     D.Acs = P->Acs ;#cross area of the micro-fin tube, this is the actual cross-section area
-#     D.Dh_i = P->Dh_i;#inside hydraulical diameter 
-#     D.Ax = P->Ax;# Inside pipe cross sectional area, based on fin tips
-#     D.Api =P->Api;# Inside pipe surface area (one tube segment), based on fin tips
-#     const double h_sp = ConvCoeffSP_Microfin(TXP,G, &D);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffSP","h_sp_ev");
-#         return -1;
-#     }
-#     return h_sp
+def ConvCoeffSP(TXP,G,P, Ref):
+    '''
+    #interface function for calling the single-phase heat transfer calculation for the EVAPORATOR & CONDENSER
+    '''
+ 
+    D = InsideTube_Dim(); #initiate dictionarty for storing the parameters for micro-fin tube
+    D['Microfin'] = P['microfin']; #microfin type, 0=smooth tube, 1=helical, 2=cross-grooved, 3=herringbone
+    D['finN'] = P['finN']; #fin number in a micro-fin tube
+    D['Di'] = P['Di'];#inside diameter at the fin tip
+    D['gama'] =P['gama'] ;#fin apex angle in a micro-fin tube
+    D['beta'] = P['beta'] ;    #fin helix angle in a micro-fin tube
+    D['finH'] = P['finH']; #fin height in a micro-fin tube
+    D['w_b'] = P['w_b'] ; #base width of a single fin
+    D['w_e'] = P['w_e']; #top width of a single fin
+    D['w_z'] = P['w_z']; #base distance between two neighboring fins
+    D['K_T'] = P['K_T'];#400, this is the conductance factor of copper
+    D['Ls'] = P['Ls'];#tube unit length
+    D['D_b'] = P['D_b'];#tube diameter at the base of the fin
+    D['Do'] = P['Do']; #Pipe outside diameter.
+    D['D_m'] = P['D_m']; #mean diameter of the micro-fin tube
+    D['P_H'] = P['P_H'];# the hydraulical circumference
+    D['Acs'] = P['Acs'] ;#cross area of the micro-fin tube, this is the actual cross-section area
+    D['Dh_i'] = P['Dh_i'];#inside hydraulical diameter 
+    D['Ax'] = P['Ax'];# Inside pipe cross sectional area, based on fin tips
+    D['Api'] =P['Api'];# Inside pipe surface area (one tube segment), based on fin tips
+    h_sp, D = ConvCoeffSP_Microfin(TXP,G,D, Ref);
 
+    return h_sp, P
 
+#The following function is the same as the previous, therefroe it is commented out
 # def ConvCoeffSP(TXP TXP,double G,CGP* P):
 #     '''
 #     #interface function for calling the single-phase heat transfer calculation for the condenser
@@ -1294,124 +1011,87 @@ def FricAir_Spine(G,P):
 #     return h_sp
 
 
-# def ConvCoeffSP_Microfin(TXP TXP,#refrigerant state
-#                      double G,# refrigerant mass flux
-#                      InsideTube_Dim * P):#micro-fin tube struct
-#     '''
-#     /*****************************************************
-#     Single-phase heat transfer for the micro-fin tubes, B.S.,
-#     Tang, Liangyou. Ohadi, Michael M. Johnson, Arthur T. Flow condensation in smooth 
-#     and micro-fin tubes with HCFC-22, HFC-134a and HFC-410 refrigerants. 
-#     Part II: design equations Journal of Enhanced Heat Transfer. v 7 n 5 2000. 
-#     p 311-325
-#     *********************************************************/
-#     '''
-#     
-#     const double mu = PropertyTXPtr(VISC,TXP);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffSP_Microfin","mu");
-#         return -1;
-#     }
-#     const double Cp = PropertyTXPtr(SPEC,TXP);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffSP_Microfin","Cp");
-#         return -1;
-#     }
-#     const double k = PropertyTXPtr(COND,TXP);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffSP_Microfin","k");
-#         return -1;
-#     }
-# 
-# 
-#     double d_bottom,d_top,d_m,c,a;
-#     double h;
-#     d_top = P->Di;#diameter at the fin tip
-#     d_bottom = P->D_b;#diameter at the fin bottom
-#     d_m = P->D_m;#mean diameter
-#     
-#     
-# 
-#     if(TXP.X>0.99||P->Microfin==0)#Dittus-Boelter
-#     {
-#     G=G*pow(d_top/d_bottom,2.0);
-#     h=ConvCoeffSP_Smooth(TXP,G,d_bottom);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffSP_Smooth","get_h");
-#         return -1;}
-#     h=h*d_bottom/d_top;
-#     return h;
-#     }
-# 
-#     const double Pr = mu*Cp/k;
-#     const double G_adj=G*pow(d_top/d_m,2.0);#the author mentioned the mean diamter was used to calculate the flow cross-sectional area
-#     const double Re = G_adj*d_bottom/mu;#the author mentioned the inside diamter at the fin bottom was used to calculate inner tube heat transfer surface area
-# 
-#     if(P->Microfin==2)#cross-grooved tube
-#     {
-#     c=0.012;
-#     a=0.95;
-#     }
-#     else if(P->beta<2) #axial fin tube
-#     {
-#     c=0.0136;
-#     a=0.91;
-#     }
-#     else #helical fin tube
-#     {
-#     a=0.8;
-#     c=0.0479;
-#     }
-# 
-#     
-#     h=c*pow(Re,a)*pow(Pr,0.4)*k/(d_bottom);
-#     h=d_bottom/d_top*h;#normalized the heat transfer coefficient to the inner surface area at the fin tip
-#     
-#     return h
+def ConvCoeffSP_Microfin(TXP,#refrigerant state
+                         G, #refrigerant mass flux
+                         P, Ref): #micro-fin tube struct
+    '''
+    /*****************************************************
+    Single-phase heat transfer for the micro-fin tubes, B.S.,
+    Tang, Liangyou. Ohadi, Michael M. Johnson, Arthur T. Flow condensation in smooth 
+    and micro-fin tubes with HCFC-22, HFC-134a and HFC-410 refrigerants. 
+    Part II: design equations Journal of Enhanced Heat Transfer. v 7 n 5 2000. 
+    p 311-325
+    *********************************************************/
+    '''
+     
+    mu = PropertyTXPtr('V',TXP, Ref) #[Pa-s]
+    Cp = PropertyTXPtr('C',TXP, Ref) #[J/kg/K]
+    k = PropertyTXPtr('L',TXP, Ref) #[W/m/K]
+    
+    #double d_bottom,d_top,d_m,c,a;
+    #double h;
+    d_top = P['Di'];#diameter at the fin tip
+    d_bottom = P['D_b'];#diameter at the fin bottom
+    d_m = P['D_m'];#mean diameter
+     
+    
+    if (TXP['X']>0.99 or P['Microfin']==0): #Dittus-Boelter
+        G=G*pow(d_top/d_bottom,2.0);
+        h=ConvCoeffSP_Smooth(TXP,G,d_bottom)
+        h=h*d_bottom/d_top;
+        return h, P
+ 
+    Pr = mu*Cp/k;
+    G_adj=G*pow(d_top/d_m,2.0);#the author mentioned the mean diamter was used to calculate the flow cross-sectional area
+    Re = G_adj*d_bottom/mu;#the author mentioned the inside diamter at the fin bottom was used to calculate inner tube heat transfer surface area
+ 
+    if (P['Microfin']==2):#cross-grooved tube
+        c=0.012;
+        a=0.95;
+    elif (P['beta']<2): #axial fin tube
+        c=0.0136;
+        a=0.91;
+    else: #helical fin tube
+        a=0.8;
+        c=0.0479; 
+     
+    h=c*pow(Re,a)*pow(Pr,0.4)*k/(d_bottom);
+    h=d_bottom/d_top*h;#normalized the heat transfer coefficient to the inner surface area at the fin tip
+     
+    return h, P
 
 
-# def ConvCoeffSP_Smooth(TXP TXP,double G,double D):
-#     '''
-#     /********************************************************************
-#     Dittus-Boelter correlation for convective heat transfer
-#     from flow inside of circular pipes.
-#     Refernece:
-#         1. Incopera & Dewitt, 3rd ed., p.496
-#         2. Dittus, F.W. L.M.K. Boelter
-#             University of California Publications on Engineering
-#             Vol. 2, p.443, 1930
-#     TXP = thermodynamic state of refrigerant (C/-/kPa)
-#     G = refrigerant mass fux (kg/s/m^2)
-#     D = inside diameter of pipe. (m)
-#     return = the convection coefficient (h) in (W/K/m^2)
-#     ********************************************************************/
-#     '''
-# 
-#     const double mu = PropertyTXPtr(VISC,TXP);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffSP","mu");
-#         return -1;
-#     }
-#     const double Cp = PropertyTXPtr(SPEC,TXP);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffSP","Cp");
-#         return -1;
-#     }
-#     const double k = PropertyTXPtr(COND,TXP);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffSP","k");
-#         return -1;
-#     }
-# 
-# 
-#     const double Pr = mu*Cp/k;#Boelter correlation
-#     const double Re = G*D/mu;
-#     const double Nu = 0.023*pow(Re,0.8)*pow(Pr,0.333);
-#     double h =0;
-#     if(TXP.X>0.9) h=Nu*k/D;
-#     else h=Nu*k/D;    
-#     
-#     return h
+def ConvCoeffSP_Smooth(TXP,G,D, Ref):
+    '''
+    /********************************************************************
+    Dittus-Boelter correlation for convective heat transfer
+    from flow inside of circular pipes.
+    Refernece:
+        1. Incopera & Dewitt, 3rd ed., p.496
+        2. Dittus, F.W. L.M.K. Boelter
+            University of California Publications on Engineering
+            Vol. 2, p.443, 1930
+    TXP = thermodynamic state of refrigerant (K/-/Pa)
+    G = refrigerant mass fux (kg/s/m^2)
+    D = inside diameter of pipe. (m)
+    return = the convection coefficient (h) in (W/K/m^2)
+    ********************************************************************/
+    '''
+ 
+    mu = PropertyTXPtr('V',TXP, Ref) #[Pa-s]
+    Cp = PropertyTXPtr('C',TXP, Ref) #[J/kg/K]
+    k = PropertyTXPtr('L',TXP, Ref) #[W/m/K]
+    
+    Pr = mu*Cp/k;#Boelter correlation
+    Re = G*D/mu;
+    Nu = 0.023*pow(Re,0.8)*pow(Pr,0.333);
+    
+    if (TXP['X']>0.9):
+        h=Nu*k/D;
+    else:
+        h=Nu*k/D;    
+     
+    return h
 
 
 #===============================================================================
@@ -2392,7 +2072,7 @@ def theta_ev(theta_strat, Params=None):
     *************************************/
     '''
     if (Params == None):
-        theta_strat_ev = {'A_Ld': 0.0}
+        theta_strat_ev = {'A_Ld': 0.0}#dictionary variable for getting the stratified angle in Kattan-Thome flow map by iteration
         theta = theta_strat_ev
     else:
         theta = Params 
@@ -2814,33 +2494,31 @@ def Correct_FLOW_Boiling(x,#quality
 #     return DP
 
 
-# def FinEffect_Schmidt(double h,#airside heat transfer coefficient
-#                          double k,#fin conductance
-#                          double th,#fin thickness
-#                          double w,#length beween the fin tip and fin base
-#                          double Do):#tube outside diameter
-#     '''#B.S.-------------------------------------------------------------------------
-#     #calculating the fin efficiency with Schmidt method
-#     '''
-# 
-#     #Schmidt calculation method
-#     const double R_o = Do/2;#tube outside radius
-#     const double R_ref=R_o+w;#reference fin radius
-# 
-#     const double beta=R_ref/R_o;
-#     const double arg = 2*h/(k*th);
-#     if(arg<0.0) {
-#         errorLog.Add("FinEffect_Schmidt","h/(k*yb)<0.0");
-#         return 0;
-#     }
-# 
-#     const double m=pow(arg,0.5);
-# 
-#     const double phi=(beta-1)*(1+0.35*log(beta));
-#     const double MRPHI=m*R_o*phi;#this is m*L_F, L_F=R_o*Phi is the equivalent fin length
-#     const double eta=tanh(MRPHI)/(MRPHI);
-# 
-#     return eta
+def FinEffect_Schmidt(h,#airside heat transfer coefficient
+                      k,#fin conductance
+                      th,#fin thickness
+                      w,#length beween the fin tip and fin base
+                      Do):#tube outside diameter
+    '''#B.S.-------------------------------------------------------------------------
+    #calculating the fin efficiency with Schmidt method
+    '''
+ 
+    #Schmidt calculation method
+    R_o = Do/2;#tube outside radius
+    R_ref=R_o+w;#reference fin radius
+ 
+    beta=R_ref/R_o;
+    arg = 2*h/(k*th);
+    if(arg<0.0):
+        print("CORR::FinEffect_Schmidt","h/(k*yb)<0.0");
+
+    m=pow(arg,0.5);
+ 
+    phi=(beta-1)*(1+0.35*log(beta));
+    MRPHI=m*R_o*phi;#this is m*L_F, L_F=R_o*Phi is the equivalent fin length
+    eta=tanh(MRPHI)/(MRPHI);
+ 
+    return eta
 
 
 # def Coef_Hilpert(double G,double Tair,double D):

@@ -9,14 +9,14 @@ import pandas as pd
 #from CoolProp.CoolProp import PropsSI
 from CoolProp.HumidAirProp import HAPropsSI
 
-from EVAP import EvapTubeBend, EvapTubeBend_Fwd
+from EVAP import EvapTubeBend, EvapTubeBend_Fwd, EvapTubeL_Fwd, EvapTubeL_Rev
 
 def EvapCircuit(Ref,type,mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D):
 
     EvapInfo = StructEvap("../InputDoc/EvapStruc.xlsx", Ref);
     EvapInfo.Rev=D['REV'];
 
-    if type == 301: #user defined
+    if (type == 301): #user defined
         EvapInfo._EvapCircuit_Fwd(mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D)
 #     elif type == 302: #Carrier RTU at Purdue
 #         EvapCircuit301(mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D); 
@@ -501,9 +501,9 @@ class StructEvap():
                                 realk=k;
                         
                             if (self.Rev):
-                                EvapTubeL_Rev(self.Bra[i]['Gr'],self.HPi,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['TPi'],WHo,mi,self.P)
+                                self.HPi, WHo, mi, self.P = EvapTubeL_Rev(self.Ref, self.Bra[i]['Gr'],self.HPi,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['TPi'],WHo,mi,self.P)
                             else:
-                                EvapTubeL_Fwd(self.Bra[i]['Gr'],self.HPi,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['TPi'],WHo,mi,self.P)
+                                self.HPi, WHo, mi, self.P = EvapTubeL_Fwd(self.Ref, self.Bra[i]['Gr'],self.HPi,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['TPi'],WHo,mi,self.P)
                 
                             #if(errorLog.IsError()) {
                             #errorLog.Add("StructEvap::Cal_HP","EvapTube");
