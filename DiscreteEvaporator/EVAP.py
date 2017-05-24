@@ -1,5 +1,5 @@
 from __future__ import division, print_function, absolute_import
-from math import pi,log,exp
+from math import pi,log,exp,tanh
 
 from scipy.optimize import brentq #solver to find roots (zero points) of functions
 #import numpy as np
@@ -9,12 +9,12 @@ import pandas as pd
 #from CoolProp.CoolProp import PropsSI
 from CoolProp.HumidAirProp import HAPropsSI
 
-from extra_functions import HPtoTXP, EVA_Get_Q, toTXP, PreAcc
+from extra_functions import HPtoTXP, EVA_Get_Q, toTXP, PreAcc, ETdim, HPtoTP, WPtoTP, THtoTP
 from EvapCirc import EvapCircuit
 from PRESSURE import dPelbow, dPmom, GET_PreAcc
 from VOLUME import VolumeALL
 from CORR import Circuit_DP_EVAP, ConvCoeffAir_EVA, FinEffect_Schmidt, ConvCoeffSP
-from CMINE import CmineCrossFlow_dry
+from CMINE import CmineCrossFlow_dry, CmineCrossFlow_wet
 
 def Evaporator(Ref, #refrigerant string
                filename, #file nane string
@@ -392,7 +392,7 @@ def EvapTubeL_Rev(Ref,#refrigerant
             y1, P = ConvCoeffSP(TXP1,Gr,P, Ref);
             EVA_Get_Q['TXPo']=TXP2;#local refrigerant state
             #B.S., get the heat transfer coefficient at the two-phase region
-            hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q),xtol=1e-5,rtol=6e-8,maxiter=40) #xtol, rtol and maxiter are changed to match "Zbrent" solver in ACMODEL
+            hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q,Ref),xtol=1e-5,rtol=6e-8,maxiter=40) #xtol, rtol and maxiter are changed to match "Zbrent" solver in ACMODEL
             y2 = hi/P['hRefAdj'];#B.S., calculate the two-phase heat transfer coefficient at this region
              
             if(y1>y2):
@@ -404,7 +404,7 @@ def EvapTubeL_Rev(Ref,#refrigerant
             EVA_Get_Q['TXPo'] = TXP1;
             try:
                 #two-phase refrigerant heat transfer coefficient
-                hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q),xtol=1e-5,rtol=6e-8,maxiter=40) #xtol, rtol and maxiter are changed to match "Zbrent" solver in ACMODEL
+                hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q,Ref),xtol=1e-5,rtol=6e-8,maxiter=40) #xtol, rtol and maxiter are changed to match "Zbrent" solver in ACMODEL
             except:
                 print("EVAP::EvapTubeL_Rev (brentq) TXPo['T']={:f}, T_max={:f}, T_min={:f}".format(TXPo['T'],hi_max,hi_min));
 
@@ -465,7 +465,7 @@ def EvapTubeL_Rev(Ref,#refrigerant
     else: #calculating the heat transfer in the two-phase region
         EVA_Get_Q['TXPo']=TXPo;
         try:
-            hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q),xtol=1e-5,rtol=6e-8,maxiter=40) #iterate the heat transfer coefficient
+            hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q,Ref),xtol=1e-5,rtol=6e-8,maxiter=40) #iterate the heat transfer coefficient
         except:
             #plot error vs. T to see whgat function looks like that caused error
             #ZbrentPlot(hi_max,hi_min,Get_Q_EVA,1e-4,&EVA_Get_Q);#Haorong change from -7 to-2
@@ -576,7 +576,7 @@ def EvapTubeL_Fwd(Ref, #refrigerant
         m = mass of charge in return bend (kg)
     *********************************************************************/
     '''
-        
+    
     #B.S., this dictionary struct is for storing some parameters for iteration
     EVA_Get_Q = EVA_Get_Q()
 
@@ -628,7 +628,7 @@ def EvapTubeL_Fwd(Ref, #refrigerant
             y1, P = ConvCoeffSP(TXP1,Gr,P, Ref);
             EVA_Get_Q['TXPo']=TXP2;#local refrigerant state
             #two-phase refrigerant heat transfer coefficient
-            hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q),xtol=1e-5,rtol=6e-8,maxiter=40) #xtol, rtol and maxiter are changed to match "Zbrent" solver in ACMODEL
+            hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q,Ref,xtol=1e-5,rtol=6e-8,maxiter=40) #xtol, rtol and maxiter are changed to match "Zbrent" solver in ACMODEL
             y2 = hi/P['hRefAdj'];#ConvCoeffEvapTP_microfin(TXP2,Gr,P)
             if (y1>y2):
                 y1=y2;#B.S., make the single phase flow less than two phase
@@ -638,7 +638,7 @@ def EvapTubeL_Fwd(Ref, #refrigerant
             TXP2 = toTXP(TXPo['T'],1,TXPo['P']);
             EVA_Get_Q['TXPo'] = TXP1;
             #two-phase refrigerant heat transfer coefficient
-            hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q),xtol=1e-5,rtol=6e-8,maxiter=40) #xtol, rtol and maxiter are changed to match "Zbrent" solver in ACMODEL
+            hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q,Ref),xtol=1e-5,rtol=6e-8,maxiter=40) #xtol, rtol and maxiter are changed to match "Zbrent" solver in ACMODEL
             #B.S., get the heat transfer coefficient at the two-phase region
             y1 = hi/P['hRefAdj'];#B.S. get two-phase heat transfer coefficient at this region    
             y2, P = ConvCoeffSP(TXP2,Gr,P, Ref);#B.S., single-phase heat transfer coefficient
@@ -680,18 +680,17 @@ def EvapTubeL_Fwd(Ref, #refrigerant
             P['UA_TP']=P['UA_TP']+1/R;#B.S., dry thermal resistance of the two-phase heat transfer
             P['TPL'] = P['TPL']+ P['Ls'];#B.S., length of two-phase flow
 
-
     
     else: #calculating the heat transfer in the two-phase region
         EVA_Get_Q['TXPo']=TXPo;
         #iterate the heat transfer coefficient
         try:
-            hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q),xtol=1e-5,rtol=6e-8,maxiter=40) #xtol, rtol and maxiter are changed to match "Zbrent" solver in ACMODEL
+            hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q,Ref),xtol=1e-5,rtol=6e-8,maxiter=40) #xtol, rtol and maxiter are changed to match "Zbrent" solver in ACMODEL
         except: #if failed, try again
             EVA_Get_Q['TXPo']['X'] = EVA_Get_Q['TXPo']['X']+0.05
-            hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q),xtol=1e-5,rtol=6e-8,maxiter=40)
+            hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(EVA_Get_Q,Ref),xtol=1e-5,rtol=6e-8,maxiter=40)
             EVA_Get_Q['TXPo']['X'] = EVA_Get_Q['TXPo']['X']-0.05;
-            dhi = Get_Q_EVA(hi,EVA_Get_Q)
+            dhi = Get_Q_EVA(hi,EVA_Get_Q,Ref)
             ## plot error vs. T to see whgat function looks like that caused error
             #ZbrentPlot(hi_max,hi_min,Get_Q_EVA,1e-4,&EVA_Get_Q);#Haorong change from -7 to-2
             print("EVAP::EvapTubeL_Fwd (brentq) dhi= ",str(dhi))
@@ -784,9 +783,9 @@ def EvapTubeL_Fwd(Ref, #refrigerant
     return (HPo, WHo, m, P)
 
 
-
-def Get_Q_EVA(double hi_0,#this function is for getting the refrigerant side heat transfer coefficent 
-                 void *Params):#this struct contains the necessary parameters for iteration
+def Get_Q_EVA(hi_0,#this function is for getting the refrigerant side heat transfer coefficent 
+              Params=None, 
+              Ref):#this struct contains the necessary parameters for iteration
     '''
     /********************************************************************
     B.S., add for iteration get evaporative heat transfer at two-phase region
@@ -795,225 +794,156 @@ def Get_Q_EVA(double hi_0,#this function is for getting the refrigerant side hea
     and cooling coils", ASHRAE Transactions, Vol. 95-2, pp. 164-174
     ***********************************************************************/
     '''
-
-    EVA_Get_Q* EVA_Q=(EVA_Get_Q*)Params;
-    static double pi = acos(-1.0);
-
-    double hi=0,Ri=0;
-    double T_w=0;
-    double Q=0;
+    
+    if (Params == None):
+        EVA_Q = EVA_Get_Q()
+    else:    
+        EVA_Q = Params
     
     #B.S.--------------------------
-    EVA_Q->P.Qtp_wet = 0;#new
-    EVA_Q->P.Qtp_dry = 0;#new
-    EVA_Q->P.UAw_TP = 0;
-    EVA_Q->P.UA_TP = 0;
-    EVA_Q->P.L_wet = 0;
-    EVA_Q->P.L_dry = 0;
+    EVA_Q['P']['Qtp_wet'] = 0;#new
+    EVA_Q['P']['Qtp_dry'] = 0;#new
+    EVA_Q['P']['UAw_TP'] = 0;
+    EVA_Q['P']['UA_TP'] = 0;
+    EVA_Q['P']['L_wet'] = 0;
+    EVA_Q['P']['L_dry'] = 0;
     #---------------------------B.S.
     
     hi=hi_0;
 
-    const double W_I=wair.HumidityRatio(EVA_Q->TPi.T,EVA_Q->TPi.P);#B.S., inlet air humidity
-    if(errorLog.IsError()) {
-        errorLog.Add("Get_Q_EVA","wair.HumidityRatio1");
-        return 0;
-    }
-
-    
-    
-    ETdim Eva_dim;
-    Eva_dim = EVA_Q->P;#B.S. get the evaporator struct parameters
-    
+    W_I= HAPropsSI('W','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #wair.HumidityRatio(EVA_Q->TPi.T,EVA_Q->TPi.P); inlet air humidity #[kg water/kg dry air]
+        
+    Eva_dim = ETdim();
+    Eva_dim = EVA_Q['P'];#B.S. get the evaporator struct parameters
 
     #dry condition
-    Ri = 1/(hi*EVA_Q->P.Api);#B.S., inside thermal resistance
-    const double R_W=log(EVA_Q->P.Do/(EVA_Q->P.Do-2.0*EVA_Q->P.xp))/(2.0*pi*EVA_Q->P.K_T*EVA_Q->P.Ls);
-    const double R = EVA_Q->P.Ro+R_W+Ri;#B.S., external thermal resistance under dry condition
+    Ri = 1/(hi*EVA_Q['P']['Api']);#B.S., inside thermal resistance
+    R_W=log(EVA_Q['P']['Do']/(EVA_Q['P']['Do']-2.0*EVA_Q['P']['xp']))/(2.0*pi*EVA_Q['P']['K_T']*EVA_Q['P']['Ls']);
+    R = EVA_Q['P']['Ro']+R_W+Ri;#B.S., external thermal resistance under dry condition
 
-    const double CP_M=wair.Cp(EVA_Q->TPi.T,EVA_Q->TPi.P);
-    if(errorLog.IsError()) {
-        errorLog.Add("Get_Q_EVA","CP_M");
-        return 0;
-    }
+    CP_M= HAPropsSI('cp_ha','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #wair.Cp(EVA_Q->TPi.T,EVA_Q->TPi.P); #[J/kg humid air/K]
+    
+    #begin with wet condition
+    H_A_I=HAPropsSI('Hha','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #wair.h(EVA_Q->TPi.T,EVA_Q->TPi.P);#inlet air enthalpy #[J/kg humid air]
+    
+    H_SAT=HAPropsSI('Hha','P',101325,'T',EVA_Q['TXPo']['T'],'R',0.999)# wair.h(EVA_Q->TXPo.T,0.999); #[J/kg humid air]
+    
+    enthal1=HAPropsSI('Hha','P',101325,'T',EVA_Q['TXPo']['T'],'R',0.999) #wair.h(EVA_Q->TXPo.T,0.999); #[J/kg humid air]
+    enthal2=HAPropsSI('Hha','P',101325,'T',EVA_Q['TXPo']['T']-0.1,'R',0.999) #wair.h(EVA_Q->TXPo.T-0.1,0.999); #[J/kg humid air]
+
+    C_S=(enthal1-enthal2)/0.1e0;
+
+    M_DOT_A=EVA_Q['ma'];
+    EVA_Q['P']['wet']=1;
+    
+    H_W, EVA_Q['P'] = ConvCoeffAir_EVA(EVA_Q['TPi'],EVA_Q['P']['Ga'],EVA_Q['P']);
+    H_W=EVA_Q['P']['hAirAdj']*H_W
+    EVA_Q['P']['wet']=0;
+    
+    #calculate wet fin efficiency
+    M_F_W=pow((2e0*H_W*C_S/(EVA_Q['P']['K_F']*EVA_Q['P']['th']*CP_M)),0.5e0);#for calculating the wet fin efficiency, including both the heat and mass transfer
+    ETA_F_W=tanh(M_F_W*EVA_Q['P']['L_F'])/(M_F_W*EVA_Q['P']['L_F']);#wet fin efficiency
+    
+    A_F=EVA_Q['P']['Af'];#fin surface area
+    A_T=EVA_Q['P']['Af']+EVA_Q['P']['Apo'];#the whole external area
+    ETA_O_W=1e0-A_F/A_T*(1e0-ETA_F_W);#overall external fin efficiency
+    R_SURF_W=1/(ETA_O_W*H_W*A_T);#airside thermal resistance under wet condition
+    NTU_O_W=1/(R_SURF_W*M_DOT_A*CP_M);#for calculating the effective saturated air enthalpy at T_S_O
+
+    NTU_O=1/(EVA_Q['P']['Ro']*M_DOT_A*CP_M);#for calculating the outlet air temperature, which is involved with sensible heat transfer
+
+    UA_W=1e0/(C_S*Ri+C_S*R_W+CP_M*R_SURF_W);#UA under wet condition, considering both the heat and mass transfer
+    NTU_W=1*UA_W/(M_DOT_A);#NTU under wet condition, for calculating heat transfer
+    EPSILON_W=1e0-exp(-NTU_W);#epsilon under wet condition
+
+    Q=EPSILON_W*M_DOT_A*(H_A_I-H_SAT);#heat transfer under wet condition
+    EVA_Q['q'] =Q/EVA_Q['mr'];
+
+    #get outlet humidity and effective surface temperature
+    H_A_O=H_A_I-Q/(M_DOT_A);#outlet air enthalpy, actually the energy balance shoudl include the water flowing away, like -(83.84e3+(T_S-20)*4.183e3)*(W_I-W_O), since this part is small and need iteration, so it is ignored
+    H_S_S_O=H_A_I-(H_A_I-H_A_O)/(1-exp(-NTU_O_W));#saturated air enthalpy at T_S_S_O, effective surface temperature
     
 
-#begin with wet condition
-        const double H_A_I=wair.h(EVA_Q->TPi.T,EVA_Q->TPi.P);#inlet air enthalpy
-        if(errorLog.IsError()) {
-        errorLog.Add("Get_Q_EVA","H_A_I");
-        return 0;
-        }
-        
-        const double H_SAT=wair.h(EVA_Q->TXPo.T,0.999);
-        if(errorLog.IsError()) {
-        errorLog.Add("Get_Q_EVA","H_SAT");
-        return 0;
-        }
+    TP_S_O = {'T':0.0,'P':0.0}
+#     H_zero=wair.h(2,0.99);#fixed the minimum possible H_S_S_O
+#     if (H_S_S_O<=H_zero): 
+#         H_S_S_O=H_zero;
+    TP_S_O = HPtoTP(H_S_S_O,0.999);
 
-        
-        const double enthal1=wair.h(EVA_Q->TXPo.T,0.999);
-        const double enthal2=wair.h(EVA_Q->TXPo.T-0.1,0.999);
+    T_S_O=TP_S_O['T'];#effective surface temperature
+    T_O=T_S_O+(EVA_Q['TPi']['T']-T_S_O)*exp(-NTU_O);#outlet air temperature
+    EVA_Q['T_S_O']= T_S_O;
 
-        if(errorLog.IsError()) {
-        errorLog.Add("Get_Q_EVA","get C_S");
-        return 0;
-        }
+    TP_dew = {'T':0.0,'P':0.0}
+    TP_dew = WPtoTP(W_I,0.999);#get the dew point corresponding to the inlet humidity ratio
+    T_dew=TP_dew['T'];#dew temperature corresponding to the inlet air enthalpy
 
-        const double C_S=(enthal1-enthal2)/0.1e0;
+    if (T_S_O>=T_dew): #dry condition
+        # TXPo['T'] is actually the outlet refrigerant temperature
+        # however TXPo['T'] = TXPi['T'] in the two phase region and
+        # TXPo['T'] ~ to TXPi['T'] in the superheated region if steps are small
+        q_dry=(EVA_Q['TPi']['T']-EVA_Q['TXPo']['T'])/EVA_Q['mr']*CmineCrossFlow_wet(R,EVA_Q['mr'],EVA_Q['ma'],EVA_Q['TXPo'],EVA_Q['TPi']['T'],CP_M, Ref);
+        if (T_S_O>=T_dew+0.2):
+            EVA_Q['q'] = (EVA_Q['TPi']['T']-EVA_Q['TXPo']['T'])/EVA_Q['mr']*CmineCrossFlow_wet(R,EVA_Q['mr'],EVA_Q['ma'],EVA_Q['TXPo'],EVA_Q['TPi']['T'],CP_M, Ref);
+        else:
+            EVA_Q['q']=(q_dry-Q/EVA_Q['mr'])/(0.2)*(T_S_O-T_dew) + Q/EVA_Q['mr'];
 
-        
-        const double M_DOT_A=EVA_Q->ma;
-        EVA_Q->P.wet=1;
-        const double H_W= EVA_Q->P.hAirAdj*ConvCoeffAir_EVA(EVA_Q->TPi,EVA_Q->P.Ga,&EVA_Q->P);
-        EVA_Q->P.wet=0;
-        #calculate wet fin efficiency
-        const double M_F_W=pow((2e0*H_W*C_S/(EVA_Q->P.K_F*EVA_Q->P.th*CP_M)),0.5e0);#for calculating the wet fin efficiency, including both the heat and mass transfer
-        const double ETA_F_W=tanh(M_F_W*EVA_Q->P.L_F)/(M_F_W*EVA_Q->P.L_F);#wet fin efficiency
-        
-        const double A_F=EVA_Q->P.Af;#fin surface area
-        const double A_T=EVA_Q->P.Af+EVA_Q->P.Apo;#the whole external area
-        const double ETA_O_W=1e0-A_F/A_T*(1e0-ETA_F_W);#overall external fin efficiency
-        const double R_SURF_W=1/(ETA_O_W*H_W*A_T);#airside thermal resistance under wet condition
-        const double NTU_O_W=1/(R_SURF_W*M_DOT_A*CP_M);#for calculating the effective saturated air enthalpy at T_S_O
-
-        const double NTU_O=1/(EVA_Q->P.Ro*M_DOT_A*CP_M);#for calculating the outlet air temperature, which is involved with sensible heat transfer
-
-        const double UA_W=1e0/(C_S*Ri+C_S*R_W+CP_M*R_SURF_W);#UA under wet condition, considering both the heat and mass transfer
-        const double NTU_W=1*UA_W/(M_DOT_A);#NTU under wet condition, for calculating heat transfer
-        const double EPSILON_W=1e0-exp(-NTU_W);#epsilon under wet condition
-
-        Q=EPSILON_W*M_DOT_A*(H_A_I-H_SAT);#heat transfer under wet condition
-        EVA_Q->q =Q/EVA_Q->mr;
-
-        #get outlet humidity and effective surface temperature
-        const double H_A_O=H_A_I-Q/(M_DOT_A);#outlet air enthalpy, actually the energy balance shoudl include the water flowing away, like -(83.84e3+(T_S-20)*4.183e3)*(W_I-W_O), since this part is small and need iteration, so it is ignored
-        double H_S_S_O=H_A_I-(H_A_I-H_A_O)/(1-exp(-NTU_O_W));#saturated air enthalpy at T_S_S_O, effective surface temperature
-        
-
-        TP TP_S_O;
-#        const double H_zero=wair.h(2,0.99);#fixed the minimum possible H_S_S_O
-#        if(H_S_S_O<=H_zero) H_S_S_O=H_zero;
-        
-        TP_S_O=HPtoTP(H_S_S_O,0.999);
-        if(errorLog.IsError()) {
-        errorLog.Add("Get_Q_EVA","TP_S_O");
-        return 0;
-        }
-        const double T_S_O=TP_S_O.T;#effective surface temperature
-        const double T_O=T_S_O+(EVA_Q->TPi.T-T_S_O)*exp(-NTU_O);#outlet air temperature
-        EVA_Q->T_S_O= T_S_O;
-
-        TP TP_dew;
-        TP_dew=WPtoTP(W_I,0.999);#get the dew point corresponding to the inlet humidity ratio
-        if(errorLog.IsError()) {
-        errorLog.Add("Get_Q_EVA","TP_dew");
-        return 0;
-        }
-        const double T_dew=TP_dew.T;#dew temperature corresponding to the inlet air enthalpy
-    
-        if(T_S_O>=T_dew) #dry condition
-        {
-
-    # TXPo.T is actually the outlet refrigerant temperature
-    # however TXPo.T = TXPi.T in the two phase region and
-    # TXPo.T ~ to TXPi.T in the superheated region if steps are small
-        const double q_dry=(EVA_Q->TPi.T-EVA_Q->TXPo.T)/EVA_Q->mr*CmineCrossFlow_wet(R,EVA_Q->mr,EVA_Q->ma,EVA_Q->TXPo,EVA_Q->TPi.T,CP_M);
-        if(T_S_O>=T_dew+0.2)
-        {
-        EVA_Q->q = (EVA_Q->TPi.T-EVA_Q->TXPo.T)/EVA_Q->mr*CmineCrossFlow_wet(R,EVA_Q->mr,EVA_Q->ma,EVA_Q->TXPo,EVA_Q->TPi.T,CP_M);
-        }
-        else
-        {
-        EVA_Q->q=(q_dry-Q/EVA_Q->mr)/(0.2)*(T_S_O-T_dew) + Q/EVA_Q->mr;
-        }#B.S.
-
-        if(errorLog.IsError()) {
-        errorLog.Add("Get_Q_EVA","q_dry");
-        return 0;
-        }
-
-        Q=EVA_Q->q*EVA_Q->mr;#heat transfer amount under dry condition
-        
-        EVA_Q->W=W_I;#without dehumidifying
-        T_w=Q*Ri+EVA_Q->TXPo.T;
-        
-        EVA_Q->T_w=T_w;
+        Q=EVA_Q['q']*EVA_Q['mr'];#heat transfer amount under dry condition
+        EVA_Q['W']=W_I;#without dehumidifying
+        T_w=Q*Ri+EVA_Q['TXPo']['T'];
+        EVA_Q['T_w']=T_w;
         #B.S.---------------------------
-        EVA_Q->P.Qtp_dry = Q;#dry heat transfer
-        EVA_Q->P.UA_TP = 1/R;#dry heat transfer conductance of this segment
-        EVA_Q->P.L_dry = EVA_Q->P.Ls;#dry heat transfer tube length of this segment
+        EVA_Q['P']['Qtp_dry'] = Q;#dry heat transfer
+        EVA_Q['P']['UA_TP'] = 1/R;#dry heat transfer conductance of this segment
+        EVA_Q['P']['L_dry'] = EVA_Q['P']['Ls'];#dry heat transfer tube length of this segment
         #--------------------------------B.S.
-
-        Eva_dim.T_w=T_w;
-        Eva_dim.q_flux=Q/EVA_Q->P.Api;
-        hi =EVA_Q->P.hRefAdj*ConvCoeffEvapTP_microfin(EVA_Q->TXPo,EVA_Q->Gr,&Eva_dim);#B.S., based on the tube wall temperature to get the refrigerant side heat transfer coefficient
+        Eva_dim['T_w']=T_w;
+        Eva_dim['q_flux']=Q/EVA_Q['P']['Api'];
         
-        if(errorLog.IsError()) {
-        errorLog.Add("Get_Q_EVA","hi");
-        return 0;
-        }
-
-        const double hi_dry = (hi-hi_0)/(hi+hi_0);
-        return hi_dry;
-        }
-
-        TP TP_O;
-        TP_O.T=T_O;
-        const double HH_min = wair.h(T_O,0.05);
-        const double HH_max = wair.h(T_O,0.999);
-
-        if(errorLog.IsError()) {
-        errorLog.Add("Get_Q_EVA","HH_min&HH_max");
-        return 0;
-        }
+        hi, Eva_dim = ConvCoeffEvapTP_microfin(EVA_Q['TXPo'],EVA_Q['Gr'],Eva_dim, Ref);#B.S., based on the tube wall temperature to get the refrigerant side heat transfer coefficient
+        hi = EVA_Q['P']['hRefAdj']*hi
+        hi_dry = (hi-hi_0)/(hi+hi_0);
         
-        if(H_A_O>=HH_max)
-        {
-        TP_O.T=T_O;
-        TP_O.P=0.999;
-        }
-        else if(H_A_O<=HH_min)
-        {
-        TP_O.T=T_O;
-        TP_O.P=0.05;
-        }
-        else
-        {
-        TP_O=THtoTP(T_O,H_A_O);#outlet air state
-        if(errorLog.IsError()) {
-        errorLog.ClearError("Get_Q_EVA","TP_O");
-        TP_O.T=T_O;
-        TP_O.P=0.999;
-        }
-        }
+        return hi_dry
 
-        double W_O=wair.HumidityRatio(T_O,TP_O.P);#outlet air humidity ratio
-        if(errorLog.IsError()) {
-        errorLog.ClearError("Get_Q_EVA","W_O");
+    TP_O = {'T':0.0,'P':0.0}
+    TP_O['T']=T_O;
+    HH_min = HAPropsSI('Hha','P',101325,'T',T_O,'R',0.05)  #wair.h(T_O,0.05); #[J/kg humid air]
+    HH_max = HAPropsSI('Hha','P',101325,'T',T_O,'R',0.999) #wair.h(T_O,0.999); #[J/kg humid air]
+
+    if (H_A_O>=HH_max):
+        TP_O['T']=T_O;
+        TP_O['P']=0.999;
+    elif (H_A_O<=HH_min):
+        TP_O['T']=T_O;
+        TP_O['P']=0.05;
+    else:
+        try:
+            TP_O=THtoTP(T_O,H_A_O);#outlet air state
+        except:
+            TP_O['T']=T_O;
+            TP_O['P']=0.999;
+
+    try:
+        W_O=HAPropsSI('W','P',101325,'T',T_O,'R',TP_O['P']) #wair.HumidityRatio(T_O,TP_O.P);#outlet air humidity ratio #[-]
+    except:
         W_O=W_I;
-        }
 
-        EVA_Q->W=W_O;
-        T_w=Q*Ri+EVA_Q->TXPo.T;
-        EVA_Q->T_w=T_w;
+    EVA_Q['W']=W_O;
+    T_w=Q*Ri+EVA_Q['TXPo']['T'];
+    EVA_Q['T_w']=T_w;
 
-        #B.S.---------------------------
-        EVA_Q->P.Qtp_wet = EVA_Q->mr*EVA_Q->q;#wet heat transfer
-        EVA_Q->P.UAw_TP = UA_W;#wet heat transfer conductance of this segment
-        EVA_Q->P.L_wet = EVA_Q->P.Ls;#wet heat transfer tube length of this segment
-        #--------------------------------B.S.
+    #B.S.---------------------------
+    EVA_Q['P']['Qtp_wet'] = EVA_Q['mr']*EVA_Q['q'];#wet heat transfer
+    EVA_Q['P']['UAw_TP'] = UA_W;#wet heat transfer conductance of this segment
+    EVA_Q['P']['L_wet'] = EVA_Q['P']['Ls'];#wet heat transfer tube length of this segment
+    #--------------------------------B.S.
 
-        Eva_dim.T_w=T_w;
-        Eva_dim.q_flux=Q/EVA_Q->P.Api;
-        hi =EVA_Q->P.hRefAdj*ConvCoeffEvapTP_microfin(EVA_Q->TXPo,EVA_Q->Gr,&Eva_dim);#B.S., based on the tube wall temperature to get the refrigerant side heat transfer coefficient
-
-        if(errorLog.IsError()) {
-        errorLog.Add("Get_Q_EVA","hi");
-        return 0;
-        }
-
-        double dhi=(hi-hi_0)/(hi+hi_0);
+    Eva_dim['T_w']=T_w;
+    Eva_dim['q_flux']=Q/EVA_Q['P']['Api'];
+    hi, Eva_dim =ConvCoeffEvapTP_microfin(EVA_Q['TXPo'],EVA_Q['Gr'],Eva_dim, Ref);#B.S., based on the tube wall temperature to get the refrigerant side heat transfer coefficient
+    hi = EVA_Q['P']['hRefAdj']*hi
+    dhi=(hi-hi_0)/(hi+hi_0);
     
     return dhi
 

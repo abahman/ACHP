@@ -1,10 +1,7 @@
 from __future__ import division, print_function, absolute_import
-#from math import pi,log,sqrt,exp,cos,sin,tan,log10
-#from scipy.integrate import quad,quadrature,trapz,simps,fixed_quad
-#from scipy.optimize import brentq,fsolve
-#import numpy as np
-#import CoolProp as CP
-#import CoolProp
+from math import pi,log,sqrt,exp,cos,sin,tan,log10
+
+from CoolProp.HumidAirProp import HAPropsSI
 from CoolProp.CoolProp import PropsSI
 
 
@@ -202,6 +199,67 @@ def TXPtoHP(TXP,Ref):
     HP['H'] = PropertyTXPth('H',TXP,Ref); #1 means that we wants to find ENTHALPY (i.e., ENTH) ##Now it takes string of 'H'
 
     return HP
+
+def HPtoTP(H,P):
+    '''
+    /********************************************************************
+    Converts format of thermodynamic state representation for moist
+    air from enthalpy (H) and relative humidity (P) to the
+    standard format for ACMODEL: temperature (T) and relative
+    humidity (P).
+    ********************************************************************/
+    '''
+    TP = {'T':0.0,'P':0.0}
+    HP = {'H':0.0,'P':0.0}
+    
+    HP['H'] = H;
+    HP['P'] = P;
+    
+    TP['T'] = HAPropsSI('T','P',101325,'H',H,'R',P) #[K]
+    TP['P'] = P;
+
+    return TP
+
+def WPtoTP(W,P):
+    '''
+    /********************************************************************
+    Converts format of thermodynamic state representation for moist
+    air from humidity ratio (W) and relative humidity (P) to the
+    standard format for ACMODEL: temperature (T) and relative
+    humidity (P).
+    ********************************************************************/
+    '''
+
+    TP = {'T':0.0,'P':0.0}
+    WP = {'W':0.0,'P':0.0}
+    
+    WP['W'] = W; 
+    WP['P'] = P;
+    
+    TP['T'] = HAPropsSI('T','P',101325,'W',W,'R',P) #[K]
+    TP['P'] = P;
+
+    return TP
+
+def THtoTP(T,H):
+    '''
+    /********************************************************************
+    Converts format of thermodynamic state representation for moist
+    air from temperature (T) and enthalpy (H) to the standard format
+    for ACMODEL: temperature (T) and relative humidity (P).
+    ********************************************************************/
+    '''
+
+    TP = {'T':0.0,'P':0.0}
+    TH = {'T':0.0,'H':0.0};
+
+    TH['T'] = T;
+    TH['H'] = H;
+    
+    TP['P'] = HAPropsSI('R','P',101325,'T',T,'Hha',H) #[-]
+    TP['T'] = T;
+
+    return TP
 
 def PropertyTXPth(prop,TXP,Ref):
     '''

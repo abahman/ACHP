@@ -10,7 +10,6 @@ from extra_functions import PropertyTXPtr#,PropertyTXPth, Airside_Dim, InsideTub
 from CORR import IsTwoPhase
 
 
-
 def CmineCrossFlow_dry(R,#overall heat resistance
                        mr,#refrigerant mass flow rate
                        ma,#airflow mass flow rate
@@ -63,66 +62,49 @@ def CmineCrossFlow_dry(R,#overall heat resistance
             return Ca*e
 
 
-# def CmineCrossFlow_wet(R,#overall thermal resistance
-#                        mr,#refrigerant mass flow rate
-#                        ma,#air mass flow rate
-#                        TXP,#refrigerant state
-#                        Ta,#air temperature
-#                        CP_A, #wet air specific heat
-#                        Ref):
-#     '''
-#     #The following function is only for calculating the Cmine under wet condition, 
-#     #however, it is not functioned now, and only the specific heat of the wet air is 
-#     #added in
-#     '''
-#  
-#     if (IsTwoPhase(TXP['X'])) {
-#         #
-#         # all heat exchangers
-#         # refrigerant has infinite heat capacity rate
-#         # Cr=Cmin/Cmax=0 (Cmax=Cr=inf)
-#         double Cmin = ma*CP_A;
-#         if(errorLog.IsError()) {
-#             errorLog.Add("CmineCrossFlow");
-#             return -1;
-#         }
-#         double Ntu = 1/(R*Cmin);
-#         double e = 1-exp(-1*Ntu);
-#         return Cmin*e;
-#     } else {
-#         double Ca = ma*CP_A;
-#         if(errorLog.IsError()) {
-#             errorLog.Add("CmineCrossFlow");
-#             return -1;
-#         }
-#         double Cr = mr*PropertyTXPtr(SPEC,TXP);
-#         if(errorLog.IsError()) {
-#             errorLog.Add("CmineCrossFlow");
-#             return -1;
-#         }
-#         if (Ca>Cr) {
-#             #
-#             # crossflow heat exchanger
-#             # refrigerant has minimum heat capacity rate
-#             # air unmixed, refrigerant mixed
-#             double Cratio = Cr/Ca;
-#             double Ntu = 1/(R*Cr);
-#             double l = 1-exp(-1*Ntu*Cratio);
-#             double e = 1-exp(-1*l/Cratio);
-#             return Cr*e;
-#         } else {
-#             #
-#             # crossflow heat exchanger
-#             # air has minimum heat capacity rate
-#             # air unmixed, refrigerant mixed
-#             double Cratio = Ca/Cr;
-#             double Ntu = 1/(R*Ca);
-#             double l = -1*Cratio*(1-exp(-1*Ntu));
-#             double e = (1/Cratio)*(1-exp(l));
-#             return Ca*e;
-#         }
-#     }
-
+def CmineCrossFlow_wet(R,#overall thermal resistance
+                       mr,#refrigerant mass flow rate
+                       ma,#air mass flow rate
+                       TXP,#refrigerant state
+                       Ta,#air temperature
+                       CP_A, #wet air specific heat
+                       Ref):
+    '''
+    #The following function is only for calculating the Cmine under wet condition, 
+    #however, it is not functioned now, and only the specific heat of the wet air is 
+    #added in
+    '''
+  
+    if (IsTwoPhase(TXP['X'])):
+        #
+        # all heat exchangers
+        # refrigerant has infinite heat capacity rate
+        # Cr=Cmin/Cmax=0 (Cmax=Cr=inf)
+        Cmin = ma*CP_A;
+        Ntu = 1/(R*Cmin);
+        e = 1-exp(-1*Ntu);
+        return Cmin*e
+    else:
+        Ca = ma*CP_A;
+        Cr = mr*PropertyTXPtr('C',TXP,Ref); #[J/kg/K]
+        if (Ca>Cr):
+            # crossflow heat exchanger
+            # refrigerant has minimum heat capacity rate
+            # air unmixed, refrigerant mixed
+            Cratio = Cr/Ca;
+            Ntu = 1/(R*Cr);
+            l = 1-exp(-1*Ntu*Cratio);
+            e = 1-exp(-1*l/Cratio);
+            return Cr*e
+        else:
+            # crossflow heat exchanger
+            # air has minimum heat capacity rate
+            # air unmixed, refrigerant mixed
+            Cratio = Ca/Cr;
+            Ntu = 1/(R*Ca);
+            l = -1*Cratio*(1-exp(-1*Ntu));
+            e = (1/Cratio)*(1-exp(l));
+            return Ca*e
 
 
 # def CmineCounterFlow(R,mr1,mr2,TXP1,TXP2, Ref):

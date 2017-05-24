@@ -3,8 +3,7 @@ from math import log,pi,sqrt,exp,cos,sin,tan,log10
 #from scipy.integrate import quad,quadrature,trapz,simps,fixed_quad
 #from scipy.optimize import brentq,fsolve
 #import numpy as np
-#import CoolProp as CP
-#import CoolProp
+
 from CoolProp.CoolProp import PropsSI
 
 from extra_functions import toTXP, PropertyTXPtr, PropertyTXPth, HPtoTXP, PreAcc
@@ -362,15 +361,16 @@ def FricFactor(TXPi,G,D,Ref):
     return y
 
 
-def GET_PreAcc(DP_ACC, Params, Ref):
+def GET_PreAcc(DP_ACC, Params=None, Ref):
     '''
     /*******************************************************
     B.S. add for getting the acceleration pressure drop (Pa)
     ********************************************************/
     '''
-
-    Preacc = PreAcc()
-    Preacc = Params;
+    if (Params==None):
+        Preacc = PreAcc()
+    else:
+        Preacc = Params;
 
     DP_FR=Preacc['DP_FR'];
     G=Preacc['G'];

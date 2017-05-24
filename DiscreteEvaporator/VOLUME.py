@@ -3,7 +3,7 @@ from math import log,pi,sqrt,exp,cos,sin,tan,log10
 #from scipy.integrate import quad,quadrature,trapz,simps,fixed_quad
 from scipy.optimize import brentq
 
-from CoolProp.CoolProp import PropsSI
+#from CoolProp.CoolProp import PropsSI
 
 from extra_functions import PropertyTXPth, PropertyTXPtr, toTXP
 from CORR import Eva_FlowPattern, Cond_FlowPattern
@@ -31,16 +31,6 @@ def Xtt(TXPm, Ref):
     TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref) #[K]
     vv  = 1/PropertyTXPth('D',TXP_prop, Ref) #[m^3/kg]
     muv = PropertyTXPtr('V',TXP_prop, Ref) #[Pa-s]
-
-    #TXP_prop['P']=TXPm['P'];
-    #TXP_prop['X']=0;
-    #TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref)
-    #mul = PropertyTXPtr('V',TXP_prop, Ref) #THIS has been moved up to save computational TIME
-    
-    #TXP_prop['P']=TXPm['P'];
-    #TXP_prop['X']=1;
-    #TXP_prop['T']=PropertyTXPth('T',TXP_prop,Ref);
-    #muv = PropertyTXPtr('V',TXP_prop, Ref); #THIS has been moved up to save computational TIME
 
     xtt = pow((1-TXPm['X'])/TXPm['X'],0.9)*pow(vl/vv,0.5)*pow(mul/muv,0.1)
 
@@ -74,7 +64,6 @@ def VolumeTPFunc(Alpha,Params=None):
     Alpha2 = P['Beta']*K;
 
     return 2*(Alpha-Alpha2)/(Alpha+Alpha2)
-
 
 def VolumeALL(TXPi,G,D,q,Ref):
     '''
@@ -112,7 +101,6 @@ def VolumeALL(TXPi,G,D,q,Ref):
         v = VolumeTP(TXPi,G,D,q, Ref)
         
     return v
-
 
 def VolumeTP(TXP,G,D,q,Ref):
     '''
@@ -193,7 +181,6 @@ def VolumeTP(TXP,G,D,q,Ref):
 
     return V
 
-
 def VolumeTP_Baroc(TXP1,G,D,Ref):
     '''#B.S.------------------------------------------------
     #Baroczy
@@ -248,7 +235,6 @@ def VolumeTP_Baroc(TXP1,G,D,Ref):
     
     return 1/(Alpha/P['vv']+(1-Alpha)/P['vl'])
 
-
 def VolumeTP_Zivi(TXP1,G,D,Ref):
     '''
     #B.S.-----------------------------------------------------------
@@ -282,7 +268,6 @@ def VolumeTP_Zivi(TXP1,G,D,Ref):
         Alpha=0.999999999999;
 
     return 1/(Alpha/P['vv']+(1-Alpha)/P['vl'])
-
 
 def VolumeTP_Hugh(TXP1,G,D,Ref):
     '''
@@ -327,7 +312,6 @@ def VolumeTP_Hugh(TXP1,G,D,Ref):
     
     return 1/(Alpha/P['vv']+(1-Alpha)/P['vl'])    
 
-
 def VolumeTP_ACRC(TXP1,G,D,Ref):
     '''
     #B.S.--------------------------------------------------
@@ -369,7 +353,6 @@ def VolumeTP_ACRC(TXP1,G,D,Ref):
 
     return 1/(Alpha/P['vv']+(1-Alpha)/P['vl'])
 
-
 def VolumeTP_LM(TXP1,G,D,Ref):
     '''
     #B.S.----------------------------------------------------
@@ -409,7 +392,6 @@ def VolumeTP_LM(TXP1,G,D,Ref):
     
     return 1/(Alpha/P['vv']+(1-Alpha)/P['vl'])
 
-
 def VolumeTP_Rigot(TXP1,G,D,Ref):
     '''
     #B.S.--------------------------------------------------
@@ -442,7 +424,6 @@ def VolumeTP_Rigot(TXP1,G,D,Ref):
         Alpha=0.999999999999;
 
     return 1/(Alpha/P['vv']+(1-Alpha)/P['vl'])
-
 
 def VolumeTP_Smith(TXP1,G,D,Ref):
     '''
@@ -480,7 +461,6 @@ def VolumeTP_Smith(TXP1,G,D,Ref):
         Alpha=0.999999999999;
 
     return 1/(Alpha/P['vv']+(1-Alpha)/P['vl'])
-
 
 def VolumeTP_Tandon(TXP1,G,D,Ref):
     '''
@@ -524,7 +504,6 @@ def VolumeTP_Tandon(TXP1,G,D,Ref):
         Alpha=0.999999999999;
     
     return 1/(Alpha/P['vv']+(1-Alpha)/P['vl'])
-
 
 def VolumeTP_Thom(TXP1,G,D,Ref):
     '''
@@ -574,7 +553,6 @@ def VolumeTP_Thom(TXP1,G,D,Ref):
         Alpha=0.999999999999;
 
     return 1/(Alpha/P['vv']+(1-Alpha)/P['vl'])
-
 
 def VolumeTP_Premoli(TXP1,G,D,Ref):
     '''
@@ -626,7 +604,6 @@ def VolumeTP_Premoli(TXP1,G,D,Ref):
 
     return 1/(Alpha/P['vv']+(1-Alpha)/P['vl'])
 
-
 def VolumeTP_Homo(TXP1,G,D,Ref):
     '''
     #B.S.------------------------------------------------
@@ -652,7 +629,6 @@ def VolumeTP_Homo(TXP1,G,D,Ref):
 
     # homogeneous mixture specific volume
     return P['vv']*TXP1['X'] + P['vl']*(1-TXP1['X'])
-
 
 def VolumeTP_Rouhani(TXP1,G,D,Ref):
     '''
@@ -692,7 +668,6 @@ def VolumeTP_Rouhani(TXP1,G,D,Ref):
 
     return 1/(Alpha/P['vv']+(1-Alpha)/P['vl'])
 
-
 def VolumeTP_Taitel(TXP1,G,D,Ref):
 
     TXP_prop={'T':0,'X':0,'P':0};
@@ -721,7 +696,6 @@ def VolumeTP_Taitel(TXP1,G,D,Ref):
         Alpha=0.0000000001;
 
     return 1/(Alpha/vv+(1-Alpha)/vl)
-
 
 def VolumeTP_Thome(TXP1,G,D,q,Ref):
     
@@ -762,7 +736,6 @@ def VolumeTP_Thome(TXP1,G,D,q,Ref):
         Alpha=0.0000000001;
 
     return 1/(Alpha/vv+(1-Alpha)/vl)
-
 
 def VolumeTP_FlowPattern(TXP1,G,D,q,Ref):
     
