@@ -6,7 +6,8 @@ from scipy.optimize import brentq
 from CoolProp.CoolProp import PropsSI
 from CoolProp.HumidAirProp import HAPropsSI
 
-from extra_functions import PropertyTXPth, PropertyTXPtr, Airside_Dim, InsideTube_Dim
+from extra_functions import PropertyTXPth, PropertyTXPtr, Airside_Dim, InsideTube_Dim, FlowPattern, toTXP
+from VOLUME import Xtt
 #from MYBESSEL import bessk0, bessk1
 
 
@@ -186,6 +187,7 @@ def ConvCoeffAir_CON(T,#air temperature
 #===============================================================================
 # the followings are the heat transfer calculations for different fin types
 #===============================================================================
+
 def ConvCoeffAir_Plain(G,#air flux 
                        P):#parameters of the airside fin
     '''
@@ -946,8 +948,9 @@ def FricAir_Spine(G,P):
 
 
 #===========================================================================
-# single-phase heat transer
+# single-phase heat transfer
 #===========================================================================
+
 def ConvCoeffSP(TXP,G,P, Ref):
     '''
     #interface function for calling the single-phase heat transfer calculation for the EVAPORATOR & CONDENSER
@@ -1097,6 +1100,7 @@ def ConvCoeffSP_Smooth(TXP,G,D, Ref):
 #===============================================================================
 # condensation two-phase heat transfer
 #===============================================================================
+
 # def ConvCoeffInside(TXP TXPi,#refrigerant inlet state
 #                 double G,#refrigerant mass flux
 #                 double D,#inside diameter
@@ -1488,6 +1492,7 @@ def ConvCoeffSP_Smooth(TXP,G,D, Ref):
 #===============================================================================
 # evaporation two-phase heat transfer
 #===============================================================================
+
 def ConvCoeffEvapTP_microfin(TXPm,#refrigerant state
                              G,#refrigerant mass flux
                              P, Ref):#evaporator struct
@@ -1506,246 +1511,150 @@ def ConvCoeffEvapTP_microfin(TXPm,#refrigerant state
     q=P['q_flux'];#for smooth tube evaporation model iteration
     T_w = P['T_w'];#for micro-fin tube evaporation model iteration
  
-    if(!P->microfin)#smooth tube
-    {
-    const double h_smooth = ConvCoeffEvapTP_Smooth(TXPm,G,Di,q);
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffeva_smooth","h_smooth");
-        return -1;
-    }
-    return h_smooth;
-    }
+    if (not P['microfin']):#smooth tube
+        h_smooth = ConvCoeffEvapTP_Smooth(TXPm,G,Di,q, Ref)
+        return h_smooth, P 
      
-    double gama =P->gama ;#apex angle of the fin
-    const double e = P->finH;#fin height
-    const double n_g = P->finN;#fin number
-    double beta = P->beta;#fin helical angle
-    const double g=9.807;#gravational constant
-    const double pi=4e0*atan(1e0);
-    double h=0;
-    const double d_e=Di;#tube inside diameter at the fin tip
+    gama =P['gama'] ;#apex angle of the fin
+    e = P['finH'];#fin height
+    n_g = P['finN'];#fin number
+    beta = P['beta'];#fin helical angle
+    g=9.807;#gravational constant
+    d_e=Di;#tube inside diameter at the fin tip
  
     #parameters
-    double A=1.36;
-    double B=0.36;
-    const double C=0.38;
-     
-    const double SS=2.14;
-    double T=0;
-    if(G<500) T=-0.15;
-    else T=-0.21;
- 
-    const double V=0.59;
-    double Z=0.36;
-    const double G_0=100;
+    A=1.36;
+    B=0.36;
+    C=0.38; 
+    SS=2.14;
+    if (G<500):
+        T=-0.15;
+    else:
+        T=-0.21;
+    V=0.59;
+    Z=0.36;
+    G_0=100;
  
     gama=gama*pi/180.0;#apex angle
-    if(beta>30.0) beta = 30;#the author suggest the applicable range for this correlation
+    if (beta>30.0):
+        beta = 30;#the author suggest the applicable range for this correlation
     beta=beta*pi/180;#helical angle
-    const double d_0=0.01;
+    d_0=0.01;
  
-    if(G<100)
-    {
-    A=1.36*sin(beta);
-    B=0.36*pow((G/100.0),4.0);
-    Z=-3.0;
-    }
+    if (G<100):
+        A=1.36*sin(beta);
+        B=0.36*pow((G/100.0),4.0);
+        Z=-3.0;
  
-#ifdef _R22
-    const double P_cr=4976;# critical pressure of R-22
-    const double T_cr=369.2;# [K] critical temperature of R-22
-    const double M=86.48;# molecular mass of R22
-#endif
+    P_cr = PropsSI('PCRIT', Ref)     #critical pressure [Pa]
+    T_cr = PropsSI('TCRIT', Ref)     #critical temperature [K]
+    M = PropsSI('TCRIT', Ref)*1000   #molecular mass [kg/kmol]
+
+    P_sat=TXPm['P'];#saturation pressure
  
-#ifdef _R410A
-    const double P_cr=4903;# critical pressure of R410A
-    const double T_cr=344.5;# [K] critical temperature of R410A
-    const double M=72.6;# molecular mass of R410A
-#endif
- 
-#ifdef _R407C
-    const double P_cr=4629.8;# critical pressure of R410A
-    const double T_cr=359.2;# [K] critical temperature of R410A
-    const double M= 86.204;# molecular mass of R410A
-#endif
+    delta_T=T_w-TXPm['T'];#temperture difference between the tube wall and the refrigerant
+    
+    X_tt=Xtt(TXPm, Ref);#Martinelli parameter
+    if (X_tt>1.0):
+        X_tt=1.0;# the author suggested this restriction
      
-    const double P_sat=TXPm.P;#saturation pressure
- 
-    double delta_T=T_w-TXPm.T;#temperture difference between the tube wall and the refrigerant
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffEvapTP_Microfin","Tsat");
-        return -1;
-    };
- 
-    double X_tt=Xtt(TXPm);#Martinelli parameter
-    if(X_tt>1.0) X_tt=1.0;# the author suggested this restriction
-     
-    const double S=A*pow(X_tt,B);
-    const double F=pow((d_0/d_e),C);
-    const double P_R=P_sat/P_cr;
-     
+    S=A*pow(X_tt,B);
+    F=pow((d_0/d_e),C);
+    P_R=P_sat/P_cr;
+    
+    
     #liquid refrigerant properties
-    TXP_prop.P=TXPm.P;
-    TXP_prop.X=0.0;
-    TXP_prop.T=PropertyTXPth(TSAT,TXP_prop);
- 
-    const double Tsat_l=PropertyTXPth(TSAT,TXP_prop);
- 
-    const double rho_l=1.0/PropertyTXPth(VOL,TXP_prop);#1.0/reftplthP.v(TXPm.P);#liquid density
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffTP_EVA_microfin","vl");
-        return -1;
-    }
-     
-    const double sigma=PropertyTXPtr(TENSION,TXP_prop);#reftpltrP.Tension(TXPm.P);#refrigerant surface tension
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffEvapTP_EVA_Microfin","sigma");
-        return -1;
-    }
- 
-    const double mu_l=PropertyTXPtr(VISC,TXP_prop);#refsctrPT.mu(TXPm.P,T_sat);#refrigerant liquid viscosity
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffEvapTP_EVA_Microfin","mul");
-        return -1;
-    }
- 
-    const double Cp_l= PropertyTXPtr(SPEC,TXP_prop);#refsctrPT.Cp(TXPm.P,T_sat);#refrigernt liquid specific heat 
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffTP_EVA_Microfin","Cpl");
-        return -1;
-    }
- 
-    const double k_l=PropertyTXPtr(COND,TXP_prop);#refsctrPT.k(TXPm.P,T_sat);#refrigerant liquid heat conductance
- 
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffTP_EVA_Microfin","kl");
-        return -1;
-    }
- 
-    const double hl = PropertyTXPth(ENTH,TXP_prop);#reftplthP.h(TXPm.P);#liquid saturated enthalpy
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffEvapTP_Microfin","hl");
-        return -1;
-    }
- 
+    TXP_prop['P']=TXPm['P'];
+    TXP_prop['X']=0;
+    TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref) #[K]
+    sigma=PropertyTXPtr('I',TXP_prop, Ref) #[N/m]
+    rho_l = PropertyTXPth('D',TXP_prop, Ref) #[kg/m^3]
+    mu_l = PropertyTXPtr('V',TXP_prop, Ref) #[Pa-s]
+    Cp_l = PropertyTXPtr('C',TXP_prop, Ref) #[J/kg/K]
+    k_l = PropertyTXPtr('L',TXP_prop, Ref) #[W/m/K]
+    hl = PropertyTXPth('H',TXP_prop, Ref) #[J/kg/K]
+    Tsat_l = PropertyTXPth('T',TXP_prop, Ref) #[K]
+    
     #vapor refrigerant properties
-    TXP_prop.P=TXPm.P;
-    TXP_prop.X=1.0;
-    TXP_prop.T=PropertyTXPth(TSAT,TXP_prop);
+    TXP_prop['P']=TXPm['P'];
+    TXP_prop['X']=1.0;
+    TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref) #[K]
+    rho_g = PropertyTXPth('D',TXP_prop, Ref) #[kg/m^3]
+    mu_g = PropertyTXPtr('V',TXP_prop, Ref) #[Pa-s]
+    Cp_g = PropertyTXPtr('C',TXP_prop, Ref) #[J/kg/K]
+    k_g = PropertyTXPtr('L',TXP_prop, Ref) #[W/m/K]
+    hv = PropertyTXPth('H',TXP_prop, Ref) #[J/kg/K]
+    Tsat_v = PropertyTXPth('T',TXP_prop, Ref) #[K]
+    
+         
+    h_fg = hv-hl;#latent heat
+    T_delta=Tsat_v-Tsat_l;#gliding temperature difference for zeotropic refrigerant
+    Pr_l=mu_l*Cp_l/k_l;#prontal number
+    Pr_g=mu_g*Cp_g/k_g;#prontal number
  
-    const double Tsat_v=PropertyTXPth(TSAT,TXP_prop);
+    if (delta_T<=0.0):
+        delta_T=1e-20;# to remove the wrong result
+    h_nb=55*pow(P_R,0.12)*pow(M,(-0.5))*pow((-log10(P_R)),(-0.55))*pow(q,0.67)*S*F;#calculate the nucleate boiling coefficient
+    q_nb=q;#nucleate boiling heat flux
  
-    const double rho_g=1.0/PropertyTXPth(VOL,TXP_prop);#1.0/reftpvthP.v(TXPm.P);#gas density
-     
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffTP_EVA_Microfin","vv");
-        return -1;
-    }
+    
+    if (abs(T_delta)>=0.1):#if zerotropic refrigerant, correct the nucleate boiling coefficent
+        Corr_NUC=1.0;#parameter for the effect of mass transfer resistance on nucleate boiling
+        B_0=1.0;#scaling factor
+        beta_l = 3e-4;#m/s, mass transfer coefficient
+        Corr_NUC = Correct_NUC_Boiling(h_nb,q_nb,T_delta,B_0,beta_l,rho_l,h_fg);#nucleate boiling correction
+        h_nb=h_nb*Corr_NUC;#corrected
  
-    const double Cp_g= PropertyTXPtr(SPEC,TXP_prop);#refsctrPT.Cp(TXPm.P,T_sat);#refrigernt liquid specific heat 
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffTP_EVA_Microfin","Cp");
-    }
+    u_go=G/rho_g;#all gas phase velocity
+    Fr=pow(u_go,2)/(9.8*d_e);
+    Bo=9.8*rho_l*e*pi*d_e/(8*sigma*n_g);
+    Rx=((2*e*n_g*(1-sin(gama/2))/(pi*d_e*cos(gama/2))+1))/cos(beta);#geometrical parameter of the microfin tube
+    F2=pow((d_0/d_e),V);
+    F3=pow((G_0/G),Z);
+    x=TXPm.X;
+    Nusselt_cvsmooth=(0.023*pow((G*d_e/mu_l),0.8)*pow(Pr_l,(0.333333333)))*(pow(((1-x)+2.63*x*pow((rho_l/rho_g),0.5)),0.8));
+    h_cv=k_l/d_e*Nusselt_cvsmooth*pow(Rx,SS)*pow((Bo*Fr),T)*F2*F3;#convective heat transfer coefficient
  
-    const double k_g=PropertyTXPtr(COND,TXP_prop);#refsctrPT.k(TXPm.P,T_sat);#refrigerant liquid heat conductance
- 
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffTP_EVA_Microfin","kg");
-        return -1;
-    }
- 
-    const double mu_g=PropertyTXPtr(VISC,TXP_prop);#refshtrPT.mu(TXPm.P,T_sat);#refrigerant gas viscosity
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffTP_EVA_microfin","muv");
-        return -1;
-    }
- 
- 
-    const double hv = PropertyTXPth(ENTH,TXP_prop);#reftpvthP.h(TXPm.P);#gas saturated enthalpy
-    if(errorLog.IsError()) {
-        errorLog.Add("ConvCoeffEvapTP_Microfin","hv");
-        return -1;
-    }
- 
-    const double h_fg = hv-hl;#latent heat
-    const double T_delta=Tsat_v-Tsat_l;#gliding temperature difference for zeotropic refrigerant
-    const double Pr_l=mu_l*Cp_l/k_l;#prontal number
-    const double Pr_g=mu_g*Cp_g/k_g;#prontal number
- 
-    if(delta_T<=0.0) delta_T=1e-20;# to remove the wrong result
-    double h_nb=55*pow(P_R,0.12)*pow(M,(-0.5))*pow((-log10(P_R)),(-0.55))*pow(q,0.67)*S*F;#calculate the nucleate boiling coefficient
-    const double q_nb=q;#nucleate boiling heat flux
- 
-#ifdef _RefMix
-    #if zerotropic refrigerant, correct the nucleate boiling coefficent
-    {
-    double Corr_NUC=1.0;#parameter for the effect of mass transfer resistance on nucleate boiling
-    const double B_0=1.0;#scaling factor
-    const double beta_l = 3e-4;#m/s, mass transfer coefficient
-    Corr_NUC = Correct_NUC_Boiling(h_nb,q_nb,T_delta,B_0,beta_l,rho_l,h_fg);#nucleate boiling correction
-    h_nb=h_nb*Corr_NUC;#corrected
-    }
-#endif
- 
-    const double u_go=G/rho_g;#all gas phase velocity
-    const double Fr=pow(u_go,2)/(9.8*d_e);
-    const double Bo=9.8*rho_l*e*pi*d_e/(8*sigma*n_g);
-    const double Rx=((2*e*n_g*(1-sin(gama/2))/(pi*d_e*cos(gama/2))+1))/cos(beta);#geometrical parameter of the microfin tube
-    const double F2=pow((d_0/d_e),V);
-    const double F3=pow((G_0/G),Z);
-    const double x=TXPm.X;
-    const double Nusselt_cvsmooth=(0.023*pow((G*d_e/mu_l),0.8)*pow(Pr_l,(0.333333333)))*(pow(((1-x)+2.63*x*pow((rho_l/rho_g),0.5)),0.8));
-    const double h_cv=k_l/d_e*Nusselt_cvsmooth*pow(Rx,SS)*pow((Bo*Fr),T)*F2*F3;#convective heat transfer coefficient
- 
-    const double h_tp_cavallini=h_cv+h_nb;#superposition form of the flow boiling
+    h_tp_cavallini=h_cv+h_nb;#superposition form of the flow boiling
     h=h_tp_cavallini;
  
-    if(G<100)
-    {
-    const double h_cap = 0.332*k_l/e*pow(G*h_fg*sin(beta)/q,0.4326)*(1-pow(G/G_0,3.0));
-    h=h+h_cap;
-    }
+    if(G<100):
+        h_cap = 0.332*k_l/e*pow(G*h_fg*sin(beta)/q,0.4326)*(1-pow(G/G_0,3.0));
+        h=h+h_cap;
  
-#ifdef _RefMix
-    #if zerotropic refrigerant, correct the overall flow boiling coefficient by considering the mass transfer resistance between vapora phase and liquid phase
-    {
-    double Corr_FlowBoiling=1.0;#parameter for the mass transfer resistance between the vapor phase and liquid phase
-    Corr_FlowBoiling = Correct_FLOW_Boiling(TXPm.X,Cp_g,T_delta,h_fg);#correction parameter for the mass transfer resistance between the liquid phase and vapor phase 
-    const double Re_vaporphase = G*TXPm.X*(d_e+2*e)/(mu_g);#Reynolds number, asuming the vapor only flowing in the tube
-    const double Nu = 0.023*pow(Re_vaporphase,0.8)*pow(Pr_g,0.333);#Dittus-Boelter equation to calculate the vapor phase coeffcient
-    const double h_vaporphase=Nu*k_g/(d_e+2*e);#vapor phase heat transfer coefficent
-    h=1.0/(1.0/h+Corr_FlowBoiling/h_vaporphase);#correct the overall flow boiling coefficient
-    }
-#endif
+    if (abs(T_delta)>=0.1):#if zerotropic refrigerant, correct the overall flow boiling coefficient by considering the mass transfer resistance between vapora phase and liquid phase
+        Corr_FlowBoiling=1.0;#parameter for the mass transfer resistance between the vapor phase and liquid phase
+        Corr_FlowBoiling = Correct_FLOW_Boiling(TXPm['X'],Cp_g,T_delta,h_fg);#correction parameter for the mass transfer resistance between the liquid phase and vapor phase 
+        Re_vaporphase = G*TXPm.X*(d_e+2*e)/(mu_g);#Reynolds number, asuming the vapor only flowing in the tube
+        Nu = 0.023*pow(Re_vaporphase,0.8)*pow(Pr_g,0.333);#Dittus-Boelter equation to calculate the vapor phase coeffcient
+        h_vaporphase=Nu*k_g/(d_e+2*e);#vapor phase heat transfer coefficent
+        h=1.0/(1.0/h+Corr_FlowBoiling/h_vaporphase);#correct the overall flow boiling coefficient
+
  
     return h, P
 
 
-# def ConvCoeffEvapTP_Smooth(TXP TXPm,#refrigerant state
-#                        double G,#mass flux
-#                        double D,#tube inside diameter
-#                        double q):#tube wall
-#     '''
-#     #B.S.------------------------------------------------------
-#     /********************************************************************
-#     TXPm = mean refrigerant thermodynamic state defined by
-#         temperature (C), quality (-), and pressure (kPa).
-#     G = refrigerant mass flux (kg/m^2/s)
-#     D = pipe diameter (m)
-#     ********************************************************************/
-#     '''
-# 
-#         FlowPattern Ev;
-#         Ev.JudgPattern=0;
-#         Eva_FlowPattern(TXPm,G,D,q,&Ev);
-#         if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffEvapTP_Smooth","h");
-#         return -1;
-#         }
-#         
-#         
-#         const double h = Ev.h_tp;
-#         return h
+def ConvCoeffEvapTP_Smooth(TXPm,#refrigerant state
+                           G,#mass flux
+                           D,#tube inside diameter
+                           q, Ref):#tube wall
+    '''
+    #B.S.------------------------------------------------------
+    /********************************************************************
+    TXPm = mean refrigerant thermodynamic state defined by
+        temperature (C), quality (-), and pressure (kPa).
+    G = refrigerant mass flux (kg/m^2/s)
+    D = pipe diameter (m)
+    ********************************************************************/
+    '''
+ 
+    Ev = FlowPattern()
+    Ev['JudgPattern']=0;
+    Ev = Eva_FlowPattern(TXPm,G,D,q,Ev, Ref);
+    
+    h = Ev['h_tp'];
+
+    return h
 
 
 def Eva_FlowPattern(TXPm,#refrigerant state
@@ -2127,108 +2036,75 @@ def Correct_FLOW_Boiling(x,#quality
 #===============================================================================
 # frictional pressure drop of refirgerant
 #===============================================================================
+
+def FricDP(TXPi, #refrigerant state
+           Gr, #refrigerant mass flux
+           q,#heat flux
+           P, Ref):#evaporator struct
+    '''
+    #the following function is the interface to call the pressure drop calculation in the EVAPORATOR and CONDENSER
+    '''
+ 
+    D = InsideTube_Dim();
+    
+    TXP1={'T':0,'X':0,'P':0};
+    TXP2={'T':0,'X':0,'P':0};
+    
+    X1=0.1; X2=0.95;
+ 
+    D['Microfin'] = P['microfin']; #microfin type, 0=smooth tube, 1=helical, 2=cross-grooved, 3=herringbone
+    D['finN'] = P['finN']; #fin number in a micro-fin tube
+    D['Di'] = P['Di'];#inside diamete at the fin tip
+    D['gama'] = P['gama'] ;#fin apex angle in a micro-fin tube
+    D['beta'] = P['beta'] ;    #fin helix angle in a micro-fin tube
+    D['finH'] = P['finH']; #fin height in a micro-fin tube
+    D['w_b'] = P['w_b'] ; #base width of a single fin
+    D['w_e'] = P['w_e']; #top width of a single fin
+    D['w_z'] = P['w_z']; #base distance between two neighboring fins
+    D['K_T'] = P['K_T'];#400, this is the conductance factor of copper
+    D['Ls'] = P['Ls'];#tube unit length
+    D['D_b'] = P['D_b'];#tube diameter at the base of the fin
+    D['Do'] = P['Do']; #Pipe outside diameter.
+    D['D_m'] = P['D_m']; #mean diameter of the micro-fin tube
+    D['P_H'] = P['P_H'];# the hydraulical circumference
+    D['Acs'] = P['Acs'] ;#cross area of the micro-fin tube, this is the actual cross-section area
+    D['Dh_i'] = P['Dh_i'];#inside hydraulical diameter 
+    D['Ax'] = P['Ax'];# Inside pipe cross sectional area, based on fin tips
+    D['Api'] = P['Api'];# Inside pipe surface area (one tube segment), based on fin tips
+     
+    if(TXPi['X']>=1.0 or TXPi['X']<=0):
+        y, D = FricDPSP_Microfin(TXPi,Gr,D, Ref);
+    elif(TXPi['X']<X1):
+        TXP1=toTXP(TXPi['T'],0,TXPi['P']);
+        TXP2=toTXP(TXPi['T'],X1,TXPi['P']);
+        y1, D = FricDPSP_Microfin(TXP1,Gr,D, Ref);
+        y2, D = FricDPTP_Microfin(TXP2,Gr,q,D, Ref);
+        y=y1+TXPi['X']*(y2-y1)/X1;
+    elif(TXPi['X']>X2):
+        TXP1=toTXP(TXPi['T'],X2,TXPi['P']);
+        TXP2=toTXP(TXPi['T'],1,TXPi['P']);
+        y1, D = FricDPTP_Microfin(TXP1,Gr,q,D, Ref);
+        y2, D = FricDPSP_Microfin(TXP2,Gr,D, Ref);
+        y=y2-(1-TXPi['X'])*(y2-y1)/(1-X2);
+    else:
+        y, D = FricDPTP_Microfin(TXPi,Gr,q,D, Ref);
+     
+    return y, P
+
+#The following function is the same as the previous, therefroe it is commented out
 # def FricDP(TXP TXPi, #refrigerant state
 #          double Gr, #refrigerant mass flux
 #          double q,#heat flux
-#          ETdim * P):#evaporator struct
-#     '''
-#     #the following function is the interface to call the pressure drop calculation in the evaporator
-#     '''
-# 
-#     InsideTube_Dim D;
-#     TXP TXP1,TXP2;
-#     double y1,y2,y;
-#     const double X1=0.1,X2=0.95;
-# 
-#     D.Microfin = P->microfin; #microfin type, 0=smooth tube, 1=helical, 2=cross-grooved, 3=herringbone
-#     D.finN = P->finN; #fin number in a micro-fin tube
-#     D.Di = P->Di;#inside diamete at the fin tip
-#     D.gama =P->gama ;#fin apex angle in a micro-fin tube
-#     D.beta = P->beta ;    #fin helix angle in a micro-fin tube
-#     D.finH = P->finH; #fin height in a micro-fin tube
-#     D.w_b = P->w_b ; #base width of a single fin
-#     D.w_e = P->w_e; #top width of a single fin
-#     D.w_z = P->w_z; #base distance between two neighboring fins
-#     D.K_T = P->K_T;#400, this is the conductance factor of copper
-#     D.Ls = P->Ls;#tube unit length
-#     D.D_b = P->D_b;#tube diameter at the base of the fin
-#     D.Do = P->Do; #Pipe outside diameter.
-#     D.D_m = P->D_m; #mean diameter of the micro-fin tube
-#     D.P_H = P->P_H;# the hydraulical circumference
-#     D.Acs = P->Acs ;#cross area of the micro-fin tube, this is the actual cross-section area
-#     D.Dh_i = P->Dh_i;#inside hydraulical diameter 
-#     D.Ax = P->Ax;# Inside pipe cross sectional area, based on fin tips
-#     D.Api =P->Api;# Inside pipe surface area (one tube segment), based on fin tips
-#     
-#     if(TXPi.X>=1.0 || TXPi.X<=0) {
-#         y=FricDPSP_Microfin(TXPi,Gr, &D);
-# 
-#         if(errorLog.IsError()) {
-#             errorLog.Add("FricDP", "FricDPSP_Microfin");
-#             return -1;
-#         }
-# 
-#     } else if(TXPi.X<X1) {
-#         TXP1=toTXP(TXPi.T,0,TXPi.P);
-#         TXP2=toTXP(TXPi.T,X1,TXPi.P);
-#         y1=FricDPSP_Microfin(TXP1,Gr, &D);
-#         
-#         if(errorLog.IsError()) {
-#             errorLog.Add("FricDP", "FricDPSP_Microfin");
-#             return -1;
-#         }
-# 
-#         y2=FricDPTP_Microfin(TXP2,Gr, q, &D);
-#     
-#         if(errorLog.IsError()) {
-#             errorLog.Add("FricDP", "FricDPTP_Microfin");
-#             return -1;
-#         }
-# 
-#         y=y1+TXPi.X*(y2-y1)/X1;
-#     } else if(TXPi.X>X2) {
-#         TXP1=toTXP(TXPi.T,X2,TXPi.P);
-#         TXP2=toTXP(TXPi.T,1,TXPi.P);
-#         y1=FricDPTP_Microfin(TXP1,Gr, q, &D);
-#         
-#         if(errorLog.IsError()) {
-#             errorLog.Add("FricDP", "FricDPTP_Microfin");
-#             return -1;
-#         }
-# 
-#         y2=FricDPSP_Microfin(TXP2,Gr, &D);
-#         
-#         if(errorLog.IsError()) {
-#             errorLog.Add("FricDP", "FricDPSP_Microfin");
-#             return -1;
-#         }
-# 
-#         y=y2-(1-TXPi.X)*(y2-y1)/(1-X2);
-#     } else {
-#         y=FricDPTP_Microfin(TXPi,Gr, q, &D);
-# 
-#         if(errorLog.IsError()) {
-#             errorLog.Add("FricDP", "FricDPTP_Microfin");
-#             return -1;
-#         }
-#     }
-#     
-#     return y
-
-
-# def FricDP(TXP TXPi, #refrigerant state
-#          double Gr, #refrigerant mass flux
-#          double q,#heat flux
-#          CGP * P):#condenser struct
+#          CGP * P, Ref):#condenser struct
 #     '''
 #     #the following function is the interface to call the pressure drop calculation in the condenser
 #     '''
-# 
+#  
 #     InsideTube_Dim D;
 #     TXP TXP1,TXP2;
 #     double y1,y2,y;
 #     const double X1=0.1,X2=0.95;
-# 
+#  
 #     D.Microfin = P->Microfin; #microfin type, 0=smooth tube, 1=helical, 2=cross-grooved, 3=herringbone
 #     D.finN = P->finN; #fin number in a micro-fin tube
 #     D.Di = P->Di;#inside dimater at the fin tip
@@ -2248,250 +2124,164 @@ def Correct_FLOW_Boiling(x,#quality
 #     D.Dh_i = P->Dh_i;#inside hydraulical diameter 
 #     D.Ax = P->Ax;# Inside pipe cross sectional area, based on fin tips
 #     D.Api =P->Api;# Inside pipe surface area (one tube segment), based on fin tips
-#     
+#      
 #     if(TXPi.X>=1.0 || TXPi.X<=0) {
 #         y=FricDPSP_Microfin(TXPi,Gr, &D);
-# 
-#         if(errorLog.IsError()) {
-#             errorLog.Add("FricDP", "FricDPSP_Microfin");
-#             return -1;
-#         }
-# 
 #     } else if(TXPi.X<X1) {
 #         TXP1=toTXP(TXPi.T,0,TXPi.P);
 #         TXP2=toTXP(TXPi.T,X1,TXPi.P);
 #         y1=FricDPSP_Microfin(TXP1,Gr, &D);
-#         
-#         if(errorLog.IsError()) {
-#             errorLog.Add("FricDP", "FricDPSP_Microfin");
-#             return -1;
-#         }
-# 
 #         y2=FricDPTP_Microfin(TXP2,Gr, q, &D);
-#     
-#         if(errorLog.IsError()) {
-#             errorLog.Add("FricDP", "FricDPTP_Microfin");
-#             return -1;
-#         }
-# 
 #         y=y1+TXPi.X*(y2-y1)/X1;
 #     } else if(TXPi.X>X2) {
 #         TXP1=toTXP(TXPi.T,X2,TXPi.P);
 #         TXP2=toTXP(TXPi.T,1,TXPi.P);
 #         y1=FricDPTP_Microfin(TXP1,Gr, q, &D);
-#         
-#         if(errorLog.IsError()) {
-#             errorLog.Add("FricDP", "FricDPTP_Microfin");
-#             return -1;
-#         }
-# 
 #         y2=FricDPSP_Microfin(TXP2,Gr, &D);
-#         
-#         if(errorLog.IsError()) {
-#             errorLog.Add("FricDP", "FricDPSP_Microfin");
-#             return -1;
-#         }
-# 
 #         y=y2-(1-TXPi.X)*(y2-y1)/(1-X2);
 #     } else {
 #         y=FricDPTP_Microfin(TXPi,Gr, q, &D);
-# 
-#         if(errorLog.IsError()) {
-#             errorLog.Add("FricDP", "FricDPTP_Microfin");
-#             return -1;
-#         }
 #     }
-#     
+#      
 #     return y
 
 
-# def FricDPTP_Microfin(TXP TXPi,#refrigerant state
-#                   double Gr,#mass flux
-#                   double q, #heat flux
-#                   InsideTube_Dim * P):#microfin tube struct
-#     '''
-#     /******************************************
-#     Friction pressure drop two phase, B.S.
-#     Kedzierski, M. A., and Choi J. Y., "A generalized pressure drop correlations for 
-#     evaporation and condensation of alternative refrigerants in smooth and micro-fin 
-#     tubes" NISTIR 6333, 1999
-#     ************************************************/
-#     '''
-# 
-#     const double L_T = P->Ls; #segment length
-#     const double D_H = P->Dh_i;#hydraulic diameter
-#     TXP TXP_prop={0,0,0};
-# 
-#     #liquid refrigerant properties
-#     TXP_prop.P=TXPi.P;
-#     TXP_prop.X=0.0;
-#     TXP_prop.T=PropertyTXPth(TSAT,TXP_prop);
-#     const double DL=1.0/PropertyTXPth(VOL,TXP_prop);#1.0/reftplthP.v(TXPi.P);
-#     if(errorLog.IsError())
-#     {
-#         errorLog.Add("FricDPTP_Microfin","vl");
-#         return 0;
-#     }
-# 
-#     
-#     const double MU_F=PropertyTXPtr(VISC,TXP_prop);#refsctrPT.mu(TXPi.P,TXPi.T);
-#     
-#     if(errorLog.IsError()) 
-#     {
-#         errorLog.Add("FricDPTP_Microfin","mul");
-#         return 0;
-#     }
-# 
-#     #vapor refrigerant properties
-#     TXP_prop.P=TXPi.P;
-#     TXP_prop.X=1.0;
-#     TXP_prop.T=PropertyTXPth(TSAT,TXP_prop);
-#     const double DV=1.0/PropertyTXPth(VOL,TXP_prop);#1.0/reftpvthP.v(TXPi.P);
-#     if(errorLog.IsError()) 
-#     {
-#         errorLog.Add("FricDPTP_Microfin","vv");
-#         return 0;
-#     }
-#     
-# 
-#     const double G_A=9.81e0;
-#     const double KF=1*fabs(q)/(L_T*G_A);#this is two-phase flow number, actually, q= (x_in-x_out)*h_fg
-#     
-#     const double RE_D=Gr*D_H/MU_F;#Reynolds number
-#     const double F=0.00506e0/pow(RE_D,0.0951e0)*pow(KF,0.1554e0);#two-phase friction factor
-#     const double SV=1e0/DL+TXPi.X*(1e0/DV-1e0/DL);#two-phase specific volume
-#     const double DP_FR=1e-3*SV*pow(Gr,2e0)*2e0*F*L_T/(D_H); #pa--kPa
-#     return DP_FR
+def FricDPTP_Microfin(TXPi,#refrigerant state
+                      Gr,#mass flux
+                      q, #heat flux
+                      P, Ref):#microfin tube struct
+    '''
+    /******************************************
+    Friction pressure drop two phase, B.S.
+    Kedzierski, M. A., and Choi J. Y., "A generalized pressure drop correlations for 
+    evaporation and condensation of alternative refrigerants in smooth and micro-fin 
+    tubes" NISTIR 6333, 1999
+    ************************************************/
+    '''
+ 
+    L_T = P['Ls']; #segment length
+    D_H = P['Dh_i'];#hydraulic diameter
+    TXP_prop={'T':0,'X':0,'P':0};
+ 
+    #liquid refrigerant properties
+    TXP_prop['P']=TXPi['P'];
+    TXP_prop['X']=0.0;
+    TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref); #[K]
+    DL=PropertyTXPth('D',TXP_prop, Ref); #[kg/m^3] 
+    MU_F=PropertyTXPtr('V',TXP_prop, Ref); #[Pa-s]
+ 
+    #vapor refrigerant properties
+    TXP_prop['P']=TXPi['P'];
+    TXP_prop['X']=1.0;
+    TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref); #[K]
+    DV=PropertyTXPth('D',TXP_prop, Ref); #[kg/m^3] 
+    
+    G_A=9.81e0;
+    KF=1*abs(q)/(L_T*G_A);#this is two-phase flow number, actually, q= (x_in-x_out)*h_fg
+     
+    RE_D=Gr*D_H/MU_F;#Reynolds number
+    F=0.00506e0/pow(RE_D,0.0951e0)*pow(KF,0.1554e0);#two-phase friction factor
+    SV=1e0/DL+TXPi['X']*(1e0/DV-1e0/DL);#two-phase specific volume
+    DP_FR=SV*pow(Gr,2e0)*2e0*F*L_T/(D_H) #[Pa]
+    
+    return DP_FR, P
 
 
 #===============================================================================
 # single-phase pressure drop
 #===============================================================================
-# def FricDPSP_Microfin(TXP TXP_loc,#refrigerant state
-#                   double Gr, #mass flux
-#                   InsideTube_Dim *P):#micro-fin geometry
-#     '''
-#     /************************************************************
-#     single-phase pressure drop in finned tube,
-#     Haaland, S.S., 1983, "simple and explicit formulas for the friction factor in turbulent
-#     pipe flow", Journal of fluids engineering, Vol., 105, pp. 89-90
-#     *************************************************************/
-#     '''
-#     
-#     const double L_T = P->Ls;#segment length
-#     const double L_IF = P->finH;#fin height
-#     const double R_I = P->D_b/2.0;#inside radius at the fin bottom
-#     TXP TXP_prop={0,0,0};
-# 
-#     double Density;
-#     if(P->Microfin<1)#smooth tube
-#     {const double DP_Smooth= FricDPSP_Smooth(TXP_loc,Gr, 2*R_I,L_T);
-#     
-#     if(errorLog.IsError()) 
-#     {
-#         errorLog.Add("FricDPSP","DP_Smooth");
-#         return 0;
-#     }
-#     return DP_Smooth;
-#     }
-#     
-#     #liquid refrigerant properties
-#     TXP_prop.P=TXP_loc.P;
-#     TXP_prop.X=0.0;
-#     TXP_prop.T=PropertyTXPth(TSAT,TXP_prop);
-# 
-#     const double DL=1.0/PropertyTXPth(VOL,TXP_prop);#1.0/reftplthP.v(TXP_loc.P);
-#     if(errorLog.IsError())
-#     {
-#         errorLog.Add("FricDPSP_microfin","vl");
-#         return 0;
-#     }
-# 
-#     #vapor refrigerant properties
-#     TXP_prop.P=TXP_loc.P;
-#     TXP_prop.X=1.0;
-#     TXP_prop.T=PropertyTXPth(TSAT,TXP_prop);
-#     const double DV=1.0/PropertyTXPth(VOL,TXP_prop);#1.0/reftpvthP.v(TXP_loc.P);
-#     if(errorLog.IsError()) 
-#     {
-#         errorLog.Add("FricDPSP_Microfin","vv");
-#         return 0;
-#     }
-#     
-# 
-#     if(TXP_loc.X>=0.98) TXP_loc.X=1;#to gurantee the single-phase state
-#     if(TXP_loc.X<0.1) TXP_loc.X=0;
-#     
-#     const double MU = PropertyTXPtr(VISC,TXP_loc);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("FricDPSP_microfin","mu");
-#         return 0;
-#     }
-#     
-#     if(TXP_loc.X<0.95){Density=DL;}#to gurantee the single-phase state
-#     else {Density=DV;}
-#     
-#     const double RE=Gr*2e0*R_I/MU;#Reunolds number
-#     const double F=1e0/pow((-1.8e0*log10(6.9e0/RE+pow((L_IF/(3.7e0*2*R_I)),1.11e0))),2e0)/4e0;#friction factor
-# 
-#     const double DP_SP=1e-3*pow(Gr,2e0)*F*L_T/R_I/Density;#pa--kPa
-#     
-#     return DP_SP
+def FricDPSP_Microfin(TXP_loc,#refrigerant state
+                      Gr, #mass flux
+                      P, Ref):#micro-fin geometry
+    '''
+    /************************************************************
+    single-phase pressure drop in finned tube,
+    Haaland, S.S., 1983, "simple and explicit formulas for the friction factor in turbulent
+    pipe flow", Journal of fluids engineering, Vol., 105, pp. 89-90
+    *************************************************************/
+    '''
+    
+    L_T = P['Ls']; #segment length
+    L_IF = P['finH'];#fin height
+    R_I = P['D_b']/2.0;#inside radius at the fin bottom
+    
+    TXP_prop={'T':0,'X':0,'P':0};
+ 
+    if (P['Microfin']<1):#smooth tube
+        DP_Smooth = FricDPSP_Smooth(TXP_loc,Gr,2*R_I,L_T, Ref)
+        return DP_Smooth, P
+     
+    #liquid refrigerant properties
+    TXP_prop['P']=TXP_loc['P'];
+    TXP_prop['X']=0.0;
+    TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref) #[K]
+    DL=PropertyTXPth('D',TXP_prop, Ref) #[kg/m^3]
+ 
+    #vapor refrigerant properties
+    TXP_prop['P']=TXP_loc['P'];
+    TXP_prop['X']=1.0;
+    TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref) #[K]
+    DV=PropertyTXPth('D',TXP_prop, Ref) #[kg/m^3]
+     
+    if(TXP_loc['X']>=0.98):
+        TXP_loc['X']=1;#to gurantee the single-phase state
+    if(TXP_loc['X']<0.1):
+        TXP_loc['X']=0;
+     
+    MU = PropertyTXPtr('V',TXP_loc, Ref) #[Pa-s]
+
+    if(TXP_loc['X']<0.95):
+        Density=DL;#to gurantee the single-phase state
+    else:
+        Density=DV;
+     
+    RE=Gr*2e0*R_I/MU;#Reunolds number
+    F=1e0/pow((-1.8e0*log10(6.9e0/RE+pow((L_IF/(3.7e0*2*R_I)),1.11e0))),2e0)/4e0;#friction factor
+ 
+    DP_SP=pow(Gr,2e0)*F*L_T/R_I/Density #[Pa]
+     
+    return DP_SP, P
 
 
-# def FricDPSP_Smooth(TXP TXP_loc,#refrigerant state
-#                 double G,#mass flux 
-#                 double D, #inside diameter
-#                 double L):#segment length
-#     '''
-#     #B.S. single-phase pressure drop in smooth tube, this is a common turbulent flow model
-#     '''
-# 
-#     double Density;
-#     TXP TXP_prop={0,0,0};
-# 
-#     #liquid refrigerant properties
-#     TXP_prop.P=TXP_loc.P;
-#     TXP_prop.X=0.0;
-#     TXP_prop.T=PropertyTXPth(TSAT,TXP_prop);
-# 
-#     const double DL=1.0/PropertyTXPth(VOL,TXP_prop);#1.0/reftplthP.v(TXP_loc.P);
-#     if(errorLog.IsError())
-#     {
-#         errorLog.Add("FricDPTP_Smooth","vl");
-#         return 0;
-#     }
-# 
-#     #vapor refrigerant properteis
-#     TXP_prop.P=TXP_loc.P;
-#     TXP_prop.X=1.0;
-#     TXP_prop.T=PropertyTXPth(TSAT,TXP_prop);
-#     const double DV=1.0/PropertyTXPth(VOL,TXP_prop);#1.0/reftpvthP.v(TXP_loc.P);
-#     if(errorLog.IsError()) 
-#     {
-#         errorLog.Add("FricDPTP_Smooth","vv");
-#         return 0;
-#     }
-# 
-# 
-#     
-#     if(TXP_loc.X>=0.98) TXP_loc.X=1;#to gurantee the single-phase state
-#     if(TXP_loc.X<0.1) TXP_loc.X=0;
-#     
-#     const double MU = PropertyTXPtr(VISC,TXP_loc);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("FricDPTP_Smooth","mu");
-#         return 0;
-#     }
-#     
-#     if(TXP_loc.X<0.95){Density=DL;}#to gurantee the single-phase state
-#     else {Density=DV;}
-#     
-#     const double RE=G*D/MU;#Reynolds number
-#     const double F=0.046e0*pow(RE,(-0.2e0));#turbulent friction factor
-#     const double DP=1e-3*pow(G,2e0)*F*L/(D/2e0)/Density;#pa---kPa
-#     
-#     return DP
+def FricDPSP_Smooth(TXP_loc,#refrigerant state
+                    G,#mass flux 
+                    D, #inside diameter
+                    L, Ref):#segment length
+    '''
+    #B.S. single-phase pressure drop in smooth tube, this is a common turbulent flow model
+    '''
+ 
+    TXP_prop={'T':0,'X':0,'P':0};
+    
+    #liquid refrigerant properties
+    TXP_prop['P']=TXP_loc['P'];
+    TXP_prop['X']=0.0;
+    TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref) #[K]
+    DL=PropertyTXPth('D',TXP_prop, Ref) #[kg/m^3]
+ 
+    #vapor refrigerant properties
+    TXP_prop['P']=TXP_loc['P'];
+    TXP_prop['X']=1.0;
+    TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref) #[K]
+    DV=PropertyTXPth('D',TXP_prop, Ref) #[kg/m^3]
+    
+    if(TXP_loc['X']>=0.98):
+        TXP_loc['X']=1;#to gurantee the single-phase state
+    if(TXP_loc['X']<0.1):
+        TXP_loc['X']=0;
+     
+    MU = PropertyTXPtr('V',TXP_loc, Ref) #[Pa-s]
+
+    if(TXP_loc['X']<0.95):
+        Density=DL;#to gurantee the single-phase state
+    else:
+        Density=DV;
+     
+    RE=G*D/MU;#Reynolds number
+    F=0.046e0*pow(RE,(-0.2e0));#turbulent friction factor
+    DP=pow(G,2e0)*F*L/(D/2e0)/Density #[Pa]
+     
+    return DP
 
 
 def FinEffect_Schmidt(h,#airside heat transfer coefficient
@@ -2609,7 +2399,7 @@ def FinEffect_Schmidt(h,#airside heat transfer coefficient
 
 
 
-#B.S.----------------------------------------the followings have not been unused
+#B.S. the following have not been unused
 def ConvCoeffEvapInside(TXPi,G,D,T_w,Ref):#ConvCoeffEvapInside(TXP TXPi,double G,double D,double dx,double L)
     '''
     /********************************************************************

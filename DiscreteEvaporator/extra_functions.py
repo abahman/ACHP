@@ -4,6 +4,14 @@ from math import pi,log,sqrt,exp,cos,sin,tan,log10
 from CoolProp.HumidAirProp import HAPropsSI
 from CoolProp.CoolProp import PropsSI
 
+def FlowPattern():
+    
+    flowpattern = {'JudgPattern':0,'G_wavy':0.0,'G_strat':0.0,'G_mist':0.0,
+                   'G_bub':0.0,'X_lA':0.0,'epsilon':0.0,'theta_dry':0.0,
+                   'delta':0.0,'h_nb':0.0,'h_cb':0.0,'h_v':0.0,'h_wet':0.0,
+                   'h_tp':0.0,'Pattern':0} #output struct variable from Kattan-Thome flow-pattern-dependent heat transfer model
+    
+    return FlowPattern
 
 def PreAcc():
     
@@ -270,12 +278,12 @@ def PropertyTXPth(prop,TXP,Ref):
     pressure and temperature (PT) are independent variables
 
     prop = sting of 
-        'T' Temperature, 0
-        'H' Enthalpy, 1
+        'T' Temperature [K], 0
+        'H' Enthalpy [J/kg], 1
         (No volume 2 >>> it should be 1/Density)
-        'S' Entropy, 3
-        'U' Internal Energy, 4
-        'D' Density, 5
+        'S' Entropy [J/kg/K], 3
+        'U' Internal Energy [J/kg], 4
+        'D' Density [kg/m^3], 5
     ********************************************************************/
     '''
 

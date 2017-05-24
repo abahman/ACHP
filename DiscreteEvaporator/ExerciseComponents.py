@@ -105,6 +105,5 @@ def ExerciseComponents():
     ExerciseEvaporator()
 
 if __name__=='__main__':    
-#     ExerciseComponents()
-    df = pd.read_excel("../InputDoc/EvapStruc.xlsx",sheetname='tube', header = 0)
-    print (df)
+    ExerciseComponents()
+

@@ -11,24 +11,6 @@ from CoolProp.HumidAirProp import HAPropsSI
 
 from EVAP import EvapTubeBend, EvapTubeBend_Fwd, EvapTubeL_Fwd, EvapTubeL_Rev
 
-def EvapCircuit(Ref,type,mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D):
-
-    EvapInfo = StructEvap("../InputDoc/EvapStruc.xlsx", Ref);
-    EvapInfo.Rev=D['REV'];
-
-    if (type == 301): #user defined
-        EvapInfo._EvapCircuit_Fwd(mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D)
-#     elif type == 302: #Carrier RTU at Purdue
-#         EvapCircuit301(mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D); 
-#     elif type == 303: #Single finned tube
-#         EvapCircuit302(mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D);
-#     elif type == 304: #this function is for CS30TR
-#         EvapCircuit303(mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D); 
-    else:
-        print("Evaporator model "+str(type)+" is not found")
-
-    return (EvapInfo.HPo, EvapInfo.HPi, EvapInfo.TPo, EvapInfo.Sm, EvapInfo.Aflow, EvapInfo.D)
-
 class StructEvap():
     
     def __init__(self,filename,Ref):
@@ -493,9 +475,9 @@ class StructEvap():
                                 realk=k;
                         
                             if (self.Rev):
-                                self.HPi, WHo, mi, self.P = EvapTubeL_Rev(self.Ref, self.Bra[i]['Gr'],self.HPi,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['TPi'],WHo,mi,self.P)
+                                self.HPi, WHo, mi, self.P = EvapTubeL_Rev(self.Bra[i]['Gr'],self.HPi,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['TPi'],WHo,mi,self.P, self.Ref)
                             else:
-                                self.HPi, WHo, mi, self.P = EvapTubeL_Fwd(self.Ref, self.Bra[i]['Gr'],self.HPi,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['TPi'],WHo,mi,self.P)
+                                self.HPi, WHo, mi, self.P = EvapTubeL_Fwd(self.Bra[i]['Gr'],self.HPi,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['TPi'],WHo,mi,self.P, self.Ref)
                 
                             self.Tub[TubeN]['Seg'][realk]['WHo']=WHo;
                             self.Tub[TubeN]['m']['m']=self.Tub[TubeN]['m']['m']+mi['m'];
@@ -506,9 +488,9 @@ class StructEvap():
         
                         
                         if (self.Rev):
-                            self.HPi, mi, self.P = EvapTubeBend(self.Ref,self.Bra[i]['Gr'],self.HPi,mi,self.P);
+                            self.HPi, mi, self.P = EvapTubeBend(self.Bra[i]['Gr'],self.HPi,mi,self.P, self.Ref)
                         else:
-                            self.HPi, mi, self.P = EvapTubeBend_Fwd(self.Ref,self.Bra[i]['Gr'],self.HPi,mi,self.P);
+                            self.HPi, mi, self.P = EvapTubeBend_Fwd(self.Bra[i]['Gr'],self.HPi,mi,self.P, self.Ref)
                 
                         self.Tub[TubeN]['m']['m']=self.Tub[TubeN]['m']['m']+mi['m'];
                         self.Tub[TubeN]['m']['V']=self.Tub[TubeN]['m']['V']+mi['V'];

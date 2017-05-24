@@ -202,10 +202,6 @@ def dPdLfricEvapTP(TXPm,G,D,dx,L,Ref):
     
     v = 1/PropertyTXPth('D',TXPm, Ref) #[m^3/kg]
     
-    #TXP_prop['P']=TXPm['P'];
-    #TXP_prop['X']=0;
-    #TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref);
-    #hl = PropertyTXPth('H',TXP_prop, Ref); #THIS has been moved up to save computational TIME
     
     TXP_prop['P']=TXPm['P'];
     TXP_prop['X']=1;
@@ -361,7 +357,7 @@ def FricFactor(TXPi,G,D,Ref):
     return y
 
 
-def GET_PreAcc(DP_ACC, Params=None, Ref):
+def GET_PreAcc(DP_ACC, Ref, Params=None):
     '''
     /*******************************************************
     B.S. add for getting the acceleration pressure drop (Pa)

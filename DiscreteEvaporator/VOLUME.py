@@ -5,7 +5,7 @@ from scipy.optimize import brentq
 
 #from CoolProp.CoolProp import PropsSI
 
-from extra_functions import PropertyTXPth, PropertyTXPtr, toTXP
+from extra_functions import PropertyTXPth, PropertyTXPtr, toTXP, FlowPattern
 from CORR import Eva_FlowPattern, Cond_FlowPattern
 
 
@@ -739,12 +739,9 @@ def VolumeTP_Thome(TXP1,G,D,q,Ref):
 
 def VolumeTP_FlowPattern(TXP1,G,D,q,Ref):
     
-    FlowPattern = {'JudgPattern':0,'G_wavy':0.0,'G_strat':0.0,'G_mist':0.0,
-                   'G_bub':0.0,'X_lA':0.0,'epsilon':0.0,'theta_dry':0.0,
-                   'delta':0.0,'h_nb':0.0,'h_cb':0.0,'h_v':0.0,'h_wet':0.0,
-                   'h_tp':0.0,'Pattern':0} #output struct variable from Kattan-Thome flow-pattern-dependent heat transfer model
+    
     #initialize
-    FlowPat = FlowPattern
+    FlowPat = FlowPattern()
     FlowPat['JudgPattern']=1;
     
     TXP_prop={'T':0,'X':0,'P':0};
