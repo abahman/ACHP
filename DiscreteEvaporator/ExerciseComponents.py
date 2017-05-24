@@ -9,9 +9,27 @@ from CoolProp.CoolProp import PropsSI
 from CoolProp.HumidAirProp import HAPropsSI
 
 from ACHP.convert_units import *
-from extra_functions import TXPtoHP, HPtoTXP, PropertyTXPth, ETdim
+from EvapCirc import StructEvapClass
 
-from EVAP import Evaporator
+
+def EvapCircuit(type,mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D, Ref):
+
+    EvapInfo = StructEvapClass("../InputDoc/EvapStruc.xlsx", Ref);
+    EvapInfo.Rev=D['REV'];
+
+    if (type == 301): #user defined
+        EvapInfo._EvapCircuit_Fwd(mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D)
+#     elif type == 302: #Carrier RTU at Purdue
+#         EvapCircuit301(mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D); 
+#     elif type == 303: #Single finned tube
+#         EvapCircuit302(mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D);
+#     elif type == 304: #this function is for CS30TR
+#         EvapCircuit303(mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D); 
+    else:
+        print("Evaporator model "+str(type)+" is not found")
+
+    return (EvapInfo.HPo, EvapInfo.HPi, EvapInfo.TPo, EvapInfo.Sm, EvapInfo.Aflow, EvapInfo.D)
+
     
 def ExerciseEvaporator():
     
@@ -101,9 +119,7 @@ def ExerciseEvaporator():
 
     return 0
     
-def ExerciseComponents():
+if __name__=='__main__': 
+    print('Hello world')
     ExerciseEvaporator()
-
-if __name__=='__main__':    
-    ExerciseComponents()
 

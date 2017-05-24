@@ -9,33 +9,6 @@ from extra_functions import PropertyTXPth, PropertyTXPtr, toTXP, FlowPattern
 from CORR import Eva_FlowPattern, Cond_FlowPattern
 
 
-def Xtt(TXPm, Ref):
-    '''
-    /********************************************************************
-    Martinelli parameter. Sqrt of the ratio of the frictional
-    pressure drop of liquid to vapor if they were flowing alone
-    in a smooth pipe.
-    ********************************************************************/
-    '''
-
-    TXP_prop={'T':0,'X':0,'P':0};
-    
-    TXP_prop['P']=TXPm['P'];
-    TXP_prop['X']=0;
-    TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref) #[K]
-    vl = 1/PropertyTXPth('D',TXP_prop, Ref) #[m^3/kg]
-    mul = PropertyTXPtr('V',TXP_prop, Ref) #[Pa-s]
-    
-    TXP_prop['P']=TXPm['P'];
-    TXP_prop['X']=1;
-    TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref) #[K]
-    vv  = 1/PropertyTXPth('D',TXP_prop, Ref) #[m^3/kg]
-    muv = PropertyTXPtr('V',TXP_prop, Ref) #[Pa-s]
-
-    xtt = pow((1-TXPm['X'])/TXPm['X'],0.9)*pow(vl/vv,0.5)*pow(mul/muv,0.1)
-
-    return xtt
-
 def VolumeTPFunc(Alpha,Params=None):
     '''
     /********************************************************************

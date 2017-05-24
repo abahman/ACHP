@@ -139,7 +139,7 @@ def ETdim():
 
     return Evap_struc
 
-def EVA_Get_Q():
+def EVA_Get_Q_dic():
     '''
     This function return an initialized dictionary (with zeros)
     #add for evaporative heat transfer iteration, since most of the evporating heat transfer calculation contains the nucleate boiling component, 

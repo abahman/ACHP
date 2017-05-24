@@ -7,8 +7,8 @@ from math import log,pi,sqrt,exp,cos,sin,tan,log10
 from CoolProp.CoolProp import PropsSI
 
 from extra_functions import toTXP, PropertyTXPtr, PropertyTXPth, HPtoTXP, PreAcc
-from VOLUME import Xtt, VolumeALL
-
+from VOLUME import VolumeALL
+from CORR import Xtt
 
 def dPdLfriction(TXPi,G,D,Ref):
     '''

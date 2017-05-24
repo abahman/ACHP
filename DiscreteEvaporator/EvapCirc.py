@@ -9,9 +9,9 @@ import pandas as pd
 #from CoolProp.CoolProp import PropsSI
 from CoolProp.HumidAirProp import HAPropsSI
 
-from EVAP import EvapTubeBend, EvapTubeBend_Fwd, EvapTubeL_Fwd, EvapTubeL_Rev
+#from EVAP import EvapTubeBend, EvapTubeBend_Fwd, EvapTubeL_Fwd, EvapTubeL_Rev
 
-class StructEvap():
+class StructEvapClass():
     
     def __init__(self,filename,Ref):
         self.REV = 0 #reverse calculation
@@ -57,7 +57,11 @@ class StructEvap():
         
         #endSign=int(0);
         #error=0;
-           
+        
+        #=======================================================================
+        # file name >>>>> "../InputDoc/EvapStruc.xlsx"
+        #=======================================================================
+        
         df = pd.read_excel(filename,sheetname=0,header = 0)
         df_node = pd.read_excel(filename,sheetname='node',header = 0)
         df_branch = pd.read_excel(filename,sheetname='branch',header = 0)
@@ -69,8 +73,8 @@ class StructEvap():
         self.RowNum = int(df.EvapStruc[2]);          #Row Number
         self.TubeNum = int(df.EvapStruc[3]);         #overall tube Number
         self.SegNum = int(df.EvapStruc[4]);          #Segment Number of per tube
-        self.AreaFront = int(df.EvapStruc[5]);       #frontal area
-        self.Volum = int(df.EvapStruc[6]);           #total nominal air mass flow rate [m^3/s]
+        self.AreaFront = df.EvapStruc[5];       #frontal area
+        self.Volum = df.EvapStruc[6];           #total nominal air mass flow rate [m^3/s]
        
         self.Nod = [EvapNode.copy() for k in range(self.NodNum)]
         self.Bra = [EvapBranch.copy() for k in range(self.BranNum)]
@@ -105,9 +109,15 @@ class StructEvap():
             self.Tub[i]['GaFac'] = df_tube.GaFac[i]
             self.Tub[i]['even'] = df_tube.even[i]
        
-       
+    def Update(self):
+        """Update the parameters passed in using the dictionary"""
+        pass
+   
     def DeStructEvap(self):
-        ''''delete the memory'''
+        '''
+        ######This function is NOT in use######
+        delete the memory
+        '''
         for i in range(self.TubeNum):
             del self.Tub[i]['Seg']
         del self.Tub
@@ -145,6 +155,7 @@ class StructEvap():
         rho_air=1/HAPropsSI("V", "T", TPi['T'], "P", 101325, "R", TPi['P']) #[kg dry air/ m^3]
     
         #const double Ma =Ga*rho_air*4.719e-4; 
+        print(self.AreaFront,self.P['vsp'],self.P['Ls'])
         Ga=Ga/self.AreaFront*self.P['vsp']*self.P['Ls']/((self.P['vsp']-self.P['Do'])*(self.P['Ls']-self.P['N']*self.P['th']));
     
     
@@ -371,12 +382,9 @@ class StructEvap():
     
         #Sm->m=Sm->m + (2.87-2.766)+(3.10-3.05602)/(2.0792-7.955)*(P->VapL-7.955);#for three points charge tuning
     
-        return 0
-    
-    def _EvapCircuit_Rev(self, mr,HPo,Ga,TPi,HPi,TPo,Sm,Aflow,P):
+    def _EvapCircuit_Rev(self,mr,HPo,Ga,TPi,HPi,TPo,Sm,Aflow,P):
         '''reversed evaporator solver'''
-        
-        return 0
+        pass
     
     def Cal_HP(self, Pos):
         ''''function to calculate the heat transfer and pressure drop'''
@@ -564,7 +572,6 @@ class StructEvap():
     
         self.P=Bak;
         
-        return 0
 
 if __name__=='__main__':
     print('Hello world')
