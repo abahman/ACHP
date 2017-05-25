@@ -1065,7 +1065,7 @@ def ConvCoeffSP_Microfin(TXP,#refrigerant state
     
     if (TXP['X']>0.99 or P['Microfin']==0): #Dittus-Boelter
         G=G*pow(d_top/d_bottom,2.0);
-        h=ConvCoeffSP_Smooth(TXP,G,d_bottom)
+        h=ConvCoeffSP_Smooth(TXP,G,d_bottom, Ref)
         h=h*d_bottom/d_top;
         return h, P
  

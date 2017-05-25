@@ -6,7 +6,7 @@ from scipy.optimize import brentq
 #from CoolProp.CoolProp import PropsSI
 
 from extra_functions import PropertyTXPth, PropertyTXPtr, toTXP, FlowPattern
-from CORR import Eva_FlowPattern, Cond_FlowPattern
+from CORR import Eva_FlowPattern, Cond_FlowPattern, Xtt
 
 
 def VolumeTPFunc(Alpha,Params=None):

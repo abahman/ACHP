@@ -11,7 +11,7 @@ def FlowPattern():
                    'delta':0.0,'h_nb':0.0,'h_cb':0.0,'h_v':0.0,'h_wet':0.0,
                    'h_tp':0.0,'Pattern':0} #output struct variable from Kattan-Thome flow-pattern-dependent heat transfer model
     
-    return FlowPattern
+    return flowpattern
 
 def PreAcc():
     
@@ -343,7 +343,7 @@ def PropertyTXPtr(prop,TXP,Ref):
         else: #saturated vapor
             a = PropsSI(prop,'P',TXP['P'],'Q',1,Ref)
     
-    elif (TXP.X<=0):
+    elif (TXP['X']<=0):
         Tsat = PropsSI('T','P',TXP['P'],'Q',0,Ref)
         
         if (TXP['T']<Tsat): #subcooled liquid

@@ -76,7 +76,7 @@ def dPdLfricTP(TXP,G,D,Ref):
     ********************************************************************/
     '''   
      
-    dPdLf0 = dPdLfricSP(toTXP(TXP['T'],0,TXP['P']),G,D);
+    dPdLf0 = dPdLfricSP(toTXP(TXP['T'],0,TXP['P']),G,D, Ref);
 
     xtt = Xtt(TXP, Ref)
 
@@ -383,7 +383,7 @@ def GET_PreAcc(DP_ACC, Ref, Params=None):
     TXP_prop['P']=P;
     TXP_prop['X']=0;
     TXP_prop['T']=PropertyTXPth('T',TXP_prop,Ref)
-    DL=PropertyTXPth('D',TXP_prop)
+    DL=PropertyTXPth('D',TXP_prop,Ref)
 
     DP_OLD=DP_ACC;
     P_OUT=P-DP_FR-DP_ACC;
@@ -391,7 +391,7 @@ def GET_PreAcc(DP_ACC, Ref, Params=None):
     HP_OUT={'H':0.0,'P':0.0};
     HP_OUT['H']=H_OUT;
     HP_OUT['P']=P_OUT;
-    TXP_OUT=HPtoTXP(HP_OUT);
+    TXP_OUT=HPtoTXP(HP_OUT,Ref);
 
     X_OUT=TXP_OUT['X'];
     DP_ACC=pow(G,2)*(1/DV-1/DL)*(X_OUT-X);
