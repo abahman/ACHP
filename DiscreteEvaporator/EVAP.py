@@ -127,7 +127,12 @@ def EvapTubeL_Rev(Gr,#refrigerant mass flux
     '''
  
     EVA_Get_Q = EVA_Get_Q_dic();#B.S., this struct is for storing some parameters for iteration
- 
+    y=0;
+    hi=0;
+    Ri=0;
+    R=0;
+    q=0;
+    
     ### Calculate air side resistance ###
     P['wet']=0;
     
@@ -142,7 +147,7 @@ def EvapTubeL_Rev(Gr,#refrigerant mass flux
      
     # convert inlet state into TXP format
     TXPo = HPtoTXP(HPo,Ref);
- 
+    
     #B.S.--------------------------------------
     TXP_bak = TXPo.copy();#backup the outlet state of this segment
     #---------------------------------------B.S.
@@ -154,8 +159,8 @@ def EvapTubeL_Rev(Gr,#refrigerant mass flux
     #===========================================================================
     # Calculate heat transfered per unit mass of refrigerant
     #===========================================================================
-    hi_max=10e4;#largest possible refrigerant side heat tranfer coeffcient
-    hi_min=100;#minimum possible refrigerant side heat transfer coeffcient
+    hi_max=100000;#largest possible refrigerant side heat transfer coefficient
+    hi_min=100;#minimum possible refrigerant side heat transfer coefficient
  
     #B.S.-----------------------------
     #store the parameters for iteration
@@ -168,7 +173,8 @@ def EvapTubeL_Rev(Gr,#refrigerant mass flux
     EVA_Get_Q['W']=HAPropsSI('W','T',TPi['T'],'P',101325,'R',TPi['P']) #wair.HumidityRatio(TPi.T,TPi.P); #[kg water/kg dry air]
     #---------------------------------------B.S.
  
-    X1=0.05; X2=0.95;       #X1=0.01,X2=0.99;
+    X1=0.05; X2=0.95;       
+    #X1=0.01; X2=0.99;
     #for calculating the heat transfer and pressure drop in single-phase or approximated single-phase region
     if(TXPo['X']>X2 or TXPo['X']<X1):
         if(TXPo['X']>=1 or TXPo['X']<=0): #Pure single phase region
@@ -193,7 +199,7 @@ def EvapTubeL_Rev(Gr,#refrigerant mass flux
                 #two-phase refrigerant heat transfer coefficient
                 hi = brentq(Get_Q_EVA,hi_max,hi_min,args=(Ref,EVA_Get_Q),xtol=1e-5,rtol=6e-8,maxiter=40) #xtol, rtol and maxiter are changed to match "Zbrent" solver in ACMODEL
             except:
-                print("EVAP::EvapTubeL_Rev (brentq) TXPo['T']={:f}, T_max={:f}, T_min={:f}".format(TXPo['T'],hi_max,hi_min));
+                print("EVAP::EvapTubeL_Rev (brentq) TXPo['T']={:f}, h_max={:f}, h_min={:f}".format(TXPo['T'],hi_max,hi_min));
 
             #B.S., get the heat transfer coefficient at the two-phase region
             y1 = hi/P['hRefAdj'];#ConvCoeffEvapTP_microfin(TXP1,Gr,P);#B.S. get two-phase heat transfer coefficient at this region    
@@ -205,7 +211,7 @@ def EvapTubeL_Rev(Gr,#refrigerant mass flux
  
         hi = P['hRefAdj']*y;#B.S., heat transfer coefficient at this region
         Ri = 1/(hi*P['Api']);#B.S., inside thermal resistance
-        R_W=log(P['Do']/(P['Do']-2.0*P['xp']))/(2.0*3.1415*P['K_T']*P['Ls']);
+        R_W=log(P['Do']/(P['Do']-2.0*P['xp']))/(2.0*pi*P['K_T']*P['Ls']);
         R = P['Ro']+R_W+Ri;#overall thermal resistance
      
         #B.S., prepare the parameters for iteration
@@ -256,7 +262,7 @@ def EvapTubeL_Rev(Gr,#refrigerant mass flux
         except:
             #plot error vs. T to see whgat function looks like that caused error
             #ZbrentPlot(hi_max,hi_min,Get_Q_EVA,1e-4,&EVA_Get_Q);#Haorong change from -7 to-2
-            print("EVAP::EvapTubeL_Rev (brentq) T={:f}, T_min={:f}, T_max={:f}".format(hi,hi_min,hi_max))
+            print("EVAP::EvapTubeL_Rev (brentq) h={:f}, h_min={:f}, h_max={:f}".format(hi,hi_min,hi_max))
 
  
         q=EVA_Get_Q['q'];
@@ -578,7 +584,7 @@ def Get_Q_EVA(hi_0,#this function is for getting the refrigerant side heat trans
     '''
     
     if (Params == None):
-        EVA_Q = EVA_Get_Q()
+        EVA_Q = EVA_Get_Q_dic()
     else:    
         EVA_Q = Params
     
@@ -743,7 +749,7 @@ def Get_Q_Single(H_in, #inlet refrigerant temperature in the segment
     #for iteration to get evaporative heat transfer at single-phase region, use the inlet refrigerant state as the reference state
     '''
     if (Params==None):
-        EVA_Q=EVA_Get_Q()
+        EVA_Q=EVA_Get_Q_dic()
     else:
         EVA_Q=Params
     
@@ -833,7 +839,7 @@ def Get_Q_Single(H_in, #inlet refrigerant temperature in the segment
 #              H_S_S_O=H_zero;
     
     TP_S_O=HPtoTP(H_S_S_O,0.999);
-    T_S_O=TP_S_O.T;#effective surface temperature
+    T_S_O=TP_S_O['T'];#effective surface temperature
     T_O=T_S_O+(EVA_Q['TPi']['T']-T_S_O)*exp(-NTU_O);#outlet air temperature
     EVA_Q['T_S_O']= T_S_O;
 
@@ -885,7 +891,7 @@ def Get_Q_Single_For(HPi, #inlet refrigerant temperature in the segment
     '''
     
     if (Params==None):
-        EVA_Q = EVA_Get_Q()
+        EVA_Q = EVA_Get_Q_dic()
     else:
         EVA_Q = Params
 
@@ -1488,7 +1494,7 @@ class StructEvapClass():
                     #end j circle
                 #endif
             #end i circle
-    
+            
             self.Cal_HP(0);#heat transfer and pressure drop calculation
             
             for i in range(self.BranNum):
@@ -2064,7 +2070,6 @@ def ExerciseEvaporator():
     Twbi = HAPropsSI("Twb", "T", TPi['T'], "P", 101325, "R", TPi['P']) #inlet air wet bulb temperature 
 
     #*Run the evaporator model*#
-    hpi = {'H':264.54e3,'P':P_sl}
     hpo, hpi, TPo, m, Aflow, Evap_struc = Evaporator(Ref,'../InputDoc/Evap_Data.xlsx',mr,hpo,Ga,TPi,hpi,TPo,m,Aflow,Evap_struc,Evap_prms,NSeg,evapInit=1)
     
     #inlet refrigerant state and   
