@@ -10,7 +10,7 @@ from CoolProp.HumidAirProp import HAPropsSI
 
 from ACHP.convert_units import *
 
-from extra_functions import HPtoTXP, TXPtoHP, PropertyTXPth, EVA_Get_Q_dic, toTXP, PreAcc, ETdim, HPtoTP, WPtoTP, THtoTP
+from extra_functions import HPtoTXP, TXPtoHP, PropertyTXPth, EVA_Get_Q_dic, toTXP, PreAcc, ETdim, HPtoTP, WPtoTP, THtoTP, EvapNode, EvapBranch, TubeEvap, TubEvpSeg
 from PRESSURE import dPelbow, dPmom, GET_PreAcc
 from VOLUME import VolumeALL
 from CORR import Circuit_DP_EVAP, ConvCoeffAir_EVA, FinEffect_Schmidt, ConvCoeffSP, FricDP, ConvCoeffEvapTP_microfin
@@ -1019,62 +1019,25 @@ def Get_Q_Single_For(HPi, #inlet refrigerant temperature in the segment
 
 class StructEvapClass():
     
-    def __init__(self,filename,mr,HPo,Ga,TPi,HPi,TPo,Sm,Aflow,P,Ref):
+    def __init__(self,filename,Ref):#mr,HPo,Ga,TPi,HPi,TPo,Sm,Aflow,P,Ref):
+        '''Initialize'''
+        #reading the data file in
+        #the followings from   Class StructEvap(filename) in the ACMODLE
+        
         self.REV = 0 # for reverse calculation, 1--for reversed evaporator calculation
         self.Ref = Ref
-        self.mr = mr
-        self.HPo = HPo
-        self.Ga = Ga
-        self.TPi = TPi
-        self.HPi = HPi
-        self.TPo = TPo
-        self.Sm = Sm
-        self.Aflow = Aflow
-        self.P = P
-    #def StructEvap(self,filename):      #reading the data file in
-        #initialize
-        EvapNode={
-            'NodNo':int(0),#node number
-            'InNum':int(0),#number of tubes flowing into the node
-            'OutNum':int(0),#number of the tubes flowing out of the node
-            'BranIN':[],#index of the tube branch flowing in
-            'BranOUT':[],#index of the tube branch flowing out
-            }
-        EvapBranch = {
-            'BranNo':int(0),     #branch number
-            'EqulNo':int(0),     #the equivalent branch number
-            'Ini':int(0),        #signal variable
-            'GrFac':0.0,    #mass flow distribution factor of the branch
-            'Gr':0.0,       #mass flux of the branch
-            'TubNum':int(0),     #total tube numbers in the branch
-            'TubNo':[],      #index of the tubes in the branch
-            'HPi':{'H':0.0,'P':0.0},#inlet enthalpy and pressure 
-            'HPo':{'H':0.0,'P':0.0},#outlet enthalpy and pressure
-            'm':{'m':0.0,'V':0.0},  #mass and volume
-            'Para_Struc':[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]#output parameters of this condenser branch
-            }
-        TubeEvap = {
-            'TubNo':int(0),             #tube No
-            'RowNo':int(0),             #the row no where the tube located
-            'Refdownstream':int(0),     #downstream tube No at the refrigerant side (flow direction)
-            'AirUpstreamUpper':int(0),  #Upstream tube No at the air upper side
-            'AirUpstreamLower':int(0),  #Upstream tube No at the air lower side
-            'even':int(0),              #tube flow direction
-            'GaFac':0.0,                #air flow distribution factor
-            'Ga':0.0,                   #maximum air flow rate in the segment
-            'HPi':{'H':0.0,'P':0.0},    #refrigerant inlet state, flowing direction
-            'HPo':{'H':0.0,'P':0.0},    #refrigerant outlet state, flowing direction
-            'm':{'m':0.0,'V':0.0},      #mass and volume of the tube
-            'Seg':[]
-            }
-        
-        TubEvpSeg = {'TPi':{'T':0.0,'P':0.0}, 'WHo':{'W':0.0,'H':0.0}}
-        
-        #endSign=int(0);
-        #error=0;
-        
+        #self.mr = mr
+        #self.HPo = HPo
+        #self.Ga = Ga
+        #self.TPi = TPi
+        #self.HPi = HPi
+        #self.TPo = TPo
+        #self.Sm = Sm
+        #self.Aflow = Aflow
+        #self.P = P      
+           
         #=======================================================================
-        # file name >>>>> "../InputDoc/EvapStruc.xlsx"
+        # filename = "../InputDoc/EvapStruc.xlsx"
         #=======================================================================
         
         df = pd.read_excel(filename,sheetname=0,header = 0)
@@ -1082,7 +1045,6 @@ class StructEvapClass():
         df_branch = pd.read_excel(filename,sheetname='branch',header = 0)
         df_tube = pd.read_excel(filename,sheetname='tube',header = 0)
            
-        #fgets(scanstr,2048,fp);
         self.NodNum = int(df.EvapStruc[0]);          #Node Number
         self.BranNum = int(df.EvapStruc[1]);         #Branch Number
         self.RowNum = int(df.EvapStruc[2]);          #Row Number
@@ -1091,12 +1053,11 @@ class StructEvapClass():
         self.AreaFront = df.EvapStruc[5];       #frontal area
         self.Volum = df.EvapStruc[6];           #total nominal air mass flow rate [m^3/s]
        
-        self.Nod = [EvapNode.copy() for k in range(self.NodNum)]
-        self.Bra = [EvapBranch.copy() for k in range(self.BranNum)]
+        self.Nod = [EvapNode() for k in range(self.NodNum)]
+        self.Bra = [EvapBranch()for k in range(self.BranNum)]
         self.GaRow = [0.0 for k in range(self.RowNum)]
-        self.Tub = [TubeEvap.copy() for k in range(self.TubeNum)]
+        self.Tub = [TubeEvap() for k in range(self.TubeNum)]
        
-        #fgets(scanstr,2048,fp);
         for i in range(self.NodNum):   
             self.Nod[i]['NodNo'] = df_node.NodNo[i]
             self.Nod[i]['OutNum'] = df_node.OutNum[i]    #get outlet branches at first
@@ -1104,7 +1065,6 @@ class StructEvapClass():
             self.Nod[i]['BranOUT'] = list(df_node.ix[i][3 : 3+self.Nod[i]['OutNum']]) #get outlet branches first
             self.Nod[i]['BranIN'] = list(df_node.ix[i][3+self.Nod[i]['OutNum'] : 3+self.Nod[i]['OutNum']+self.Nod[i]['InNum']]) #get inlet branches second
        
-        #fgets(scanstr,2048,fp);
         for i in range(self.BranNum):
             self.Bra[i]['BranNo'] = df_branch.BranNo[i]
             self.Bra[i]['EqulNo'] = df_branch.EqulNo[i]
@@ -1112,10 +1072,8 @@ class StructEvapClass():
             self.Bra[i]['TubNum'] = df_branch.TubNum[i]
             self.Bra[i]['TubNo'] = list(df_branch.ix[i][4 : 4+self.Bra[i]['TubNum']])#important, the tube number in branch, inputted first from the compressor suction
        
-        #fgets(scanstr,2048,fp);
-        #fgets(scanstr,2048,fp);
         for i in range(self.TubeNum):
-            self.Tub[i]['Seg'] = [TubEvpSeg.copy() for k in range(self.SegNum)]
+            self.Tub[i]['Seg'] = [TubEvpSeg() for k in range(self.SegNum)]
             self.Tub[i]['TubNo'] = df_tube.TubNo[i]
             self.Tub[i]['RowNo'] = df_tube.RowNo[i]
             self.Tub[i]['Refdownstream'] = df_tube.Refdownstream[i]
@@ -1123,7 +1081,7 @@ class StructEvapClass():
             self.Tub[i]['AirUpstreamLower'] = df_tube.AirUpstreamLower[i]
             self.Tub[i]['GaFac'] = df_tube.GaFac[i]
             self.Tub[i]['even'] = df_tube.even[i]
-       
+        
     def Update(self):
         """Update the parameters passed in using the dictionary"""
         pass
@@ -1146,7 +1104,7 @@ class StructEvapClass():
             del self.Nod[i]['BranOUT']
         del self.Nod
           
-    def _EvapCircuit_Fwd(self):#,mr,HPo,Ga,TPi,HPi,TPo,Sm,Aflow,P):
+    def _EvapCircuit_Fwd(self,mr,HPo,Ga,TPi,HPi,TPo,Sm,Aflow,P):
         ''' forward evaporator solver'''
         
         #initialize as those will be in the output 
@@ -1161,18 +1119,18 @@ class StructEvapClass():
         H_in=0;
         
         if (self.Rev): #reversed calculation
-            self._EvapCircuit_Rev()#mr,HPo,Ga,TPi,HPi,TPo,Sm,Aflow,P)
-            return 0
+            return self._EvapCircuit_Rev(mr,HPo,Ga,TPi,HPi,TPo,Sm,Aflow,P)
+            
     
-        self.TPo=self.TPi;#inlet air state
+        TPo=TPi;#inlet air state
     
-        H_in=self.HPi['H'];#inlet refrigerant enthalpy
+        H_in=HPi['H'];#inlet refrigerant enthalpy
         
         #air side initializing
-        rho_air=1/HAPropsSI("V", "T", self.TPi['T'], "P", 101325, "R", self.TPi['P']) #[kg dry air/ m^3]
+        rho_air=1/HAPropsSI("V", "T", TPi['T'], "P", 101325, "R", TPi['P']) #[kg dry air/ m^3]
     
         #const double Ma =Ga*rho_air*4.719e-4; 
-        Ga=self.Ga/self.AreaFront*self.P['vsp']*self.P['Ls']/((self.P['vsp']-self.P['Do'])*(self.P['Ls']-self.P['N']*self.P['th']));
+        Ga=Ga/self.AreaFront*P['vsp']*P['Ls']/((P['vsp']-P['Do'])*(P['Ls']-P['N']*P['th']));
     
     
         for i in range(self.RowNum):
@@ -1183,9 +1141,9 @@ class StructEvapClass():
             for i in range(self.TubeNum):
                 if (self.Tub[i]['RowNo']==j):
                     for k in range(self.SegNum):
-                        self.Tub[i]['Seg'][k]['TPi']=self.TPi;
-                        self.Tub[i]['Seg'][k]['WHo']['W'] = HAPropsSI("W", "T", self.TPi['T'], "P", 101325, "R", self.TPi['P']) #[kg water/kg dry air] ####wair.HumidityRatio(TPi.T,TPi.P)
-                        self.Tub[i]['Seg'][k]['WHo']['H'] = HAPropsSI("Hha", "T", self.TPi['T'], "P", 101325, "R", self.TPi['P']) #[J/kg humid air] ####wair.h(TPi.T,TPi.P);
+                        self.Tub[i]['Seg'][k]['TPi']=TPi;
+                        self.Tub[i]['Seg'][k]['WHo']['W'] = HAPropsSI("W", "T", TPi['T'], "P", 101325, "R", TPi['P']) #[kg water/kg dry air] ####wair.HumidityRatio(TPi.T,TPi.P)
+                        self.Tub[i]['Seg'][k]['WHo']['H'] = HAPropsSI("Hha", "T", TPi['T'], "P", 101325, "R", TPi['P']) #[J/kg humid air] ####wair.h(TPi.T,TPi.P);
         
                     if (self.Tub[i]['RowNo']>0):#not the first row
                         Upper = self.Tub[i]['AirUpstreamUpper']
@@ -1213,23 +1171,23 @@ class StructEvapClass():
         DP = 20000.0;
         P_in=0.0;
         P_out=0.0;
-        self.HPi['P']=self.HPo['P']+DP;   #temperary inlet refrigerant pressure
-        self.HPi['H']=H_in;          #evaporator inlet refrigerant enthalpy
+        HPi['P']=HPo['P']+DP;   #temperary inlet refrigerant pressure
+        HPi['H']=H_in;          #evaporator inlet refrigerant enthalpy
         #*HPi is the intermediate variable
-        P_in = self.HPo['P']+DP;       #temperary inlet refrigerant pressure
-        P_out = self.HPo['P'];         #evaporator outlet refrigerant pressure
+        P_in = HPo['P']+DP;       #temperary inlet refrigerant pressure
+        P_out = HPo['P'];         #evaporator outlet refrigerant pressure
         IterN=0;
-
+        
     
         #refrigerant state intialize first time
         for i in range(self.NodNum):#inlet nodes
             if (self.Nod[i]['BranIN'][0]<0):#no inlet branch, only from the distributor
-                Gr = self.mr/(self.P['Ax']*self.Nod[i]['OutNum']);    
+                Gr = mr/(P['Ax']*self.Nod[i]['OutNum']);    
 
                 for j in range(self.Nod[i]['OutNum']):#states flowing out from the node
                     jj = self.Nod[i]['BranOUT'][j];#index of the outlet branches
-                    self.Bra[jj]['HPi']=self.HPi;
-                    self.Bra[jj]['HPo']=self.HPo;
+                    self.Bra[jj]['HPi']=HPi;
+                    self.Bra[jj]['HPo']=HPo;
                     self.Bra[jj]['Gr']=Gr*self.Bra[jj]['GrFac'];
                     self.Bra[jj]['Ini']=1;
                 #end j loop
@@ -1238,54 +1196,54 @@ class StructEvapClass():
     
         while True:
             
-            self.P['VapL'] =0;
-            self.P['TPL'] = 0;
-            self.P['LiqL'] = 0;
-            self.P['V_Vap'] =0;
-            self.P['V_TP'] =0;
-            self.P['V_Liq'] = 0;
-            self.P['m_Vap'] = 0;
-            self.P['m_TP'] = 0;
-            self.P['m_Liq'] = 0;    
-            self.P['UA_Vap'] = 0;
-            self.P['UA_TP'] = 0;
-            self.P['UA_Liq'] = 0;
+            P['VapL'] =0;
+            P['TPL'] = 0;
+            P['LiqL'] = 0;
+            P['V_Vap'] =0;
+            P['V_TP'] =0;
+            P['V_Liq'] = 0;
+            P['m_Vap'] = 0;
+            P['m_TP'] = 0;
+            P['m_Liq'] = 0;    
+            P['UA_Vap'] = 0;
+            P['UA_TP'] = 0;
+            P['UA_Liq'] = 0;
     
             IterN=IterN+1;
             
-            self.HPi['H']=H_in; #evaporator inlet refrigerant enthalpy
-            self.HPi['P']=P_in;
+            HPi['H']=H_in; #evaporator inlet refrigerant enthalpy
+            HPi['P']=P_in;
             
             for i in range(self.BranNum):
                 self.Bra[i]['Ini']=0
         
             for i in range(self.NodNum): #inlet nodes
                 if (self.Nod[i]['BranIN'][0]<0):#from the distributor
-                    Gr = self.mr/(self.P['Ax']*self.Nod[i]['OutNum']);    
+                    Gr = mr/(P['Ax']*self.Nod[i]['OutNum']);    
                     for j in range(self.Nod[i]['OutNum']): #states flowing out from the node
                         jj = self.Nod[i]['BranOUT'][j];     #index of the outlet branches
-                        self.Bra[jj]['HPi']['H']=self.HPi['H'];
+                        self.Bra[jj]['HPi']['H']=HPi['H'];
             
                         if (self.Nod[i]['OutNum']==self.BranNum):#no middle nodes
                             DDP = (self.Bra[jj]['HPi']['P']-self.Bra[jj]['HPo']['P']);
-                            self.Bra[jj]['HPi']['P']=self.HPo['P']+DDP;
-                            self.P['DPr'][jj]=DDP;#output the pressure drop of each branch
+                            self.Bra[jj]['HPi']['P']=HPo['P']+DDP;
+                            P['DPr'][jj]=DDP;#output the pressure drop of each branch
                         else:
-                            self.Bra[jj]['HPi']['P']=self.HPi['P'];
+                            self.Bra[jj]['HPi']['P']=HPi['P'];
                         self.Bra[jj]['Gr']=Gr*self.Bra[jj]['GrFac'];
                         self.Bra[jj]['Ini']=1;
                     #end j circle
                 #endif
             #end i loop
             
-            self.Cal_HP(0);    #heat transfer and pressure drop calculation
-
+            P, HPi = self.Cal_HP(P,0,HPi);    #heat transfer and pressure drop calculation
+            
             for i in range(self.BranNum):
                 self.Bra[i]['Ini']=0;
         
             Gr=0;
-            self.HPi['H']=0;
-            self.HPi['P']=0;
+            HPi['H']=0;
+            HPi['P']=0;
                
             #nodes in the middle
             for i in range(self.NodNum):
@@ -1293,17 +1251,17 @@ class StructEvapClass():
                     for j in range(self.Nod[i]['InNum']):   #node inlet state
                         jj= self.Nod[i]['BranIN'][j];
                         Gr=Gr+self.Bra[jj]['Gr'];
-                        self.HPi['H']=self.Bra[jj]['HPo']['H']*self.Bra[jj]['Gr']+self.HPi['H'];
-                        self.HPi['P']=self.Bra[jj]['HPo']['P']*self.Bra[jj]['Gr']+self.HPi['P'];
+                        HPi['H']=self.Bra[jj]['HPo']['H']*self.Bra[jj]['Gr']+HPi['H'];
+                        HPi['P']=self.Bra[jj]['HPo']['P']*self.Bra[jj]['Gr']+HPi['P'];
         
-                    self.HPi['H']=self.HPi['H']/Gr;
-                    self.HPi['P']=self.HPi['P']/Gr;
+                    HPi['H']=HPi['H']/Gr;
+                    HPi['P']=HPi['P']/Gr;
                     Gr=Gr/self.Nod[i]['InNum'];
                     Gr=Gr*self.Nod[i]['InNum']/self.Nod[i]['OutNum'];
         
                     for j in range(self.Nod[i]['OutNum']):
                         jj = self.Nod[i]['BranOUT'][j];   #index of outlet branches
-                        self.Bra[jj]['HPi']=self.HPi;
+                        self.Bra[jj]['HPi']=HPi;
                         self.Bra[jj]['Gr']=Gr*self.Bra[jj]['GrFac'];
                         self.Bra[jj]['Ini']=1;
                     #end j circle
@@ -1311,11 +1269,11 @@ class StructEvapClass():
             #end i circle
         
         
-            self.Cal_HP(1);#heat transfer and pressure drop calculation
+            P, HPi = self.Cal_HP(P,1,HPi);#heat transfer and pressure drop calculation
             
             Gr=0;
-            self.HPi['H']=0;
-            self.HPi['P']=0;
+            HPi['H']=0;
+            HPi['P']=0;
         
             #exit nodes
             for i in range(self.NodNum):
@@ -1323,12 +1281,12 @@ class StructEvapClass():
                     for j in range(self.Nod[i]['InNum']):
                         jj=self.Nod[i]['BranIN'][j];
                         Gr=Gr+self.Bra[jj]['Gr'];
-                        self.HPi['H']=self.Bra[jj]['HPo']['H']*self.Bra[jj]['Gr']+self.HPi['H'];
-                        self.HPi['P']=self.Bra[jj]['HPo']['P']*self.Bra[jj]['Gr']+self.HPi['P'];
-                        self.P['Hout8'][jj] = self.Bra[jj]['HPo']['H'];  #output the exit enthalpy of each branch
+                        HPi['H']=self.Bra[jj]['HPo']['H']*self.Bra[jj]['Gr']+HPi['H'];
+                        HPi['P']=self.Bra[jj]['HPo']['P']*self.Bra[jj]['Gr']+HPi['P'];
+                        P['Hout8'][jj] = self.Bra[jj]['HPo']['H'];  #output the exit enthalpy of each branch
                     
-                    self.HPi['H']=self.HPi['H']/Gr;
-                    self.HPi['P']=self.HPi['P']/Gr;
+                    HPi['H']=HPi['H']/Gr;
+                    HPi['P']=HPi['P']/Gr;
                     Gr=Gr/self.Nod[i]['InNum'];
                     Gr=Gr*self.Nod[i]['InNum']/self.Nod[i]['OutNum'];
                 #endif
@@ -1337,12 +1295,14 @@ class StructEvapClass():
             if (self.RowNum==1):
                 Res=0;
             else:
-                Res=2*(self.HPi['H']-H_out)/(self.HPi['H']+H_out);
-            H_out=self.HPi['H'];
-            P_out=self.HPi['P'];
-            P_in=self.HPo['P']+(P_in-P_out);
+                Res=2*(HPi['H']-H_out)/(HPi['H']+H_out);
+            H_out=HPi['H'];
+            P_out=HPi['P'];
+            P_in=HPo['P']+(P_in-P_out);
             
-            if (abs(Res)<1e-7 and IterN>20): #condition to break the while loop
+            if (abs(Res)>1e-7 and IterN<20): #condition to break the while loop
+                continue
+            else:
                 break
         #end while loop
             
@@ -1350,12 +1310,12 @@ class StructEvapClass():
             print('_EvapCircuit_Fwd, Can NOT reach the required tolerance, Res= '+str(Res))
             raise
     
-        self.Sm['m']=0;
-        self.Sm['V']=0;
+        Sm['m']=0;
+        Sm['V']=0;
     
         for i in range(self.BranNum):
-            self.Sm['m']=self.Sm['m']+self.Bra[i]['m']['m'];
-            self.Sm['V']=self.Sm['V']+self.Bra[i]['m']['V'];
+            Sm['m']=Sm['m']+self.Bra[i]['m']['m'];
+            Sm['V']=Sm['V']+self.Bra[i]['m']['V'];
     
         WH_out={'W':0,'H':0};
         Ma_out=0.0;
@@ -1380,26 +1340,28 @@ class StructEvapClass():
         WH_out['W'] = WH_out['W']/Ma_out;
         WH_out['H'] = WH_out['H']/Ma_out;
     
-        self.TPo['T']=self.TPi['T']-5;
-        self.TPo['P']=0.8;
+        TPo['T']=TPi['T']-5;
+        TPo['P']=0.8;
         try:
             #self.TPo = WHtoTP(WH_out,self.TPo)
-            self.TPo = {'T': HAPropsSI('T','P',101325,'H',WH_out['H'],'W',WH_out['W']), 'P': HAPropsSI('R','P',101325,'H',WH_out['H'],'W',WH_out['W'])} 
+            TPo = {'T': HAPropsSI('T','P',101325,'H',WH_out['H'],'W',WH_out['W']), 'P': HAPropsSI('R','P',101325,'H',WH_out['H'],'W',WH_out['W'])} 
         except:
             print('_EvapCircuit_Fwd :: check TPo that need to be numerically solved!')
             print('Other source of exception might be due to relative humidity ~100%, try to solve TPo with relative humidity of 95%')
-            self.TPo = {'T': HAPropsSI('T','P',101325,'H',WH_out['H'],'R',0.995), 'P': 0.995}
+            TPo = {'T': HAPropsSI('T','P',101325,'H',WH_out['H'],'R',0.995), 'P': 0.995}
 
     
         #refrigerant outputs
-        self.HPo['H']=H_out;
-        self.HPo['P']=self.HPo['P'];
-        self.HPi['H']=H_in;
-        self.HPi['P']=P_in;
+        HPo['H']=H_out;
+        HPo['P']=HPo['P'];
+        HPi['H']=H_in;
+        HPi['P']=P_in;
     
         #Sm->m=Sm->m + (2.87-2.766)+(3.10-3.05602)/(2.0792-7.955)*(P->VapL-7.955);#for three points charge tuning
+        
+        return HPo, HPi, TPo, Sm, Aflow, P
     
-    def _EvapCircuit_Rev(self):#,mr,HPo,Ga,TPi,HPi,TPo,Sm,Aflow,P):
+    def _EvapCircuit_Rev(self,mr,HPo,Ga,TPi,HPi,TPo,Sm,Aflow,P):
         '''reversed evaporator solver'''
         
         #initialize as those will be in the output 
@@ -1414,7 +1376,7 @@ class StructEvapClass():
         
         self.Rev=1;
         #air side initializing
-        rho_air=HAPropsSI("V", "T", self.TPi['T'], "P", 101325, "R", self.TPi['P']) #[kg dry air/ m^3]#
+        rho_air=HAPropsSI("V", "T", TPi['T'], "P", 101325, "R", TPi['P']) #[kg dry air/ m^3]#
         
         Ma =self.Volum*rho_air; 
         GaNom=Ma/self.AreaFront*self.P['vsp']*self.P['Ls']/((self.P['vsp']-self.P['Do'])*(self.P['Ls']-self.P['N']*self.P['th']));
@@ -1495,7 +1457,7 @@ class StructEvapClass():
                 #endif
             #end i circle
             
-            self.Cal_HP(0);#heat transfer and pressure drop calculation
+            P, HPi = self.Cal_HP(P,0,HPi);#heat transfer and pressure drop calculation
             
             for i in range(self.BranNum):
                 self.Bra[i]['Ini']=0;
@@ -1527,7 +1489,7 @@ class StructEvapClass():
                 #endif
             #end i circle
         
-            self.Cal_HP(1);#heat transfer and pressure drop calculation
+            P, HPi = self.Cal_HP(P,1,HPi);#heat transfer and pressure drop calculation
             
             Gr=0;
             self.HPi['H']=0;
@@ -1555,8 +1517,10 @@ class StructEvapClass():
                 Res=2*(self.HPi['H']-H_in)/(self.HPi['H']+H_in)
             
             H_in=self.HPi['H'];
-            print(Res, IterN)
-            if (abs(Res)<1e-7 and IterN>20): #condition to break the while loop
+            
+            if (abs(Res)>1e-7 and IterN<20): #condition to break the while loop
+                continue
+            else:
                 break
         #end while loop
     
@@ -1595,8 +1559,11 @@ class StructEvapClass():
             print('_EvapCircuit_Rev :: check TPo that need to be numerically solved!')
             print('Other source of exception might be due to relative humidity ~100%, try to solve TPo with relative humidity of 95%')
             self.TPo = {'T': HAPropsSI('T','P',101325,'H',WH_out['H'],'R',0.995), 'P': 0.995}
-
-    def Cal_HP(self, Pos):
+        
+        
+        return HPo, HPi, TPo, Sm, Aflow, P
+    
+    def Cal_HP(self,P,Pos,HPi):
         ''''function to calculate the heat transfer and pressure drop'''
         
         #heat transfer and pressure drop of the two-phase region
@@ -1605,7 +1572,7 @@ class StructEvapClass():
         Sm = {'m':0,'V':0};
         mi = {'m':0,'V':0};
         
-        Bak=self.P.copy();#keeping the information of the evaporator
+        Bak=P.copy()  ;#keeping the information of the evaporator
         
         if(Pos<0 or Pos>1):
             print("Cal_HP, Wrong position")
@@ -1613,18 +1580,18 @@ class StructEvapClass():
     
         for i in range(self.BranNum):
             #branch parameter clear zero
-            self.P['VapL'] =0;
-            self.P['TPL'] = 0;
-            self.P['LiqL'] = 0;
-            self.P['V_Vap'] =0;
-            self.P['V_TP'] =0;
-            self.P['V_Liq'] = 0;
-            self.P['m_Vap'] = 0;
-            self.P['m_TP'] = 0;
-            self.P['m_Liq'] = 0;    
-            self.P['UA_Vap'] = 0;
-            self.P['UA_TP'] = 0;
-            self.P['UA_Liq'] = 0;
+            P['VapL'] =0;
+            P['TPL'] = 0;
+            P['LiqL'] = 0;
+            P['V_Vap'] =0;
+            P['V_TP'] =0;
+            P['V_Liq'] = 0;
+            P['m_Vap'] = 0;
+            P['m_TP'] = 0;
+            P['m_Liq'] = 0;    
+            P['UA_Vap'] = 0;
+            P['UA_TP'] = 0;
+            P['UA_Liq'] = 0;
         
             if Pos == 0: 
                 if (self.Bra[i]['Ini']==1):#this branch has been initialized
@@ -1639,9 +1606,9 @@ class StructEvapClass():
             
             if(Logic):
                 if(self.Rev):
-                    self.HPi=self.Bra[i]['HPo']; #opposite to flow direction
+                    HPi=self.Bra[i]['HPo']; #opposite to flow direction
                 else:
-                    self.HPi=self.Bra[i]['HPi']; #paralell to flow direction
+                    HPi=self.Bra[i]['HPi']; #paralell to flow direction
                 
                 if(self.Bra[i]['EqulNo']<0):    #no equivalent branch
 
@@ -1654,7 +1621,7 @@ class StructEvapClass():
             
                         TubeN=self.Bra[i]['TubNo'][Tubj];
                         
-                        self.Tub[TubeN]['HPo']=self.HPi;
+                        self.Tub[TubeN]['HPo']=HPi;
                         self.Tub[TubeN]['m']['m']=0;
                         self.Tub[TubeN]['m']['V']=0;
             
@@ -1694,9 +1661,9 @@ class StructEvapClass():
                                 realk=k;
                             
                             if (self.Rev):
-                                self.HPi, WHo, mi, self.P = EvapTubeL_Rev(self.Bra[i]['Gr'],self.HPi,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['TPi'],WHo,mi,self.P, self.Ref)
+                                HPi, WHo, mi, P = EvapTubeL_Rev(self.Bra[i]['Gr'],HPi,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['TPi'],WHo,mi,P, self.Ref)
                             else:
-                                self.HPi, WHo, mi, self.P = EvapTubeL_Fwd(self.Bra[i]['Gr'],self.HPi,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['TPi'],WHo,mi,self.P, self.Ref)
+                                HPi, WHo, mi, P = EvapTubeL_Fwd(self.Bra[i]['Gr'],HPi,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['TPi'],WHo,mi,P, self.Ref)
                 
                             self.Tub[TubeN]['Seg'][realk]['WHo']=WHo;
                             self.Tub[TubeN]['m']['m']=self.Tub[TubeN]['m']['m']+mi['m'];
@@ -1707,40 +1674,40 @@ class StructEvapClass():
         
                         
                         if (self.Rev):
-                            self.HPi, mi, self.P = EvapTubeBend(self.Bra[i]['Gr'],self.HPi,mi,self.P, self.Ref)
+                            HPi, mi, P = EvapTubeBend(self.Bra[i]['Gr'],HPi,mi,P, self.Ref)
                         else:
-                            self.HPi, mi, self.P = EvapTubeBend_Fwd(self.Bra[i]['Gr'],self.HPi,mi,self.P, self.Ref)
+                            HPi, mi, P = EvapTubeBend_Fwd(self.Bra[i]['Gr'],HPi,mi,P, self.Ref)
                 
                         self.Tub[TubeN]['m']['m']=self.Tub[TubeN]['m']['m']+mi['m'];
                         self.Tub[TubeN]['m']['V']=self.Tub[TubeN]['m']['V']+mi['V'];
                         Sm['m']=Sm['m']+mi['m'];
                         Sm['V']=Sm['V']+mi['V'];
                         if (self.Rev):
-                            self.Tub[TubeN]['HPi']=self.HPi;
+                            self.Tub[TubeN]['HPi']=HPi;
                         else:
-                            self.Tub[TubeN]['HPo']=self.HPi;
+                            self.Tub[TubeN]['HPo']=HPi;
                     #end j circle
             
                     #output of this branch
                     if(self.Rev):
-                        self.Bra[i]['HPi']=self.HPi;
+                        self.Bra[i]['HPi']=HPi;
                     else:
-                        self.Bra[i]['HPo']=self.HPi;
+                        self.Bra[i]['HPo']=HPi;
                     self.Bra[i]['m']=Sm;
                     Sm['m']=0;
                     Sm['V']=0;
-                    self.Bra[i]['Para_Struc'][0]=self.P['VapL'];
-                    self.Bra[i]['Para_Struc'][1]=self.P['TPL'];
-                    self.Bra[i]['Para_Struc'][2]=self.P['LiqL'];
-                    self.Bra[i]['Para_Struc'][3]=self.P['V_Vap'];
-                    self.Bra[i]['Para_Struc'][4]=self.P['V_TP'];
-                    self.Bra[i]['Para_Struc'][5]=self.P['V_Liq'];
-                    self.Bra[i]['Para_Struc'][6]=self.P['m_Vap'];
-                    self.Bra[i]['Para_Struc'][7]=self.P['m_TP'];
-                    self.Bra[i]['Para_Struc'][8]=self.P['m_Liq'];    
-                    self.Bra[i]['Para_Struc'][9]=self.P['UA_Vap'];
-                    self.Bra[i]['Para_Struc'][10]=self.P['UA_TP'];
-                    self.Bra[i]['Para_Struc'][11]=self.P['UA_Liq'];
+                    self.Bra[i]['Para_Struc'][0]=P['VapL'];
+                    self.Bra[i]['Para_Struc'][1]=P['TPL'];
+                    self.Bra[i]['Para_Struc'][2]=P['LiqL'];
+                    self.Bra[i]['Para_Struc'][3]=P['V_Vap'];
+                    self.Bra[i]['Para_Struc'][4]=P['V_TP'];
+                    self.Bra[i]['Para_Struc'][5]=P['V_Liq'];
+                    self.Bra[i]['Para_Struc'][6]=P['m_Vap'];
+                    self.Bra[i]['Para_Struc'][7]=P['m_TP'];
+                    self.Bra[i]['Para_Struc'][8]=P['m_Liq'];    
+                    self.Bra[i]['Para_Struc'][9]=P['UA_Vap'];
+                    self.Bra[i]['Para_Struc'][10]=P['UA_TP'];
+                    self.Bra[i]['Para_Struc'][11]=P['UA_Liq'];
                 
                 else: #there is an equivalent branch for it
                     NoBra=self.Bra[i]['EqulNo'];
@@ -1781,10 +1748,10 @@ class StructEvapClass():
             
         #end i loop
     
-        self.P=Bak;
+        P=Bak
         
-
-
+        return P, HPi
+        
 
 
 
@@ -1794,12 +1761,11 @@ class StructEvapClass():
 
 def EvapCircuit(Type,mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D, Ref):
 
-    EvapInfo = StructEvapClass("../InputDoc/EvapStruc.xlsx", mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D, Ref);
+    EvapInfo = StructEvapClass("../InputDoc/EvapStruc.xlsx", Ref) #mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D, Ref)
     EvapInfo.Rev=D['REV'];
 
     if (Type == 301): #user defined
-        #EvapInfo._EvapCircuit_Fwd()#mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D)
-        EvapInfo._EvapCircuit_Rev()#mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D)
+        HPo, HPi, TPo, Sm, Aflow, D = EvapInfo._EvapCircuit_Fwd(mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D)
 #     elif type == 302: #Carrier RTU at Purdue
 #         EvapCircuit301(mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D); 
 #     elif type == 303: #Single finned tube
@@ -1809,7 +1775,7 @@ def EvapCircuit(Type,mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D, Ref):
     else:
         print("Evaporator model "+str(type)+" is not found")
 
-    return (EvapInfo.HPo, EvapInfo.HPi, EvapInfo.TPo, EvapInfo.Sm, EvapInfo.Aflow, EvapInfo.D)
+    return HPo, HPi, TPo, Sm, Aflow, D#(EvapInfo.HPo, EvapInfo.HPi, EvapInfo.TPo, EvapInfo.Sm, EvapInfo.Aflow, EvapInfo.D)
 
 def Evaporator(Ref, #refrigerant string
                filename, #file nane string
@@ -1853,7 +1819,7 @@ def Evaporator(Ref, #refrigerant string
     Aflow = air flow area (ma=Ga*Aflow) (m^2).
     status - error flag.  Set to 1 to indicate error has occurred.
     '''
-    D = ETdim()#Evap_struc.copy()
+    D = ETdim()
      
  
     if (evapInit > 0 or NSeg>0):
@@ -2045,7 +2011,7 @@ def ExerciseEvaporator():
     
     
     #initialize the values
-    hpi = {'H':0.0,'P':0.0}
+    hpi = {'H':264.54*1000,'P':0.0}
     m = {'m':0.0,'V':0.0}
     TPo = {'T':0.0,'P':0.0}
     Aflow = 0.0
@@ -2068,13 +2034,13 @@ def ExerciseEvaporator():
     txpo = {'T':Tsat_sl+Tsh,'X':1,'P':P_sl} #initially assume outlet temperature equals to saturated vapor pressure (txpo_P)
     hpo = TXPtoHP(txpo, Ref)  #outlet refrigerant state
     Twbi = HAPropsSI("Twb", "T", TPi['T'], "P", 101325, "R", TPi['P']) #inlet air wet bulb temperature 
-
+    
     #*Run the evaporator model*#
     hpo, hpi, TPo, m, Aflow, Evap_struc = Evaporator(Ref,'../InputDoc/Evap_Data.xlsx',mr,hpo,Ga,TPi,hpi,TPo,m,Aflow,Evap_struc,Evap_prms,NSeg,evapInit=1)
     
     #inlet refrigerant state and   
     #saturation temperature computed from the inlet refrigerant state
-    txpi = HPtoTXP(hpi)
+    txpi = HPtoTXP(hpi, Ref)
     Tsat_dt = PropertyTXPth('T',txpi,Ref) #[K]
      
     Twbo = HAPropsSI("Twb", "T", TPo['T'], "P", 101325, "R", TPo['P']) #outlet air wet bulb temperature 
@@ -2085,32 +2051,35 @@ def ExerciseEvaporator():
     UA = Qdot/DT #[BTU/hr/F] - for all 4 sections of the heat exchanger 
          
     #print inputs
-    print("Tai (F), RHai (%)", C2F(TPi['T']),TPi['P']*100.0)
-    print("CFM (cfm)",Evap_struc['cfma'])
-    print("mr (lbm/hr)", MR)
-    print("ETBRA_sl (F)",DeltaK2F(TPi['T']-Tsat_sl))
-    print("Tsh_sl (F)",DeltaK2F(txpo['T']-Tsat_sl))
-    print("X_sl (0-1)",txpo['X'])
+    print("Tai (F), RHai (%): ", K2F(TPi['T']),TPi['P']*100.0)
+    print("CFM (cfm): ",Evap_struc['cfma'])
+    print("mr (lbm/hr): ", MR)
+    print("ETBRA_sl (F): ",DeltaK2F(TPi['T']-Tsat_sl))
+    print("Tsh_sl (F): ",DeltaK2F(txpo['T']-Tsat_sl))
+    print("X_sl (0-1): ",txpo['X'])
     if (NSeg>0):
-        print("NSeg",NSeg)
+        print("NSeg: ",NSeg)
     else:
-        print("NSeg",'Default')
-     
+        print("NSeg: ",'Default')
+    print() 
     #print outputs
-    print("ETBRA_dt (F)",DeltaK2F(TPi['T']-Tsat_dt)) #ETBRA_dt
-    print("X_dt (0-1)",txpi['X'])
-    print("dP (psi)",kPa2psi(txpi['P']-txpo['P'])) ###BEWARE that txpo_P was set to saturatewd liquid pressure, check if the code modifies it
-    print("DTa (F)",DeltaK2F(TPi['T']-TPo['T']))
-    print("DTwb (F)",DeltaK2F(Twbi-Twbo))
-    print("mass (kg)",m['m']) #charge
-    print("Qdot (BTU/hr)",Qdot)
-    print("UA (BTU/hr/F)",UA)
-    print("Hin (kJ/kg)",hpi['H']/1000.0)
-    print("Hout (kJ/kg)",hpo['H']/1000.0)
-    print("Tsat_sl (C)",K2C(Tsat_sl))
-    print("Tsat_dt (C)",K2C(Tsat_dt))
-
+    print("ETBRA_dt (F): ",DeltaK2F(TPi['T']-Tsat_dt)) #ETBRA_dt
+    print("X_dt (0-1): ",txpi['X'])
+    print("dP (psi): ",kPa2psi((txpi['P']-txpo['P'])/1000)) ###BEWARE that txpo_P was set to saturated liquid pressure, check if the code modifies it
+    print("DTa (F): ",DeltaK2F(TPi['T']-TPo['T']))
+    print("DTwb (F): ",DeltaK2F(Twbi-Twbo))
+    print("mass (kg): ",m['m']) #charge
+    print("Qdot (BTU/hr): ",Qdot)
+    print("UA (BTU/hr/F): ",UA)
+    print("Hin (kJ/kg): ",hpi['H']/1000.0)
+    print("Hout (kJ/kg): ",hpo['H']/1000.0)
+    print("Tsat_sl (C): ",K2C(Tsat_sl))
+    print("Tsat_dt (C): ",K2C(Tsat_dt))
+    print()
     return 0
+
+
+
     
 if __name__=='__main__': 
     print('Hello world')

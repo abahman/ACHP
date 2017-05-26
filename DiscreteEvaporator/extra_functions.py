@@ -4,6 +4,59 @@ from math import pi,log,sqrt,exp,cos,sin,tan,log10
 from CoolProp.HumidAirProp import HAPropsSI
 from CoolProp.CoolProp import PropsSI
 
+def EvapNode():
+    evap_node={
+        'NodNo':int(0),#node number
+        'InNum':int(0),#number of tubes flowing into the node
+        'OutNum':int(0),#number of the tubes flowing out of the node
+        'BranIN':[],#index of the tube branch flowing in
+        'BranOUT':[],#index of the tube branch flowing out
+        }
+    
+    return evap_node
+
+def EvapBranch():
+    evap_branch = {
+        'BranNo':int(0),     #branch number
+        'EqulNo':int(0),     #the equivalent branch number
+        'Ini':int(0),        #signal variable
+        'GrFac':0.0,    #mass flow distribution factor of the branch
+        'Gr':0.0,       #mass flux of the branch
+        'TubNum':int(0),     #total tube numbers in the branch
+        'TubNo':[],      #index of the tubes in the branch
+        'HPi':{'H':0.0,'P':0.0},#inlet enthalpy and pressure 
+        'HPo':{'H':0.0,'P':0.0},#outlet enthalpy and pressure
+        'm':{'m':0.0,'V':0.0},  #mass and volume
+        'Para_Struc':[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]#output parameters of this condenser branch
+        }
+    
+    return evap_branch
+
+def TubeEvap():
+    tube_evap = {
+        'TubNo':int(0),             #tube No
+        'RowNo':int(0),             #the row no where the tube located
+        'Refdownstream':int(0),     #downstream tube No at the refrigerant side (flow direction)
+        'AirUpstreamUpper':int(0),  #Upstream tube No at the air upper side
+        'AirUpstreamLower':int(0),  #Upstream tube No at the air lower side
+        'even':int(0),              #tube flow direction
+        'GaFac':0.0,                #air flow distribution factor
+        'Ga':0.0,                   #maximum air flow rate in the segment
+        'HPi':{'H':0.0,'P':0.0},    #refrigerant inlet state, flowing direction
+        'HPo':{'H':0.0,'P':0.0},    #refrigerant outlet state, flowing direction
+        'm':{'m':0.0,'V':0.0},      #mass and volume of the tube
+        'Seg':[]
+        }
+    
+    return tube_evap
+
+def TubEvpSeg():
+    
+    tub_evp_seg = {'TPi':{'T':0.0,'P':0.0}, 'WHo':{'W':0.0,'H':0.0}}
+    
+    return tub_evp_seg
+    
+        
 def FlowPattern():
     
     flowpattern = {'JudgPattern':0,'G_wavy':0.0,'G_strat':0.0,'G_mist':0.0,
@@ -77,7 +130,7 @@ def ETdim():
     '''
     This function return an initialized dictionary (with zeros) for all evaporator structure
     '''
-    Evap_struc={'Di':0.0,'L':0.0,'xp':0.0,'Df':0.0,'z':0.0,'th':0.0,'vsp':0.0,'Brad':0.0,
+    evap_struc={'Di':0.0,'L':0.0,'xp':0.0,'Df':0.0,'z':0.0,'th':0.0,'vsp':0.0,'Brad':0.0,
                 'NSeg':int(0),
                 'Dh':0.0,'Do':0.0,'y':0.0,'Ls':0.0,'N':0.0,'Ax':0.0,'Api':0.0,'Apo':0.0,'Af':0.0,'Aflow':0.0,'Vs':0.0,'Blen':0.0,'BVs':0.0,
                 'Ro:':0.0,
@@ -137,7 +190,7 @@ def ETdim():
                 'Hout8':[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],'DPr':[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],#superheat and pressure drop at each evaporator branch (array of 10 elements)
                 }
 
-    return Evap_struc
+    return evap_struc
 
 def EVA_Get_Q_dic():
     '''
