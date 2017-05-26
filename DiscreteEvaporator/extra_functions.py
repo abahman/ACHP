@@ -361,12 +361,12 @@ def PropertyTXPth(prop,TXP,Ref):
             a = PropsSI(prop,'P',TXP['P'],'Q',0,Ref)
     
     else: #two-phase
-        if (prop == 'T'): 
-            al = PropsSI(prop,'P',TXP['P'],'Q',0,Ref)
-            av = PropsSI(prop,'P',TXP['P'],'Q',1,Ref)
-            a = al + TXP['X']*(av-al);
-        else:
-            a = PropsSI(prop,'P',TXP['P'],'Q',TXP['X'],Ref)
+#         if (prop == 'T'): 
+#             al = PropsSI(prop,'P',TXP['P'],'Q',0,Ref)
+#             av = PropsSI(prop,'P',TXP['P'],'Q',1,Ref)
+#             a = al + TXP['X']*(av-al);
+#         else:
+        a = PropsSI(prop,'P',TXP['P'],'Q',TXP['X'],Ref)
 
     return a
 
