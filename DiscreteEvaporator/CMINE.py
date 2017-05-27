@@ -6,7 +6,7 @@ from math import log,pi,sqrt,exp,cos,sin,tan,log10,tanh
 #from CoolProp.CoolProp import PropsSI
 from CoolProp.HumidAirProp import HAPropsSI
 
-from extra_functions import PropertyTXPtr#,PropertyTXPth, Airside_Dim, InsideTube_Dim
+from extra_functions import PropertyTXPtr
 from CORR import IsTwoPhase
 
 
@@ -35,12 +35,12 @@ def CmineCrossFlow_dry(R,#overall heat resistance
         # all heat exchangers
         # refrigerant has infinite heat capacity rate
         # Cr=Cmin/Cmax=0 (Cmax=Cr=inf)
-        Cmin = ma* HAPropsSI('cp','T',Ta['T'],'P',101325,'R',Ta['P']) #air.Cp(Ta); #[J/kg dry air/K]
+        Cmin = ma* HAPropsSI('cp','T',Ta['T'],'P',101325,'R',Ta['P']) #[J/kg dry air/K]
         Ntu = 1/(R*Cmin);
         e = 1-exp(-1*Ntu);
         return Cmin*e
     else:
-        Ca = ma* HAPropsSI('cp','T',Ta['T'],'P',101325,'R',Ta['P']) #air.Cp(Ta); #[J/kg dry air/K]
+        Ca = ma* HAPropsSI('cp','T',Ta['T'],'P',101325,'R',Ta['P']) #[J/kg dry air/K]
         Cr = mr*PropertyTXPtr('C',TXP, Ref) #[J/kg/K]
         if (Ca>Cr):
             # crossflow heat exchanger

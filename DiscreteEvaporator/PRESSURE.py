@@ -366,7 +366,7 @@ def GET_PreAcc(DP_ACC, Ref, Params=None):
     if (Params==None):
         Preacc = PreAcc()
     else:
-        Preacc = Params;
+        Preacc = Params.copy();
 
     DP_FR=Preacc['DP_FR'];
     G=Preacc['G'];
@@ -378,12 +378,12 @@ def GET_PreAcc(DP_ACC, Ref, Params=None):
     TXP_prop['P']=P;
     TXP_prop['X']=1;
     TXP_prop['T']=PropertyTXPth('T',TXP_prop,Ref)
-    DV=PropertyTXPth('D',TXP_prop, Ref)
+    DV=PropertyTXPth('D',TXP_prop, Ref) #[kg/m^3]
     
     TXP_prop['P']=P;
     TXP_prop['X']=0;
     TXP_prop['T']=PropertyTXPth('T',TXP_prop,Ref)
-    DL=PropertyTXPth('D',TXP_prop,Ref)
+    DL=PropertyTXPth('D',TXP_prop,Ref) #[kg/m^3]
 
     DP_OLD=DP_ACC;
     P_OUT=P-DP_FR-DP_ACC;

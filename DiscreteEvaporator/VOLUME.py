@@ -5,7 +5,7 @@ from scipy.optimize import brentq
 
 #from CoolProp.CoolProp import PropsSI
 
-from extra_functions import PropertyTXPth, PropertyTXPtr, toTXP, FlowPattern
+from extra_functions import PropertyTXPth, PropertyTXPtr, toTXP, FlowPattern, VolParams
 from CORR import Eva_FlowPattern, Cond_FlowPattern, Xtt
 
 
@@ -18,10 +18,9 @@ def VolumeTPFunc(Alpha,Params=None):
     ********************************************************************/
     '''
     if (Params == None):
-        VolParams = {'vv':0,'vl':0,'ul':0,'uv':0,'Beta':0,'G':0,'D':0,'x':0}
-        P = VolParams
+        P = VolParams()
     else:
-        P = Params 
+        P = Params.copy()
 
     # Z is the "correlating parameter"
     Z1 = pow((P['D']*P['G'])/(P['ul']+Alpha*(P['uv']-P['ul'])),0.16666667);
@@ -159,8 +158,7 @@ def VolumeTP_Baroc(TXP1,G,D,Ref):
     #Baroczy
     '''
     
-    VolParams = {'vv':0,'vl':0,'ul':0,'uv':0,'Beta':0,'G':0,'D':0,'x':0}
-    P = VolParams #P is a structure of VolParams
+    P = VolParams() #P is a structure of VolParams
     TXP_prop={'T':0,'X':0,'P':0};
 
     # liquid refrigerant properties
@@ -214,8 +212,7 @@ def VolumeTP_Zivi(TXP1,G,D,Ref):
     #Zivi
     '''
     
-    VolParams = {'vv':0,'vl':0,'ul':0,'uv':0,'Beta':0,'G':0,'D':0,'x':0}
-    P = VolParams;
+    P = VolParams()
 
     TXP_prop={'T':0,'X':0,'P':0};
 
@@ -248,8 +245,7 @@ def VolumeTP_Hugh(TXP1,G,D,Ref):
     #Hughmark
     '''
 
-    VolParams = {'vv':0,'vl':0,'ul':0,'uv':0,'Beta':0,'G':0,'D':0,'x':0}
-    P = VolParams
+    P = VolParams()
 
     TXP_prop={'T':0,'X':0,'P':0};
     
@@ -291,8 +287,7 @@ def VolumeTP_ACRC(TXP1,G,D,Ref):
     #ACRC
     '''
 
-    VolParams = {'vv':0,'vl':0,'ul':0,'uv':0,'Beta':0,'G':0,'D':0,'x':0}
-    P = VolParams
+    P = VolParams()
 
     TXP_prop={'T':0,'X':0,'P':0};
     
@@ -332,8 +327,7 @@ def VolumeTP_LM(TXP1,G,D,Ref):
     #Lockhart-Martinelli
     '''
 
-    VolParams = {'vv':0,'vl':0,'ul':0,'uv':0,'Beta':0,'G':0,'D':0,'x':0}
-    P = VolParams
+    P = VolParams()
 
     TXP_prop={'T':0,'X':0,'P':0};
     
@@ -371,8 +365,7 @@ def VolumeTP_Rigot(TXP1,G,D,Ref):
     #Rigot
     '''
 
-    VolParams = {'vv':0,'vl':0,'ul':0,'uv':0,'Beta':0,'G':0,'D':0,'x':0}
-    P = VolParams
+    P = VolParams()
 
     TXP_prop={'T':0,'X':0,'P':0};
     
@@ -403,8 +396,7 @@ def VolumeTP_Smith(TXP1,G,D,Ref):
     #B.S.-------------------------------------------------
     #Smith
     '''
-    VolParams = {'vv':0,'vl':0,'ul':0,'uv':0,'Beta':0,'G':0,'D':0,'x':0}
-    P = VolParams
+    P = VolParams()
 
     TXP_prop={'T':0,'X':0,'P':0};
     
@@ -441,8 +433,7 @@ def VolumeTP_Tandon(TXP1,G,D,Ref):
     #Tandon
     '''
 
-    VolParams = {'vv':0,'vl':0,'ul':0,'uv':0,'Beta':0,'G':0,'D':0,'x':0}
-    P = VolParams
+    P = VolParams()
 
     TXP_prop={'T':0,'X':0,'P':0};
     
@@ -484,8 +475,7 @@ def VolumeTP_Thom(TXP1,G,D,Ref):
     #Thome
     '''
 
-    VolParams = {'vv':0,'vl':0,'ul':0,'uv':0,'Beta':0,'G':0,'D':0,'x':0}
-    P = VolParams
+    P = VolParams()
 
     TXP_prop={'T':0,'X':0,'P':0};
     
@@ -533,8 +523,7 @@ def VolumeTP_Premoli(TXP1,G,D,Ref):
     #Premolli
     '''
 
-    VolParams = {'vv':0,'vl':0,'ul':0,'uv':0,'Beta':0,'G':0,'D':0,'x':0}
-    P = VolParams
+    P = VolParams()
 
     TXP_prop={'T':0,'X':0,'P':0};
     
@@ -583,8 +572,7 @@ def VolumeTP_Homo(TXP1,G,D,Ref):
     #Homogeneous
     '''
 
-    VolParams = {'vv':0,'vl':0,'ul':0,'uv':0,'Beta':0,'G':0,'D':0,'x':0}
-    P = VolParams
+    P = VolParams()
 
     TXP_prop={'T':0,'X':0,'P':0};
     
@@ -609,8 +597,7 @@ def VolumeTP_Rouhani(TXP1,G,D,Ref):
     #Rouhani
     '''
 
-    VolParams = {'vv':0,'vl':0,'ul':0,'uv':0,'Beta':0,'G':0,'D':0,'x':0}
-    P = VolParams
+    P = VolParams()
 
     TXP_prop={'T':0,'X':0,'P':0};
     
@@ -672,47 +659,6 @@ def VolumeTP_Taitel(TXP1,G,D,Ref):
 
 def VolumeTP_Thome(TXP1,G,D,q,Ref):
     
-    FlowPattern = {'JudgPattern':0,'G_wavy':0.0,'G_strat':0.0,'G_mist':0.0,
-                   'G_bub':0.0,'X_lA':0.0,'epsilon':0.0,'theta_dry':0.0,
-                   'delta':0.0,'h_nb':0.0,'h_cb':0.0,'h_v':0.0,'h_wet':0.0,
-                   'h_tp':0.0,'Pattern':0} #output struct variable from Kattan-Thome flow-pattern-dependent heat transfer model
-    #initialize
-    FlowPat = FlowPattern
-    FlowPat['JudgPattern']=1;
-    
-    TXP_prop={'T':0,'X':0,'P':0};
-    
-    #liquid specific volumes
-    TXP_prop['P']=TXP1['P'];
-    TXP_prop['X']=0;
-    TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref) #[K]
-    vl = 1/PropertyTXPth('D',TXP_prop, Ref) #[m^3/kg]
-    
-    #vapor specific volumes
-    TXP_prop['P']=TXP1['P'];
-    TXP_prop['X']=1.0;
-    TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref) #[K]
-    vv = 1/PropertyTXPth('D',TXP_prop, Ref) #[m^3/kg]
-    
-
-    if (q<0):
-        FlowPat = Cond_FlowPattern(TXP1,G,D,q,FlowPat, Ref);
-    else:
-        FlowPat = Eva_FlowPattern(TXP1,G,D,q,FlowPat, Ref);
-
-
-    Alpha=FlowPat['epsilon'];
-
-    if (Alpha>=1):
-        Alpha=0.9999999999;
-    if (Alpha<=0):
-        Alpha=0.0000000001;
-
-    return 1/(Alpha/vv+(1-Alpha)/vl)
-
-def VolumeTP_FlowPattern(TXP1,G,D,q,Ref):
-    
-    
     #initialize
     FlowPat = FlowPattern()
     FlowPat['JudgPattern']=1;
@@ -730,6 +676,40 @@ def VolumeTP_FlowPattern(TXP1,G,D,q,Ref):
     TXP_prop['X']=1.0;
     TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref) #[K]
     vv = 1/PropertyTXPth('D',TXP_prop, Ref) #[m^3/kg]
+    
+    if (q<0):
+        FlowPat = Cond_FlowPattern(TXP1,G,D,q,FlowPat, Ref);
+    else:
+        FlowPat = Eva_FlowPattern(TXP1,G,D,q,FlowPat, Ref);
+
+    Alpha=FlowPat['epsilon'];
+
+    if (Alpha>=1):
+        Alpha=0.9999999999;
+    if (Alpha<=0):
+        Alpha=0.0000000001;
+
+    return 1/(Alpha/vv+(1-Alpha)/vl)
+
+def VolumeTP_FlowPattern(TXP1,G,D,q,Ref):
+    
+    #initialize
+    FlowPat = FlowPattern()
+    FlowPat['JudgPattern']=1;
+    
+    TXP_prop={'T':0,'X':0,'P':0};
+    
+    #liquid specific volumes
+    TXP_prop['P']=TXP1['P'];
+    TXP_prop['X']=0;
+    TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref) #[K]
+    #vl = 1/PropertyTXPth('D',TXP_prop, Ref) #[m^3/kg]
+    
+    #vapor specific volumes
+    TXP_prop['P']=TXP1['P'];
+    TXP_prop['X']=1.0;
+    TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref) #[K]
+    #vv = 1/PropertyTXPth('D',TXP_prop, Ref) #[m^3/kg]
 
 
     if (q<0):

@@ -4,6 +4,12 @@ from math import pi,log,sqrt,exp,cos,sin,tan,log10
 from CoolProp.HumidAirProp import HAPropsSI
 from CoolProp.CoolProp import PropsSI
 
+def VolParams():
+    
+    vol_params = {'vv':0,'vl':0,'ul':0,'uv':0,'Beta':0,'G':0,'D':0,'x':0}
+    
+    return vol_params
+
 def EvapNode():
     evap_node={
         'NodNo':int(0),#node number
@@ -246,8 +252,10 @@ def HPtoTXP(HP,Ref):
         TXP['X']=0;
         TXP['T'] = PropsSI('T','P',HP['P'],'H',HP['H'],Ref) 
     else: #two-phase
-        TXP['X'] = (HP['H']-hl)/(hv-hl)
-        TXP['T'] = Tl + TXP['X']*(Tv-Tl) #use waieghted averaged to determin
+        TXP['X'] = PropsSI('Q','P',HP['P'],'H',HP['H'],Ref)
+        TXP['T'] = PropsSI('T','P',HP['P'],'H',HP['H'],Ref)
+        #TXP['X'] = (HP['H']-hl)/(hv-hl)
+        #TXP['T'] = Tl + TXP['X']*(Tv-Tl) #use waieghted averaged to determin
     
     return TXP
 
@@ -256,8 +264,8 @@ def TXPtoHP(TXP,Ref):
     
     HP={'H':0.0,'P':0.0};
 
-    HP['P'] = TXP['P'];
-    HP['H'] = PropertyTXPth('H',TXP,Ref); #1 means that we wants to find ENTHALPY (i.e., ENTH) ##Now it takes string of 'H'
+    HP['P'] = TXP['P']; #[Pa]
+    HP['H'] = PropertyTXPth('H',TXP,Ref); #[J/kg]
 
     return HP
 
@@ -271,12 +279,8 @@ def HPtoTP(H,P):
     ********************************************************************/
     '''
     TP = {'T':0.0,'P':0.0}
-    HP = {'H':0.0,'P':0.0}
     
-    HP['H'] = H;
-    HP['P'] = P;
-    
-    TP['T'] = HAPropsSI('T','P',101325,'H',H,'R',P) #[K]
+    TP['T'] = HAPropsSI('T','P',101325,'Hha',H,'R',P) #[K]
     TP['P'] = P;
 
     return TP
@@ -292,10 +296,6 @@ def WPtoTP(W,P):
     '''
 
     TP = {'T':0.0,'P':0.0}
-    WP = {'W':0.0,'P':0.0}
-    
-    WP['W'] = W; 
-    WP['P'] = P;
     
     TP['T'] = HAPropsSI('T','P',101325,'W',W,'R',P) #[K]
     TP['P'] = P;
@@ -312,10 +312,6 @@ def THtoTP(T,H):
     '''
 
     TP = {'T':0.0,'P':0.0}
-    TH = {'T':0.0,'H':0.0};
-
-    TH['T'] = T;
-    TH['H'] = H;
     
     TP['P'] = HAPropsSI('R','P',101325,'T',T,'Hha',H) #[-]
     TP['T'] = T;
@@ -331,12 +327,11 @@ def PropertyTXPth(prop,TXP,Ref):
     pressure and temperature (PT) are independent variables
 
     prop = sting of 
-        'T' Temperature [K], 0
-        'H' Enthalpy [J/kg], 1
-        (No volume 2 >>> it should be 1/Density)
-        'S' Entropy [J/kg/K], 3
-        'U' Internal Energy [J/kg], 4
-        'D' Density [kg/m^3], 5
+        'T' Temperature [K],
+        'H' Enthalpy [J/kg],
+        'S' Entropy [J/kg/K],
+        'U' Internal Energy [J/kg],
+        'D' Density [kg/m^3],
     ********************************************************************/
     '''
 

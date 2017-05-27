@@ -78,20 +78,20 @@ def ConvCoeffAir_EVA(TPi,#air state
     if (P['GetP']<1):#calculate the heat transfer
         try:
             if D['airFin'] == 1:#plain 
-                h, D = ConvCoeffAir_Plain(G, D);
+                h = ConvCoeffAir_Plain(G, D);
             elif D['airFin'] == 2:#wavy plate
-                h, D = ConvCoeffAir_Corrugated(G, D);
+                h = ConvCoeffAir_Corrugated(G, D);
             elif D['airFin'] == 3:#slit
-                h, D = ConvCoeffAir_Slit(G, D);
+                h = ConvCoeffAir_Slit(G, D);
             elif D['airFin'] == 4:#louverd
-                h, D = ConvCoeffAir_Louvered(G, D);
+                h = ConvCoeffAir_Louvered(G, D);
             elif D['airFin'] == 5:#convex louvered
-                h, D = ConvCoeffAir_ConvexLouvered(G, D);#empty now
+                h = ConvCoeffAir_ConvexLouvered(G, D);#empty now
             elif D['airFin'] == 6:#smooth wavy
-                h, D = ConvCoeffAir_SmoothWavy(G, D);
+                h = ConvCoeffAir_SmoothWavy(G, D);
             elif D['airFin'] == 7:#spine
-                h, D = ConvCoeffAir_Corrugated(G, D);#for temporary, since the correlations is not available
-                #h, D = ConvCoeffAir_Spine(G, D);#empty now   
+                h = ConvCoeffAir_Corrugated(G, D);#for temporary, since the correlations is not available
+                #h = ConvCoeffAir_Spine(G, D);#empty now   
         except:
             h= 67.4
                      
@@ -101,29 +101,29 @@ def ConvCoeffAir_EVA(TPi,#air state
         else:
             D['ho'] = h;#67.4;
      
-        return h, P
+        return h
  
     else: #calculate the airside pressure drop 
         try:
             if D['airFin'] == 1:#plain 
-                f, D = FricAir_Plain(G, D);
+                f = FricAir_Plain(G, D);
             elif D['airFin'] == 2:#wavy plate
-                f, D = FricAir_Corrugated(G, D);
+                f = FricAir_Corrugated(G, D);
             elif D['airFin'] == 3:#slit
-                f, D = FricAir_Slit(G, D);
+                f = FricAir_Slit(G, D);
             elif D['airFin'] == 4:#louverd
-                f, D = FricAir_Louvered(G, D);
+                f = FricAir_Louvered(G, D);
             elif D['airFin'] == 5:#convex louvered
-                f, D = FricAir_ConvexLouvered(G, D);#empty now
+                f = FricAir_ConvexLouvered(G, D);#empty now
             elif D['airFin'] == 6:#smooth wavy
-                f, D = FricAir_SmoothWavy(G, D);
+                f = FricAir_SmoothWavy(G, D);
             elif D['airFin'] == 7:#spine
-                f, D = FricAir_Corrugated(G, D);#for temporary, since the correlations is not available
-                #f, D = FricAir_Spine(G, D);#empty now   
+                f = FricAir_Corrugated(G, D);#for temporary, since the correlations is not available
+                #f = FricAir_Spine(G, D);#empty now   
         except:
             f= 1e-10
             
-        return f, P
+        return f
 
 def ConvCoeffAir_CON(T,#air temperature
                      G,#air flux
@@ -164,49 +164,49 @@ def ConvCoeffAir_CON(T,#air temperature
     if (P['GetP']<1):#calculate the heat transfer
         try:
             if C['airFin'] == 1:#plain 
-                h, C = ConvCoeffAir_Plain(G, C);
+                h = ConvCoeffAir_Plain(G, C);
             elif C['airFin'] == 2:#wavy plate
-                h, C = ConvCoeffAir_Corrugated(G, C);
+                h = ConvCoeffAir_Corrugated(G, C);
             elif C['airFin'] == 3:#slit
-                h, C = ConvCoeffAir_Slit(G, C);
+                h = ConvCoeffAir_Slit(G, C);
             elif C['airFin'] == 4:#louverd
-                h, C = ConvCoeffAir_Louvered(G, C);
+                h = ConvCoeffAir_Louvered(G, C);
             elif C['airFin'] == 5:#convex louvered
-                h, C = ConvCoeffAir_ConvexLouvered(G, C);#empty now
+                h = ConvCoeffAir_ConvexLouvered(G, C);#empty now
             elif C['airFin'] == 6:#smooth wavy
-                h, C = ConvCoeffAir_SmoothWavy(G, C);
+                h = ConvCoeffAir_SmoothWavy(G, C);
             elif C['airFin'] == 7:#spine
-                h, C = ConvCoeffAir_Corrugated(G, C);#for temporary, since the correlations is not available
-                #h, C = ConvCoeffAir_Spine(G, C);#empty now   
+                h = ConvCoeffAir_Corrugated(G, C);#for temporary, since the correlations is not available
+                #h = ConvCoeffAir_Spine(G, C);#empty now   
         except:
             h= 86
                      
         C['ho'] = h;#86;
         C['wetadj'] = 1;#for output the calculation result
      
-        return h, P
+        return h
   
     else: #calculate the airside pressure drop 
         try:
             if C['airFin'] == 1:#plain 
-                f, C = FricAir_Plain(G, C);
+                f = FricAir_Plain(G, C);
             elif C['airFin'] == 2:#wavy plate
-                f, C = FricAir_Corrugated(G, C);
+                f = FricAir_Corrugated(G, C);
             elif C['airFin'] == 3:#slit
-                f, C = FricAir_Slit(G, C);
+                f = FricAir_Slit(G, C);
             elif C['airFin'] == 4:#louverd
-                f, C = FricAir_Louvered(G, C);
+                f = FricAir_Louvered(G, C);
             elif C['airFin'] == 5:#convex louvered
-                f, C = FricAir_ConvexLouvered(G, C);#empty now
+                f = FricAir_ConvexLouvered(G, C);#empty now
             elif C['airFin'] == 6:#smooth wavy
-                f, C = FricAir_SmoothWavy(G, C);
+                f = FricAir_SmoothWavy(G, C);
             elif C['airFin'] == 7:#spine
-                f, C = FricAir_Corrugated(G, C);#for temporary, since the correlations is not available
-                #f, C = FricAir_Spine(G, C);#empty now   
+                f = FricAir_Corrugated(G, C);#for temporary, since the correlations is not available
+                #f = FricAir_Spine(G, C);#empty now   
         except:
             f= 1e-10
             
-        return f, P
+        return f
 
 
 #===============================================================================
@@ -238,15 +238,15 @@ def ConvCoeffAir_Plain(G,#air flux
     T = P['T'];#air temperature
      
     # calc Prantl and Reynold number
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
     
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
-        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #wair.Cp(P->T,P->P); #[J/kg humid air/K]
+        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
     else: #during the conditions of condensation
-        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #air.Cp(T); #[J/kg dry air/K]
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P'])#[J/kg dry air/K]
     
-    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air.k(T);#air heat conductance [W/m/K]
+    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air heat conductivity [W/m/K]
     
     Pr = mu*cp/k;#prandtl number
     if (Pr<0.0):
@@ -276,7 +276,7 @@ def ConvCoeffAir_Plain(G,#air flux
         W5 = 0.551-2.63*(F_p/D)-0.012*N;
         P['wetadj']=0.968*pow(Re,W4)*pow((F_p/D),W5);
     
-    return h, P
+    return h
 
 def ConvCoeffAir_Corrugated(G,P):
     '''
@@ -318,7 +318,7 @@ def ConvCoeffAir_Corrugated(G,P):
     # calc Prantl and Reynold number
     
     # calc Prantl and Reynold number
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P'])#air viscosity [Pa-s]
     
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
@@ -355,7 +355,7 @@ def ConvCoeffAir_Corrugated(G,P):
         W5=0.0374-0.0018*log(Re)-0.00685*(D/F_p);
         P['wetadj']=0.794*pow(Re,W5)*pow((P_t/P_l),0.308)*pow((P_d/X_f),-0.119);
  
-    return h, P
+    return h
 
 def ConvCoeffAir_Slit(G,P):
     '''
@@ -388,11 +388,11 @@ def ConvCoeffAir_Slit(G,P):
     
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
-        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #wair.Cp(P->T,P->P); #[J/kg humid air/K]
+        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
     else: #during the conditions of condensation
-        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #air.Cp(T); #[J/kg dry air/K]
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #[J/kg dry air/K]
  
-    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air.k(T);#air heat conductance [W/m/K]
+    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) ;#air heat conductance [W/m/K]
      
     Pr = mu*cp/k;#prandtl number
     if (Pr<0.0):
@@ -404,7 +404,7 @@ def ConvCoeffAir_Slit(G,P):
          
  
     J_4=-0.535+0.017*P_t/P_l-0.0107*N;
-    J_5=0.4115+5.5756*pow(double(N)/(Re),0.5)*log(N/Re)+24.2028*pow(N/(Re),0.5);
+    J_5=0.4115+5.5756*pow(N/(Re),0.5)*log(N/Re)+24.2028*pow(N/(Re),0.5);
     J_6=0.2646+1.0491*(S_s/S_h)*log(S_s/S_h)-0.216*pow((S_s/S_h),3.0);
     J_7=0.3749+0.0046*pow(Re,0.5)*log(Re)-0.0433*pow(Re,0.5);
  
@@ -424,7 +424,7 @@ def ConvCoeffAir_Slit(G,P):
         W5=-0.143+0.013*log(Re)+0.166*(F_p/D);
         P['wetadj']= 0.937*pow(Re,W5)*pow((S_s/S_h),0.1344)*pow(N,0.0657);
  
-    return h, P
+    return h
 
 def ConvCoeffAir_Louvered(G,P):
     '''
@@ -453,15 +453,15 @@ def ConvCoeffAir_Louvered(G,P):
     L_p=2.4*0.001;#major louver pitch
  
     # calc Prantl and Reynold number
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
     
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
-        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #wair.Cp(P->T,P->P); #[J/kg humid air/K]
+        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
     else: #during the conditions of condensation
-        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #air.Cp(T); #[J/kg dry air/K]
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P'])#[J/kg dry air/K]
  
-    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air.k(T);#air heat conductance [W/m/K]
+    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P'])#air heat conductance [W/m/K]
      
     Pr = mu*cp/k;#prandtl number
     if (Pr<0.0):
@@ -494,7 +494,7 @@ def ConvCoeffAir_Louvered(G,P):
         W5=0.303-0.726*(L_h/L_p)+0.041*(L_p/F_p);
         P['wetadj'] = 0.263*pow(Re,W4)*pow((L_h/L_p),W5)*pow((F_p/D),-0.72)*pow((P_t/P_l),1.11)*pow((L_p/F_p),-0.742);
  
-    return h, P
+    return h
 
 def ConvCoeffAir_ConvexLouvered(G,P):
     '''
@@ -521,15 +521,15 @@ def ConvCoeffAir_ConvexLouvered(G,P):
     F_s=F_p-th;
     
     # calc Prantl and Reynold number
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
     
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
-        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #wair.Cp(P->T,P->P); #[J/kg humid air/K]
+        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
     else: #during the conditions of condensation
-        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #air.Cp(T); #[J/kg dry air/K]
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #[J/kg dry air/K]
  
-    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air.k(T);#air heat conductance [W/m/K]
+    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air heat conductance [W/m/K]
      
     Pr = mu*cp/k;#prandtl number
     if (Pr<0.0):
@@ -553,7 +553,7 @@ def ConvCoeffAir_ConvexLouvered(G,P):
         P['wetadj']=0.968*pow(Re,W4)*pow((F_p/D),W5);
    
  
-    return h, P
+    return h
 
 def ConvCoeffAir_SmoothWavy(G,P):
     '''
@@ -580,15 +580,15 @@ def ConvCoeffAir_SmoothWavy(G,P):
     F_s=F_p-th;
     
     # calc Prantl and Reynold number
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
     
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
-        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #wair.Cp(P->T,P->P); #[J/kg humid air/K]
+        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P'])#[J/kg humid air/K]
     else: #during the conditions of condensation
-        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #air.Cp(T); #[J/kg dry air/K]
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P'])#[J/kg dry air/K]
  
-    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air.k(T);#air heat conductance [W/m/K]
+    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air heat conductance [W/m/K]
      
     Pr = mu*cp/k;#prandtl number
     if (Pr<0.0):
@@ -609,7 +609,7 @@ def ConvCoeffAir_SmoothWavy(G,P):
       
     P['wetadj']=1.0;
      
-    return h, P
+    return h
 
 
 def ConvCoeffAir_Spine(G,P):
@@ -632,15 +632,15 @@ def Circuit_DP_EVAP(Ga,TPi,TPo,P):
 
     P['GetP'] =1;#set the request for calculating the friction factor.
     
-    rho1 = 1/HAPropsSI('Vda','T',TPi['T'],'P',101325,'R',TPi['P']) #air.v(TPi.T)#inlet air density
+    rho1 = 1/HAPropsSI('Vda','T',TPi['T'],'P',101325,'R',TPi['P']) #inlet air density
     
-    rho2 = 1/HAPropsSI('Vda','T',TPo['T'],'P',101325,'R',TPo['P']) #air.v(TPo.T);#outlet air density
+    rho2 = 1/HAPropsSI('Vda','T',TPo['T'],'P',101325,'R',TPo['P']) #outlet air density
     
     rho_m=(rho1+rho2)/2;#mean air density
     
-    f, P = ConvCoeffAir_EVA(TPi, Ga, P);#calculate the friction factor
+    f = ConvCoeffAir_EVA(TPi, Ga, P);#calculate the friction factor
     
-    mu = HAPropsSI('mu','T',TPi['T'],'P',101325,'R',TPi['P']) #air.mu(TPi.T);#air viscosity
+    mu = HAPropsSI('mu','T',TPi['T'],'P',101325,'R',TPi['P']) #air viscosity
     
     Re = Ga*P['Do']/mu;#Reynolds number based on tube outside diameter
     if (Re<0.0):
@@ -666,15 +666,15 @@ def Circuit_DP_COND(Ga,Tai,Tao,P):
     
     P['GetP'] =1;#set the request for calculating the friction factor.
     
-    rho1 = 1/HAPropsSI('Vda','T',Tai['T'],'P',101325,'R',Tai['P']) #air.v(Tai.T)#inlet air density
+    rho1 = 1/HAPropsSI('Vda','T',Tai['T'],'P',101325,'R',Tai['P']) #inlet air density
     
-    rho2 = 1/HAPropsSI('Vda','T',Tao['T'],'P',101325,'R',Tao['P']) #air.v(Tao.T);#outlet air density
+    rho2 = 1/HAPropsSI('Vda','T',Tao['T'],'P',101325,'R',Tao['P']) #outlet air density
     
     rho_m=(rho1+rho2)/2;#mean air density
     
-    f, P = ConvCoeffAir_CON(Tai, Ga, P);#calculate the friction factor
+    f = ConvCoeffAir_CON(Tai, Ga, P);#calculate the friction factor
     
-    mu = HAPropsSI('mu','T',Tai['T'],'P',101325,'R',Tai['P']) #air.mu(TPi.T);#air viscosity
+    mu = HAPropsSI('mu','T',Tai['T'],'P',101325,'R',Tai['P']) #air viscosity
     
     Re = Ga*P['Do']/mu;#Reynolds number based on tube outside diameter
     if (Re<0.0):
@@ -715,7 +715,7 @@ def FricAir_Plain(G,#air flux
     F_s=F_p-th;#fin space
     T = P['T'];#air temperature
     
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
             
     Re = G*D/mu;#Reynold's number based on the collar diameter
     if (Re<0.0):
@@ -729,7 +729,7 @@ def FricAir_Plain(G,#air flux
     #airside heat transfer coefficient
     f = 0.0267*pow(Re,F1)*pow(P_t/P_l, F2)*pow(F_p/D,F3);
  
-    return f, P
+    return f
 
 
 def FricAir_Corrugated(G,P):
@@ -764,7 +764,7 @@ def FricAir_Corrugated(G,P):
     #beta=3.1415926*pow(D,2.0)/(4*P_l*P_t);#possible method for calculating hydraulic diameter for wavy fin, but not used here
     #D_h=2*F_p*(1-beta)/((1-beta)*sec_angle+2*F_p*beta/D);
     
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
             
     Re = G*D/mu;#Reynold's number based on the collar diameter
     if (Re<0.0):
@@ -784,7 +784,7 @@ def FricAir_Corrugated(G,P):
         f3 = -10.2192/(log(Re));
         f = 0.05273*pow(Re,f1)*pow(P_d/X_f, f2)*pow(F_p/P_t,f3)*pow(log(Coe_fin),-2.726)*pow(P['Dh']/D,0.1325)*pow(N,0.02305);
  
-    return f, P
+    return f
 
 
 def FricAir_Slit(G,P):
@@ -810,7 +810,7 @@ def FricAir_Slit(G,P):
     S_w=11*0.001;#width of slit
     S_n=4;#number of slits in an enhanced zone
      
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
             
     Re = G*D/mu;#Reynold's number based on the collar diameter
     if (Re<0.0):
@@ -829,8 +829,7 @@ def FricAir_Slit(G,P):
      
     f = 1.201*pow(Re,f1)*pow(F_s/D,f2)*pow(P_t/P_l,f3)*pow(S_s/S_h,f4)*pow(N,f5)*pow(S_n,f6);
  
-    return f, P
-
+    return f
 
 def FricAir_Louvered(G,P):
     '''
@@ -856,7 +855,7 @@ def FricAir_Louvered(G,P):
     L_p=2.4*0.001;#major louver pitch
  
      
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
             
     Re = G*D/mu;#Reynold's number based on the collar diameter
     if (Re<0.0):
@@ -879,7 +878,7 @@ def FricAir_Louvered(G,P):
         F4 = 6.4668*pow(F_p/P_t,1.7)*log(Coe_fin);
         f = 0.00317*pow(Re,F1)*pow(F_p/P_l,F2)*pow(P['Dh']/D,F3)*pow(L_h/L_p,F4)*pow(log(Coe_fin), -6.0483);
  
-    return f, P
+    return f
 
 
 def FricAir_ConvexLouvered(G,P):
@@ -903,7 +902,7 @@ def FricAir_ConvexLouvered(G,P):
     F_s=F_p-th;#fin space
     T = P['T'];#air temperature
  
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
             
     Re = G*D/mu;#Reynold's number based on the collar diameter
     if (Re<0.0):
@@ -943,7 +942,7 @@ def FricAir_SmoothWavy(G,P):
     T = P['T'];#air temperature
     wh = 2.38e-3;#typical geometry from the paper, with respect to first three coils in the paper
      
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
             
     Re = G*D/mu;#Reynold's number based on the collar diameter
     if (Re<0.0):
@@ -952,12 +951,12 @@ def FricAir_SmoothWavy(G,P):
  
     f = 8.64/pow(Re,0.457)*pow(2*F_s/wh,0.473)*pow(N*P_l/wh,-0.545);
      
-    if (P['P']>0.4):#wet condition
+    if (P['P']>0.4):#wet condition (air humidity ratio > 0.4)
         f = 2.71/pow(Re,0.737) +f;
     else: #dry condition
         f = f;
  
-    return f, P
+    return f
 
 
 def FricAir_Spine(G,P):
@@ -1001,9 +1000,9 @@ def ConvCoeffSP(TXP,G,P, Ref):
     D['Dh_i'] = P['Dh_i'];#inside hydraulical diameter 
     D['Ax'] = P['Ax'];# Inside pipe cross sectional area, based on fin tips
     D['Api'] =P['Api'];# Inside pipe surface area (one tube segment), based on fin tips
-    h_sp, D = ConvCoeffSP_Microfin(TXP,G,D, Ref);
+    h_sp = ConvCoeffSP_Microfin(TXP,G,D, Ref);
 
-    return h_sp, P
+    return h_sp
 
 #The following function is the same as the previous, therefroe it is commented out
 # def ConvCoeffSP(TXP TXP,double G,CGP* P):
@@ -1067,7 +1066,7 @@ def ConvCoeffSP_Microfin(TXP,#refrigerant state
         G=G*pow(d_top/d_bottom,2.0);
         h=ConvCoeffSP_Smooth(TXP,G,d_bottom, Ref)
         h=h*d_bottom/d_top;
-        return h, P
+        return h
  
     Pr = mu*Cp/k;
     G_adj=G*pow(d_top/d_m,2.0);#the author mentioned the mean diamter was used to calculate the flow cross-sectional area
@@ -1086,7 +1085,7 @@ def ConvCoeffSP_Microfin(TXP,#refrigerant state
     h=c*pow(Re,a)*pow(Pr,0.4)*k/(d_bottom);
     h=d_bottom/d_top*h;#normalized the heat transfer coefficient to the inner surface area at the fin tip
      
-    return h, P
+    return h
 
 
 def ConvCoeffSP_Smooth(TXP,G,D, Ref):
@@ -1538,7 +1537,7 @@ def ConvCoeffEvapTP_microfin(TXPm,#refrigerant state
  
     if (not P['microfin']):#smooth tube
         h_smooth = ConvCoeffEvapTP_Smooth(TXPm,G,Di,q, Ref)
-        return h_smooth, P 
+        return h_smooth
      
     gama =P['gama'] ;#apex angle of the fin
     e = P['finH'];#fin height
@@ -1656,7 +1655,7 @@ def ConvCoeffEvapTP_microfin(TXPm,#refrigerant state
         h=1.0/(1.0/h+Corr_FlowBoiling/h_vaporphase);#correct the overall flow boiling coefficient
 
  
-    return h, P
+    return h
 
 
 def ConvCoeffEvapTP_Smooth(TXPm,#refrigerant state
@@ -1675,7 +1674,7 @@ def ConvCoeffEvapTP_Smooth(TXPm,#refrigerant state
  
     Ev = FlowPattern()
     Ev['JudgPattern']=0;
-    Ev = Eva_FlowPattern(TXPm,G,D,q,Ev, Ref);
+    Eva_FlowPattern(TXPm,G,D,q,Ev, Ref);
     
     h = Ev['h_tp'];
 
@@ -1814,7 +1813,7 @@ def Eva_FlowPattern(TXPm,#refrigerant state
         Ev['theta_dry']=0;
 
     if (Ev['JudgPattern']):
-        return Ev
+        return 0
 
     delta=pi*d*(1.0-epsilon)/(2.0*(2.0*pi-Ev['theta_dry']));#equivalent liquid thickness
     Re_v=G*x*d/(epsilon*mu_v);#vapor Reynolds number, based on the void fraction, for calculating flow boiling coefficent
@@ -1843,7 +1842,7 @@ def Eva_FlowPattern(TXPm,#refrigerant state
         Ev['h_tp']=1.0/(1.0/Ev['h_tp']+Corr_FlowBoiling/h_vaporphase);#correct the overall flow boiling coefficient
 
 
-    return Ev
+    return 0
 
 
 def Cond_FlowPattern(TXPm,#refrigerant state
@@ -1893,7 +1892,7 @@ def Cond_FlowPattern(TXPm,#refrigerant state
     Pr_l=mu_l/(k_l/Cp_l);#saturated liquid Prontal number
     h_LV= hv-hl;#latent heat
 
-    delta_T = Tsat_g-Tsat_l;#reftpvthP.Tsat(TXPm.P)-reftplthP.Tsat(TXPm.P);#temperature glide of the refrigerant, used for zeotropic refrigerant
+    delta_T = Tsat_g-Tsat_l; #temperature glide of the refrigerant, used for zeotropic refrigerant
     
     A=pi/4.0*d*d;#inside cross-sectional area
 
@@ -1978,7 +1977,7 @@ def Cond_FlowPattern(TXPm,#refrigerant state
         Cd['theta_dry']=0;
 
     if (Cd['JudgPattern']):
-        return Cd
+        return 0
 
     Cd['delta']=(d-pow((pow(d,2.0)-A_L*8/(2*pi-Cd['theta_dry'])),0.5))/2.0;
     
@@ -1995,7 +1994,7 @@ def Cond_FlowPattern(TXPm,#refrigerant state
     h_f=0.655*pow((rho_l*(rho_l-rho_v)*9.8*h_LV*pow(k_l,3.0)/(mu_l*d*q)),1.0/3.0);
     Cd['h_tp']=(h_f*Cd['theta_dry']+(2*pi-Cd['theta_dry'])*h_c)/(2*pi);
     
-    return Cd
+    return 0
 
 
 def theta_ev(theta_strat, Params=None):
@@ -2009,7 +2008,7 @@ def theta_ev(theta_strat, Params=None):
         theta_strat_ev = {'A_Ld': 0.0}#dictionary variable for getting the stratified angle in Kattan-Thome flow map by iteration
         theta = theta_strat_ev
     else:
-        theta = Params 
+        theta = Params.copy() 
         
     A_Ld1=1.0/8.0*((2.0*pi-theta_strat)-sin(2.0*pi-theta_strat));#dimensionless liquid cross-sectional area at the given stratified angle
     residual = A_Ld1-theta['A_Ld'];#deviation between the dimensionless liquid cross-sectional area at the given stratified angle and the real dimensionless liquid cross-sectional area
@@ -2098,23 +2097,23 @@ def FricDP(TXPi, #refrigerant state
     D['Api'] = P['Api'];# Inside pipe surface area (one tube segment), based on fin tips
      
     if(TXPi['X']>=1.0 or TXPi['X']<=0):
-        y, D = FricDPSP_Microfin(TXPi,Gr,D, Ref);
+        y = FricDPSP_Microfin(TXPi,Gr,D, Ref);
     elif(TXPi['X']<X1):
         TXP1=toTXP(TXPi['T'],0,TXPi['P']);
         TXP2=toTXP(TXPi['T'],X1,TXPi['P']);
-        y1, D = FricDPSP_Microfin(TXP1,Gr,D, Ref);
-        y2, D = FricDPTP_Microfin(TXP2,Gr,q,D, Ref);
+        y1 = FricDPSP_Microfin(TXP1,Gr,D, Ref);
+        y2 = FricDPTP_Microfin(TXP2,Gr,q,D, Ref);
         y=y1+TXPi['X']*(y2-y1)/X1;
     elif(TXPi['X']>X2):
         TXP1=toTXP(TXPi['T'],X2,TXPi['P']);
         TXP2=toTXP(TXPi['T'],1,TXPi['P']);
-        y1, D = FricDPTP_Microfin(TXP1,Gr,q,D, Ref);
-        y2, D = FricDPSP_Microfin(TXP2,Gr,D, Ref);
+        y1 = FricDPTP_Microfin(TXP1,Gr,q,D, Ref);
+        y2 = FricDPSP_Microfin(TXP2,Gr,D, Ref);
         y=y2-(1-TXPi['X'])*(y2-y1)/(1-X2);
     else:
-        y, D = FricDPTP_Microfin(TXPi,Gr,q,D, Ref);
+        y = FricDPTP_Microfin(TXPi,Gr,q,D, Ref);
      
-    return y, P
+    return y
 
 #The following function is the same as the previous, therefroe it is commented out
 # def FricDP(TXP TXPi, #refrigerant state
@@ -2209,7 +2208,7 @@ def FricDPTP_Microfin(TXPi,#refrigerant state
     SV=1e0/DL+TXPi['X']*(1e0/DV-1e0/DL);#two-phase specific volume
     DP_FR=SV*pow(Gr,2e0)*2e0*F*L_T/(D_H) #[Pa]
     
-    return DP_FR, P
+    return DP_FR
 
 
 #===============================================================================
@@ -2234,7 +2233,7 @@ def FricDPSP_Microfin(TXP_loc,#refrigerant state
  
     if (P['Microfin']<1):#smooth tube
         DP_Smooth = FricDPSP_Smooth(TXP_loc,Gr,2*R_I,L_T, Ref)
-        return DP_Smooth, P
+        return DP_Smooth
      
     #liquid refrigerant properties
     TXP_prop['P']=TXP_loc['P'];
@@ -2265,7 +2264,7 @@ def FricDPSP_Microfin(TXP_loc,#refrigerant state
  
     DP_SP=pow(Gr,2e0)*F*L_T/R_I/Density #[Pa]
      
-    return DP_SP, P
+    return DP_SP
 
 
 def FricDPSP_Smooth(TXP_loc,#refrigerant state
