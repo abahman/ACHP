@@ -1,6 +1,9 @@
 from __future__ import division, print_function, absolute_import
 from math import pi,log,sqrt,exp,cos,sin,tan,log10
 
+from scipy.optimize import brentq, minimize #solver to find roots (zero points) of functions
+import numpy as np
+
 from CoolProp.HumidAirProp import HAPropsSI
 from CoolProp.CoolProp import PropsSI
 
@@ -244,18 +247,20 @@ def HPtoTXP(HP,Ref):
     hv = PropsSI('H','P',HP['P'],'Q',1,Ref)
     Tl = PropsSI('T','P',HP['P'],'Q',0,Ref)
     Tv = PropsSI('T','P',HP['P'],'Q',1,Ref)
-    
-    if (HP['H']>=hv):#superheated
+    print
+    if (HP['H']>hv):#superheated
         TXP['X']=1;
         TXP['T'] = PropsSI('T','P',HP['P'],'H',HP['H'],Ref)
-    elif (HP['H']<=hl):#subcooled
+    elif (HP['H']<hl):#subcooled
         TXP['X']=0;
         TXP['T'] = PropsSI('T','P',HP['P'],'H',HP['H'],Ref) 
     else: #two-phase
-        TXP['X'] = PropsSI('Q','P',HP['P'],'H',HP['H'],Ref)
-        TXP['T'] = PropsSI('T','P',HP['P'],'H',HP['H'],Ref)
-        #TXP['X'] = (HP['H']-hl)/(hv-hl)
-        #TXP['T'] = Tl + TXP['X']*(Tv-Tl) #use waieghted averaged to determin
+        try:
+            TXP['X'] = PropsSI('Q','P',HP['P'],'H',HP['H'],Ref)
+            TXP['T'] = PropsSI('T','P',HP['P'],'H',HP['H'],Ref)
+        except:
+            TXP['X'] = (HP['H']-hl)/(hv-hl)
+            TXP['T'] = Tl + TXP['X']*(Tv-Tl)
     
     return TXP
 
@@ -279,11 +284,35 @@ def HPtoTP(H,P):
     ********************************************************************/
     '''
     TP = {'T':0.0,'P':0.0}
+    HP = {'H':0.0,'P':0.0}
     
-    TP['T'] = HAPropsSI('T','P',101325,'Hha',H,'R',P) #[K]
+    HP['H']=H; HP['P']=P
+    
+    TMIN = -20+273.15 #lower bound [K]
+    TMAX = 50+273.15 #upper bound [K]
+    
+    #TP['T'] = brentq(HPFunc,TMIN,TMAX,args=(HP),xtol=1e-7,rtol=6e-8,maxiter=40)
+    TP['T'] = HAPropsSI('T','P',101325,'H',H,'R',P) #[K]
     TP['P'] = P;
 
     return TP
+
+def HPFunc(T,Params):
+    '''
+    /********************************************************************
+    Used by {\it HPtoTP} to convert thermodynamic state representations.
+    ********************************************************************/
+    '''
+    
+    P = Params;
+    H = HAPropsSI('Hha','P',101325,'T',T,'R',P['P'])
+
+    Ref=P['H']; #B.S.
+    if(abs(Ref)<1e4):
+        Ref=1e4; #B.S.
+    
+    return (H-P['H'])/Ref #B.S.
+
 
 def WPtoTP(W,P):
     '''
@@ -296,11 +325,31 @@ def WPtoTP(W,P):
     '''
 
     TP = {'T':0.0,'P':0.0}
+    WP = {'W':0.0,'P':0.0}
     
+    WP['W']=W; WP['P']=P
+    
+    TMIN = -20+273.15 #lower bound [K]
+    TMAX = 50+273.15 #upper bound [K]
+    
+    #TP['T'] = brentq(WPFunc,TMIN,TMAX,args=(WP),xtol=1e-7,rtol=6e-8,maxiter=40)
     TP['T'] = HAPropsSI('T','P',101325,'W',W,'R',P) #[K]
     TP['P'] = P;
 
     return TP
+
+def WPFunc(T,Params):
+    '''
+    /********************************************************************
+    Used by {WPtoTP} to convert thermodynamic state representations.
+    ********************************************************************/
+    '''
+    P = Params
+
+    W = HAPropsSI('W','P',101325,'T',T,'R',P['P'])
+
+    return (W-P['W'])/P['W'];
+
 
 def THtoTP(T,H):
     '''
@@ -312,11 +361,206 @@ def THtoTP(T,H):
     '''
 
     TP = {'T':0.0,'P':0.0}
+    TH = {'T':0.0,'H':0.0}
     
-    TP['P'] = HAPropsSI('R','P',101325,'T',T,'Hha',H) #[-]
+    TH['T'] = T; TH['H'] = H 
+    
+    #TP['P'] = brentq(THFunc,0.05,1.0,args=(TH),xtol=1e-7,rtol=6e-8,maxiter=40)
+    TP['P'] = HAPropsSI('R','P',101325,'T',T,'H',H) #[-]
     TP['T'] = T;
 
     return TP
+
+def THFunc(P,Params):
+    '''
+    /********************************************************************
+    Used by {\it THtoTP} to convert thermodynamic state representations.
+    ********************************************************************/
+    '''
+    Q = Params;
+
+    H = HAPropsSI('Hha','P',101325,'T',Q['T'],'R',P)
+
+    Ref=Q['H']; #B.S.
+    if(abs(Ref)<1e4):
+        Ref=1e4;#B.S.
+    
+    return (H-Q['H'])/Ref #B.S.
+
+
+def WHtoTP(WH,TPi):
+    '''
+    /********************************************************************
+    Converts format of thermodynamic state representation for moist
+    air from humidity ratio (W) and enthalpy (H) to the standard format
+    for ACMODEL: temperature (T) and relative humidity (P).
+    ********************************************************************/
+    '''
+    TPo = {'T':0.0,'P':0.0}
+    WHo = {'W':WH['W'],'H':WH['H']}
+    
+    #initial guess
+    X = (TPi['P'], TPi['T'])
+    #X[0]=TPi['P'],;
+    #X[1]=TPi['T'];
+    try:
+        #CE = FindZero2DConst(X,WHFunc,WHFuncConst,1e-6,WHo);
+        #bnds = ((0.05, 1.0), (-20+273.15, 50+273.15))
+        #cons = {'type':'ineq', 'fun':WHFuncConst}
+        #res = minimize(WHFunc, X, args=(WHo), method='SLSQP', constraints=cons, options={'eps': 1.4901161193847656e-08, 'maxiter': 100, 'ftol': 1e-06})
+        #TPo['P']=res.X[0]#HAPropsSI('R','P',101325,'W',WHo['W'],'H',WHo['H'])
+        #TPo['T']=res.X[1]#HAPropsSI('T','P',101325,'W',WHo['W'],'H',WHo['H'])
+        TPo ={'P': HAPropsSI('R','P',101325,'W',WHo['W'],'H',WHo['H']), 'T':HAPropsSI('T','P',101325,'W',WHo['W'],'H',WHo['H'])}
+    except:
+        print ("Error in WHtoTP() conversion TPo= {}".format(TPo['T'],TPo['P']))
+        if(TPo['P']>0.995):
+            TPo = HPtoTP(WH['H'],0.995)
+
+    return TPo
+
+def WHFunc(X,Params):
+    '''
+    /********************************************************************
+    Used by {WHtoTP} to convert thermodynamic state representations.
+    ********************************************************************/
+    '''
+    P = Params;
+
+    W = HAPropsSI('W','P',101325,'T',X[1],'R',X[0]) #wair.HumidityRatio(X[1],X[0]);
+    H = HAPropsSI('H','P',101325,'T',X[1],'R',X[0]) #wair.h(X[1],X[0]);
+    
+    F = np.zeros(2)
+    F[0]=(W-P['W'])/P['W'];
+    Ref=P['H']; #B.S.
+    if(abs(Ref)<1e4):
+        Ref=1e4; #B.S.
+    F[1]=(H-P['H'])/Ref;#B.S.
+
+    return np.dot(F,F)#0
+
+def WHFuncConst(X):
+    '''
+    /********************************************************************
+    Tests constraint on relative humidity when solving WHFunc.
+    Returns 1 if constraint is violated.
+    ********************************************************************/
+    '''
+     
+    TWAIRMAX = 50+273.15 #upper bound [K]
+    TWAIRMIN = -20+273.15 #lower bound [K]
+    
+    F = np.zeros(4)
+    F[0] = X[0]-1
+    F[1] = 0.05-X[0]
+    F[2] = X[1]-TWAIRMAX
+    F[3] = TWAIRMIN-X[1]
+
+    return F
+
+
+# def FindZero2DConst(Xg,F,G,tol,P):
+#     '''
+#     /********************************************************************
+#     Solves to simultaneous equations using Newton-Raphson method, 
+#     but in addition it forces the solution to remain within a feasible
+#     space defined by a constrain function.  For example, this can be used
+#     to avoid regions where the function is not defined.
+#     ********************************************************************/
+#     '''
+#     ConvError = 0.0;
+#     X = [[0 for y in range(2)] for x in range(3)];
+#     Y = [[0 for y in range(2)] for x in range(3)];
+#     X0 = [0, 0];
+#     dx=[0, 0]; 
+#     a = [[0 for y in range(2)] for x in range(2)];
+#     c = [0,0];
+#     b=1e-4 ;
+#     n=2;
+#     Imax=200;
+#     #int i,j,k,Z;
+# 
+#     for i in range(n): X[0][i]=Xg[i];
+# 
+#     F(X[0],Y[0],P);
+#     
+# 
+#     while (i <= Imax):
+#         # Function evaluations.
+#         for j in range(n):
+#             for k in range(n): X[j][k]=X[0][k] ;
+#             dx[j-1]=b*abs(X[0][j-1]); X[j][j-1]+=dx[j-1] ;
+#             # Test for constraint violation.
+#             # If so, then move the other way.
+#             if(G(X[j],Y[j],P)): 
+#                 for k in range(n): X[j][k]=X[0][k] ;
+#                 dx[j-1]=-b*abs(X[0][j-1]); X[j][j-1]+=dx[j-1] ;
+#             
+# 
+#             F(X[j],Y[j],P);
+# 
+#             Z=0; 
+#             for k in range(n): 
+#                 if(Y[j][k]==Y[0][k]): Z=k+1;
+#             while(Z):
+#                 dx[j-1]*=2;
+#                 if(abs(dx[j-1]/X[0][j-1])>0.05):
+#                     for k in range(n): 
+#                         if(Y[j][k]==Y[0][k]): Y[j][k]=Y[0][k]+1e-20;
+#                     Z=0;
+#                 else:
+#                     X[j][j-1]=X[0][j-1]+dx[j-1];
+#                     F(X[j],Y[j],P);
+#                     Z=0; 
+#                     for k in range(n): 
+#                         if(Y[j][k]==Y[0][k]): Z=k+1;
+#                 
+#                 
+#             
+#         
+# 
+#         # Calculate partial derivatives.
+#         for j in range(n):
+#             c[j]=Y[0][j] ;
+#             for k in range(n):
+#                 a[j][k]=(Y[k+1][j]-Y[0][j])/dx[k] ;
+#                 c[j]-=a[j][k]*X[0][k];
+#             
+# 
+# 
+#         # Solve for new X using 1st order Taylor series approx.
+#         X0[0]=X[0][0]; X0[1]=X[0][1];
+#         X[0][1]=-(c[0]-a[0][0]/a[1][0]*c[1])/(a[0][1]-a[0][0]/a[1][0]*a[1][1]) ;
+#         X[0][0]=-(a[0][1]*X[0][1]+c[0])/a[0][0] ;
+# 
+#         # Test for constraint violation.
+#         Z=0 ;
+#         while(G(X[0],Y[0],P)):
+#             
+#             Z+=1 ;
+#             if(Z>10):
+#                 #print("FindZero2DConst","Can not find feasible space");
+#                 for i in range(n): Xg[i]=X[0][i];
+#                 
+#             X[0][0]=X[0][0]-(X[0][0]-X0[0])/2;
+#             X[0][1]=X[0][1]-(X[0][1]-X0[1])/2;
+#         
+# 
+#         # Evaluate new X.
+#         F(X[0],Y[0],P);
+#         ConvError=sqrt(Y[0][0]*Y[0][0]+Y[0][1]*Y[0][1]);
+#         
+#         if(ConvError<=tol): break;
+#     
+#         i+=1
+#     
+#     if(i>Imax): 
+#         #print("FindZero2DConst","Max iteration error");
+#         for i in range(n): Xg[i]=X[0][i];
+# 
+#     
+#     for i in range(n): Xg[i]=X[0][i];
+# 
+#     return ConvError
 
 def PropertyTXPth(prop,TXP,Ref):
     '''
@@ -356,12 +600,12 @@ def PropertyTXPth(prop,TXP,Ref):
             a = PropsSI(prop,'P',TXP['P'],'Q',0,Ref)
     
     else: #two-phase
-#         if (prop == 'T'): 
-#             al = PropsSI(prop,'P',TXP['P'],'Q',0,Ref)
-#             av = PropsSI(prop,'P',TXP['P'],'Q',1,Ref)
-#             a = al + TXP['X']*(av-al);
-#         else:
-        a = PropsSI(prop,'P',TXP['P'],'Q',TXP['X'],Ref)
+        if(TXP['P']<4600000 and TXP['P']>150000):
+            a = PropsSI(prop,'P',TXP['P'],'Q',TXP['X'],Ref)
+        else:
+            al = PropsSI(prop,'P',TXP['P'],'Q',0,Ref)
+            av = PropsSI(prop,'P',TXP['P'],'Q',1,Ref)
+            a = al + TXP['X']*(av-al);
 
     return a
 
@@ -400,13 +644,15 @@ def PropertyTXPtr(prop,TXP,Ref):
             a = PropsSI(prop,'P',TXP['P'],'Q',0,Ref)
         
     else: #two-phase
-        a = PropsSI(prop,'P',TXP['P'],'Q',TXP['X'],Ref)
-        
-        #(commented) No need to average since PropsSI can find the property with given quality value
-        #al = PropsSI(prop,'P',TXP['P'],'Q',0,Ref)
-        #av = PropsSI(prop,'P',TXP['P'],'Q',1,Ref)
-        #a = al + TXP['X']*(av-al);
-           
+        if (prop=='I'):
+            if (TXP['P']<4600000):
+                a = PropsSI(prop,'P',TXP['P'],'Q',TXP['X'],Ref)
+            else:
+                al = PropsSI(prop,'P',TXP['P'],'Q',0,Ref)
+                av = PropsSI(prop,'P',TXP['P'],'Q',1,Ref)
+                a = al + TXP['X']*(av-al);
+        else: #B.S only the surface tension can be checked in two-phase state
+            print('PropertyTXPtr :: only the surface tension can be checked in two-phase state')   
     return a
 
 if __name__=='__main__':

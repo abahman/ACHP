@@ -10,7 +10,7 @@ from CoolProp.HumidAirProp import HAPropsSI
 
 from ACHP.convert_units import *
 
-from extra_functions import HPtoTXP, TXPtoHP, PropertyTXPth, EVA_Get_Q_dic, toTXP, PreAcc, ETdim, HPtoTP, WPtoTP, THtoTP, EvapNode, EvapBranch, TubeEvap, TubEvpSeg
+from extra_functions import HPtoTXP, TXPtoHP, PropertyTXPth, EVA_Get_Q_dic, toTXP, PreAcc, ETdim, HPtoTP, WPtoTP, THtoTP, WHtoTP, EvapNode, EvapBranch, TubeEvap, TubEvpSeg
 from PRESSURE import dPelbow, dPmom, GET_PreAcc
 from VOLUME import VolumeALL
 from CORR import Circuit_DP_EVAP, ConvCoeffAir_EVA, FinEffect_Schmidt, ConvCoeffSP, FricDP, ConvCoeffEvapTP_microfin
@@ -202,23 +202,23 @@ def EvapTubeL_Rev(Gr,#refrigerant mass flux
                 print("EVAP::EvapTubeL_Rev (brentq) TXPo['T']={:f}, h_max={:f}, h_min={:f}".format(TXPo['T'],hi_max,hi_min));
 
             #B.S., get the heat transfer coefficient at the two-phase region
-            y1 = hi/P['hRefAdj'];#ConvCoeffEvapTP_microfin(TXP1,Gr,P);#B.S. get two-phase heat transfer coefficient at this region    
+            y1 = hi/P['hRefAdj'];#ConvCoeffEvapTP_microfin(TXP1,Gr,P);#B.S. get two-phase heat transfer coefficient at this region   
             y2 = ConvCoeffSP(TXP2,Gr,P, Ref);#B.S., single-phase heat transfer coefficient
             if (y2>y1):
                 y2=y1; #B.S., for making the single phase flow less than two phase
             y = y2-(1-TXPo['X'])*(y2-y1)/(1-X2);#B.S., get the heat transfer coefficient in this region with intropolation
  
- 
+        
         hi = P['hRefAdj']*y;#B.S., heat transfer coefficient at this region
         Ri = 1/(hi*P['Api']);#B.S., inside thermal resistance
         R_W=log(P['Do']/(P['Do']-2.0*P['xp']))/(2.0*pi*P['K_T']*P['Ls']);
         R = P['Ro']+R_W+Ri;#overall thermal resistance
-     
+        
         #B.S., prepare the parameters for iteration
         EVA_Get_Q['TXPo'] = TXPo.copy();
         EVA_Get_Q['Cmin'] = CmineCrossFlow_dry(R,mr,ma,TXPo,TPi, Ref);
         EVA_Get_Q['HPo'] = HPo.copy();
- 
+        
         try:
             if(0): #(TXPo.T<T_sat+1)
                 # TXPo.T is actually the outlet refrigerant temperature
@@ -229,12 +229,12 @@ def EvapTubeL_Rev(Gr,#refrigerant mass flux
                 H_max=HPo['H'];
                 H_min=HPo['H']-4e4;
                 EVA_Get_Q['hi']=hi;#input the refrigerant side heat transfer coefficient
-                NN = brentq(Get_Q_Single,H_max,H_min,args=(Ref,EVA_Get_Q),xtol=1e-5,rtol=6e-8,maxiter=40)#B.S., to calculate the single-phase heat transfer and pressure drop at this region
+                NN = brentq(Get_Q_Single,H_max,H_min,args=(Ref,EVA_Get_Q),xtol=1e-7,rtol=6e-8,maxiter=40)#B.S., to calculate the single-phase heat transfer and pressure drop at this region
                 q=EVA_Get_Q['q'];
         except:
-            q = (TPi['T']-TXPo['T'])/mr*CmineCrossFlow_dry(R,mr,ma,TXPo,TPi, Ref);
-        
-        ####don't delete this
+            print('EvapTubeL_Rev:: Exception :: Get_Q_Single')
+            q = (TPi['T']-TXPo['T'])/mr*CmineCrossFlow_dry(R,mr,ma,TXPo,TPi, Ref); ####don't delete this
+            
         #when the superheat is setted too high, there might exist a problem
         #if(q<=0): #B.S., to remove the wrong result
         #    q=0;
@@ -264,7 +264,7 @@ def EvapTubeL_Rev(Gr,#refrigerant mass flux
             #ZbrentPlot(hi_max,hi_min,Get_Q_EVA,1e-4,&EVA_Get_Q);#Haorong change from -7 to-2
             print("EVAP::EvapTubeL_Rev (brentq) h={:f}, h_min={:f}, h_max={:f}".format(hi,hi_min,hi_max))
 
- 
+        
         q=EVA_Get_Q['q'];
  
         #B.S.-----------------------------------
@@ -298,7 +298,7 @@ def EvapTubeL_Rev(Gr,#refrigerant mass flux
         P_out=TXPo['P']+DP_FR-DP_ACC;   
     else:
         P_out=TXPo['P']+DP_FR;
- 
+    
     HPo['P']=P_out;
     
     #===========================================================================
@@ -308,18 +308,18 @@ def EvapTubeL_Rev(Gr,#refrigerant mass flux
     # The specific volume is recalculated so that a different model
     # can be used from the one used to calculate the pressure drop.
     TXPo = HPtoTXP(HPo,Ref);
- 
+
     v = VolumeALL(TXPo,Gr,P['Di'],mr*q/P['Api'], Ref); #seperate flow model
     #v = PropertyTXP(VOL,TXPo); #homogeneous flow model
-
+    
     m['V']=P['Ls']*P['Acs'];#B.S., use the real cross-sectional area to calculate the inner volume
     m['m']=m['V']/v;
  
     #===========================================================================
     # Calculate output air state
     #===========================================================================
-    hai = HAPropsSI('Hha','T',TPi['T'],'P',101325,'R',TPi['P']) #wair.h(TPi.T,TPi.P); #[J/kg humid air]
-    W_I = HAPropsSI('W','T',TPi['T'],'P',101325,'R',TPi['P']) #wair.HumidityRatio(TPi.T,TPi.P); #[kg water/kg dry air]
+    hai = HAPropsSI('H','T',TPi['T'],'P',101325,'R',TPi['P']) #[J/kg humid air]
+    W_I = HAPropsSI('W','T',TPi['T'],'P',101325,'R',TPi['P']) #[kg water/kg dry air]
     HF_water=(EVA_Get_Q['T_S_O']*4.1877+0.0594)*1e3;
     WHo['H']=hai-q*mr/ma-HF_water*(W_I-EVA_Get_Q['W']);
     WHo['W'] = EVA_Get_Q['W'];#B.S. the outlet air humidity is calculated with the fuction Get_Q_EVA below.
@@ -542,7 +542,7 @@ def EvapTubeL_Fwd(Gr,#refrigerant mass flux
     #===========================================================================
     # Calculate output air state
     #===========================================================================
-    hai = HAPropsSI('Hha','T',TPi['T'],'P',101325,'R',TPi['P']) #[J/kg humid air]
+    hai = HAPropsSI('H','T',TPi['T'],'P',101325,'R',TPi['P']) #[J/kg humid air]
     W_I = HAPropsSI('W','T',TPi['T'],'P',101325,'R',TPi['P']) #[kg water/kg dry air]
     HF_water=(EVA_Get_Q['T_S_O']*4.1877+0.0594)*1e3;
     
@@ -599,7 +599,7 @@ def Get_Q_EVA(hi_0,#this function is for getting the refrigerant side heat trans
     
     hi=hi_0;
 
-    W_I= HAPropsSI('W','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #wair.HumidityRatio(EVA_Q->TPi.T,EVA_Q->TPi.P); inlet air humidity #[kg water/kg dry air]
+    W_I= HAPropsSI('W','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) # inlet air humidity #[kg water/kg dry air]
         
     #Eva_dim = ETdim();
     Eva_dim = EVA_Q['P'].copy();#B.S. get the evaporator struct parameters
@@ -611,15 +611,15 @@ def Get_Q_EVA(hi_0,#this function is for getting the refrigerant side heat trans
     R_W=log(EVA_Q['P']['Do']/(EVA_Q['P']['Do']-2.0*EVA_Q['P']['xp']))/(2.0*pi*EVA_Q['P']['K_T']*EVA_Q['P']['Ls']);
     R = EVA_Q['P']['Ro']+R_W+Ri;#B.S., external thermal resistance under dry condition
 
-    CP_M= HAPropsSI('cp_ha','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #[J/kg humid air/K]
+    CP_M=HAPropsSI('cp_ha','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #[J/kg humid air/K]
     
     #===========================================================================
     # begin with wet condition
     #===========================================================================
-    H_A_I=HAPropsSI('Hha','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #inlet air enthalpy #[J/kg humid air]
-    H_SAT=HAPropsSI('Hha','P',101325,'T',EVA_Q['TXPo']['T'],'R',0.999) #[J/kg humid air]
-    enthal1=HAPropsSI('Hha','P',101325,'T',EVA_Q['TXPo']['T'],'R',0.999)  #[J/kg humid air]
-    enthal2=HAPropsSI('Hha','P',101325,'T',EVA_Q['TXPo']['T']-0.1,'R',0.999) #[J/kg humid air]
+    H_A_I=HAPropsSI('H','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #inlet air enthalpy #[J/kg humid air]
+    H_SAT=HAPropsSI('H','P',101325,'T',EVA_Q['TXPo']['T'],'R',0.999) #[J/kg humid air]
+    enthal1=HAPropsSI('H','P',101325,'T',EVA_Q['TXPo']['T'],'R',0.999)  #[J/kg humid air]
+    enthal2=HAPropsSI('H','P',101325,'T',EVA_Q['TXPo']['T']-0.1,'R',0.999) #[J/kg humid air]
 
     C_S=(enthal1-enthal2)/0.1e0;
 
@@ -661,7 +661,6 @@ def Get_Q_EVA(hi_0,#this function is for getting the refrigerant side heat trans
 #         H_S_S_O=H_zero;
     #TP_S_O = {'T':0.0,'P':0.0}
     TP_S_O = HPtoTP(H_S_S_O,0.999);
-
     T_S_O=TP_S_O['T'];#effective surface temperature
     T_O=T_S_O+(EVA_Q['TPi']['T']-T_S_O)*exp(-NTU_O);#outlet air temperature
     EVA_Q['T_S_O']= T_S_O;
@@ -703,9 +702,9 @@ def Get_Q_EVA(hi_0,#this function is for getting the refrigerant side heat trans
 
     TP_O = {'T':0.0,'P':0.0}
     TP_O['T']=T_O;
-    HH_min = HAPropsSI('Hha','P',101325,'T',T_O,'R',0.05) #[J/kg humid air]
-    HH_max = HAPropsSI('Hha','P',101325,'T',T_O,'R',0.999) #[J/kg humid air]
-
+    HH_min = HAPropsSI('H','P',101325,'T',T_O,'R',0.05) #[J/kg humid air]
+    HH_max = HAPropsSI('H','P',101325,'T',T_O,'R',0.999) #[J/kg humid air]
+    
     if (H_A_O>=HH_max):
         TP_O['T']=T_O;
         TP_O['P']=0.999;
@@ -718,7 +717,7 @@ def Get_Q_EVA(hi_0,#this function is for getting the refrigerant side heat trans
         except:
             TP_O['T']=T_O;
             TP_O['P']=0.999;
-
+    
     try:
         W_O=HAPropsSI('W','P',101325,'T',T_O,'R',TP_O['P']) #outlet air humidity ratio #[-]
     except:
@@ -763,7 +762,7 @@ def Get_Q_Single(H_in, #inlet refrigerant temperature in the segment
     #Q=0;
     #Ri=0;
     Gr=EVA_Q['Gr'];
-
+    
     #Eva_dim=ETdim();
     Eva_dim = EVA_Q['P'].copy(); #B.S. get the evaporator struct parameters
 
@@ -778,11 +777,11 @@ def Get_Q_Single(H_in, #inlet refrigerant temperature in the segment
     P_in=TXPo['P']+DP_SP;
     HPo['P'] = P_in;
     HPo['H'] = H_in;
-
-    TXPo = HPtoTXP(HPo);
-
+    
+    TXPo = HPtoTXP(HPo,Ref);
+    
     W_I=HAPropsSI('W','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #B.S., inlet air humidity #[kg water/kg dry air]
-        
+       
     #===========================================================================
     # dry condition
     #===========================================================================
@@ -791,17 +790,17 @@ def Get_Q_Single(H_in, #inlet refrigerant temperature in the segment
     R = EVA_Q['P']['Ro']+ R_W +Ri;#B.S., external thermal resistance under dry condition
 
     CP_M=HAPropsSI('cp_ha','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #inlet air enthalpy [J/kg humid air/K]
-
+    
     #===========================================================================
     # begin with wet condition
     #===========================================================================
-    H_A_I=HAPropsSI('Hha','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #inlet air enthalpy #[J/kg humid air]
-    H_SAT=HAPropsSI('Hha','P',101325,'T',TXPo['T'],'R',0.999) #[J/kg humid air]
-    enthal1=HAPropsSI('Hha','P',101325,'T',TXPo['T'],'R',0.999) #[J/kg humid air]
-    enthal2=HAPropsSI('Hha','P',101325,'T',TXPo['T']-0.1,'R',0.999) #[J/kg humid air]
+    H_A_I=HAPropsSI('H','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #inlet air enthalpy #[J/kg humid air]
+    H_SAT=HAPropsSI('H','P',101325,'T',TXPo['T'],'R',0.999) #[J/kg humid air]
+    enthal1=HAPropsSI('H','P',101325,'T',TXPo['T'],'R',0.999) #[J/kg humid air]
+    enthal2=HAPropsSI('H','P',101325,'T',TXPo['T']-0.1,'R',0.999) #[J/kg humid air]
 
     C_S=(enthal1-enthal2)/0.1e0;
-
+   
     M_DOT_A=EVA_Q['ma'];
     EVA_Q['P']['wet']=1;
     H_W = ConvCoeffAir_EVA(EVA_Q['TPi'],EVA_Q['P']['Ga'],EVA_Q['P']);
@@ -856,8 +855,8 @@ def Get_Q_Single(H_in, #inlet refrigerant temperature in the segment
 
     TP_O={'T':0.0,'P':0.0};
     TP_O['T']=T_O;
-    HH_min = HAPropsSI('Hha','P',101325,'T',T_O,'R',0.05)   #[J/kg humid air]
-    HH_max = HAPropsSI('Hha','P',101325,'T',T_O,'R',0.999) #[J/kg humid air]
+    HH_min = HAPropsSI('H','P',101325,'T',T_O,'R',0.05)   #[J/kg humid air]
+    HH_max = HAPropsSI('H','P',101325,'T',T_O,'R',0.999) #[J/kg humid air]
     
     if(H_A_O>=HH_max):
         TP_O['T']=T_O;
@@ -918,15 +917,16 @@ def Get_Q_Single_For(HPi, #inlet refrigerant temperature in the segment
     Ri = 1/(EVA_Q['hi']*EVA_Q['P']['Api']);#B.S., inside thermal resistance
     R_W=log(EVA_Q['P']['Do']/(EVA_Q['P']['Do']-2.0*EVA_Q['P']['xp']))/(2.0*pi*EVA_Q['P']['K_T']*EVA_Q['P']['Ls']);
     R = EVA_Q['P']['Ro']+ R_W +Ri;#B.S., external thermal resistance under dry condition
+    
     CP_M=HAPropsSI('cp_ha','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #inlet air enthalpy [J/kg humid air/K]
 
     #===========================================================================
     # begin with wet condition
     #===========================================================================
-    H_A_I=HAPropsSI('Hha','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #inlet air enthalpy #[J/kg humid air]
-    H_SAT=HAPropsSI('Hha','P',101325,'T',TXPi['T'],'R',0.999) #[J/kg humid air]
-    enthal1=HAPropsSI('Hha','P',101325,'T',TXPi['T'],'R',0.999) #[J/kg humid air]
-    enthal2=HAPropsSI('Hha','P',101325,'T',TXPi['T']-0.1,'R',0.999) #[J/kg humid air]
+    H_A_I=HAPropsSI('H','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #inlet air enthalpy #[J/kg humid air]
+    H_SAT=HAPropsSI('H','P',101325,'T',TXPi['T'],'R',0.999) #[J/kg humid air]
+    enthal1=HAPropsSI('H','P',101325,'T',TXPi['T'],'R',0.999) #[J/kg humid air]
+    enthal2=HAPropsSI('H','P',101325,'T',TXPi['T']-0.1,'R',0.999) #[J/kg humid air]
 
     C_S=(enthal1-enthal2)/0.1e0;
     
@@ -937,7 +937,7 @@ def Get_Q_Single_For(HPi, #inlet refrigerant temperature in the segment
     EVA_Q['P']['wet']=0;
     
     #===========================================================================
-    # #calculate wet fin efficiency
+    # calculate wet fin efficiency
     #===========================================================================
     M_F_W=pow((2e0*H_W*C_S/(EVA_Q['P']['K_F']*EVA_Q['P']['th']*CP_M)),0.5e0);#for calculating the wet fin efficiency, including both the heat and mass transfer
     ETA_F_W=tanh(M_F_W*EVA_Q['P']['L_F'])/(M_F_W*EVA_Q['P']['L_F']);#wet fin efficiency
@@ -988,8 +988,8 @@ def Get_Q_Single_For(HPi, #inlet refrigerant temperature in the segment
 
     TP_O={'T':0.0,'P':0.0};
     TP_O['T']=T_O;
-    HH_min = HAPropsSI('Hha','P',101325,'T',T_O,'R',0.05) #[J/kg humid air]
-    HH_max = HAPropsSI('Hha','P',101325,'T',T_O,'R',0.999) #[J/kg humid air]
+    HH_min = HAPropsSI('H','P',101325,'T',T_O,'R',0.05) #[J/kg humid air]
+    HH_max = HAPropsSI('H','P',101325,'T',T_O,'R',0.999) #[J/kg humid air]
     
     if(H_A_O>=HH_max):
         TP_O['T']=T_O;
@@ -1298,7 +1298,7 @@ class StructEvapClass():
             #print the res and iteration no.
             print('Res {}, IterN {}'.format(Res, IterN))
             
-            if (abs(Res)<1e-6 or IterN>20): #condition to break the while loop
+            if (abs(Res)<1e-7 or IterN>20): #condition to break the while loop
                 break
 
         #end while loop
@@ -1341,12 +1341,15 @@ class StructEvapClass():
         WH_out['H'] = WH_out['H']/Ma_out;
         
         try:
-            #self.TPo = WHtoTP(WH_out,self.TPo)
-            TPo = {'T': HAPropsSI('T','P',101325,'Hha',WH_out['H'],'W',WH_out['W']), 'P': HAPropsSI('R','P',101325,'Hha',WH_out['H'],'W',WH_out['W'])} 
+            TPo_temp = {'T':0.0,'P':0.0}
+            TPo_temp['T']=TPi['T']-5;
+            TPo_temp['P']=0.8;
+            TPo = WHtoTP(WH_out,TPo_temp)
+            #TPo = {'T': HAPropsSI('T','P',101325,'H',WH_out['H'],'W',WH_out['W']), 'P': HAPropsSI('R','P',101325,'H',WH_out['H'],'W',WH_out['W'])} 
         except:
             print('_EvapCircuit_Fwd :: check TPo that need to be numerically solved!')
             print('Other source of exception might be due to relative humidity ~100%, try to solve TPo with relative humidity of 95%')
-            TPo = {'T': HAPropsSI('T','P',101325,'Hha',WH_out['H'],'R',0.995), 'P': 0.995}
+            TPo = {'T': HAPropsSI('T','P',101325,'H',WH_out['H'],'R',0.999), 'P': 0.999}
 
     
         #refrigerant outputs
@@ -1368,8 +1371,7 @@ class StructEvapClass():
         
         self.Rev=1;
         #air side initializing
-        rho_air=HAPropsSI("V", "T", TPi['T'], "P", 101325, "R", TPi['P']) #[kg dry air/ m^3]#
-        
+        rho_air=1/HAPropsSI("Vda", "T", TPi['T'], "P", 101325, "R", 0) #[kg dry air/ m^3]#
         Ma =self.Volum*rho_air; 
         GaNom=Ma/self.AreaFront*P['vsp']*P['Ls']/((P['vsp']-P['Do'])*(P['Ls']-P['N']*P['th']));
         if(Ga<0):
@@ -1385,9 +1387,9 @@ class StructEvapClass():
                 if (self.Tub[i]['RowNo']==j):
                     for k in range(self.SegNum):
                         self.Tub[i]['Seg'][k]['TPi']=TPi.copy();
-                        self.Tub[i]['Seg'][k]['WHo']['W'] = HAPropsSI("W", "T", TPi['T'], "P", 101325, "R", TPi['P']) #wair.HumidityRatio(TPi.T,TPi.P) #[kg water/kg dry air]
-                        self.Tub[i]['Seg'][k]['WHo']['H'] = HAPropsSI("Hha", "T", TPi['T'], "P", 101325, "R", TPi['P']) #wair.h(TPi.T,TPi.P); #[J/kg humid air]
-    
+                        self.Tub[i]['Seg'][k]['WHo']['W'] = HAPropsSI("W", "T", TPi['T'], "P", 101325, "R", TPi['P']) #[kg water/kg dry air]
+                        self.Tub[i]['Seg'][k]['WHo']['H'] = HAPropsSI("H", "T", TPi['T'], "P", 101325, "R", TPi['P']) #[J/kg humid air]
+                    
                     if(self.Tub[i]['RowNo']>0): #not the first row
                         Upper = self.Tub[i]['AirUpstreamUpper'];
                         Lower = self.Tub[i]['AirUpstreamLower'];
@@ -1513,7 +1515,7 @@ class StructEvapClass():
             #print Res and iteration no.
             print('Res {}, IterN {}'.format(Res, IterN))
             
-            if (abs(Res)<1e-6 or IterN>20): #condition to break the while loop
+            if (abs(Res)<1e-7 or IterN>20): #condition to break the while loop
                 break
 
         #end while loop
@@ -1548,12 +1550,15 @@ class StructEvapClass():
         WH_out['H'] = WH_out['H']/Ma_out;
         
         try:
-            #TPo = WHtoTP(WH_out,self.TPo)
-            TPo = {'T': HAPropsSI('T','P',101325,'Hha',WH_out['H'],'W',WH_out['W']), 'P': HAPropsSI('R','P',101325,'Hha',WH_out['H'],'W',WH_out['W'])} 
+            TPo_temp = {'T':0.0,'P':0.0}
+            TPo_temp['T']=TPi['T']-5;
+            TPo_temp['P']=0.8;
+            TPo = WHtoTP(WH_out,TPo_temp)
+            #TPo = {'T': HAPropsSI('T','P',101325,'H',WH_out['H'],'W',WH_out['W']), 'P': HAPropsSI('R','P',101325,'H',WH_out['H'],'W',WH_out['W'])} 
         except:
             print('_EvapCircuit_Rev :: check TPo that need to be numerically solved!')
             print('Other source of exception might be due to relative humidity ~100%, try to solve TPo with relative humidity of 95%')
-            TPo = {'T': HAPropsSI('T','P',101325,'Hha',WH_out['H'],'R',0.995), 'P': 0.995}
+            TPo = {'T': HAPropsSI('T','P',101325,'H',WH_out['H'],'R',0.999), 'P': 0.999}
         
         
         return HPo, HPi, TPo, Sm, Aflow, P
@@ -1635,14 +1640,14 @@ class StructEvapClass():
                                     WHo=self.Tub[Lower]['Seg'][k]['WHo'].copy();
             
                                 try:
-                                    #self.Tub[TubeN]['Seg'][k]['TPi'] = WHtoTP(WHo,self.Tub[TubeN]['Seg'][k]['TPi']);
-                                    self.Tub[TubeN]['Seg'][k]['TPi']['T'] = HAPropsSI('T','P',101325,'Hha',WHo['H'],'W',WHo['W'])
-                                    self.Tub[TubeN]['Seg'][k]['TPi']['P'] = HAPropsSI('R','P',101325,'Hha',WHo['H'],'W',WHo['W'])
+                                    self.Tub[TubeN]['Seg'][k]['TPi'] = WHtoTP(WHo,self.Tub[TubeN]['Seg'][k]['TPi']);
+                                    #self.Tub[TubeN]['Seg'][k]['TPi']['T'] = HAPropsSI('T','P',101325,'H',WHo['H'],'W',WHo['W'])
+                                    #self.Tub[TubeN]['Seg'][k]['TPi']['P'] = HAPropsSI('R','P',101325,'H',WHo['H'],'W',WHo['W'])
                                 except:
                                     print('Cal_HP :: check self.Tub that need to be numerically solved!')
                                     print('Other source of exception might be due to relative humidity ~100%, try to solve TPo with relative humidity of 95%')
                                     raise
-                                    #self.Tub[TubeN]['Seg'][k]['TPi'] = {'T': HAPropsSI('T','P',101325,'H',WHo['H'],'R',0.995), 'P': 0.995}
+                                    #self.Tub[TubeN]['Seg'][k]['TPi'] = {'T': HAPropsSI('T','P',101325,'Hha',WHo['H'],'R',0.999), 'P': 0.999}
                                     
                             #end k circle
                         #endif
@@ -1945,7 +1950,7 @@ def Evaporator(Ref, #refrigerant string
        
     # Calculate air cfm after Ga is established.
     A_total = D['Aflow']*D['NSeg']*D['Nrows'] #total area air flows throguh for entire coil (m^2)
-    v_air = HAPropsSI("Vda", "T", TPi['T'], "P", 101325, "R", TPi['P']) # specific volume of air [m^3/kg dry air]
+    v_air = HAPropsSI("Vda", "T", TPi['T'], "P", 101325, "R", 0) # specific volume of air [m^3/kg dry air]
     vfra = Ga*A_total*v_air # nominal volumetric flow rate air
     D['cfma'] = vfra*(60.0/((12.0*0.0254)*(12.0*0.0254)*(12.0*0.0254))) # nominal cfm of air flow
     
@@ -2028,8 +2033,7 @@ def ExerciseEvaporator():
     P_sl = PropsSI("P", "T", Tsat_sl, "Q", 0, Ref)
     txpo = {'T':Tsat_sl+Tsh,'X':1,'P':P_sl} #initially assume outlet temperature equals to saturated vapor pressure (txpo_P)
     hpo = TXPtoHP(txpo, Ref)  #outlet refrigerant state
-    
-    Twbi = HAPropsSI("Twb", "T", TPi['T'], "P", 101325, "R", TPi['P']) #inlet air wet bulb temperature 
+    Twbi = HAPropsSI("Twb", "T", TPi['T'], "P", 101325, "R", TPi['P']) #inlet air wet bulb temperature [K]
     
     #*Run the evaporator model*#
     Evap_struc['REV'] = 1 #0-- forward evaporator solver, 1-- reversed evaporator (backward solver)
@@ -2041,7 +2045,7 @@ def ExerciseEvaporator():
     
     Tsat_dt = PropsSI("T", "P", txpi['P'], "Q",0, Ref) #PropertyTXPth('T',txpi,Ref) #[K]
      
-    Twbo = HAPropsSI("Twb", "T", TPo['T'], "P", 101325, "R", TPo['P']) #outlet air wet bulb temperature 
+    Twbo = HAPropsSI("Twb", "T", TPo['T'], "P", 101325, "R", TPo['P']) #outlet air wet bulb temperature [K]
      
     #Calculate the total heat transfer and then the UA = Qdot/DT
     Qdot = W2BTUh(mr*(hpo['H']-hpi['H'])) #[BTU/hr] - for all 4 sections of the heat exchanger

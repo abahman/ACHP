@@ -238,15 +238,15 @@ def ConvCoeffAir_Plain(G,#air flux
     T = P['T'];#air temperature
      
     # calc Prantl and Reynold number
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',0) #air viscosity [Pa-s]
     
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
         cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
     else: #during the conditions of condensation
-        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P'])#[J/kg dry air/K]
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',0)#[J/kg dry air/K]
     
-    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air heat conductivity [W/m/K]
+    k = HAPropsSI('K','T',P['T'],'P',101325,'R',0) #air heat conductivity [W/m/K]
     
     Pr = mu*cp/k;#prandtl number
     if (Pr<0.0):
@@ -318,15 +318,15 @@ def ConvCoeffAir_Corrugated(G,P):
     # calc Prantl and Reynold number
     
     # calc Prantl and Reynold number
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P'])#air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',0)#air viscosity [Pa-s]
     
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
-        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #wair.Cp(P->T,P->P); #[J/kg humid air/K]
+        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
     else: #during the conditions of condensation
-        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #air.Cp(T); #[J/kg dry air/K]
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',0) #[J/kg dry air/K]
     
-    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air.k(T);#air heat conductance [W/m/K]
+    k = HAPropsSI('K','T',P['T'],'P',101325,'R',0) #air heat conductance [W/m/K]
      
     Pr = mu*cp/k;#prandtl number
     if (Pr<0.0):
@@ -384,15 +384,15 @@ def ConvCoeffAir_Slit(G,P):
     S_n=4;#number of slits in an enhanced zone
     
     # calc Prantl and Reynold number
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air.mu(T);#air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',0) #air viscosity [Pa-s]
     
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
         cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
     else: #during the conditions of condensation
-        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #[J/kg dry air/K]
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',0) #[J/kg dry air/K]
  
-    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) ;#air heat conductance [W/m/K]
+    k = HAPropsSI('K','T',P['T'],'P',101325,'R',0) ;#air heat conductance [W/m/K]
      
     Pr = mu*cp/k;#prandtl number
     if (Pr<0.0):
@@ -453,15 +453,15 @@ def ConvCoeffAir_Louvered(G,P):
     L_p=2.4*0.001;#major louver pitch
  
     # calc Prantl and Reynold number
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',0) #air viscosity [Pa-s]
     
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
         cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
     else: #during the conditions of condensation
-        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P'])#[J/kg dry air/K]
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',0)#[J/kg dry air/K]
  
-    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P'])#air heat conductance [W/m/K]
+    k = HAPropsSI('K','T',P['T'],'P',101325,'R',0)#air heat conductance [W/m/K]
      
     Pr = mu*cp/k;#prandtl number
     if (Pr<0.0):
@@ -521,15 +521,15 @@ def ConvCoeffAir_ConvexLouvered(G,P):
     F_s=F_p-th;
     
     # calc Prantl and Reynold number
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',0) #air viscosity [Pa-s]
     
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
         cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
     else: #during the conditions of condensation
-        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #[J/kg dry air/K]
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',0) #[J/kg dry air/K]
  
-    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air heat conductance [W/m/K]
+    k = HAPropsSI('K','T',P['T'],'P',101325,'R',0) #air heat conductance [W/m/K]
      
     Pr = mu*cp/k;#prandtl number
     if (Pr<0.0):
@@ -580,21 +580,21 @@ def ConvCoeffAir_SmoothWavy(G,P):
     F_s=F_p-th;
     
     # calc Prantl and Reynold number
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
-    
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',0) #air viscosity [Pa-s]
+
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
         cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P'])#[J/kg humid air/K]
     else: #during the conditions of condensation
-        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P'])#[J/kg dry air/K]
- 
-    k = HAPropsSI('K','T',P['T'],'P',101325,'R',P['P']) #air heat conductance [W/m/K]
-     
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',0)#[J/kg dry air/K]
+    
+    k = HAPropsSI('K','T',P['T'],'P',101325,'R',0) #air heat conductance [W/m/K]
+    
     Pr = mu*cp/k;#prandtl number
     if (Pr<0.0):
         print("ConvCoeffAir_SmoothWavy::ConvCoeffAir_SmoothWavy","Pr<0.0")
         
-    Re = G*D/mu;#Reynold's number based on the collar diameter
+    Re = G*(2*F_s)/mu;#Reynold's number based on the collar diameter
     if (Re<0.0):
         print("ConvCoeffAir_SmoothWavy::ConvCoeffAir_SmoothWavy","Re<0.0")
         
@@ -632,15 +632,15 @@ def Circuit_DP_EVAP(Ga,TPi,TPo,P):
 
     P['GetP'] =1;#set the request for calculating the friction factor.
     
-    rho1 = 1/HAPropsSI('Vda','T',TPi['T'],'P',101325,'R',TPi['P']) #inlet air density
+    rho1 = 1/HAPropsSI('Vda','T',TPi['T'],'P',101325,'R',0) #inlet air density [kg/m^3 dry air]
     
-    rho2 = 1/HAPropsSI('Vda','T',TPo['T'],'P',101325,'R',TPo['P']) #outlet air density
+    rho2 = 1/HAPropsSI('Vda','T',TPo['T'],'P',101325,'R',0) #outlet air density [kg/m^3 dry air]
     
     rho_m=(rho1+rho2)/2;#mean air density
     
     f = ConvCoeffAir_EVA(TPi, Ga, P);#calculate the friction factor
     
-    mu = HAPropsSI('mu','T',TPi['T'],'P',101325,'R',TPi['P']) #air viscosity
+    mu = HAPropsSI('mu','T',TPi['T'],'P',101325,'R',0) #air viscosity
     
     Re = Ga*P['Do']/mu;#Reynolds number based on tube outside diameter
     if (Re<0.0):
@@ -666,15 +666,15 @@ def Circuit_DP_COND(Ga,Tai,Tao,P):
     
     P['GetP'] =1;#set the request for calculating the friction factor.
     
-    rho1 = 1/HAPropsSI('Vda','T',Tai['T'],'P',101325,'R',Tai['P']) #inlet air density
+    rho1 = 1/HAPropsSI('Vda','T',Tai['T'],'P',101325,'R',0) #inlet air density
     
-    rho2 = 1/HAPropsSI('Vda','T',Tao['T'],'P',101325,'R',Tao['P']) #outlet air density
+    rho2 = 1/HAPropsSI('Vda','T',Tao['T'],'P',101325,'R',0) #outlet air density
     
     rho_m=(rho1+rho2)/2;#mean air density
     
     f = ConvCoeffAir_CON(Tai, Ga, P);#calculate the friction factor
     
-    mu = HAPropsSI('mu','T',Tai['T'],'P',101325,'R',Tai['P']) #air viscosity
+    mu = HAPropsSI('mu','T',Tai['T'],'P',101325,'R',0) #air viscosity
     
     Re = Ga*P['Do']/mu;#Reynolds number based on tube outside diameter
     if (Re<0.0):
@@ -715,7 +715,7 @@ def FricAir_Plain(G,#air flux
     F_s=F_p-th;#fin space
     T = P['T'];#air temperature
     
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',0) #air viscosity [Pa-s]
             
     Re = G*D/mu;#Reynold's number based on the collar diameter
     if (Re<0.0):
@@ -764,7 +764,7 @@ def FricAir_Corrugated(G,P):
     #beta=3.1415926*pow(D,2.0)/(4*P_l*P_t);#possible method for calculating hydraulic diameter for wavy fin, but not used here
     #D_h=2*F_p*(1-beta)/((1-beta)*sec_angle+2*F_p*beta/D);
     
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',0) #air viscosity [Pa-s]
             
     Re = G*D/mu;#Reynold's number based on the collar diameter
     if (Re<0.0):
@@ -810,7 +810,7 @@ def FricAir_Slit(G,P):
     S_w=11*0.001;#width of slit
     S_n=4;#number of slits in an enhanced zone
      
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',0) #air viscosity [Pa-s]
             
     Re = G*D/mu;#Reynold's number based on the collar diameter
     if (Re<0.0):
@@ -855,7 +855,7 @@ def FricAir_Louvered(G,P):
     L_p=2.4*0.001;#major louver pitch
  
      
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',0) #air viscosity [Pa-s]
             
     Re = G*D/mu;#Reynold's number based on the collar diameter
     if (Re<0.0):
@@ -902,7 +902,7 @@ def FricAir_ConvexLouvered(G,P):
     F_s=F_p-th;#fin space
     T = P['T'];#air temperature
  
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',0) #air viscosity [Pa-s]
             
     Re = G*D/mu;#Reynold's number based on the collar diameter
     if (Re<0.0):
@@ -942,9 +942,9 @@ def FricAir_SmoothWavy(G,P):
     T = P['T'];#air temperature
     wh = 2.38e-3;#typical geometry from the paper, with respect to first three coils in the paper
      
-    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',P['P']) #air viscosity [Pa-s]
+    mu = HAPropsSI('mu','T',P['T'],'P',101325,'R',0) #air viscosity [Pa-s]
             
-    Re = G*D/mu;#Reynold's number based on the collar diameter
+    Re = G*(wh)/mu;#Reynold's number based on the collar diameter
     if (Re<0.0):
         print("FricAir_ConvexLouvered::FricAir_ConvexLouvered","Re<0.0")
         
@@ -1572,7 +1572,7 @@ def ConvCoeffEvapTP_microfin(TXPm,#refrigerant state
  
     P_cr = PropsSI('PCRIT', Ref)     #critical pressure [Pa]
     T_cr = PropsSI('TCRIT', Ref)     #critical temperature [K]
-    M = PropsSI('TCRIT', Ref)*1000   #molecular mass [kg/kmol]
+    M = PropsSI('M', Ref)*1000   #molecular mass [kg/kmol]
 
     P_sat=TXPm['P'];#saturation pressure
  
@@ -1628,7 +1628,7 @@ def ConvCoeffEvapTP_microfin(TXPm,#refrigerant state
         beta_l = 3e-4;#m/s, mass transfer coefficient
         Corr_NUC = Correct_NUC_Boiling(h_nb,q_nb,T_delta,B_0,beta_l,rho_l,h_fg);#nucleate boiling correction
         h_nb=h_nb*Corr_NUC;#corrected
- 
+    
     u_go=G/rho_g;#all gas phase velocity
     Fr=pow(u_go,2)/(9.8*d_e);
     Bo=9.8*rho_l*e*pi*d_e/(8*sigma*n_g);
@@ -1742,8 +1742,8 @@ def Eva_FlowPattern(TXPm,#refrigerant state
 
     P_cr = PropsSI('PCRIT', Ref)     #critical pressure [Pa]
     T_cr = PropsSI('TCRIT', Ref)     #critical temperature [K]
-    M = PropsSI('TCRIT', Ref)*1000   #molecular mass [kg/kmol]
-
+    M = PropsSI('M', Ref)*1000   #molecular mass [kg/kmol]
+    
     P_r=P/P_cr;             #reduced pressure
     Pr_v=mu_v/(k_v/Cp_v);   #saturated vapor Prontal number
     Pr_l=mu_l/(k_l/Cp_l);   #saturated liquid Prontal number
@@ -1811,7 +1811,7 @@ def Eva_FlowPattern(TXPm,#refrigerant state
     else: #all others are supposed to be annular flow 
         Ev['Pattern']= 3;
         Ev['theta_dry']=0;
-
+    
     if (Ev['JudgPattern']):
         return 0
 
@@ -1840,7 +1840,7 @@ def Eva_FlowPattern(TXPm,#refrigerant state
         Nu = 0.023*pow(Re_vaporphase,0.8)*pow(Pr_v,0.333);#Dittus-Boelter equation to calculate the vapor phase coeffcient
         h_vaporphase=Nu*k_v/d;#vapor phase heat transfer coefficent
         Ev['h_tp']=1.0/(1.0/Ev['h_tp']+Corr_FlowBoiling/h_vaporphase);#correct the overall flow boiling coefficient
-
+        
 
     return 0
 
@@ -1885,7 +1885,7 @@ def Cond_FlowPattern(TXPm,#refrigerant state
     
     P_cr = PropsSI('PCRIT', Ref)     #critical pressure [Pa]
     T_cr = PropsSI('TCRIT', Ref)     #critical temperature [K]
-    M = PropsSI('TCRIT', Ref)*1000   #molecular mass [kg/kmol]
+    M = PropsSI('M', Ref)*1000   #molecular mass [kg/kmol]
 
     P_r=P/P_cr;#reduced pressure
     Pr_v=mu_v/(k_v/Cp_v);#saturated vapor Prontal number
@@ -2008,7 +2008,7 @@ def theta_ev(theta_strat, Params=None):
         theta_strat_ev = {'A_Ld': 0.0}#dictionary variable for getting the stratified angle in Kattan-Thome flow map by iteration
         theta = theta_strat_ev
     else:
-        theta = Params.copy() 
+        theta = Params 
         
     A_Ld1=1.0/8.0*((2.0*pi-theta_strat)-sin(2.0*pi-theta_strat));#dimensionless liquid cross-sectional area at the given stratified angle
     residual = A_Ld1-theta['A_Ld'];#deviation between the dimensionless liquid cross-sectional area at the given stratified angle and the real dimensionless liquid cross-sectional area

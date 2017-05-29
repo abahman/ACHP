@@ -20,7 +20,7 @@ def VolumeTPFunc(Alpha,Params=None):
     if (Params == None):
         P = VolParams()
     else:
-        P = Params.copy()
+        P = Params
 
     # Z is the "correlating parameter"
     Z1 = pow((P['D']*P['G'])/(P['ul']+Alpha*(P['uv']-P['ul'])),0.16666667);

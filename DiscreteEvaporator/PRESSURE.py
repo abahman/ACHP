@@ -4,7 +4,7 @@ from math import log,pi,sqrt,exp,cos,sin,tan,log10
 #from scipy.optimize import brentq,fsolve
 #import numpy as np
 
-from CoolProp.CoolProp import PropsSI
+#from CoolProp.CoolProp import PropsSI
 
 from extra_functions import toTXP, PropertyTXPtr, PropertyTXPth, HPtoTXP, PreAcc
 from VOLUME import VolumeALL
@@ -366,7 +366,7 @@ def GET_PreAcc(DP_ACC, Ref, Params=None):
     if (Params==None):
         Preacc = PreAcc()
     else:
-        Preacc = Params.copy();
+        Preacc = Params
 
     DP_FR=Preacc['DP_FR'];
     G=Preacc['G'];
