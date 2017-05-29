@@ -1138,7 +1138,7 @@ class StructEvapClass():
                     for k in range(self.SegNum):
                         self.Tub[i]['Seg'][k]['TPi']=TPi.copy();
                         self.Tub[i]['Seg'][k]['WHo']['W'] = HAPropsSI("W", "T", TPi['T'], "P", 101325, "R", TPi['P']) #[kg water/kg dry air] ####wair.HumidityRatio(TPi.T,TPi.P)
-                        self.Tub[i]['Seg'][k]['WHo']['H'] = HAPropsSI("Hha", "T", TPi['T'], "P", 101325, "R", TPi['P']) #[J/kg humid air] ####wair.h(TPi.T,TPi.P);
+                        self.Tub[i]['Seg'][k]['WHo']['H'] = HAPropsSI("H", "T", TPi['T'], "P", 101325, "R", TPi['P']) #[J/kg humid air] ####wair.h(TPi.T,TPi.P);
         
                     if (self.Tub[i]['RowNo']>0):#not the first row
                         Upper = self.Tub[i]['AirUpstreamUpper']
@@ -1298,7 +1298,7 @@ class StructEvapClass():
             #print the res and iteration no.
             print('Res {}, IterN {}'.format(Res, IterN))
             
-            if (abs(Res)<1e-7 or IterN>20): #condition to break the while loop
+            if (abs(Res)<1e-6 or IterN>20): #condition to break the while loop
                 break
 
         #end while loop
@@ -1389,7 +1389,7 @@ class StructEvapClass():
                         self.Tub[i]['Seg'][k]['TPi']=TPi.copy();
                         self.Tub[i]['Seg'][k]['WHo']['W'] = HAPropsSI("W", "T", TPi['T'], "P", 101325, "R", TPi['P']) #[kg water/kg dry air]
                         self.Tub[i]['Seg'][k]['WHo']['H'] = HAPropsSI("H", "T", TPi['T'], "P", 101325, "R", TPi['P']) #[J/kg humid air]
-                    
+                        
                     if(self.Tub[i]['RowNo']>0): #not the first row
                         Upper = self.Tub[i]['AirUpstreamUpper'];
                         Lower = self.Tub[i]['AirUpstreamLower'];
@@ -1515,7 +1515,7 @@ class StructEvapClass():
             #print Res and iteration no.
             print('Res {}, IterN {}'.format(Res, IterN))
             
-            if (abs(Res)<1e-7 or IterN>20): #condition to break the while loop
+            if (abs(Res)<1e-6 or IterN>20): #condition to break the while loop
                 break
 
         #end while loop

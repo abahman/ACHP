@@ -1,8 +1,7 @@
 from __future__ import division, print_function, absolute_import
 from math import pi,log,sqrt,exp,cos,sin,tan,log10
 
-from scipy.optimize import brentq, minimize #solver to find roots (zero points) of functions
-import numpy as np
+from scipy.optimize import brentq #solver to find roots (zero points) of functions
 
 from CoolProp.HumidAirProp import HAPropsSI
 from CoolProp.CoolProp import PropsSI
@@ -297,21 +296,21 @@ def HPtoTP(H,P):
 
     return TP
 
-def HPFunc(T,Params):
-    '''
-    /********************************************************************
-    Used by {\it HPtoTP} to convert thermodynamic state representations.
-    ********************************************************************/
-    '''
-    
-    P = Params;
-    H = HAPropsSI('Hha','P',101325,'T',T,'R',P['P'])
-
-    Ref=P['H']; #B.S.
-    if(abs(Ref)<1e4):
-        Ref=1e4; #B.S.
-    
-    return (H-P['H'])/Ref #B.S.
+# def HPFunc(T,Params):
+#     '''
+#     /********************************************************************
+#     Used by {\it HPtoTP} to convert thermodynamic state representations.
+#     ********************************************************************/
+#     '''
+#     
+#     P = Params;
+#     H = HAPropsSI('H','P',101325,'T',T,'R',P['P']-0.003)
+# 
+#     Ref=P['H']; #B.S.
+#     if(abs(Ref)<1e4):
+#         Ref=1e4; #B.S.
+#     
+#     return (H-P['H'])/Ref #B.S.
 
 
 def WPtoTP(W,P):
@@ -338,17 +337,17 @@ def WPtoTP(W,P):
 
     return TP
 
-def WPFunc(T,Params):
-    '''
-    /********************************************************************
-    Used by {WPtoTP} to convert thermodynamic state representations.
-    ********************************************************************/
-    '''
-    P = Params
-
-    W = HAPropsSI('W','P',101325,'T',T,'R',P['P'])
-
-    return (W-P['W'])/P['W'];
+# def WPFunc(T,Params):
+#     '''
+#     /********************************************************************
+#     Used by {WPtoTP} to convert thermodynamic state representations.
+#     ********************************************************************/
+#     '''
+#     P = Params
+# 
+#     W = HAPropsSI('W','P',101325,'T',T,'R',P['P'])
+# 
+#     return (W-P['W'])/P['W'];
 
 
 def THtoTP(T,H):
@@ -371,21 +370,21 @@ def THtoTP(T,H):
 
     return TP
 
-def THFunc(P,Params):
-    '''
-    /********************************************************************
-    Used by {\it THtoTP} to convert thermodynamic state representations.
-    ********************************************************************/
-    '''
-    Q = Params;
-
-    H = HAPropsSI('Hha','P',101325,'T',Q['T'],'R',P)
-
-    Ref=Q['H']; #B.S.
-    if(abs(Ref)<1e4):
-        Ref=1e4;#B.S.
-    
-    return (H-Q['H'])/Ref #B.S.
+# def THFunc(P,Params):
+#     '''
+#     /********************************************************************
+#     Used by {\it THtoTP} to convert thermodynamic state representations.
+#     ********************************************************************/
+#     '''
+#     Q = Params;
+# 
+#     H = HAPropsSI('H','P',101325,'T',Q['T'],'R',P)
+# 
+#     Ref=Q['H']; #B.S.
+#     if(abs(Ref)<1e4):
+#         Ref=1e4;#B.S.
+#     
+#     return (H-Q['H'])/Ref #B.S.
 
 
 def WHtoTP(WH,TPi):
@@ -418,44 +417,44 @@ def WHtoTP(WH,TPi):
 
     return TPo
 
-def WHFunc(X,Params):
-    '''
-    /********************************************************************
-    Used by {WHtoTP} to convert thermodynamic state representations.
-    ********************************************************************/
-    '''
-    P = Params;
+# def WHFunc(X,Params):
+#     '''
+#     /********************************************************************
+#     Used by {WHtoTP} to convert thermodynamic state representations.
+#     ********************************************************************/
+#     '''
+#     P = Params;
+# 
+#     W = HAPropsSI('W','P',101325,'T',X[1],'R',X[0])
+#     H = HAPropsSI('H','P',101325,'T',X[1],'R',X[0])
+#     
+#     F = np.zeros(2)
+#     F[0]=(W-P['W'])/P['W'];
+#     Ref=P['H']; #B.S.
+#     if(abs(Ref)<1e4):
+#         Ref=1e4; #B.S.
+#     F[1]=(H-P['H'])/Ref;#B.S.
+# 
+#     return np.dot(F,F)
 
-    W = HAPropsSI('W','P',101325,'T',X[1],'R',X[0]) #wair.HumidityRatio(X[1],X[0]);
-    H = HAPropsSI('H','P',101325,'T',X[1],'R',X[0]) #wair.h(X[1],X[0]);
-    
-    F = np.zeros(2)
-    F[0]=(W-P['W'])/P['W'];
-    Ref=P['H']; #B.S.
-    if(abs(Ref)<1e4):
-        Ref=1e4; #B.S.
-    F[1]=(H-P['H'])/Ref;#B.S.
-
-    return np.dot(F,F)#0
-
-def WHFuncConst(X):
-    '''
-    /********************************************************************
-    Tests constraint on relative humidity when solving WHFunc.
-    Returns 1 if constraint is violated.
-    ********************************************************************/
-    '''
-     
-    TWAIRMAX = 50+273.15 #upper bound [K]
-    TWAIRMIN = -20+273.15 #lower bound [K]
-    
-    F = np.zeros(4)
-    F[0] = X[0]-1
-    F[1] = 0.05-X[0]
-    F[2] = X[1]-TWAIRMAX
-    F[3] = TWAIRMIN-X[1]
-
-    return F
+# def WHFuncConst(X):
+#     '''
+#     /********************************************************************
+#     Tests constraint on relative humidity when solving WHFunc.
+#     Returns 1 if constraint is violated.
+#     ********************************************************************/
+#     '''
+#      
+#     TWAIRMAX = 50+273.15 #upper bound [K]
+#     TWAIRMIN = -20+273.15 #lower bound [K]
+#     
+#     F = np.zeros(4)
+#     F[0] = X[0]-1
+#     F[1] = 0.05-X[0]
+#     F[2] = X[1]-TWAIRMAX
+#     F[3] = TWAIRMIN-X[1]
+# 
+#     return F
 
 
 # def FindZero2DConst(Xg,F,G,tol,P):
