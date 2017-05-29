@@ -242,7 +242,7 @@ def ConvCoeffAir_Plain(G,#air flux
     
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
-        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
     else: #during the conditions of condensation
         cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',0)#[J/kg dry air/K]
     
@@ -322,7 +322,7 @@ def ConvCoeffAir_Corrugated(G,P):
     
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
-        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
     else: #during the conditions of condensation
         cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',0) #[J/kg dry air/K]
     
@@ -388,7 +388,7 @@ def ConvCoeffAir_Slit(G,P):
     
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
-        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
     else: #during the conditions of condensation
         cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',0) #[J/kg dry air/K]
  
@@ -457,7 +457,7 @@ def ConvCoeffAir_Louvered(G,P):
     
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
-        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
     else: #during the conditions of condensation
         cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',0)#[J/kg dry air/K]
  
@@ -525,7 +525,7 @@ def ConvCoeffAir_ConvexLouvered(G,P):
     
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
-        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P']) #[J/kg humid air/K]
     else: #during the conditions of condensation
         cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',0) #[J/kg dry air/K]
  
@@ -584,7 +584,7 @@ def ConvCoeffAir_SmoothWavy(G,P):
 
     #air specific heat
     if (P['evap']): #during the conditions of evaporation
-        cp = HAPropsSI('cp_ha','T',P['T'],'P',101325,'R',P['P'])#[J/kg humid air/K]
+        cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',P['P'])#[J/kg humid air/K]
     else: #during the conditions of condensation
         cp = HAPropsSI('cp','T',P['T'],'P',101325,'R',0)#[J/kg dry air/K]
     
