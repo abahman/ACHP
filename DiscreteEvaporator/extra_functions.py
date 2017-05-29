@@ -304,7 +304,7 @@ def HPtoTP(H,P):
 #     '''
 #     
 #     P = Params;
-#     H = HAPropsSI('H','P',101325,'T',T,'R',P['P']-0.003)
+#     H = HAPropsSI('H','P',101325,'T',T,'R',P['P'])
 # 
 #     Ref=P['H']; #B.S.
 #     if(abs(Ref)<1e4):
