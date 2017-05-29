@@ -611,7 +611,7 @@ def Get_Q_EVA(hi_0,#this function is for getting the refrigerant side heat trans
     R_W=log(EVA_Q['P']['Do']/(EVA_Q['P']['Do']-2.0*EVA_Q['P']['xp']))/(2.0*pi*EVA_Q['P']['K_T']*EVA_Q['P']['Ls']);
     R = EVA_Q['P']['Ro']+R_W+Ri;#B.S., external thermal resistance under dry condition
 
-    CP_M=HAPropsSI('cp_ha','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #[J/kg humid air/K]
+    CP_M=HAPropsSI('cp','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #[J/kg humid air/K]
     
     #===========================================================================
     # begin with wet condition
@@ -789,7 +789,7 @@ def Get_Q_Single(H_in, #inlet refrigerant temperature in the segment
     R_W=log(EVA_Q['P']['Do']/(EVA_Q['P']['Do']-2.0*EVA_Q['P']['xp']))/(2.0*pi*EVA_Q['P']['K_T']*EVA_Q['P']['Ls']);
     R = EVA_Q['P']['Ro']+ R_W +Ri;#B.S., external thermal resistance under dry condition
 
-    CP_M=HAPropsSI('cp_ha','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #inlet air enthalpy [J/kg humid air/K]
+    CP_M=HAPropsSI('cp','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #inlet air enthalpy [J/kg humid air/K]
     
     #===========================================================================
     # begin with wet condition
@@ -918,7 +918,7 @@ def Get_Q_Single_For(HPi, #inlet refrigerant temperature in the segment
     R_W=log(EVA_Q['P']['Do']/(EVA_Q['P']['Do']-2.0*EVA_Q['P']['xp']))/(2.0*pi*EVA_Q['P']['K_T']*EVA_Q['P']['Ls']);
     R = EVA_Q['P']['Ro']+ R_W +Ri;#B.S., external thermal resistance under dry condition
     
-    CP_M=HAPropsSI('cp_ha','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #inlet air enthalpy [J/kg humid air/K]
+    CP_M=HAPropsSI('cp','P',101325,'T',EVA_Q['TPi']['T'],'R',EVA_Q['TPi']['P']) #inlet air enthalpy [J/kg humid air/K]
 
     #===========================================================================
     # begin with wet condition
