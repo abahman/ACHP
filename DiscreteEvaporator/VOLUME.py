@@ -49,9 +49,9 @@ def VolumeALL(TXPi,G,D,q,Ref):
     ********************************************************************/
     '''
 
-    X1=0.1;
-    X2=0.9;#0.1--original
-
+    X1=0.1; X2=0.9;
+    #X1=0.05; X2=0.95;       
+    #X1=0.01; X2=0.99;
     if (TXPi['X']>0.999 or TXPi['X']<0.001): #superheated or subcooled
         v = 1/PropertyTXPth('D',TXPi, Ref) #[m^3/kg]
          
