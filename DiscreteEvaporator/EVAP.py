@@ -58,7 +58,7 @@ def EvapTubeBend_Rev(Gr,HPo,m,P, Ref):
         P['m_Liq'] = P['m_Liq'] + m['V']/vm;    #B.S. record the liquid mass
         P['V_Liq'] = P['V_Liq'] + m['V'];       #B.S. record the liquid volume
     #---------------------------------------------B.S.
-    return 0
+    return HPo, m, P
 
 def EvapTubeBend_Fwd(Gr,HPo,m,P, Ref):
     '''
@@ -101,7 +101,7 @@ def EvapTubeBend_Fwd(Gr,HPo,m,P, Ref):
         P['V_Liq'] = P['V_Liq'] + m['V'];       #B.S. record the liquid volume
     #---------------------------------------------B.S.
 
-    return 0
+    return HPo, m, P
     
 def EvapTubeL_Rev(Gr,#refrigerant mass flux
                   HPo,#refrigerant outlet and inlet state
@@ -344,7 +344,7 @@ def EvapTubeL_Rev(Gr,#refrigerant mass flux
             P['count2'] = P['count2']+mr;#B.S., this addition is for counting how many evaporator circuits that involved with heat transfer calculation
     #---------------------------------------------B.S.
  
-    return 0
+    return (HPo, WHo, m, P)
 
 def EvapTubeL_Fwd(Gr,#refrigerant mass flux
                   HPo,#refrigerant outlet and inlet state
@@ -569,7 +569,7 @@ def EvapTubeL_Fwd(Gr,#refrigerant mass flux
             P['count2'] = P['count2']+mr;#B.S., this addition is for counting how many evaporator circuits that involved with heat transfer calculation
     #---------------------------------------------B.S.
 
-    return 0
+    return (HPo, WHo, m, P)
 
 def Get_Q_EVA(hi_0,#this function is for getting the refrigerant side heat transfer coefficent 
               Ref,
@@ -1241,7 +1241,7 @@ class StructEvapClass():
                 #endif
             #end i loop
             
-            self.Cal_HP(P,0,HPi);    #heat transfer and pressure drop calculation
+            P, HPi = self.Cal_HP(P,0,HPi);    #heat transfer and pressure drop calculation
             
             for i in range(self.BranNum):
                 self.Bra[i]['Ini']=0;
@@ -1275,7 +1275,7 @@ class StructEvapClass():
             #end i circle
         
         
-            self.Cal_HP(P,1,HPi);#heat transfer and pressure drop calculation
+            P, HPi = self.Cal_HP(P,1,HPi);#heat transfer and pressure drop calculation
             
             Gr=0;
             HPi['H']=0;
@@ -1446,7 +1446,8 @@ class StructEvapClass():
     
             IterN=IterN+1;
             
-            HPi=HPo.copy();
+            HPi['H']=HPo['H'];
+            HPi['P']=HPo['P'];
             
             for i in range(self.BranNum):
                 self.Bra[i]['Ini']=0;
@@ -1464,7 +1465,7 @@ class StructEvapClass():
                 #endif
             #end i circle
             
-            self.Cal_HP(P,0,HPi);#heat transfer and pressure drop calculation
+            P, HPi = self.Cal_HP(P,0,HPi);#heat transfer and pressure drop calculation
             
             for i in range(self.BranNum):
                 self.Bra[i]['Ini']=0;
@@ -1496,13 +1497,13 @@ class StructEvapClass():
                     #end j circle
                 #endif
             #end i circle
-        
-            self.Cal_HP(P,1,HPi);#heat transfer and pressure drop calculation
             
+            P, HPi = self.Cal_HP(P,1,HPi);#heat transfer and pressure drop calculation
+
             Gr=0;
             HPi['H']=0;
             HPi['P']=0;
-        
+
             #inlet nodes
             for i in range(self.NodNum):
                 if(self.Nod[i]['BranIN'][0]<0):#no inlet branch except the distribution line
@@ -1683,9 +1684,9 @@ class StructEvapClass():
                                 realk=k;
                             
                             if (self.Rev):
-                                EvapTubeL_Rev(self.Bra[i]['Gr'],HPi,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['TPi'],WHo,mi,P, self.Ref) #return updated (HPi, WHo, mi, P)
+                                HPi, WHo, mi, P = EvapTubeL_Rev(self.Bra[i]['Gr'],HPi,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['TPi'],WHo,mi,P, self.Ref) #return updated (HPi, WHo, mi, P)
                             else:
-                                EvapTubeL_Fwd(self.Bra[i]['Gr'],HPi,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['TPi'],WHo,mi,P, self.Ref) #return updated (HPi, WHo, mi, P)
+                                HPi, WHo, mi, P = EvapTubeL_Fwd(self.Bra[i]['Gr'],HPi,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['TPi'],WHo,mi,P, self.Ref) #return updated (HPi, WHo, mi, P)
                 
                             self.Tub[TubeN]['Seg'][realk]['WHo']['H']=WHo['H'];
                             self.Tub[TubeN]['Seg'][realk]['WHo']['W']=WHo['W'];
@@ -1697,9 +1698,9 @@ class StructEvapClass():
         
                         
                         if (self.Rev):
-                            EvapTubeBend_Rev(self.Bra[i]['Gr'],HPi,mi,P, self.Ref) #return updated HPi, mi, P
+                            HPi, mi, P = EvapTubeBend_Rev(self.Bra[i]['Gr'],HPi,mi,P, self.Ref) #return updated HPi, mi, P
                         else:
-                            EvapTubeBend_Fwd(self.Bra[i]['Gr'],HPi,mi,P, self.Ref) #return updated HPi, mi, P
+                            HPi, mi, P = EvapTubeBend_Fwd(self.Bra[i]['Gr'],HPi,mi,P, self.Ref) #return updated HPi, mi, P
                         
                         self.Tub[TubeN]['m']['m']=self.Tub[TubeN]['m']['m']+mi['m'];
                         self.Tub[TubeN]['m']['V']=self.Tub[TubeN]['m']['V']+mi['V'];
@@ -1781,7 +1782,7 @@ class StructEvapClass():
     
         P=Bak
         
-        return 0
+        return P, HPi
         
 
 
@@ -2018,7 +2019,7 @@ def Evaporator(Ref, #refrigerant string
     #Build_Eva(&D)        #correlate the moving boundary and lumped evaporator model
     Evap_struc = D.copy()          #output the evaporator construct
     #---------------------------------------B.S.
-  
+    print(DP_circuit, Evap_struc)
     return (HPo, HPi, TPo, Sm, Aflow, Evap_struc)
 
 def ExerciseEvaporator():
