@@ -93,6 +93,7 @@ def ConvCoeffAir_EVA(TPi,#air state
                 h = ConvCoeffAir_Corrugated(G, D);#for temporary, since the correlations is not available
                 #h = ConvCoeffAir_Spine(G, D);#empty now   
         except:
+            print('ConvCoeffAir_EVA::use constant heat transfer value')
             h= 67.4
                      
         if (P['wet']):
@@ -121,6 +122,7 @@ def ConvCoeffAir_EVA(TPi,#air state
                 f = FricAir_Corrugated(G, D);#for temporary, since the correlations is not available
                 #f = FricAir_Spine(G, D);#empty now   
         except:
+            print('ConvCoeffAir_EVA::use constant friction factor value')
             f= 1e-10
             
         return f
@@ -179,6 +181,7 @@ def ConvCoeffAir_CON(T,#air temperature
                 h = ConvCoeffAir_Corrugated(G, C);#for temporary, since the correlations is not available
                 #h = ConvCoeffAir_Spine(G, C);#empty now   
         except:
+            print('ConvCoeffAir_CON::use constant heat transfer value')
             h= 86
                      
         C['ho'] = h;#86;
@@ -204,6 +207,7 @@ def ConvCoeffAir_CON(T,#air temperature
                 f = FricAir_Corrugated(G, C);#for temporary, since the correlations is not available
                 #f = FricAir_Spine(G, C);#empty now   
         except:
+            print('ConvCoeffAir_CON::use constant friction factor value')
             f= 1e-10
             
         return f
@@ -1635,7 +1639,7 @@ def ConvCoeffEvapTP_microfin(TXPm,#refrigerant state
     Rx=((2*e*n_g*(1-sin(gama/2))/(pi*d_e*cos(gama/2))+1))/cos(beta);#geometrical parameter of the microfin tube
     F2=pow((d_0/d_e),V);
     F3=pow((G_0/G),Z);
-    x=TXPm.X;
+    x=TXPm['X'];
     Nusselt_cvsmooth=(0.023*pow((G*d_e/mu_l),0.8)*pow(Pr_l,(0.333333333)))*(pow(((1-x)+2.63*x*pow((rho_l/rho_g),0.5)),0.8));
     h_cv=k_l/d_e*Nusselt_cvsmooth*pow(Rx,SS)*pow((Bo*Fr),T)*F2*F3;#convective heat transfer coefficient
  

@@ -35,12 +35,12 @@ def CmineCrossFlow_dry(R,#overall heat resistance
         # all heat exchangers
         # refrigerant has infinite heat capacity rate
         # Cr=Cmin/Cmax=0 (Cmax=Cr=inf)
-        Cmin = ma* HAPropsSI('cp_ha','T',Ta['T'],'P',101325,'R',0) #[J/kg dry air/K]
+        Cmin = ma* HAPropsSI('cp','T',Ta['T'],'P',101325,'R',0) #[J/kg dry air/K]
         Ntu = 1/(R*Cmin);
         e = 1-exp(-1*Ntu);
         return Cmin*e
     else:
-        Ca = ma* HAPropsSI('cp_ha','T',Ta['T'],'P',101325,'R',0) #[J/kg dry air/K]
+        Ca = ma* HAPropsSI('cp','T',Ta['T'],'P',101325,'R',0) #[J/kg dry air/K]
         Cr = mr*PropertyTXPtr('C',TXP, Ref) #[J/kg/K]
         if (Ca>Cr):
             # crossflow heat exchanger

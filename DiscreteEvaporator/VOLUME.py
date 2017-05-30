@@ -88,68 +88,46 @@ def VolumeTP(TXP,G,D,q,Ref):
     ********************************************************************/
     '''
 
-    V=0.0;
-    try:
+    i = 1 #switch to select the void fraction model, -1: default (Baroczy model)
+    
+    if (i==1):
         V=VolumeTP_Baroc(TXP,G,D,Ref)
-    except:
-        print('Baroczy void faild, repeat')
-        V=VolumeTP_Baroc(TXP,G,D,Ref)
-#     switch(1) {
-#             case 1: 
-#                 V=VolumeTP_Baroc(TXP,G,D,Ref);
-#                 break;
-#             case 2:
-#                 V=VolumeTP_Zivi(TXP,G,D,Ref);
-#                 break;
-#             case 3:
-#                 V=VolumeTP_Hugh(TXP,G,D,Ref);
-#                 break;
-#             case 4:
-#                 V=VolumeTP_ACRC(TXP,G,D,Ref);
-#                 break;
-#             case 5:
-#                 V=VolumeTP_LM(TXP,G,D,Ref);
-#                 break;
-#             case 6:
-#                 V=VolumeTP_Rigot(TXP,G,D,Ref);
-#                 break;
-#             case 7:
-#                 V=VolumeTP_Smith(TXP,G,D,Ref);
-#                 break;
-#             case 8:
-#                 V=VolumeTP_Tandon(TXP,G,D,Ref);
-#                 break;
-#             case 9:
-#                 V=VolumeTP_Thom(TXP,G,D,Ref);
-#                 break;
-#             case 10:
-#                 V=VolumeTP_Premoli(TXP,G,D,Ref);
-#                 break;
-#             case 11:
-#                 V=VolumeTP_Homo(TXP,G,D,Ref);
-#                 break;
-#             case 12:
-#                 V=VolumeTP_Taitel(TXP,G,D,Ref);
-#                 break;
-#             case 13:
-#                 V=VolumeTP_Rouhani(TXP,G,D,Ref);
-#                 break;
-#             case 14:
-#                 if(fabs(q)<0.00000001): 
-#                     {V=VolumeTP_Baroc(TXP,G,D,Ref);
-#                      break;}
-#                 V=VolumeTP_Thome(TXP,G,D,q,Ref);
-#                 break;
-#             case 15:
-#                 if(fabs(q)<0.00000001): 
-#                     {V=VolumeTP_Baroc(TXP,G,D,Ref);
-#                     break;}
-#                 V=VolumeTP_FlowPattern(TXP,G,D,q,Ref);
-#                 break;
-#             default: 
-#                 V=VolumeTP_Baroc(TXP,G,D,Ref);
-#                 break;
-#         };
+    elif (i==2):
+        V=VolumeTP_Zivi(TXP,G,D,Ref);
+    elif (i==3):
+        V=VolumeTP_Hugh(TXP,G,D,Ref);
+    elif (i==4):
+        V=VolumeTP_ACRC(TXP,G,D,Ref);
+    elif (i==5):
+        V=VolumeTP_LM(TXP,G,D,Ref);
+    elif (i==6):
+        V=VolumeTP_Rigot(TXP,G,D,Ref);
+    elif (i==7):
+        V=VolumeTP_Smith(TXP,G,D,Ref);
+    elif (i==8):
+        V=VolumeTP_Tandon(TXP,G,D,Ref);
+    elif (i==9):
+        V=VolumeTP_Thom(TXP,G,D,Ref);
+    elif (i==10):
+        V=VolumeTP_Premoli(TXP,G,D,Ref);
+    elif (i==11):
+        V=VolumeTP_Homo(TXP,G,D,Ref);
+    elif (i==12):
+        V=VolumeTP_Taitel(TXP,G,D,Ref);
+    elif (i==13):
+        V=VolumeTP_Rouhani(TXP,G,D,Ref);
+    elif (i==14):
+        if(abs(q)<0.00000001): 
+            V=VolumeTP_Baroc(TXP,G,D,Ref);
+        else:
+            V=VolumeTP_Thome(TXP,G,D,q,Ref);
+    elif (i==15):
+        if(abs(q)<0.00000001): 
+            V=VolumeTP_Baroc(TXP,G,D,Ref);
+        else:
+            V=VolumeTP_FlowPattern(TXP,G,D,q,Ref);
+    else:
+        V=VolumeTP_Baroc(TXP,G,D,Ref)  
 
     return V
 
