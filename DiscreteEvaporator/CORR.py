@@ -663,7 +663,7 @@ def Circuit_DP_EVAP(Ga,TPi,TPo,P):
     else:
         DP = (f/D1+D2)*pow(Ga,2.0)*rho1/2;#pressure drop calculations for other fin types
      
-    return (DP, TPo, P)
+    return DP
 
 
 def Circuit_DP_COND(Ga,Tai,Tao,P):
@@ -697,7 +697,7 @@ def Circuit_DP_COND(Ga,Tai,Tao,P):
     else:
         DP = (f/D1+D2)*pow(Ga,2.0)*rho1/2;#pressure drop calculations for other fin types
         
-    return (DP, Tao, P)
+    return DP
 
 def FricAir_Plain(G,#air flux 
                   P):#parameters of the airside fin

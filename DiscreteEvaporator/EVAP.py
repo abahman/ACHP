@@ -2003,7 +2003,7 @@ def Evaporator(Ref, #refrigerant string
     
     HPo, HPi, TPo, Sm, Aflow, D = EvapCircuit(D['type'],mr,HPo,Ga,TPi,HPi,TPo,Sm,Aflow,D, Ref)
     
-    DP_circuit, TPo, D = Circuit_DP_EVAP(Ga,TPi,TPo,D)#B.S., calculate the airside pressure drop across the circuit
+    DP_circuit = Circuit_DP_EVAP(Ga,TPi,TPo,D)#B.S., calculate the airside pressure drop across the circuit
     #gOutData.Eva_AirDP = DP_circuit#for output
     
     #B.S.---------------------------------------
