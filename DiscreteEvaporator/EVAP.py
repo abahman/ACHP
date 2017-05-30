@@ -30,7 +30,7 @@ def EvapTubeBend(Gr,HPo,m,P, Ref):
     vo = VolumeALL(TXPo,Gr,P['Di'],0, Ref)
 
     dP = dPelbow(TXPo,Gr,P['Di'],P['Brad'], Ref)
-
+    
     HPm = {'H':0.0,'P':0.0};
     HPm['H']=HPo['H'];
     HPm['P']=HPo['P']-dP;
@@ -140,7 +140,7 @@ def EvapTubeL_Rev(Gr,#refrigerant mass flux
     ho = P['hAirAdj']*ho
  
     phi = FinEffect_Schmidt(ho,233,P['th'],P['y'],P['Do']);#B.S. calculate the fin efficiency with the Schmidt equation
- 
+    
     P['Ro'] = 1/(ho*(P['Apo']+phi*P['Af']));
     P['ho']=ho;
     P['Ga']=Ga;
@@ -715,12 +715,14 @@ def Get_Q_EVA(hi_0,#this function is for getting the refrigerant side heat trans
         try:
             TP_O=THtoTP(T_O,H_A_O);#outlet air state
         except:
+            print('Get_Q_EVA:: state above saturation')
             TP_O['T']=T_O;
             TP_O['P']=0.999;
     
     try:
         W_O=HAPropsSI('W','P',101325,'T',T_O,'R',TP_O['P']) #outlet air humidity ratio #[-]
     except:
+        print('Get_Q_EVA:: W_O = W_I')
         W_O=W_I;
 
     EVA_Q['W']=W_O;
@@ -868,12 +870,14 @@ def Get_Q_Single(H_in, #inlet refrigerant temperature in the segment
         try:
             TP_O=THtoTP(T_O,H_A_O);#outlet air state
         except:
+            print('Get_Q_Single:: state above saturation')
             TP_O['T']=T_O;
             TP_O['P']=0.999;
 
     try:
         W_O=HAPropsSI('W','P',101325,'T',T_O,'R',TP_O['P']) #outlet air humidity ratio #[-]
     except:
+        print('Get_Q_Single:: W_O = W_I')
         W_O=W_I;
 
     EVA_Q['W']=W_O;
@@ -1001,12 +1005,14 @@ def Get_Q_Single_For(HPi, #inlet refrigerant temperature in the segment
         try:
             TP_O=THtoTP(T_O,H_A_O);#outlet air state
         except:
+            print('Get_Q_Single_For:: state above saturation')
             TP_O['T']=T_O;
             TP_O['P']=0.999;
 
     try:
         W_O=HAPropsSI('W','P',101325,'T',T_O,'R',TP_O['P']) #wair.HumidityRatio(T_O,TP_O.P);#outlet air humidity ratio #[-]
     except:
+        print('Get_Q_Single_For:: W_O = W_I')
         W_O=W_I;
 
     EVA_Q['W']=W_O;
