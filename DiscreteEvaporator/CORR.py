@@ -1626,7 +1626,7 @@ def ConvCoeffEvapTP_microfin(TXPm,#refrigerant state
     q_nb=q;#nucleate boiling heat flux
  
     
-    if (abs(T_delta)>=0.1):#if zerotropic refrigerant, correct the nucleate boiling coefficent
+    if (abs(T_delta)>0.1):#if zerotropic refrigerant, correct the nucleate boiling coefficent
         Corr_NUC=1.0;#parameter for the effect of mass transfer resistance on nucleate boiling
         B_0=1.0;#scaling factor
         beta_l = 3e-4;#m/s, mass transfer coefficient
@@ -1670,7 +1670,7 @@ def ConvCoeffEvapTP_Smooth(TXPm,#refrigerant state
     #B.S.------------------------------------------------------
     /********************************************************************
     TXPm = mean refrigerant thermodynamic state defined by
-        temperature (C), quality (-), and pressure (kPa).
+        temperature (K), quality (-), and pressure (Pa).
     G = refrigerant mass flux (kg/m^2/s)
     D = pipe diameter (m)
     ********************************************************************/
@@ -1681,7 +1681,7 @@ def ConvCoeffEvapTP_Smooth(TXPm,#refrigerant state
     Eva_FlowPattern(TXPm,G,D,q,Ev, Ref);
     
     h = Ev['h_tp'];
-
+    
     return h
 
 
@@ -1705,7 +1705,7 @@ def Eva_FlowPattern(TXPm,#refrigerant state
     south Africa TJ2
     
     TXPm = mean refrigerant thermodynamic state defined by
-        temperature (C), quality (-), and pressure (kPa).
+        temperature (K, quality (-), and pressure (Pa).
     G = refrigerant mass flux (kg/m^2/s)
     d = pipe diameter (m)
     q = heat flux (W/m^2)
@@ -1734,7 +1734,7 @@ def Eva_FlowPattern(TXPm,#refrigerant state
     
     #vapor refrigerant properties
     TXP_prop['P']=TXPm['P'];
-    TXP_prop['X']=1.0;
+    TXP_prop['X']=1;
     TXP_prop['T']=PropertyTXPth('T',TXP_prop, Ref) #[K]
     rho_v = PropertyTXPth('D',TXP_prop, Ref) #[kg/m^3]
     mu_v = PropertyTXPtr('V',TXP_prop, Ref) #[Pa-s]
@@ -1743,7 +1743,7 @@ def Eva_FlowPattern(TXPm,#refrigerant state
     hv = PropertyTXPth('H',TXP_prop, Ref) #[J/kg/K]
     Tsat_g = PropertyTXPth('T',TXP_prop, Ref) #[K]
     
-
+    
     P_cr = PropsSI('PCRIT', Ref)     #critical pressure [Pa]
     T_cr = PropsSI('TCRIT', Ref)     #critical temperature [K]
     M = PropsSI('M', Ref)*1000   #molecular mass [kg/kmol]
@@ -1831,7 +1831,7 @@ def Eva_FlowPattern(TXPm,#refrigerant state
         beta_l = 3e-4;#m/s, mass transfer coefficient
         Corr_NUC = Correct_NUC_Boiling(Ev['h_nb'],q,delta_T,B_0,beta_l,rho_l,h_LV);#nucleate boiling correction
         Ev['h_nb']=Ev['h_nb']*Corr_NUC;#corrected
-    
+        
     Ev['h_v']=0.023*pow(Re_v,0.8)*pow(Pr_v,0.4)*k_v/d;#gas phase heat transfer coeffcient
     Ev['h_cb']=0.0133*pow(Re_l,0.69)*pow(Pr_l,0.4)*k_l/delta;#convective boiling coefficient
     Ev['h_wet']=pow((pow(Ev['h_nb'],3.0)+pow(Ev['h_cb'],3.0)),(1.0/3.0));#asympotic equation that combines the nucleate boiling coeffcient and the convective boiling coefficent
@@ -1845,7 +1845,7 @@ def Eva_FlowPattern(TXPm,#refrigerant state
         h_vaporphase=Nu*k_v/d;#vapor phase heat transfer coefficent
         Ev['h_tp']=1.0/(1.0/Ev['h_tp']+Corr_FlowBoiling/h_vaporphase);#correct the overall flow boiling coefficient
         
-
+    
     return 0
 
 
