@@ -320,7 +320,9 @@ def EvapTubeL_Rev(Gr,#refrigerant mass flux
     #===========================================================================
     hai = HAPropsSI('H','T',TPi['T'],'P',101325,'R',TPi['P']) #[J/kg humid air]
     W_I = HAPropsSI('W','T',TPi['T'],'P',101325,'R',TPi['P']) #[kg water/kg dry air]
-    HF_water=(K2C(EVA_Get_Q['T_S_O'])*4.1877+0.0594)*1e3; #A.B Convert T_S_O from Kelvin to Celcius  for the sake of this equation 
+    #HF_water=(K2C(EVA_Get_Q['T_S_O'])*4.1877+0.0594)*1e3; #correction for saturated liquid water enthalpy using T_S_O 
+    HF_water = HAPropsSI('H','T',EVA_Get_Q['T_S_O'],'P',101325,'R',1) #A.B much faster convergence using HAProps to find HF_water
+    
     WHo['H']=hai-q*mr/ma-HF_water*(W_I-EVA_Get_Q['W']);
     WHo['W'] = EVA_Get_Q['W'];#B.S. the outlet air humidity is calculated with the fuction Get_Q_EVA below.
      
@@ -544,7 +546,8 @@ def EvapTubeL_Fwd(Gr,#refrigerant mass flux
     #===========================================================================
     hai = HAPropsSI('H','T',TPi['T'],'P',101325,'R',TPi['P']) #[J/kg humid air]
     W_I = HAPropsSI('W','T',TPi['T'],'P',101325,'R',TPi['P']) #[kg water/kg dry air]
-    HF_water=(K2C(EVA_Get_Q['T_S_O'])*4.1877+0.0594)*1e3; #A.B add K2C converter
+    #HF_water=(K2C(EVA_Get_Q['T_S_O'])*4.1877+0.0594)*1e3; #correction for saturated liquid water enthalpy using T_S_O 
+    HF_water = HAPropsSI('H','T',EVA_Get_Q['T_S_O'],'P',101325,'R',1) #A.B much faster convergence using HAProps to find HF_water
     
     WHo['H']=hai-q*mr/ma-HF_water*(W_I-EVA_Get_Q['W']);
     WHo['W'] = EVA_Get_Q['W'];#B.S. the outlet air humidity is calculated with the fuction Get_Q_EVA below.
@@ -1988,7 +1991,7 @@ def Evaporator(Ref, #refrigerant string
     D['m_TOT']=0; D['m_TP']=0; D['m_Liq']=0; D['m_Vap']=0;
     D['mr']=0; D['ma_TOT']=0;
     D['UA_TOT']=0; D['UA_Liq']=0; D['UA_Vap']=0; D['UA_TP']=0;
-    D['UAw_TOT']=0; D['UAw_Liq']=0; D['UAw_Vap]']=0; D['UAw_TP']=0;
+    D['UAw_TOT']=0; D['UAw_Liq']=0; D['UAw_Vap']=0; D['UAw_TP']=0;
     D['LiqL']=0; D['TPL']=0; D['VapL']=0;
     D['L_dry']=0; D['L_wet']=0;
     D['count1']=0; D['count2']=0;
