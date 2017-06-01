@@ -146,6 +146,8 @@ def ETdim():
                 'HPo':{'H':0.0,'P':0.0},
                 'TXPo':{'T':0.0,'X':0.0,'P':0.0},
                 'TPi':{'T':0.0,'P':0.0},
+                'TPo':{'T':0.0,'P':0.0},    #A.B.
+                'Eva_AirDP':0.0,    #A.B.
                 'hAirAdj':0.0,'hRefAdj':0.0,'PRefAdj':0.0,'WAirAdj':0.0,
                 'type':int(0),
                 'Nrows':int(0),'Ndeep':int(0),
@@ -384,22 +386,22 @@ def WHtoTP(WH,TPi):
     for ACMODEL: temperature (T) and relative humidity (P).
     ********************************************************************/
     '''
-    def WHFunc(X,Params):
-        '''
-        /********************************************************************
-        Used by {WHtoTP} to convert thermodynamic state representations.
-        ********************************************************************/
-        '''
-        P = Params;
-        W = HAPropsSI('W','P',101325,'T',X[1],'R',X[0])
-        H = HAPropsSI('H','P',101325,'T',X[1],'R',X[0])
-        F = np.zeros(2)
-        F[0]=(W-P['W'])/P['W'];
-        Ref=P['H']; #B.S.
-        if(abs(Ref)<1e4):
-            Ref=1e4; #B.S.
-        F[1]=(H-P['H'])/Ref;#B.S.
-        return np.dot(F,F)
+#     def WHFunc(X,Params):
+#         '''
+#         /********************************************************************
+#         Used by {WHtoTP} to convert thermodynamic state representations.
+#         ********************************************************************/
+#         '''
+#         P = Params;
+#         W = HAPropsSI('W','P',101325,'T',X[1],'R',X[0])
+#         H = HAPropsSI('H','P',101325,'T',X[1],'R',X[0])
+#         F = np.zeros(2)
+#         F[0]=(W-P['W'])/P['W'];
+#         Ref=P['H']; #B.S.
+#         if(abs(Ref)<1e4):
+#             Ref=1e4; #B.S.
+#         F[1]=(H-P['H'])/Ref;#B.S.
+#         return np.dot(F,F)
 
 #     def WHFuncConst(X):
 #         '''
