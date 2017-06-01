@@ -1801,7 +1801,7 @@ class StructEvapClass():
 
 def EvapCircuit(Type,mr,HPo,GaI,TPi,HPi,TPo,Sm,Aflow,D, Ref):
     
-    EvapInfo = StructEvapClass("../InputDoc/EvapStruc.xlsx", Ref)
+    EvapInfo = StructEvapClass("InputDoc/EvapStruc.xlsx", Ref)
     EvapInfo.Rev = D['REV'];
     
     if (Type == 301): #user defined
@@ -1863,7 +1863,7 @@ def Evaporator(Ref, #refrigerant string
  
     if (evapInit > 0 or NSeg>0):
          
-        df = pd.read_excel('../InputDoc/Evap_Data.xlsx',sheetname='definition',header = 0) #open the file and all the data are under column 'Evaporator'
+        df = pd.read_excel('InputDoc/Evap_Data.xlsx',sheetname='definition',header = 0) #open the file and all the data are under column 'Evaporator'
          
         D['type'] = df.Evaporator[0]
         D['Di'] = df.Evaporator[1]             # tube inside diameter
