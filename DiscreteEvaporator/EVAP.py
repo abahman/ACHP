@@ -10,7 +10,7 @@ from CoolProp.HumidAirProp import HAPropsSI
 
 from ACHP.convert_units import *
 
-from extra_functions import HPtoTXP, TXPtoHP, PropertyTXPth, EVA_Get_Q_dic, toTXP, PreAcc, ETdim, HPtoTP, WPtoTP, THtoTP, WHtoTP, EvapNode, EvapBranch, TubeEvap, TubEvpSeg
+from extra_functions import HPtoTXP, TXPtoHP, PropertyTXPth, EVA_Get_Q_dic, toTXP, PreAcc, ETdim, HPtoTP, WPtoTP, THtoTP, WHtoTP, EvapNode, EvapBranch, TubeEvap, TubEvpSeg, PropertyTXPtr
 from PRESSURE import dPelbow, dPmom, GET_PreAcc
 from VOLUME import VolumeALL
 from CORR import Circuit_DP_EVAP, ConvCoeffAir_EVA, FinEffect_Schmidt, ConvCoeffSP, FricDP, ConvCoeffEvapTP_microfin
@@ -1026,6 +1026,237 @@ def Get_Q_Single_For(HPi, #inlet refrigerant temperature in the segment
 
 
 
+def Build_Eva(P,Ref):
+    '''
+    function for building the moving boundary model and lumpled model
+    '''
+    
+    P1 = ETdim()#for keeping the constructs calculated from last run
+
+    TXP_prop={'T':0,'X':0,'P':0};
+
+    #average density, pressure drop, cross-sectional area of each phase
+    if(P['count1']>0):
+        P['HP_TP1']['H']=P['HP_TP1']['H']/P['count1'];#get the average enthalpy of the first two-phase segment, counted from the entrance of the evaporator
+        P['HP_TP1']['P']=P['HP_TP1']['P']/P['count1'];#pressure of the first two-phase segment in the evaporator, counted from the entrance of the evaporator
+    else:
+        P['HP_TP1'] = P['HP_in'];#otherwise. the first segment of two-phase heat transfer is just at the entrance of the evaporator
+
+    if(P['count2']>0):
+        P['HP_TP2']['H']=P['HP_TP2']['H']/P['count2'];#get the average enthalpy of the last two-phase segment, counted from the entrance of the evaporator
+        P['HP_TP2']['P']=P['HP_TP2']['P']/P['count2'];#pressure of the last two-phase segment in the evaporator, counted from the entrance of the evaporator
+    else:
+        P['HP_TP2'] = P['HP_out'];#otherwise. the last segment of two-phase heat transfe is just at the exit of the evaporator
+    
+    P['V_TOT'] = P['V_Liq']+P['V_Vap']+P['V_TP'];#total inner volume
+    P['L_TOT'] = P['VapL']+P['TPL']+P['LiqL'];#total tube length
+    P['A_TOT']=P['V_TOT']/P['L_TOT'];#total heat transfer outside surface
+
+    
+    # the followings are average density, pressure drop, cross-sectional area of each phase
+    
+    #===========================================================================
+    # prepare heat transfer calculation
+    #===========================================================================
+    P['Ga_meanL'] = P['ma_TOT']/P['L_TOT'];#average air flow rate for per tube length
+
+    ma_v = P['Ga_meanL'] * P['VapL'];#air flow rate across the vapor-phase region
+    ma_tp = P['Ga_meanL'] * P['TPL'];#air flow rate across the two-phase region
+    ma_l = P['Ga_meanL'] * P['LiqL'];#air flow rate across the liquid-phase region
+    
+    cp_a= HAPropsSI('cp','T',P['TPi']['T'],'P',101325,'R',P['TPi']['P']) #[J/kg dry air/K] #air specific heat
+    
+    #inlet state of the evaporator
+    #TXP1 = {'T':0,'X':0,'P':0}
+    TXP1 = HPtoTXP(P['HP_in'],Ref)
+    TXP_prop['P']=TXP1['P'];
+    TXP_prop['X']=1;
+    Tsat1 = PropertyTXPth('T',TXP_prop,Ref);#saturation temperature corresponding to the inlet state of the evaporator [K]
+    
+    TXP_prop['P']=TXP1['P'];
+    TXP_prop['T']=Tsat1;
+    TXP_prop['X']=0;
+    cp_rl = PropertyTXPtr('C',TXP_prop,Ref);#refrigerant liquid specific heat corresponding to the inlet state of the evaporator [J/kg/K]
+    
+    #TXP2 ={'T':0,'X':0,'P':0};#the first two-phase state point counted from the entrance of the evaporator
+    TXP2= HPtoTXP(P['HP_TP1'],Ref);
+    #TXP4={'T':0,'X':0,'P':0};#outlet state of the evaporator
+    TXP4= HPtoTXP(P['HP_out'],Ref);
+
+    #TXP3={'T':0,'X':0,'P':0};#the last two-phase state point counted from the entrance ofthe evaporator
+    TXP3= HPtoTXP(P['HP_TP2'],Ref);
+    TXP_prop['P']=TXP3['P'];
+    TXP_prop['X']=1;
+    Tsat3 = PropertyTXPth('T',TXP_prop,Ref);#saturation temperature corresponding to the last two-phase segment of the evaporator [K]
+    
+    TXP_prop['P']=P['HP_TP2']['P'];
+    TXP_prop['T']=Tsat3;
+    TXP_prop['X']=1;
+    Hsat2= PropertyTXPth('H',TXP_prop,Ref);#saturation enthalpy corresponding to the last two-phase segment of the evaporator [J/kg]
+    
+    if(P['TPL']>0):
+        P['H2_residual'] = Hsat2 - P['HP_TP2']['H'];#prepared for maintaining the consistency in the moving boundary model
+
+    TXP_prop['P']=TXP4['P'];
+    TXP_prop['X']=1;
+    Tsat4 = PropertyTXPth('T',TXP_prop,Ref);#calculate the vapor specific heat with the outlet state of the evaporator [K]
+    
+    TXP_prop['P']=TXP4['P'];
+    TXP_prop['T']=Tsat4;
+    TXP_prop['X']=1;
+    cp_rv = PropertyTXPtr('C',TXP_prop,Ref);#calculate the vapor specific heat with the outlet state of the evaporator [J/kg/K]
+
+    
+    #===========================================================================
+    # heat transfer of the vapor phase
+    #===========================================================================
+    cmin_v=0;
+    Cr_v = 0;
+    Q_v = P['mr']*(P['HP_out']['H']-P['HP_TP2']['H']);#actual gas phase heat transfer
+    if(ma_v>0 and Q_v>0):
+        Cr_v =(P['mr']*cp_rv)/(ma_v*cp_a);#calculate Cr_v, cmin_v
+        if(ma_v*cp_a>P['mr']*cp_rv):
+            cmin_v = P['mr']*cp_rv; 
+            Cr_v = Cr_v;
+        else:
+            cmin_v = ma_v*cp_a;
+            Cr_v = 1/Cr_v;
+        Qv_max = cmin_v*(P['TPi']['T']-TXP4['T']);#based on the exit gas temperature, this is for avoiding the additional iteration in the later calculation
+        e_v = Q_v/Qv_max;#actual effectiveness
+        NTU_v = P['UA_Vap']/cmin_v;
+        e_sup =0;    
+        if(ma_v*cp_a>P['mr']*cp_rv):#cmax unmixed
+            l = 1-exp(-Cr_v*NTU_v);
+            e_sup = 1 - exp(-l/Cr_v);#theoretical effectiveness
+        else: #cmin unmixed
+            l = -Cr_v*(1-exp(-NTU_v));
+            e_sup = (1-exp(l))/Cr_v;#theoretical effectiveness
+        
+        P['r_v'] = e_v/e_sup;#parameter for adjusting the effectiveness
+        P['U_Vap'] = P['UA_Vap']/(P['VapL']);#get the average heat transfer coefficent
+        P['rho_Vap'] = P['m_Vap']/P['V_Vap'];#averge gas-phase density
+        P['A_Vap']=P['V_Vap']/P['VapL'];#average gas-phase heat transfer area
+        P['DP_Vap'] = (P['HP_TP2']['P']-P['HP_out']['P'])/P['V_Vap'];#average gas-phase pressure drop gradient
+
+    else: #use the parameter stored at last time
+        P['r_v'] = P1['r_v'];
+        P['U_Vap'] = P1['U_Vap'];
+        P['rho_Vap'] = P1['rho_Vap'];
+        P['A_Vap'] = P1['A_Vap'];
+        P['DP_Vap'] = P1['DP_Vap'];
+
+
+    #===========================================================================
+    # heat transfer of liquid phase
+    #===========================================================================
+    cmin_l=0;
+    Cr_l = 0;
+        
+    if(ma_l>0):
+        Q_l = P['mr']*(P['HP_TP1']['H']-P['HP_in']['H']);#liquid phase heat transfer amount
+        Cr_l = (P['mr']*cp_rl)/(ma_l*cp_a);#calculate Cr_l and cmin_l with the theoritical method
+        if(ma_l*cp_a>P['mr']*cp_rl):
+            cmin_l = P['mr']*cp_rl;
+            Cr_l=Cr_l;
+        else:
+            cmin_l = ma_l*cp_a;
+            Cr_l =1/Cr_l;
+    
+        Ql_max = cmin_l*(P['TPi']['T']-TXP2['T']);#calculate the effectiveness with the theoritical method
+        e_l = Q_l/Ql_max;#actual liquid-phase heat transfer effectiveness
+        NTU_l=P['UA_Liq']/cmin_l;
+        e_sub =0;#theoritical two-phase heat transfer effectiveness
+        
+        if(ma_l*cp_a>P['mr']*cp_rl): #cmax unmixed 
+            l = 1-exp(-Cr_l*NTU_l);
+            e_sub = 1 - exp(-l/Cr_l);
+        else: #cmin unmixed
+            l = -Cr_l*(1-exp(-NTU_l));
+            e_sub = (1-exp(l))/Cr_l;
+    
+        P['r_l'] = e_l/e_sub;#parameter for adjusting the theoritical heat transfer effectiveness
+        P['U_Liq'] = P['UA_Liq']/(P['LiqL']);#get the averge heat transfer conductance
+        P['rho_Liq'] = P['m_Liq']/P['V_Liq'];#averge liquid phase density
+        P['A_Liq'] = P['V_Liq']/P['LiqL'];#averge liquid-phase heat transfer surface area
+        P['DP_Liq'] = (P['HP_in']['P']-P['HP_TP1']['P'])/P['V_Liq'];#average liquid-phase pressure drop gradient
+
+    else:#use the parameters stored last run
+        P['r_l'] = P['r_v'];#use the parameters of gas for the liquid-phase
+        P['U_Liq'] = P['U_Vap'];
+    
+
+    #===========================================================================
+    # heat transfer of two-phase
+    #===========================================================================
+    H_A_I=HAPropsSI('H','T',P['TPi']['T'],'P',101325,'R',P['TPi']['P']) #inlet air enthalpy [J/kg_da]
+    H_SAT=HAPropsSI('H','T',TXP3['T'],'P',101325,'R',0.999)#air saturation enthalpy at the refrigerant temperature of the last two-phase segment, counted from the entrance of the evaporator
+    
+    if(P['TPL']>0):
+        Q_tp = P['mr']*(P['HP_TP2']['H']-P['HP_TP1']['H']);#two-phase heat transfer amount
+        P['Uw_TP'] = P['UAw_TP']/P['L_wet'];#average wet two-phase heat transfer conductance
+        P['U_TP'] = P['UA_TP']/(P['TPL']-P['L_wet']);#average dry two-phase heat transfer conductance
+        
+        #dry heat transfer
+        cmintp_dry = ma_tp*cp_a;     
+        UA_TP = P['U_TP']*P['TPL'];
+        NTU_tp = UA_TP/cmintp_dry;
+        e_dry = 1-exp(-NTU_tp);
+        Qtp_dry = e_dry*cmintp_dry*(P['TPi']['T']-TXP3['T']);
+    
+        #wet heat transfer
+        UAw_TP = P['Uw_TP']*P['TPL'];
+        NTUw_tp = UAw_TP/ma_tp;
+        e_wet = 1-exp(-NTUw_tp);
+        
+        Qtp_wet = e_wet*ma_tp*(H_A_I- H_SAT);
+        
+        if(Qtp_wet>Qtp_dry):
+            P['r_tp']= Q_tp/Qtp_wet;
+        else:
+            P['r_tp']= Q_tp/Qtp_dry;
+        
+        P['rho_TP'] = P['m_TP']/P['V_TP'];#average two-phase density
+        P['A_TP']=P['V_TP']/P['TPL'];#average two-phase heat transfer surface area
+        P['DP_TP'] = (P['HP_TP1']['P']-P['HP_TP2']['P'])/P['V_TP'];#average two-phase pressure drop gradient
+
+    else:#get the parameters from last run
+        P['rho_TP'] = P1['rho_TP'];
+        P['A_TP'] = P1['A_TP'];    
+        P['DP_TP'] = P1['DP_TP'];
+        P['r_tp'] = P1['r_tp'];
+        P['Uw_TP'] = P1['Uw_TP'];#wet
+        P['U_TP'] = P1['U_TP'];#dry
+
+    
+    #===========================================================================
+    # lumped model
+    #===========================================================================
+    Q_TOT = P['mr']*(P['HP_out']['H']-P['HP_in']['H']);#overall heat transfer amount
+    if(Q_TOT>0):
+        P['DP_TOT'] = (P['HP_in']['P']-P['HP_out']['P']);#overall pressure drop
+        epsilonT_dry = Q_TOT/(P['ma_TOT']*cp_a)/(P['TPi']['T']-Tsat4);#dry heat transfer effectiveness
+        NTUT_dry = -log(1-epsilonT_dry);#dry heat transfer NTU
+        P['UA_TOT'] = NTUT_dry*P['ma_TOT']*cp_a;#dry heat transfer overall conductance
+        
+        H_SAT_E=HAPropsSI('H','T',Tsat4,'P',101325,'R',0.999)#saturated air enthalpy at the outlet refrigerant temperature [J/kg_da]
+        
+        epsilonT_wet = Q_TOT/P['ma_TOT']/(H_A_I-H_SAT_E);#wet heat transfer effectiveness
+        NTUT_wet = -log(1-epsilonT_wet);
+        P['UAw_TOT'] = NTUT_wet*P['ma_TOT'];#wet heat transfer overall conductance
+
+    else:#get the parameters from last run
+        P['DP_TOT'] = P1['DP_TOT'];
+        P['UA_TOT'] = P1['UA_TOT'];
+        P['UAw_TOT'] = P1['UAw_TOT'];
+    
+
+    #store the information from this run
+    for key, value in P.iteritems():
+        P[key] = value
+            
+
+    return 0
+
 
 
 class StructEvapClass():
@@ -1615,7 +1846,7 @@ class StructEvapClass():
             P['UA_Vap'] = 0;
             P['UA_TP'] = 0;
             P['UA_Liq'] = 0;
-        
+            
             if Pos == 0: 
                 if (self.Bra[i]['Ini']==1):#this branch has been initialized
                     Logic=1;
@@ -1745,7 +1976,7 @@ class StructEvapClass():
                     self.Bra[i]['Para_Struc'][9]=P['UA_Vap'];
                     self.Bra[i]['Para_Struc'][10]=P['UA_TP'];
                     self.Bra[i]['Para_Struc'][11]=P['UA_Liq'];
-                
+                    
                 else: #there is an equivalent branch for it
                     NoBra=self.Bra[i]['EqulNo'];
                     if (self.Rev):
@@ -2023,7 +2254,7 @@ def Evaporator(Ref, #refrigerant string
     D['TPo']['P'] = TPo['P'] #A.B. air outlet humidity ratio [-]
     D['Eva_AirDP'] = DP_circuit #A.B. air side pressure drop [Pa]
     D['ma_TOT'] = Ga*D['Aflow']*D['NSeg']*D['Nrows']
-    #Build_Eva(&D)        #correlate the moving boundary and lumped evaporator model
+    #Build_Eva(D, Ref)        #correlate the moving boundary and lumped evaporator model
     for key, value in D.iteritems(): #A.B. output the evaporator construct (copy back dictionary "D" to dictionary "Evap_struc")
         Evap_struc[key] = value
     #---------------------------------------B.S.

@@ -35,7 +35,7 @@ def EvapBranch():
         'HPi':{'H':0.0,'P':0.0},#inlet enthalpy and pressure 
         'HPo':{'H':0.0,'P':0.0},#outlet enthalpy and pressure
         'm':{'m':0.0,'V':0.0},  #mass and volume
-        'Para_Struc':[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]#output parameters of this condenser branch
+        'Para_Struc':[0.0 for k in range(17)]#output parameters of this condenser branch
         }
     
     return evap_branch
@@ -197,7 +197,7 @@ def ETdim():
                 'wet':int(0),#wet=0 to calculate dry heat transfer, wet=1 to calculate wet heat transfer
                 'REV':int(0),
                 'cfma':0.0,
-                'Hout8':[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],'DPr':[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],#superheat and pressure drop at each evaporator branch (array of 10 elements)
+                'Hout8':[0.0 for k in range(10)],'DPr':[0.0 for k in range(10)],#superheat and pressure drop at each evaporator branch (array of 10 elements)
                 }
 
     return evap_struc
