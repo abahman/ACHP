@@ -35,7 +35,7 @@ def EvapBranch():
         'HPi':{'H':0.0,'P':0.0},#inlet enthalpy and pressure 
         'HPo':{'H':0.0,'P':0.0},#outlet enthalpy and pressure
         'm':{'m':0.0,'V':0.0},  #mass and volume
-        'Para_Struc':[0.0 for k in range(17)]#output parameters of this condenser branch
+        'Para_Struc':[0.0 for k in range(12)]#output parameters of this condenser branch
         }
     
     return evap_branch
@@ -59,12 +59,64 @@ def TubeEvap():
     return tube_evap
 
 def TubEvpSeg():
-    
+
     tub_evp_seg = {'TPi':{'T':0.0,'P':0.0}, 'WHo':{'W':0.0,'H':0.0}}
     
     return tub_evp_seg
     
-        
+def CondNode():
+    cond_node={
+        'NodNo':int(0),#node number
+        'InNum':int(0),#number of tubes flowing into the node
+        'OutNum':int(0),#number of the tubes flowing out of the node
+        'BranIN':[],#index of the tube branch flowing in
+        'BranOUT':[],#index of the tube branch flowing out
+        }
+    
+    return cond_node
+
+def CondBranch():
+    cond_branch = {
+        'BranNo':int(0),     #branch number
+        'EqulNo':int(0),     #the equivalent branch number
+        'Ini':int(0),        #signal variable
+        'GrFac':0.0,    #mass flow distribution factor of the branch
+        'Gr':0.0,       #mass flux of the branch
+        'TubNum':int(0),     #total tube numbers in the branch
+        'TubNo':[],      #index of the tubes in the branch
+        'HPi':{'H':0.0,'P':0.0},#inlet enthalpy and pressure 
+        'HPo':{'H':0.0,'P':0.0},#outlet enthalpy and pressure
+        'm':{'m':0.0,'V':0.0},  #mass and volume
+        'Para_Struc':[0.0 for k in range(12)]#output parameters of this condenser branch
+        }
+    
+    return cond_branch
+
+
+def TubeCond():
+    tube_cond = {
+        'TubNo':int(0),             #tube No
+        'RowNo':int(0),             #the row no where the tube located
+        'RefUpstream':int(0),       #Upstream tube No at the refrigerant side (flow direction)
+        'AirUpstreamUpper':int(0),  #Upstream tube No at the air upper side
+        'AirUpstreamLower':int(0),  #Upstream tube No at the air lower side
+        'GaFac':0.0,                #air flow distribution factor
+        'Ga':0.0,                   #maximum air flow rate in the segment
+        'even':int(0),              #tube flow direction
+        'Seg':[],
+        'HPi':{'H':0.0,'P':0.0},    #refrigerant inlet state
+        'HPo':{'H':0.0,'P':0.0},    #refrigerant outlet state
+        'm':{'m':0.0,'V':0.0},      #mass and volume of the tube
+        }
+    
+    return tube_cond
+
+def TubCndSeg():
+    
+    tub_cnd_seg = {'Tai':{'T':0.0,'P':0.0}, 'hao':{'W':0.0,'H':0.0}}
+    
+    return tub_cnd_seg
+
 def FlowPattern():
     
     flowpattern = {'JudgPattern':0,'G_wavy':0.0,'G_strat':0.0,'G_mist':0.0,
