@@ -202,6 +202,62 @@ def ETdim():
 
     return evap_struc
 
+def CGP():
+    '''
+    This function return an initialized dictionary (with zeros) for all evaporator structure
+    '''
+    cond_struc={'Di':0.0,'L':0.0,'xp':0.0,'Df':0.0,'z':0.0,'th':0.0,'vsp':0.0,'Brad':0.0,
+                'NSeg':int(0.0),
+                'Dh':0.0,'Do':0.0,'y':0.0,'Ls':0.0,'N':0.0,'Ax':0.0,'Api':0.0,'Apo':0.0,'Af':0.0,'Aflow':0.0,'Vs':0.0,'Blen':0.0,
+                'Ro':0.0,
+                'hAirAdj':0.0,'hRefAdj':0.0,'PRefAdj':0.0,
+                'hRefAdj_Sub':0.0,#B.S. parameter for adjusting the heat transfer ratio between the two-phase heat transfer and single-phase heat transfer
+                'Nbranchs':int(0.0),'Nmaintubes':int(0.0),'Nsubtubes':int(0.0),
+                'Ndeep':int(0.0),#B.S. accounting for the row number in the airflow direction
+                'cfmA':0.0,'cfmB':0.0,'cfmC':0.0,
+                'Microfin':int(0.0),# B.S. for judging if it is micro-fin tube
+                'finN':0.0, 'gama':0.0, 'beta':0.0, 'finH':0.0,#B.S. micro-fin geometry
+                'w_b':0.0, 'w_e':0.0, 'w_z':0.0, #B.S. micro-fin geometry
+                'D_b':0.0, 'D_m':0.0, #B.S. micro-fin geometry
+                'Acs':0.0,'P_H':0.0, 'Dh_i':0.0,#B.S. micro-fin geometry
+                'airFin':int(0.0), #B.S. airside fin type
+                'sub1':0.0,'sub2':0.0,'sub3':0.0,'sub4':0.0,'sub5':0.0,#for inputing sub-structures of fin surface
+                'P_l':0.0, #airside fin geometry
+                'K_T':0.0, 'K_F':0.0,# conductance factor
+                'Ga':0.0,#airside velocity
+                'airT':0.0,#air temperature
+                'Frontal_A':0.0, #frontal area
+                'GetP':0.0,#calculate the airside pressure drop
+                
+                #variables for generating the simple condenser function
+                'V_TOT':0.0, 'V_TP':0.0, 'V_Liq':0.0, 'V_Vap':0.0,#B.S., inner volume of different phase
+                'L_TOT':0.0,'LiqL':0.0,'VapL':0.0,'TPL':0.0,#B.S., tube length of different phase
+                'A_TOT':0.0,'A_Liq':0.0,'A_Vap':0.0,'A_TP':0.0,#heat tranfer surface area of different phase
+        
+                'm_TOT':0.0, 'm_TP':0.0, 'm_Liq':0.0, 'm_Vap':0.0,#air mass flow rate across different phase region
+                'rho_TOT':0.0, 'rho_TP':0.0, 'rho_Liq':0.0, 'rho_Vap':0.0,#average density of different phases
+        
+                'U_TP':0.0, 'U_Liq':0.0, 'U_Vap':0.0,#average heat transfer conductance per tube length
+                'DP_TOT':0.0, 'DP_TP':0.0, 'DP_Liq':0.0, 'DP_Vap':0.0,#average pressure drop gradient of different phase
+                'UA_TOT':0.0, 'UA_Liq':0.0,'UA_Vap':0.0,'UA_TP':0.0,#heat transfer conductance of diffferent phase
+        
+                'Tai':{'T':0.0,'P':0.0},#inlet air state A.B.
+                'Tao':{'T':0.0,'P':0.0}, #outlet air state A.B.
+                'Cond_AirDP':0.0,    #A.B.
+                'mr':0.0, 'ma_TOT':0.0,#refrigerant and air mass flow rate
+        
+                'HP_in':{'H':0.0,'P':0.0}, 'HP_TP1':{'H':0.0,'P':0.0}, 'HP_TP2':{'H':0.0,'P':0.0}, 'HP_out':{'H':0.0,'P':0.0},#state parameters at important locations
+                'Ga_meanL':0.0,#averager mass flow rate per tube length
+    
+                'r_v':0.0, 'r_l':0.0,'r_tp':0.0,#parameters for adjusting the theoritical heat transfer effectivenss of different phase
+                'count1':0.0,'count2':0.0,#count the state points of two-phase flow end and beginning
+                'H1_residual':0.0, 'H2_residual':0.0,#for consistency of the moving boundary model analysis
+                #------------------------------B.S.
+                #Lumped model included above---------------------------B.S. 
+                'cfma':0.0} # cfm air
+
+    return cond_struc
+
 def EVA_Get_Q_dic():
     '''
     This function return an initialized dictionary (with zeros)
