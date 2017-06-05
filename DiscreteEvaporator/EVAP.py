@@ -1605,7 +1605,7 @@ class StructEvapClass():
         HPi['H']=H_in;
         HPi['P']=P_in;
     
-        #Sm->m=Sm->m + (2.87-2.766)+(3.10-3.05602)/(2.0792-7.955)*(P->VapL-7.955);#for three points charge tuning
+        #Sm['m']=Sm['m'] + (2.87-2.766)+(3.10-3.05602)/(2.0792-7.955)*(P['VapL']-7.955);#for three points charge tuning
         
         return 0
     
@@ -1829,7 +1829,7 @@ class StructEvapClass():
         Bak = P.copy() #keeping the information of the evaporator
         
         if(Pos<0 or Pos>1):
-            print("Cal_HP, Wrong position")
+            print("StructEvapClass::Cal_HP, Wrong position")
         
     
         for i in range(self.BranNum):

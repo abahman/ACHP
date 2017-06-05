@@ -6,6 +6,16 @@ from scipy.optimize import brentq #solver to find roots (zero points) of functio
 from CoolProp.HumidAirProp import HAPropsSI
 from CoolProp.CoolProp import PropsSI
 
+def ACRP():
+    acrp = {'HPi':{'H':0.0,'P':0.0},
+            'Go':0.0,'Gi':0.0,'Di':0.0,'vi':0.0,'si':0.0}
+    return acrp
+
+def CLRP():
+    clrp = {'HPi':{'H':0.0,'P':0.0},
+            'q':0.0,'K':0.0,'G':0.0,'D':0.0,'vi':0.0}
+    return clrp
+
 def VolParams():
     
     vol_params = {'vv':0,'vl':0,'ul':0,'uv':0,'Beta':0,'G':0,'D':0,'x':0}
@@ -537,11 +547,11 @@ def WHtoTP(WH,TPi):
     X = (TPi['P'], TPi['T'])
     try:
 #         bnds = ((0.05, 1.0), (-20+273.15, 50+273.15))
-#         cons = {'type':'ineq', 'fun':WHFuncConst}
-#         cons = ({'type': 'ineq', 'fun': lambda x: x[0]-1},
-#                 {'type': 'ineq', 'fun': lambda x: 0.05-x[0]},
-#                 {'type': 'ineq', 'fun': lambda x: x[1]-TWAIRMAX},
-#                 {'type': 'ineq', 'fun': lambda x: TWAIRMIN-x[1]})
+#         cons = {'type':'eq', 'fun':WHFuncConst}
+#         cons = ({'type': 'eq', 'fun': lambda x: x[0]-1},
+#                 {'type': 'eq', 'fun': lambda x: 0.05-x[0]},
+#                 {'type': 'eq', 'fun': lambda x: x[1]-TWAIRMAX},
+#                 {'type': 'eq', 'fun': lambda x: TWAIRMIN-x[1]})
 #         res = minimize(WHFunc, X, args=(WHo), method='SLSQP', bounds=bnds, constraints=(), options={'eps':1e-4, 'maxiter': 100, 'ftol':1e-6})
 #         TPo['P']=res.x[0]
 #         TPo['T']=res.x[1]
@@ -555,6 +565,37 @@ def WHtoTP(WH,TPi):
             raise
         
     return TPo
+
+def HatoTa(ha):
+    '''
+    /********************************************************************
+    Converts the enthalpy of dry air to temperature of dry air.
+    ********************************************************************/
+    '''
+    def HaTaFunc(T,Params):
+        '''
+        /********************************************************************
+        Function called by HatoTa().  It returns a residual that is zero
+        when the temperature corresponding to known enthalpy is selected.
+        ********************************************************************/
+        '''
+        ha = Params;
+        h = HAPropsSI('H','P',101325,'T',T,'R',0)
+        dh = (ha['H']-h)/(ha['H']);
+        return dh;
+    
+    Ta = {'T':0.0,'P':0.0}
+    
+#     TAIRMAX = 80+273.15
+#     TAIRMIN = -20+273.15
+#     dh = HaTaFunc(TAIRMAX,ha);
+#     if(dh>0):
+#         return 1e20;
+# 
+#     Ta['T'] = brentq(HaTaFunc,TAIRMIN,TAIRMAX,args=(ha),xtol=1e-8,rtol=6e-8,maxiter=40)
+    Ta['T'] = HAPropsSI('T','P',101325,'H',ha['H'],'R',0)
+    
+    return Ta
 
 
 def PropertyTXPth(prop,TXP,Ref):
