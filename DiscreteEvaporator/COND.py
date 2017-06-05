@@ -99,7 +99,7 @@ def CondTubeL_new(Gr,   #refigerant mass flux
     DP_FR = FricDP(TXPi, Gr, q, P, Ref);#calculate the fictional pressure drop, no matter single-phase or two-phase flow
     
     if(TXPi['X']>0.05 and TXPi['X']<0.99):
-    #B.S. packing up the parameters for calculating the acceleration pressure drop
+        #B.S. packing up the parameters for calculating the acceleration pressure drop
         Preacc=PreAcc();
         Preacc['DP_FR']=DP_FR;
         Preacc['G']=Gr;
@@ -252,7 +252,7 @@ def CondMan(ni,no,D,G,HPi,Ref):
     try:
         X = (HPi['H'],HPi['P']) #initial guess
         cons = {'type': 'ineq', 'fun': HPLimitsConst, 'args': (Ref,)}
-        res = minimize(AreaChangeResid, X, args=(P,Ref), method='SLSQP', bounds=(), constraints=cons, options={'eps':1e-4, 'maxiter': 100, 'ftol':1e-6})
+        res = minimize(AreaChangeResid, X, args=(P,Ref,), method='SLSQP', bounds=(), constraints=cons, options={'eps':1e-4, 'maxiter': 100, 'ftol':1e-6})
         HPi['H'] = res.x[0]
         HPi['P'] = res.x[1]
         G = P['Go']
@@ -276,7 +276,7 @@ def CondMan(ni,no,D,G,HPi,Ref):
     try:
         X = (HPi['H'],HPi['P']) #initial guess
         cons = {'type': 'ineq', 'fun': HPLimitsConst, 'args': (Ref,)}
-        res = minimize(CompLossResid, X, args=(Q,Ref), method='SLSQP', bounds=(), constraints=cons, options={'eps':1e-4, 'maxiter': 100, 'ftol':1e-6})
+        res = minimize(CompLossResid, X, args=(Q,Ref,), method='SLSQP', bounds=(), constraints=cons, options={'eps':1e-4, 'maxiter': 100, 'ftol':1e-6})
         HPi['H'] = res.x[0]
         HPi['P'] = res.x[1]
         G = Q['G']
@@ -354,7 +354,7 @@ def CompLossResid(X,Params,Ref):
 
     # momentum conservation
     t1 = P['G']*P['G']*(P['vi'] + vo)*P['K']/4.0;
-    t2 = 1.0e3*(HPo['P']-P['HPi']['P']);
+    t2 = (HPo['P']-P['HPi']['P']);
     t3 = P['G']*P['G']*(vo - P['vi']);
 
     # stagnation enthalpy residual
@@ -386,22 +386,22 @@ def HPLimitsConst(X,Ref):
     
     F = np.zeros(4)
     
-    F[0] = HPo['P'] - PMINth
-    F[1] = PMAXth - HPo['P']
+    F[0] = PMINth - HPo['P']
+    F[1] = HPo['P'] - PMAXth
 
     TXP_prop['P']=HPo['P'];
     TXP_prop['T']=TMIN;
     TXP_prop['X']=0;
     hmin = PropertyTXPth('H',TXP_prop,Ref);
     
-    F[2] = HPo['H'] - hmin
+    F[2] = hmin - HPo['H'] 
     
     TXP_prop['P']=HPo['P'];
     TXP_prop['T']=TMAX;
     TXP_prop['X']=1;
     hmax = PropertyTXPth('H',TXP_prop,Ref);
     
-    F[3] = hmax - HPo['H']
+    F[3] = HPo['H'] - hmax
 
     return F
 
@@ -599,7 +599,7 @@ def Build_Cond(P,Ref):
     # lumped model
     #===========================================================================
     Q_TOT = P['mr']*(P['HP_in']['H']-P['HP_out']['H']);#overall heat transfer amount
-    epsilon_TOT = Q_TOT/(P['ma_TOT']*cp_a)/(Tsat1-P['Tai']);#overall effectivenss
+    epsilon_TOT = Q_TOT/(P['ma_TOT']*cp_a)/(Tsat1-P['Tai']['T']);#overall effectivenss
     P['DP_TOT'] = (P['HP_in']['P']-P['HP_out']['P']);#overall pressure drop
     NTU_TOT = -log(1-epsilon_TOT);
     P['UA_TOT'] = NTU_TOT*P['ma_TOT']*cp_a;#overall heat transfer conductance
@@ -695,7 +695,7 @@ class StructCondClass():
         #air side initializing
         hai['H'] = HAPropsSI('H','T',Tai['T'],'P',101325,'R',0) #[J/kg]
         rho_air=1/HAPropsSI('Vda','T',Tai['T'],'P',101325,'R',0) #[kg/m^3 dry air]
-        Ma =Ga*rho_air*4.719e-4; 
+        Ma =Ga*rho_air*4.719e-1; 
         Ga=Ma/self.AreaFront*P['vsp']*P['Ls']/((P['vsp']-P['Do'])*(P['Ls']-P['N']*P['th']));
     
         for i in range(self.RowNum):
@@ -821,7 +821,7 @@ class StructCondClass():
             for i in range(self.NodNum):
                 if(self.Nod[i]['BranOUT'][0]<0):#no outlet branch except the liquid line
                     for j in range(self.Nod[i]['InNum']):
-                        jj= self.Nod[i]['BranIN'][j];
+                        jj= int(self.Nod[i]['BranIN'][j]);
                         Gr=Gr+self.Bra[jj]['Gr'];
                         HPo['H']=self.Bra[jj]['HPo']['H']*self.Bra[jj]['Gr']+HPo['H'];
                         HPo['P']=self.Bra[jj]['HPo']['P']*self.Bra[jj]['Gr']+HPo['P'];
