@@ -1829,7 +1829,7 @@ class StructEvapClass():
         Bak = P.copy() #keeping the information of the evaporator
         
         if(Pos<0 or Pos>1):
-            print("StructEvapClass::Cal_HP, Wrong position")
+            print("StructE::Cal_HP, Wrong position")
         
     
         for i in range(self.BranNum):

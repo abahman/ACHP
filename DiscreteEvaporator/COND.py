@@ -10,13 +10,208 @@ from CoolProp.HumidAirProp import HAPropsSI
 
 from ACHP.convert_units import *
 
-from extra_functions import CGP, TXPtoHP, HPtoTXP, PropertyTXPth, PropertyTXPtr, CondNode, CondBranch, TubeCond, TubCndSeg, HatoTa, ACRP, CLRP
-# from PRESSURE import 
+from extra_functions import CGP, TXPtoHP, HPtoTXP, PropertyTXPth, PropertyTXPtr, CondNode, CondBranch, TubeCond, TubCndSeg, HatoTa, ACRP, CLRP, PreAcc
+from PRESSURE import LossCoeffReturnBend, GET_PreAcc
 from VOLUME import VolumeALL
-from CORR import Circuit_DP_COND
-# from CMINE import 
-            
+from CORR import Circuit_DP_COND, ConvCoeffAir_CON, FinEffect_Schmidt, ConvCoeffInside, FricDP
+from CMINE import CmineCrossFlow_dry
 
+
+
+
+def CondTubeL_new(Gr,   #refigerant mass flux
+                  HPi,  #refrigerant inlet state
+                  Ga,   #air mass flux
+                  Tai,  #air inlet temperature
+                  hao,  #air outlet enthalpy
+                  m,    #inner volume and the refrigerant in the segment
+                  P,    #condenser struct
+                  Ref): #Refrigerant
+    '''
+    /*********************************************************************
+    Condenser tube segment model.
+    Inputs:
+        Gr = refrigerant mass flux (kg/s/m^2)
+        HPi = refrigerant inlet state (H:J/kg,P:Pa)
+        Ga = air mass flux (kg/s/m^2)
+        Tai = air inlet temperature (K)
+    Outputs:
+        HPi = refrigerant outlet state (H:J/kg,P:Pa)
+        hao = air outlet enthalpy (J/kg)
+        m = mass of charge in return bend (kg)
+    *********************************************************************/
+    '''
+
+    # convert inlet state into TXP format
+    TXPi = HPtoTXP(HPi,Ref)
+    
+    #air heat transfer 
+    ho = ConvCoeffAir_CON(Tai,Ga,P);#B.S. ConvCoeffAir_CON(Tai,Ga,P) it is a new function, which can call heat transfer calculation corresponding to different fin type
+    ho = P['hAirAdj']*ho
+    
+    phi = FinEffect_Schmidt(ho,237,P['th'],P['y'],P['Do']);#fin efficiency, using Schmidt equation 
+    P['Ro'] = 1/(ho*(P['Apo']+phi*P['Af']));#airside thermal resistance
+    
+    P['airT'] = Tai['T'];#B.S., this may be used as the local air inlet temperature, while Tai is used as the global inlet air temperature
+    P['Ga'] = Ga;#B.S., keep the air state parameters for late use
+
+    # Mass flow rates of air and refrigerant.
+    ma = Ga*P['Aflow'];
+    mr = Gr*P['Ax'];
+
+    # Calculate heat transfered per unit mass of refrigerant.
+    hi = ConvCoeffInside(TXPi,Gr,P['Di'], P, Ref);#B.S., this function can call different heat transfer calculation, correponding to different tube type
+    hi = P['hRefAdj']*hi
+    
+    Ri = 1/(hi*P['Api']);#refrigerant side thermal resistance
+    R_W=log(P['Do']/(P['Do']-2.0*P['xp']))/(2.0*pi*P['K_T']*P['Ls']);
+    #R = 0.0;
+
+    R = (P['Ro']+R_W+Ri);
+    
+    #B.S.---------------------------------------------
+    if(TXPi['X']>=1):#B.S., the following caculate the whole thermal resistances separately, prepared to adjust them separately.    
+        P['UA_Vap']=P['UA_Vap']+1/R;#B.S, vapor-phase heat transfer conductance
+        P['VapL'] = P['VapL']+ P['Ls'];#B.S., vapor-phase tube length
+        R = (P['Ro']+R_W+Ri);
+    elif(TXPi['X']<=0):
+        P['LiqL'] = P['LiqL']+ P['Ls'];#B.S., liquid-phase tube length
+        P['UA_Liq']=P['UA_Liq']+1/R;#B.S. liquid-phase heat transfer conductance
+        R = (P['Ro']*P['hAirAdj']+R_W+Ri);
+        #R = (P['Ro']+R_W+Ri);
+    else:
+        P['UA_TP']=P['UA_TP']+1/R;#B.S. two-phase heat transfer conductance
+        P['TPL'] = P['TPL']+ P['Ls'];#B.S. two-phase heat transfer tube length
+        R = (P['Ro']+R_W+Ri);
+    #-----------------------------------------B.S.
+
+    q = (TXPi['T']-Tai['T'])/mr*CmineCrossFlow_dry(R,mr,ma,TXPi,Tai,Ref);
+
+    # Calculate outlet state.
+    # q = dh (energy balance)
+
+    HPi['H'] = HPi['H'] - q;
+
+    # calculating pressure drop
+    D_H=P['Dh_i'];#B.S., get the hydraulic diameter for calculating the pressure drop with Kedzierski correlation
+
+    Gr = mr/P['Acs'];#B.S., this mass flux is for calculating the pressure drop
+    DP_FR = FricDP(TXPi, Gr, q, P, Ref);#calculate the fictional pressure drop, no matter single-phase or two-phase flow
+    
+    if(TXPi['X']>0.05 and TXPi['X']<0.99):
+    #B.S. packing up the parameters for calculating the acceleration pressure drop
+        Preacc=PreAcc();
+        Preacc['DP_FR']=DP_FR;
+        Preacc['G']=Gr;
+        Preacc['H_OUT']=HPi['H'];
+        Preacc['P_IN']=TXPi['P'];
+        Preacc['X_IN']=TXPi['X'];
+        DP_ACC=brentq(GET_PreAcc,10000,-10000,args=(Ref, Preacc),xtol=1e-7,rtol=6e-8,maxiter=40)#B.S. two-phase acceleration pressure drop
+        P_out=TXPi['P']-(DP_FR+DP_ACC)*P['PRefAdj'];
+    else:
+        P_out=TXPi['P'] - DP_FR*P['PRefAdj'];#assume single-phase flow has no accelerattion pressure drop
+
+
+    HPi['P']=P_out;
+    
+    # Determine mass of charge.  It is based on the inlet state.
+    #    The specific volume is recalculated so that a different model
+    #    can be used from the one used to calculate the pressure drop.
+
+    v = VolumeALL(TXPi,Gr,P['Di'],-mr*q/P['Api'],Ref);        # seperate flow model
+
+    m['V'] = P['Ls']*P['Acs'];#B.S. use the real cross-sectional area to calculate the inner volume of micro-fin tube
+    m['m'] = m['V']/v;
+
+    # Calculate output air state.
+    hai = HAPropsSI('H','T',Tai['T'],'P',101325,'R',0) #[J/kg dry air]
+    
+    hao['H'] = hai+q*mr/ma;
+
+    #B.S.----------------------------------------
+    TXPo = HPtoTXP(HPi,Ref);
+    if(TXPi['X']>=0.999999999):#B.S., the following calculate the whole thermal resistances separately, prepared to adjust them separately.    
+        P['m_Vap'] = P['m_Vap'] + m['V']/v;#B.S. vapor-phase mass
+        P['V_Vap'] = P['V_Vap'] + m['V'];#B.S. vapor-phase volume
+        if(TXPo['X']<0.999999999):
+            P['HP_TP1']['H']=HPi['H']*mr+P['HP_TP1']['H'];#corresponding to inlet state of the first segment that involve with two-phase heat transfer calculation
+            P['HP_TP1']['P']=HPi['P']*mr+P['HP_TP1']['P'];#corresponding to inlet state of the first segment that involve with two-phase heat transfer calculation
+            P['count1'] = P['count1'] + mr;#count the number of circuit
+    elif(TXPi['X']<=0.00000000001):
+        P['m_Liq'] = P['m_Liq'] + m['V']/v;#B.S. liquid-phase mass
+        P['V_Liq'] = P['V_Liq'] + m['V'];#B.S. liquid-phase volume
+    else:
+        P['m_TP'] = P['m_TP'] + m['V']/v;#B.S. two-phase mass
+        P['V_TP'] = P['V_TP'] + m['V'];#B.S. two-phase volume
+        if(TXPo['X']<=0.00000000001):
+            P['HP_TP2']['H'] = P['HP_TP2']['H']+mr*HPi['H'];#corresponding to the inlet state of the last segment that involve with two-phase heat transfer calculation
+            P['HP_TP2']['P'] = P['HP_TP2']['P']+mr*HPi['P'];#corresponding to the inlet state of the last segment that involve with two-phase heat transfer calculation
+            P['count2'] = P['count2'] + mr;#count the number of circuit
+    #---------------------------------------------B.S.
+    return 0
+      
+def CondReturnBend(G,HPi,m,P,Ref):
+    '''
+    /*********************************************************************
+    Condenser tube return bend model.
+    Inputs:
+        G = refrigerant mass flux (kg/s/m^2)
+        HPi = refrigerant inlet state (h,P)
+    Outputs:
+        HPi = refrigerant outlet state (h,P)
+        m = mass of charge in return bend (kg)
+    *********************************************************************/
+    '''
+
+    Q=CLRP()
+
+    TXPi=HPtoTXP(HPi,Ref);
+    
+    #Q['vi']=VolumeALL(TXPi,G,P['Di'],Ref);    # seperate flow model
+    Q['vi'] = 1/PropertyTXPth('D',TXPi,Ref);    # homogeneous flow model
+
+    Q['K']=LossCoeffReturnBend(TXPi,G,P['Brad'],P['Di'],Ref);
+
+    Q['D']=P['Di'];
+    Q['HPi']['H']=HPi['H'];
+    Q['HPi']['P']=HPi['P'];
+    Q['G']=G;
+    Q['q']=0;          # adiabatic
+
+    # Solve for outlet state.
+    try:
+        X = (HPi['H'],HPi['P']) #initial guess
+        cons = {'type': 'ineq', 'fun': HPLimitsConst, 'args': (Ref,)}
+        res = minimize(CompLossResid, X, args=(Q,Ref), method='SLSQP', bounds=(), constraints=cons, options={'eps':1e-4, 'maxiter': 100, 'ftol':1e-6})
+        HPi['H'] = res.x[0]
+        HPi['P'] = res.x[1]
+    except:
+        print("CondReturnBend G=[] HPi['H']={} HPi['P']={}".format(G,HPi['H'],HPi['P']));
+        raise
+
+    #/* Determine mass of charge.  It is based on the inlet state.
+    #    The specific volume is recalculated so that a different model
+    #    can be used from the one used to calculate the pressure drop.  */
+
+    v = VolumeALL(TXPi,G,P['Di'],0,Ref);    # seperate flow model
+    #v = 1/PropertyTXP('D',TXPi,Ref);    # homogeneous flow model
+
+    m['V']=P['Blen']*P['Ax'];
+    m['m']=m['V']/v;
+
+    #B.S.----------------------------------------------------
+    if(TXPi['X']==1):#B.S., the following caculate the whole thermal resistances separately, prepared to adjust them separately.    
+        P['m_Vap'] = P['m_Vap'] + m['V']/v;#B.S. vapor-phase mass
+        P['V_Vap'] = P['V_Vap'] + m['V'];#B.S. vapor-phase volume
+    elif(TXPi['X']<1 and TXPi['X']>0.0):
+        P['m_TP'] = P['m_TP'] + m['V']/v;#B.S. two-phase mass
+        P['V_TP'] = P['V_TP'] + m['V'];#B.S. two-phase volume
+    else:
+        P['m_Liq'] = P['m_Liq'] + m['V']/v;#B.S. liquid-phase mass
+        P['V_Liq'] = P['V_Liq'] + m['V'];#B.S. liquid-phase volume
+    #---------------------------------------------B.S.
+    
+    return 0
 
 def CondMan(ni,no,D,G,HPi,Ref):
     '''
@@ -89,7 +284,7 @@ def CondMan(ni,no,D,G,HPi,Ref):
         print("CondMan: (CompLossResid) Gr={} HPi['H']={} HPi['P']={}".format(Q['G'],HPi['H'],HPi['P']));
         raise
 
-    return G, HPi
+    return G
 
 def AreaChangeResid(X,Params,Ref):
     '''
@@ -209,8 +404,6 @@ def HPLimitsConst(X,Ref):
     F[3] = hmax - HPo['H']
 
     return F
-
-
 
 
 
@@ -451,7 +644,7 @@ class StructCondClass():
             self.Nod[i]['InNum'] = df_node.InNum[i]      #get inlet branches
             self.Nod[i]['OutNum'] = df_node.OutNum[i]    #get outlet branches
             self.Nod[i]['BranIN'] = list(df_node.ix[i][3 : 3+self.Nod[i]['InNum']]) #get outlet branches first
-            self.Nod[i]['BranOut'] = list(df_node.ix[i][3+self.Nod[i]['InNum'] : 3+self.Nod[i]['InNum']+self.Nod[i]['OutNum']]) #get inlet branches second
+            self.Nod[i]['BranOUT'] = list(df_node.ix[i][3+self.Nod[i]['InNum'] : 3+self.Nod[i]['InNum']+self.Nod[i]['OutNum']]) #get inlet branches second
             
         for i in range(self.BranNum):
             self.Bra[i]['BranNo'] = df_branch.BranNo[i]
@@ -459,7 +652,7 @@ class StructCondClass():
             self.Bra[i]['GrFac'] = df_branch.GrFac[i]
             self.Bra[i]['TubNum'] = df_branch.TubNum[i]
             self.Bra[i]['TubNo'] = list(df_branch.ix[i][4 : 4+self.Bra[i]['TubNum']])#important, the tube number in branch, inputted first from the compressor suction
-            
+        
         for i in range(self.TubeNum):
             self.Tub[i]['Seg'] = [TubCndSeg() for k in range(self.SegNum)]
             self.Tub[i]['TubNo'] = df_tube.TubNo[i]
@@ -568,10 +761,10 @@ class StructCondClass():
             for i in range(self.NodNum):#inlet nodes
                 if(self.Nod[i]['BranIN'][0]<0):#no inlet branch, only from the hot gas line
                     
-                    Gr, HPo = CondMan(self.Nod[i]['InNum'],self.Nod[i]['OutNum'],P['Di'],Gr,HPo,self.Ref) #return updated (HPo and Gr)
+                    Gr = CondMan(self.Nod[i]['InNum'],self.Nod[i]['OutNum'],P['Di'],Gr,HPo,self.Ref) #return updated (HPo and Gr)
                     
                     for j in range(self.Nod[i]['OutNum']):#states flowing out from the node
-                        jj = self.Nod[i]['BranOUT'][j];#index of the outlet branches
+                        jj = int(self.Nod[i]['BranOUT'][j]);#index of the outlet branches
                         self.Bra[jj]['HPi']['H']=HPo['H'];
                         self.Bra[jj]['HPi']['P']=HPo['P'];
                         self.Bra[jj]['Gr']=Gr*self.Bra[jj]['GrFac'];
@@ -594,7 +787,7 @@ class StructCondClass():
             for i in range(self.NodNum):
                 if(self.Nod[i]['BranIN'][0]>=0 and self.Nod[i]['BranOUT'][0]>=0):#nodes in the middle
                     for j in range(self.Nod[i]['InNum']):#node inlet state
-                        jj= self.Nod[i]['BranIN'][j];
+                        jj=int(self.Nod[i]['BranIN'][j]);
                         Gr=Gr+self.Bra[jj]['Gr'];
                         HPo['H']=self.Bra[jj]['HPo']['H']*self.Bra[jj]['Gr']+HPo['H'];
                         HPo['P']=self.Bra[jj]['HPo']['P']*self.Bra[jj]['Gr']+HPo['P'];
@@ -603,10 +796,10 @@ class StructCondClass():
                     HPo['P']=HPo['P']/Gr;
                     Gr=Gr/self.Nod[i]['InNum'];
                 
-                    Gr, HPo = CondMan(self.Nod[i]['InNum'],self.Nod[i]['OutNum'],P['Di'],Gr,HPo,self.Ref) #return updated (HPo and Gr)
+                    Gr = CondMan(self.Nod[i]['InNum'],self.Nod[i]['OutNum'],P['Di'],Gr,HPo,self.Ref) #return updated (HPo and Gr)
                     
                     for j in range(self.Nod[i]['OutNum']):
-                        jj = self.Nod[i]['BranOUT'][j];#index of outlet branches
+                        jj = int(self.Nod[i]['BranOUT'][j]);#index of outlet branches
                         self.Bra[jj]['HPi']['H']=HPo['H'];
                         self.Bra[jj]['HPi']['P']=HPo['P'];
                         self.Bra[jj]['Gr']=Gr*self.Bra[jj]['GrFac'];
@@ -637,7 +830,7 @@ class StructCondClass():
                     HPo['P']=HPo['P']/Gr;
                     Gr=Gr/self.Nod[i]['InNum'];
                 
-                    Gr, HPo = CondMan(self.Nod[i]['InNum'],self.Nod[i]['OutNum'],P['Di'],Gr,HPo,self.Ref) #return updated (HPo and Gr)
+                    Gr = CondMan(self.Nod[i]['InNum'],self.Nod[i]['OutNum'],P['Di'],Gr,HPo,self.Ref) #return updated (HPo and Gr)
                 #endif
             #end i circle
             
@@ -758,7 +951,7 @@ class StructCondClass():
                             else:
                                 realk=k;
                             
-                            CondTubeL_new(self.Bra[i]['Gr'],HPo,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['Tai']['T'],self.Tub[TubeN]['Seg'][realk]['hao']['H'],mi,P) #return updated(self.Tub[TubeN]['Seg'][realk]['hao']['H'], mi, P, HPo)
+                            CondTubeL_new(self.Bra[i]['Gr'],HPo,self.Tub[TubeN]['Ga'],self.Tub[TubeN]['Seg'][realk]['Tai'],self.Tub[TubeN]['Seg'][realk]['hao'],mi,P,self.Ref) #return updated(self.Tub[TubeN]['Seg'][realk]['hao']['H'], mi, P, HPo)
                             
                             self.Tub[TubeN]['m']['m']=self.Tub[TubeN]['m']['m']+mi['m'];
                             self.Tub[TubeN]['m']['V']=self.Tub[TubeN]['m']['V']+mi['V'];
@@ -766,7 +959,7 @@ class StructCondClass():
                             Sm['V']=Sm['V']+mi['V'];
                         #end k circle
                 
-                        CondReturnBend(self.Bra[i]['Gr'],HPo,mi,P) #return updated (HPo, mi, P)
+                        CondReturnBend(self.Bra[i]['Gr'],HPo,mi,P,self.Ref) #return updated (HPo, mi, P)
                         
                         self.Tub[TubeN]['m']['m']=self.Tub[TubeN]['m']['m']+mi['m'];
                         self.Tub[TubeN]['m']['V']=self.Tub[TubeN]['m']['V']+mi['V'];

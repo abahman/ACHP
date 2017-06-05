@@ -215,7 +215,7 @@ def ETdim():
                 'Nrows':int(0),'Ndeep':int(0),
                 'NBranchs':int(0), 'NBraTube':int(0),
                 'P_l':0.0, #spacing between tubs in the longitudual direction (m)
-                'microfin':int(0), #new parameters for micro-fin tubes, and specially configured fins #decide whether is micro-fin tubes microfin=1
+                'Microfin':int(0), #new parameters for micro-fin tubes, and specially configured fins #decide whether is micro-fin tubes microfin=1
                 'w_b':0.0, #base length for single micro-fin
                 'w_e':0.0, #top length for single micro-fin
                 'w_z':0.0,    #width between the neighboring micro-fins

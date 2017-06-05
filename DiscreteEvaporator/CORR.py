@@ -138,7 +138,7 @@ def ConvCoeffAir_CON(T,#air temperature
     
     C = Airside_Dim(); #dictionary for storing the parameters for airside fins
     C['evap'] =0;#evaporating conditions
-    C['T'] = T;#air temperature
+    C['T'] = T['T'];#air temperature
     C['P'] = 0.1;#air humidity ratio
     C['Do'] = P['Do'];#tube outside diameter
     C['Df'] = P['Df'];#fin outside diameter
@@ -985,7 +985,7 @@ def ConvCoeffSP(TXP,G,P, Ref):
     '''
  
     D = InsideTube_Dim(); #initiate dictionarty for storing the parameters for micro-fin tube
-    D['Microfin'] = P['microfin']; #microfin type, 0=smooth tube, 1=helical, 2=cross-grooved, 3=herringbone
+    D['Microfin'] = P['Microfin']; #microfin type, 0=smooth tube, 1=helical, 2=cross-grooved, 3=herringbone
     D['finN'] = P['finN']; #fin number in a micro-fin tube
     D['Di'] = P['Di'];#inside diameter at the fin tip
     D['gama'] =P['gama'] ;#fin apex angle in a micro-fin tube
@@ -1129,393 +1129,246 @@ def ConvCoeffSP_Smooth(TXP,G,D, Ref):
 # condensation two-phase heat transfer
 #===============================================================================
 
-# def ConvCoeffInside(TXP TXPi,#refrigerant inlet state
-#                 double G,#refrigerant mass flux
-#                 double D,#inside diameter
-#                 CGP *P):#condenser struct
-#     '''
-#     /********************************************************************
-#     Inside convection coefficient for the refrigerant inside the
-#     condenser.
-#     ********************************************************************/
-#     '''
-# 
-#     double y;
-#     const double X1=0.1,X2=0.9;
-# 
-#     if(TXPi.X>=1.0 || TXPi.X<=0) {
-#         y = ConvCoeffSP(TXPi,G,P);
-#     } else if(TXPi.X<X1) {
-#         TXP TXP1 = toTXP(TXPi.T,0,TXPi.P);
-#         TXP TXP2 = toTXP(TXPi.T,X1,TXPi.P);
-#         double y1 = ConvCoeffSP(TXP1,G,P);
-#         if(errorLog.IsError()) {
-#             errorLog.Add("ConvCoeffInside");
-#             return -1;
-#         }
-#         double y2 = ConvCoeffCondTP_Microfin(TXP2,G,P);
-#         y = y1+TXPi.X*(y2-y1)/X1 ;
-#         if(y2<y1) y=y1;#B.S.
-# 
-#     } else if(TXPi.X>X2) {
-#         TXP TXP1 = toTXP(TXPi.T,X2,TXPi.P);
-#         TXP TXP2 = toTXP(TXPi.T,1,TXPi.P);
-#         double y1 = ConvCoeffCondTP_Microfin(TXP1,G,P);
-#         if(errorLog.IsError()) {
-#             errorLog.Add("ConvCoeffInside");
-#             return -1;
-#         }
-#         double y2 = ConvCoeffSP(TXP2,G,P);
-#         y = y2-(1-TXPi.X)*(y2-y1)/(1-X2);
-#         if(y1<y2) y=y2;#B.S.
-#     } else {
-#         y = ConvCoeffCondTP_Microfin(TXPi,G,P);#two-phase heat transfer
-#     }
-# 
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffInside");
-#         return -1;
-#     }
-# 
-#     return y
+def ConvCoeffInside(TXPi,   #refrigerant inlet state
+                    G,      #refrigerant mass flux
+                    D,      #inside diameter
+                    P,      #condenser struct
+                    Ref):   #refrigerant
+    '''
+    /********************************************************************
+    Inside convection coefficient for the refrigerant inside the
+    condenser.
+    ********************************************************************/
+    '''
+     
+    X1=0.1; X2=0.9;
+    
+    if(TXPi['X']>=1.0 or TXPi['X']<=0):
+        y = ConvCoeffSP(TXPi,G,P,Ref);
+    elif(TXPi['X']<X1):
+        TXP1 = toTXP(TXPi['T'],0,TXPi['P']);
+        TXP2 = toTXP(TXPi['T'],X1,TXPi['P']);
+        y1 = ConvCoeffSP(TXP1,G,P,Ref);
+        y2 = ConvCoeffCondTP_Microfin(TXP2,G,P,Ref);
+        y = y1+TXPi['X']*(y2-y1)/X1 ;
+        if(y2<y1):
+            y=y1;#B.S.
+    elif(TXPi['X']>X2):
+        TXP1 = toTXP(TXPi['T'],X2,TXPi['P']);
+        TXP2 = toTXP(TXPi['T'],1,TXPi['P']);
+        y1 = ConvCoeffCondTP_Microfin(TXP1,G,P,Ref);
+        y2 = ConvCoeffSP(TXP2,G,P,Ref);
+        y = y2-(1-TXPi['X'])*(y2-y1)/(1-X2);
+        if(y1<y2):
+            y=y2;#B.S.
+    else:
+        y = ConvCoeffCondTP_Microfin(TXPi,G,P,Ref);#two-phase heat transfer
+ 
+    return y
 
 
-# def ConvCoeffCondTP_Microfin(TXP TXPm,#refrigerant inlet state
-#                      double G,#mass flux
-#                      CGP* P):#condenser struct
-#     '''
-#     /***************************************************************************
-#     condensing heat transfer correlation for micro-fin tube, B.S.
-#     A. Cavallini, D. Del Col, L. Doretti, G. A. Longo and L. Rossetto 
-#     "Heat transfer and pressure drop during condensation of refrigerants inside horizontal 
-#     enhanced tubes;" Transfert de chaleur et chute de pression lors de la condensation de 
-#     frigorignes l'intrieur de tubes horizontaux surface augme
-#     nte, International Journal of Refrigeration, Volume 23, Issue 1, January 2000, Pages 4
-#     ************************************************************************/
-#     '''
-# 
-#     const double D = P->Di;
-#     TXP TXP_prop={0,0,0};
-# 
-#     if(P->Microfin<1)#smooth tube
-#     {
-#     const double h_smooth = ConvCoeffCondTP_Smooth(TXPm,G,D);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffTP_Smooth","h_smooth");
-#         return -1;
-#     }
-#     return h_smooth;
-#     }
-#     if(P->Microfin==3)#herringbone
-#     {
-#     const double h_Herringbone = ConvCoeffCondTP_Herringbone(TXPm,G,P);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffTP_Herringbone","h_Herringbone");
-#         return -1;
-#     }
-#     return h_Herringbone;
-#     }
-# 
-#     #Liquid refrigerant properties
-#     TXP_prop.P= TXPm.P;
-#     TXP_prop.X=0;
-#     TXP_prop.T=PropertyTXPth(TSAT,TXP_prop);
-# 
-#     const double Tsat_l=PropertyTXPth(TSAT,TXP_prop);
-# 
-#     const double h_l=PropertyTXPth(ENTH,TXP_prop);
-# 
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffTP_Microfin","h_l");
-#         return -1;
-#     }
-# 
-#     const double Tension=PropertyTXPtr(TENSION,TXP_prop);#reftpltrP.Tension(TXPm.P);#refrigerant surface tension
-# 
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffTP_Microfin","Tension");
-#         return -1;
-#     }
-# 
-# 
-#     const double rho_l=1.0/PropertyTXPth(VOL,TXP_prop);#1.0/reftplthP.v(TXPm.P);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffTP_Microfin","vl");
-#         return -1;
-#     }
-# 
-#     const double mu_l=PropertyTXPtr(VISC,TXP_prop);#refsctrPT.mu(TXPm.P,Tsat);#refrigerant liquid viscosity
-#     
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffTP_Microfin","mul");
-#         return -1;
-#     }
-# 
-#     
-#     const double Cp_l= PropertyTXPtr(SPEC,TXP_prop);#refsctrPT.Cp(TXPm.P,Tsat);#refrigerant liquid specific heat
-# 
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffTP_Microfin","Cpl");
-#         return -1;
-#     }
-# 
-#     const double k_l=PropertyTXPtr(COND,TXP_prop);#refsctrPT.k(TXPm.P,Tsat);#refrigerant liquid heat conductance
-# 
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffTP_Microfin","kl");
-#         return -1;
-#     }
-# 
-#     #vapor refrigerant properties
-#     TXP_prop.P=TXPm.P;
-#     TXP_prop.X=1.0;
-#     TXP_prop.T=PropertyTXPth(TSAT,TXP_prop);
-# 
-#     const double Tsat_v=PropertyTXPth(TSAT,TXP_prop);
-# 
-#     const double h_g=PropertyTXPth(ENTH,TXP_prop);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffTP_Microfin","h_g");
-#         return -1;
-#     }
-# 
-#     const double rho_g=1.0/PropertyTXPth(VOL,TXP_prop);#1.0/reftpvthP.v(TXPm.P);#refrigerant gas density
-# 
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffTP_Microfin","vv");
-#         return -1;
-#     }
-# 
-# 
-#     const double mu_g=PropertyTXPtr(VISC,TXP_prop);#refshtrPT.mu(TXPm.P,Tsat);#refrigerant gas viscosity
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffTP_Microfin","muv");
-#         return -1;
-#     }
-# 
-#     const double Cp_g= PropertyTXPtr(SPEC,TXP_prop);#refsctrPT.Cp(TXPm.P,Tsat);#refrigerant liquid specific heat
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffTP_Microfin","Cpg");
-#         return -1;
-#     }
-# 
-#     const double k_g=PropertyTXPtr(COND,TXP_prop);#refsctrPT.k(TXPm.P,Tsat);#refrigerant liquid heat conductance
-# 
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffTP_Microfin","kg");
-#         return -1;
-#     }
-# 
-#     const double h_fg=h_g-h_l;
-#     #parameters for the correlation
-# 
-#     const double x=TXPm.X;#vapor quality
-# 
-#     const double pi=3.1415926;
-#     const double gama=P->gama/180.0*pi;#fin apex angle, be attention to the unit of the angle
-#     const double e=P->finH;#fin height
-#     const double d_e=P->Di;#inner diameter at the fin tip
-#     const double d_i=P->D_b;#d_e+2*e, innder diameter at the fin bottom
-#     const double d_M=P->D_m;#mean inner diameter of the micro-fin tube
-#     const double n_g=P->finN;#fin number
-#     const double beta=P->beta/180.0*pi;#fin helical angle
-# 
-#     double s=2.00;
-#     double t=-0.26;
-#     
-#     #empirical parameters corresponding to different tube type
-#     if(P->Microfin==2)#cross-grooved
-#     {s = 2.1; t=-0.26;}
-#     else if(e/d_e>0.045)#low-fin tube, the original standard is e/d_e>0.04, here enlarge the range a bit.
-#     {s = 1.4; t=-0.08;}
-#     else#micro-fin tube
-#     {s = 2.0; t=-0.26;}    
-# 
-# 
-#     const double sigma=Tension;
-# 
-#     const double u_go=G/rho_g;#gas velocity based the whole mass flow rate
-# 
-#     const double Fr=pow(u_go,2.0)/(9.8*d_e);
-# 
-#     const double Bo=9.8*rho_l*e*pi*d_e/(8*sigma*n_g);
-# 
-#     const double Rx=((2*e*n_g*(1-sin(gama/2))/(pi*d_e*cos(gama/2))+1))/cos(beta);#geometry enhancement factor
-#     const double Re_eq=4*G*pi*(pow(d_e,2.0)/4.0)*((1-x)+x*pow((rho_l/rho_g),0.5))/(pi*d_e*mu_l);#Reynolds number
-# 
-#     const double Pr_l=mu_l*Cp_l/k_l;#Prontal number
-#     const double Pr_g=mu_g*Cp_g/k_g;#Prontal number
-# 
-#     const double Nusselt=0.05*pow(Re_eq,0.8)*pow(Pr_l,(0.33333333333))*pow(Rx,double(s))*pow((Bo*Fr),double(t));#Nusselts number
-# 
-#     const double h_cava=Nusselt*k_l/d_e;#heat transfer coefficient based on the surface area at the fin tip
-# 
-#     
-#     double h=h_cava;
-# 
-# #ifdef _RefMix
-#     #if zerotropic refrigerant, correct the overall condensation coefficient by considering the mass transfer resistance between vapora phase and liquid phase
-#     {
-#     const double T_delta = Tsat_v-Tsat_l;
-#     double Corr_FlowBoiling=1.0;#parameter for the mass transfer resistance between the vapor phase and liquid phase
-#     Corr_FlowBoiling = Correct_FLOW_Boiling(TXPm.X,Cp_g,T_delta,h_fg);#correction parameter for the mass transfer resistance between the liquid phase and vapor phase 
-#     const double Re_vaporphase = G*TXPm.X*(d_e+2*e)/(mu_g);#Reynolds number, asuming the vapor only flowing in the tube
-#     const double Nu = 0.023*pow(Re_vaporphase,0.8)*pow(Pr_g,0.333);#Dittus-Boelter equation to calculate the vapor phase coeffcient
-#     const double h_vaporphase=Nu*k_g/(d_e+2*e);#vapor phase heat transfer coefficent
-#     h=1.0/(1.0/h+Corr_FlowBoiling/h_vaporphase);#correct the overall flow boiling coefficient
-#     }
-# #endif
-# 
-#     return h
+def ConvCoeffCondTP_Microfin(TXPm,#refrigerant inlet state
+                             G,#mass flux
+                             P,#condenser struct
+                             Ref): #Refrigearnt
+    '''
+    /***************************************************************************
+    condensing heat transfer correlation for micro-fin tube, B.S.
+    A. Cavallini, D. Del Col, L. Doretti, G. A. Longo and L. Rossetto 
+    "Heat transfer and pressure drop during condensation of refrigerants inside horizontal 
+    enhanced tubes;" Transfert de chaleur et chute de pression lors de la condensation de 
+    frigorignes l'intrieur de tubes horizontaux surface augme
+    nte, International Journal of Refrigeration, Volume 23, Issue 1, January 2000, Pages 4
+    ************************************************************************/
+    '''
+ 
+    D = P['Di'];
+    TXP_prop={'T':0.0,'X':0.0,'P':0.0};
+ 
+    if(P['Microfin']<1):#smooth tube
+        h_smooth = ConvCoeffCondTP_Smooth(TXPm,G,D,Ref);
+        return h_smooth
+    
+    if(P['Microfin']==3):#herringbone
+        h_Herringbone = ConvCoeffCondTP_Herringbone(TXPm,G,P,Ref);
+        return h_Herringbone
+ 
+    #Liquid refrigerant properties
+    TXP_prop['P']=TXPm['P'];
+    TXP_prop['X']=0;
+    TXP_prop['T']=PropertyTXPth('T',TXP_prop,Ref); #[K]
+    Tsat_l=PropertyTXPth('T',TXP_prop,Ref); #[K]
+    h_l=PropertyTXPth('H',TXP_prop,Ref); #[J/kg]
+    Tension=PropertyTXPtr('I',TXP_prop,Ref);#refrigerant surface tension [N/m]
+    rho_l=PropertyTXPth('D',TXP_prop,Ref); #[kg/m^3]
+    mu_l=PropertyTXPtr('V',TXP_prop,Ref);#refrigerant liquid viscosity [Pa-s]
+    Cp_l= PropertyTXPtr('C',TXP_prop,Ref);#refrigerant liquid specific heat [J/kg/K]
+    k_l=PropertyTXPtr('L',TXP_prop,Ref);#refrigerant liquid heat conductance [W/m/K]
+ 
+    #vapor refrigerant properties
+    TXP_prop['P']=TXPm['P'];
+    TXP_prop['X']=1.0;
+    TXP_prop['T']=PropertyTXPth('T',TXP_prop,Ref); #[K]
+    Tsat_v=PropertyTXPth('T',TXP_prop,Ref); #[K]
+    h_g=PropertyTXPth('H',TXP_prop,Ref); #[J/kg]
+    rho_g=PropertyTXPth('D',TXP_prop,Ref);#refrigerant gas density #[kg/m^3]
+    mu_g=PropertyTXPtr('V',TXP_prop,Ref);#refrigerant gas viscosity [Pa-s]
+    Cp_g= PropertyTXPtr('C',TXP_prop,Ref);#refrigerant liquid specific heat [J/kg/K]
+    k_g=PropertyTXPtr('L',TXP_prop,Ref);#refrigerant liquid heat conductance [W/m/K]
+    
+    h_fg=h_g-h_l;
+    
+    #parameters for the correlation
+    x=TXPm['X'];#vapor quality
+    gama=P['gama']/180.0*pi;#fin apex angle, be attention to the unit of the angle
+    e=P['finH'];#fin height
+    d_e=P['Di'];#inner diameter at the fin tip
+    d_i=P['D_b'];#d_e+2*e, innder diameter at the fin bottom
+    d_M=P['D_m'];#mean inner diameter of the micro-fin tube
+    n_g=P['finN'];#fin number
+    beta=P['beta']/180.0*pi;#fin helical angle
+ 
+    s=2.00;
+    t=-0.26;
+     
+    #empirical parameters corresponding to different tube type
+    if(P['Microfin']==2):#cross-grooved
+        s = 2.1;
+        t=-0.26;
+    elif(e/d_e>0.045):#low-fin tube, the original standard is e/d_e>0.04, here enlarge the range a bit.
+        s = 1.4;
+        t=-0.08;
+    else:#micro-fin tube
+        s = 2.0;
+        t=-0.26;    
+ 
+ 
+    sigma=Tension;
+    u_go=G/rho_g;#gas velocity based the whole mass flow rate
+    Fr=pow(u_go,2.0)/(9.8*d_e);
+    Bo=9.8*rho_l*e*pi*d_e/(8*sigma*n_g);
+    Rx=((2*e*n_g*(1-sin(gama/2))/(pi*d_e*cos(gama/2))+1))/cos(beta);#geometry enhancement factor
+    Re_eq=4*G*pi*(pow(d_e,2.0)/4.0)*((1-x)+x*pow((rho_l/rho_g),0.5))/(pi*d_e*mu_l);#Reynolds number
+ 
+    Pr_l=mu_l*Cp_l/k_l;#Prandtl number (liquid)
+    Pr_g=mu_g*Cp_g/k_g;#Prandtl number (vapor)
+ 
+    Nusselt=0.05*pow(Re_eq,0.8)*pow(Pr_l,(0.33333333333))*pow(Rx,s)*pow((Bo*Fr),t);#Nusselts number
+ 
+    h_cava=Nusselt*k_l/d_e;#heat transfer coefficient based on the surface area at the fin tip
+  
+    h=h_cava;
+    
+    T_delta = Tsat_v-Tsat_l;
+    #if zerotropic refrigerant, correct the overall condensation coefficient by considering the mass transfer resistance between vapor phase and liquid phase
+    if abs(T_delta)>0.1:
+        Corr_FlowBoiling = 1.0;#parameter for the mass transfer resistance between the vapor phase and liquid phase
+        Corr_FlowBoiling = Correct_FLOW_Boiling(TXPm['X'],Cp_g,T_delta,h_fg);#correction parameter for the mass transfer resistance between the liquid phase and vapor phase 
+        Re_vaporphase = G*TXPm['X']*(d_e+2*e)/(mu_g);#Reynolds number, asuming the vapor only flowing in the tube
+        Nu = 0.023*pow(Re_vaporphase,0.8)*pow(Pr_g,0.333);#Dittus-Boelter equation to calculate the vapor phase coefficient
+        h_vaporphase=Nu*k_g/(d_e+2*e);#vapor phase heat transfer coefficient
+        h=1.0/(1.0/h+Corr_FlowBoiling/h_vaporphase);#correct the overall flow boiling coefficient
+ 
+    return h
 
 
-# def ConvCoeffCondTP_Smooth(TXP TXPm,#refrigerant inlet state
-#                    double G,#refrigerant mass flux
-#                    double D):#inside diameter
-#     '''
-#     /********************************************************************
-#     Condensation in horizontal tubes, part 1: two-phase flow pattern map  ? ARTICLE
-#     International Journal of Heat and Mass Transfer, Volume 46, Issue 18, August 2003, Pages 3349-3363 
-#     J. El Hajal, J. R. Thome and A. Cavallini
-#     Condensation in horizontal tubes, part 2: new heat transfer model based on flow regimes  ? ARTICLE
-#     International Journal of Heat and Mass Transfer, Volume 46, Issue 18, August 2003, Pages 3365-3387 
-#     J. R. Thome, J. El Hajal and A. Cavallini
-#     ********************************************************************/
-#     '''
-# 
-#     FlowPattern Cd;
-#     const double q=0;    
-#     Cd.JudgPattern=0;
-#     Cond_FlowPattern(TXPm,G,D,q,&Cd);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffCondTP_Smooth","h");
-#         return -1;}
-#         
-#     const double h=Cd.h_tp;
-#     
-#     return h
+def ConvCoeffCondTP_Smooth(TXPm,#refrigerant inlet state
+                           G,#refrigerant mass flux
+                           D, Ref):#inside diameter
+    '''
+    /********************************************************************
+    Condensation in horizontal tubes, part 1: two-phase flow pattern map  ? ARTICLE
+    International Journal of Heat and Mass Transfer, Volume 46, Issue 18, August 2003, Pages 3349-3363 
+    J. El Hajal, J. R. Thome and A. Cavallini
+    Condensation in horizontal tubes, part 2: new heat transfer model based on flow regimes  ? ARTICLE
+    International Journal of Heat and Mass Transfer, Volume 46, Issue 18, August 2003, Pages 3365-3387 
+    J. R. Thome, J. El Hajal and A. Cavallini
+    ********************************************************************/
+    '''
+ 
+    Cd = FlowPattern();
+    q=0;    
+    Cd['JudgPattern']=0;
+    Cond_FlowPattern(TXPm,G,D,q,Cd, Ref);
+         
+    h=Cd['h_tp'];
+     
+    return h
 
 
-# def ConvCoeffCondTP_Herringbone(TXP TXPm,#refrigerant state
-#                             double G,#refrigerant mass flux
-#                             CGP *P):#condenser struct
-#     '''
-#     #B.S.-------------------------------------------------------
-#     #Herringbone
-#     /***********************************************************
-#     Miyara, Akio Kengo Nonaka and Mitsunori Taniguchi 
-#     "Condensation heat transfer and flow pattern inside a herringbone-type 
-#     micro-fin tube;" Transfert de chaleur lors de la condensation et configuration de
-#      l'coulement l'intrieur d'un tube microailettes che
-#      vrons, International Journal of Refrigeration, Volume 23, Issue 2, March 2000, 
-#      Pages 141-152
-#     **********************************************************/
-#     '''
-# 
-#     double H_I;    
-#     const double d_M = P->D_m;
-#     double delta_T=3;
-#     double delta_T1=0;
-#     const double PI = 4*atan(1.0);
-#     TXP TXP_prop={0,0,0};
-# 
-#     G=G*pow(P->Di/P->D_m,2.0);
-# 
-#     #liquid refrigerant properties
-#     TXP_prop.P=TXPm.P;
-#     TXP_prop.X=0.0;
-#     TXP_prop.T=PropertyTXPth(TSAT,TXP_prop);
-#     const double H_F = PropertyTXPth(ENTH,TXP_prop);#reftplthP.h(TXPm.P);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffCond_Herringbone","hl");
-#         return -1;
-#     }
-# 
-# 
-#     const double DL=1.0/PropertyTXPth(VOL,TXP_prop);#1.0/reftplthP.v(TXPm.P);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffCondTP_Herringbone","vl");
-#         return -1;
-#     }
-# 
-# 
-#     const double MU_F=PropertyTXPtr(VISC,TXP_prop);#refsctrPT.mu(TXPm.P,TXPm.T);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffCondTP_Herringbone","ul");
-#         return -1;
-#     }
-# 
-#     const double CP_F= PropertyTXPtr(SPEC,TXP_prop);#refsctrPT.Cp(TXPm.P,T_sat);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffCondTP_Herringbone","Cpl");
-#         return -1;
-#     }
-# 
-#     const double TC_F=PropertyTXPtr(COND,TXP_prop);#refsctrPT.k(TXPm.P,T_sat);
-# 
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffCondTP_Herringbone","kl");
-#         return -1;
-#     }
-# 
-#     #vapor refrigerant properties
-#     
-#     TXP_prop.P=TXPm.P;
-#     TXP_prop.X=1.0;
-#     TXP_prop.T=PropertyTXPth(TSAT,TXP_prop);
-#     const double H_G = PropertyTXPth(ENTH,TXP_prop);#reftpvthP.h(TXPm.P);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffCondTP_Herringbone","hv");
-#         return -1;
-#     }
-#     
-#     const double DV=1.0/PropertyTXPth(VOL,TXP_prop);#1.0/reftpvthP.v(TXPm.P);
-#     
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffCondTP_Herringbone","vv");
-#         return -1;
-#     }
-# 
-# 
-# 
-#     const double CP_A = air.Cp(P->airT);
-#     if(errorLog.IsError()) {
-#         errorLog.Add("ConvCoeffCondTP_Herringbone","CP_A");
-#         return -1;
-#     }
-#     const double C = P->Ga*P->Aflow*CP_A;
-# 
-#     const double h_fg=H_G-H_F;
-#     double xx=TXPm.X;
-#     const double alfa=pow((1+((1-xx)*DV/(xx*DL))*(0.4+0.6*pow((xx*(DL/DV)+0.4*(1-xx)),0.5)/pow((xx+0.4*(1-xx)),0.5))),(-1));
-#     const double Hfuc=alfa+(10*pow((1-alfa),0.1)-8.0)*pow((alfa),0.5)*(1-pow(alfa,0.5));
-#     const double Gaa=9.8*pow(DL,2.0)*pow(d_M,3.0)/pow(MU_F,2.0);
-#     const double eta_A=P->P_H/(PI*d_M);# "this is the heat transfer surface area increasing ratio" "pi*d_M*10"
-#     
-# 
-#     const double PR_F=MU_F*CP_F/TC_F;
-# 
-#     while(fabs(delta_T1-delta_T)>=1e-7)#simple iteration for temporary use
-#     {
-#     delta_T1=delta_T;
-#     const double Ja=h_fg/(CP_F*delta_T);
-#     const double Nusselt_B=0.725*Hfuc*pow((Gaa*PR_F*Ja/(eta_A)),0.25);
-#     const double Re_l_yu=G*(1-xx)*d_M/MU_F;
-#     const double X_tt=Xtt(TXPm);
-#     const double phi_g=1.2+1.65*(pow(G,0.35)*pow(X_tt,0.35)/pow((9.8*d_M*DV*(DL-DV)),0.175));
-#     const double Nusselt_F=0.152*(phi_g/X_tt)*pow(Re_l_yu,0.68)*(0.3+0.1*pow(PR_F,1.1));
-#     const double Nusselt_yu=pow((pow(Nusselt_B,2.0)+pow(Nusselt_F,2.0)),0.5);
-#     const double h_yu=Nusselt_yu*TC_F/d_M;
-#     H_I=h_yu*d_M/P->Di;
-#     const double R_CONV=1e0/(H_I*P->P_H*P->Ls);
-#     const double UA=1e0/(R_CONV+P->Ro);
-#     const double NTU=1*UA/C;
-#     const double EPSILON=1e0-exp(-NTU);
-#     const double Q=EPSILON*C*(P->airT-TXPm.T);
-#     delta_T=Q*R_CONV;
-#     if(delta_T<0.01) delta_T=0.01;
-#     }
-#     return H_I
+def ConvCoeffCondTP_Herringbone(TXPm,#refrigerant state
+                                G,#refrigerant mass flux
+                                P, Ref):#condenser struct
+    '''
+    #B.S.-------------------------------------------------------
+    #Herringbone
+    /***********************************************************
+    Miyara, Akio Kengo Nonaka and Mitsunori Taniguchi 
+    "Condensation heat transfer and flow pattern inside a herringbone-type 
+    micro-fin tube;" Transfert de chaleur lors de la condensation et configuration de
+    l'coulement l'intrieur d'un tube microailettes che
+    vrons, International Journal of Refrigeration, Volume 23, Issue 2, March 2000, 
+    Pages 141-152
+    **********************************************************/
+    '''
+ 
+    d_M = P['D_m'];
+    delta_T=3.0;
+    delta_T1=0.0;
+    TXP_prop={'T':0.0,'X':0.0,'P':0.0};
+ 
+    G=G*pow(P['Di']/P['D_m'],2.0);
+ 
+    #liquid refrigerant properties
+    TXP_prop['P']=TXPm['P'];
+    TXP_prop['X']=0.0;
+    TXP_prop['T']=PropertyTXPth('T',TXP_prop,Ref); #[K]
+    H_F=PropertyTXPth('H',TXP_prop,Ref);#[J/kg]
+    DL=PropertyTXPth('D',TXP_prop,Ref);#[kg/m^3]
+    MU_F=PropertyTXPtr('V',TXP_prop,Ref);#[Pa-s]
+    CP_F=PropertyTXPtr('C',TXP_prop,Ref);#[J/kg/K]
+    TC_F=PropertyTXPtr('L',TXP_prop,Ref);#[W/m/K]
+ 
+    #vapor refrigerant properties   
+    TXP_prop['P']=TXPm['P'];
+    TXP_prop['X']=1.0;
+    TXP_prop['T']=PropertyTXPth('T',TXP_prop,Ref); #[K]
+    cH_G=PropertyTXPth('H',TXP_prop,Ref);#[J/kg]
+    DV=PropertyTXPth('D',TXP_prop,Ref);#[kg/m^3]
+    
+    CP_A = HAPropsSI('cp','P',101325,'T',P['airT'],'R',0) #[J/kg/K dry air]
+    C = P['Ga']*P['Aflow']*CP_A;
+ 
+    h_fg=H_G-H_F;
+    xx=TXPm['X'];
+    alfa=pow((1+((1-xx)*DV/(xx*DL))*(0.4+0.6*pow((xx*(DL/DV)+0.4*(1-xx)),0.5)/pow((xx+0.4*(1-xx)),0.5))),(-1));
+    Hfuc=alfa+(10*pow((1-alfa),0.1)-8.0)*pow((alfa),0.5)*(1-pow(alfa,0.5));
+    Gaa=9.8*pow(DL,2.0)*pow(d_M,3.0)/pow(MU_F,2.0);
+    eta_A=P['P_H']/(pi*d_M);# "this is the heat transfer surface area increasing ratio" "pi*d_M*10"
+  
+    PR_F=MU_F*CP_F/TC_F;
+ 
+    while(abs(delta_T1-delta_T)>=1e-7):#simple iteration for temporary use
+        delta_T1=delta_T;
+        Ja=h_fg/(CP_F*delta_T);
+        Nusselt_B=0.725*Hfuc*pow((Gaa*PR_F*Ja/(eta_A)),0.25);
+        Re_l_yu=G*(1-xx)*d_M/MU_F;
+        X_tt=Xtt(TXPm,Ref);
+        phi_g=1.2+1.65*(pow(G,0.35)*pow(X_tt,0.35)/pow((9.8*d_M*DV*(DL-DV)),0.175));
+        Nusselt_F=0.152*(phi_g/X_tt)*pow(Re_l_yu,0.68)*(0.3+0.1*pow(PR_F,1.1));
+        Nusselt_yu=pow((pow(Nusselt_B,2.0)+pow(Nusselt_F,2.0)),0.5);
+        h_yu=Nusselt_yu*TC_F/d_M;
+        H_I=h_yu*d_M/P['Di'];
+        R_CONV=1e0/(H_I*P['P_H']*P['Ls']);
+        UA=1e0/(R_CONV+P['Ro']);
+        NTU=1*UA/C;
+        EPSILON=1e0-exp(-NTU);
+        Q=EPSILON*C*(P['airT']-TXPm['T']);
+        delta_T=Q*R_CONV;
+        if(delta_T<0.01):
+            delta_T=0.01;
+
+    return H_I
 
 #===============================================================================
 # evaporation two-phase heat transfer
@@ -2079,8 +1932,8 @@ def FricDP(TXPi, #refrigerant state
     TXP2={'T':0,'X':0,'P':0};
     
     X1=0.1; X2=0.95;
- 
-    D['Microfin'] = P['microfin']; #microfin type, 0=smooth tube, 1=helical, 2=cross-grooved, 3=herringbone
+    
+    D['Microfin'] = P['Microfin']; #microfin type, 0=smooth tube, 1=helical, 2=cross-grooved, 3=herringbone
     D['finN'] = P['finN']; #fin number in a micro-fin tube
     D['Di'] = P['Di'];#inside diamete at the fin tip
     D['gama'] = P['gama'] ;#fin apex angle in a micro-fin tube
@@ -2234,7 +2087,7 @@ def FricDPSP_Microfin(TXP_loc,#refrigerant state
     R_I = P['D_b']/2.0;#inside radius at the fin bottom
     
     TXP_prop={'T':0,'X':0,'P':0};
- 
+    
     if (P['Microfin']<1):#smooth tube
         DP_Smooth = FricDPSP_Smooth(TXP_loc,Gr,2*R_I,L_T, Ref)
         return DP_Smooth
