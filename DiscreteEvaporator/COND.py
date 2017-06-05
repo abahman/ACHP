@@ -443,7 +443,7 @@ def Build_Cond(P,Ref):
     ma_tp = P['Ga_meanL'] * P['TPL'];#air flow rate across the two-phase region
     ma_l = P['Ga_meanL'] * P['LiqL'];#air flow rate across the liquid-phase region
     
-    cp_a= HAPropsSI('cp','T',P['Tai']['T'],'P',101325,'R',0) #air.Cp(P->Tai); [J/kg/K]
+    cp_a= HAPropsSI('cp','T',P['Tai']['T'],'P',101325,'R',0) #[J/kg/K]
     
     #TXP1={'T':0.0,'X':0.0,'P':0.0};
     #inlet condenser state
@@ -695,7 +695,7 @@ class StructCondClass():
         #air side initializing
         hai['H'] = HAPropsSI('H','T',Tai['T'],'P',101325,'R',0) #[J/kg]
         rho_air=1/HAPropsSI('Vda','T',Tai['T'],'P',101325,'R',0) #[kg/m^3 dry air]
-        Ma =Ga*rho_air*4.719e-1; 
+        Ma =self.Volum*rho_air; 
         Ga=Ma/self.AreaFront*P['vsp']*P['Ls']/((P['vsp']-P['Do'])*(P['Ls']-P['N']*P['th']));
     
         for i in range(self.RowNum):
@@ -867,7 +867,7 @@ class StructCondClass():
         #Tao = HatoTa(hao);
         Tao['T'] = HAPropsSI('T','P',101325,'H',hao['H'],'R',0)
         
-        m['m'] = m['m']+(2.86-2.444)+(2.87-2.785);#one point charge tuning for varied charge
+        #m['m'] = m['m']+(2.86-2.444)+(2.87-2.785);#one point charge tuning for varied charge
         #m->m=m->m+(2.858-2.533)+(2.953-2.8419)+(3.28-3.211)/(13.981-7.667)*(P->LiqL-7.667);#corresponding to three points charge tuning
         #m->m = m->m+(2.86-2.444)+(2.87-2.785)+(3.10-3.045)/(5.863-3.608)*(P->LiqL-3.608);#For two-point charge tuning
         #m->m = m->m+(2.86-2.444); one point charge tuning for fixed charge
@@ -1342,9 +1342,9 @@ def ExerciseCondenser():
     CTOA_LL = 29.511 # F, at the liquid line
     AMB = 95 #[F]
     AMB_RH = 0.2 #[-] #A.B.
-    MR = 955.572 # lbm/hr, refrigerant mass flow rate
+    MR = 530 # lbm/hr, refrigerant mass flow rate
     GOA = 3.82 # kg/s/m^2, outdoor air mass flux
-    DSH = 67.13 # F, discharge superheat 
+    DSH = 72 # F, discharge superheat 
     
     #initialize the values
     hpo = {'H':0.0,'P':0.0}
@@ -1367,8 +1367,8 @@ def ExerciseCondenser():
     ctoa = DeltaF2K(CTOA_DL); # condensing temperature over ambient
     Tsh = DeltaF2K(DSH); #discharge superheat
       
-    Tsat_dl = Tai['T']+ctoa #Temperature of saturated vapor [K]
-    P_dl = PropsSI("P", "T", Tsat_dl, "Q", 1, Ref) #CHECK THIS it might be either liquid or vapor 
+    Tsat_dl = Tai['T']+ctoa #Temperature of saturated liquid [K]
+    P_dl = PropsSI("P", "T", Tsat_dl, "Q", 0, Ref) #CHECK THIS it might be either liquid or vapor 
     txpi = {'T':Tsat_dl+Tsh,'X':1,'P':P_dl} #initially assume outlet temperature equals to saturated vapor pressure (txpo_P)
     hpi = TXPtoHP(txpi, Ref)  #inlet refrigerant state
     
@@ -1377,7 +1377,7 @@ def ExerciseCondenser():
               
     txpo = HPtoTXP(hpo, Ref)
     
-    Tsat_ll = PropsSI("T", "P", txpo['P'], "Q",1, Ref) #reftplthP.Tsat(txpo.P) #[K] #CHECK this it might be vapor of liquid
+    Tsat_ll = PropsSI("T", "P", txpo['P'], "Q",0, Ref) #Temperature of saturated liquid [K]
     
     # Calculate the total heat transfer and then the UA = Qdot/DT
     Qdot = W2BTUh(mr*(hpi['H']-hpo['H'])); #[BTU/hr ]- for all 4 sections of the heat exchanger
