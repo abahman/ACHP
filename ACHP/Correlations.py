@@ -462,27 +462,27 @@ def Petterson_supercritical_average(Tout,Tin,T_w,AS,G,OD,ID,D_l,mdot,p,q_flux_w)
         u=mdot/(Area*rho)
         Re=rho*u*Dh/mu
         Re_w=Re#rho_w*u*Dh/mu_w
-        
+            
         if G > 350:
-            e_D = 0 #smooth pipe
-            f = (-1.8*log(6.9/Re + (1/3.7*e_D)**1.11))**(-2)
+            e_D = 1e-6 #smooth pipe
+            f = (-1.8*log10(6.9/Re + (1/3.7*e_D)**1.11))**(-2)/4
             Nu_m = (f/8)*(Re-1000)*Pr/(1+12.7*sqrt(f/8)*(Pr**(2/3)-1)) *(1+(D_l)**(2/3))
             Nu = Nu_m * (Pr/Pr_w)**0.11
-        
+         
         else: # G<350
-            
+             
             M = 0.001 #[kg/J]
             K = 0.00041 #[kg/J]
-            
+             
             cp_avg = (h-h_w)/(T-T_w)
-            
+             
             if cp_avg/cp_w <= 1:
                 n = 0.66 - K*(q_flux_w/G)
             else: #cp_avg/cp_w <1
                 n = 0.9 - K*(q_flux_w/G)
-            
+             
             f0 = (0.79*log(Re)-1.64)**(-2)
-            
+             
             g =9.81
             #coefficient of thermal expansion
             beta = AS.isobaric_expansion_coefficient() #[1/K]
@@ -494,13 +494,13 @@ def Petterson_supercritical_average(Tout,Tin,T_w,AS,G,OD,ID,D_l,mdot,p,q_flux_w)
                 f = 2.15 * f0 * (mu_w/mu)**0.22 * (Gr/Re)**0.1
             else: #use f0 for friction factor
                 f = f0
-                
+                 
             Nu_w_ppk = (f0/8)*Re_w*Pr_w/(1.07+12.7*sqrt(f/8)*(Pr_w**(2/3)-1))
-            
+             
             Nu = Nu_w_ppk * (1-M*q_flux_w/G) * (cp_avg/cp_w)**n
-            
+             
         h = k*Nu/Dh #[W/m^2-K]
-        
+         
         return (h,f,cp,rho)
 
     def SuperCriticalCondensation_h(T,T_w,AS,G,OD,ID,D_l,mdot,p,q_flux_w):

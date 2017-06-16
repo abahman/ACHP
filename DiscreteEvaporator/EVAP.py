@@ -2114,8 +2114,8 @@ def Evaporator(Ref, #refrigerant string
          
         D['NBranchs'] = int(df.Evaporator[12]) # number of equivalent branches
         D['NBraTube'] = int(df.Evaporator[13]) # number of tube in each branch
-        D['Nrows'] = df.Evaporator[14]        # number of rows high
-        D['Ndeep'] = df.Evaporator[15]        # number of rows deep
+        D['Nrows'] = df.Evaporator[14]        # number of rows high (number of tubes per bank)
+        D['Ndeep'] = df.Evaporator[15]        # number of rows deep (number of banks)
         D['Frontal_A'] = df.Evaporator[16]    # frontal area
          
         #correction factors
@@ -2127,7 +2127,7 @@ def Evaporator(Ref, #refrigerant string
    
         #B.S. ------------------------
         #new input parameter for evaporator
-        D['microfin'] = int(df.Evaporator[22])     #microfin type, 0=smooth tube, 1=helical, 2=cross-grooved, 3=herringbone
+        D['Microfin'] = int(df.Evaporator[22])     #microfin type, 0=smooth tube, 1=helical, 2=cross-grooved, 3=herringbone
         D['finN'] = df.Evaporator[23]              #fin number in a micro-fin tube
         D['gama'] = df.Evaporator[24]              #fin apex angle in a micro-fin tube
         D['beta'] = df.Evaporator[25]              #fin helix angle in a micro-fin tube
@@ -2152,7 +2152,7 @@ def Evaporator(Ref, #refrigerant string
            
         #B.S.-----------------------------------
         # tube inside geometry
-        if (D['microfin'] > 0):
+        if (D['Microfin'] > 0):
             D['D_b'] = D['Di'] + 2*D['finH']        #tube diameter at the base of the fin
             D['Do'] = D['D_b'] + 2*D['xp']           #Pipe outside diameter.
             D['D_m'] = (D['Di'] + D['D_b'])/2       #mean diameter of the micro-fin tube

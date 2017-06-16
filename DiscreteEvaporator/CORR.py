@@ -2,7 +2,7 @@ from __future__ import division, print_function, absolute_import
 from math import log,pi,sqrt,exp,cos,sin,tan,log10,tanh
 #from scipy.integrate import quad,quadrature,trapz,simps,fixed_quad
 from scipy.optimize import brentq
-
+from scipy.integrate import quad
 from CoolProp.CoolProp import PropsSI
 from CoolProp.HumidAirProp import HAPropsSI
 
@@ -921,7 +921,7 @@ def FricAir_ConvexLouvered(G,P):
         f = 0.768*(0.0494+0.142*exp(-1*Re/1180))*pow(Coe_fin,0.0195)*pow(F_p/D,-0.121);
 
      
-    return f, P
+    return f
 
 
 def FricAir_SmoothWavy(G,P):
@@ -1140,7 +1140,7 @@ def ConvCoeffInside(TXPi,   #refrigerant inlet state
     condenser.
     ********************************************************************/
     '''
-     
+    
     X1=0.1; X2=0.9;
     
     if(TXPi['X']>=1.0 or TXPi['X']<=0):
@@ -1392,7 +1392,7 @@ def ConvCoeffEvapTP_microfin(TXPm,#refrigerant state
     q=P['q_flux'];#for smooth tube evaporation model iteration
     T_w = P['T_w'];#for micro-fin tube evaporation model iteration
  
-    if (not P['microfin']):#smooth tube
+    if (P['Microfin']<1):#smooth tube
         h_smooth = ConvCoeffEvapTP_Smooth(TXPm,G,Di,q, Ref)
         return h_smooth
      
@@ -1506,7 +1506,7 @@ def ConvCoeffEvapTP_microfin(TXPm,#refrigerant state
     if (abs(T_delta)>=0.1):#if zerotropic refrigerant, correct the overall flow boiling coefficient by considering the mass transfer resistance between vapora phase and liquid phase
         Corr_FlowBoiling=1.0;#parameter for the mass transfer resistance between the vapor phase and liquid phase
         Corr_FlowBoiling = Correct_FLOW_Boiling(TXPm['X'],Cp_g,T_delta,h_fg);#correction parameter for the mass transfer resistance between the liquid phase and vapor phase 
-        Re_vaporphase = G*TXPm.X*(d_e+2*e)/(mu_g);#Reynolds number, asuming the vapor only flowing in the tube
+        Re_vaporphase = G*TXPm['X']*(d_e+2*e)/(mu_g);#Reynolds number, asuming the vapor only flowing in the tube
         Nu = 0.023*pow(Re_vaporphase,0.8)*pow(Pr_g,0.333);#Dittus-Boelter equation to calculate the vapor phase coeffcient
         h_vaporphase=Nu*k_g/(d_e+2*e);#vapor phase heat transfer coefficent
         h=1.0/(1.0/h+Corr_FlowBoiling/h_vaporphase);#correct the overall flow boiling coefficient
@@ -2449,7 +2449,177 @@ def IsTwoPhase(X):
 # 
 #     return phi
 
- 
+def Petterson_average(Tout,Tin,T_w,Ref,G,D,D_l,p,q_flux_w):
+    '''
+    Petterson et al. (2000), Heat transfer and pressure drop for flow supercritical and subcritical CO2 in microchannel tubes
+    All details for this correlation are available in Ding Li Thesis (Appendix B):
+    "INVESTIGATION OF AN EJECTOR-EXPANSION DEVICE IN A TRANSCRITICAL CARBON DIOXIDE CYCLE FOR MILITARY ECU APPLICATIONS" 
+    '''
+    
+    def SuperCriticalCondensation_h(T,T_w,Ref,G,D,D_l,p,q_flux_w):
+        '''return h value'''
+        return Petterson(T,T_w,Ref,G,D,D_l,p,q_flux_w)[0]
+    def SuperCriticalCondensation_f(T,T_w,Ref,G,D,D_l,p,q_flux_w):
+        '''return f value'''
+        return Petterson(T,T_w,Ref,G,D,D_l,p,q_flux_w)[1]
+    def SuperCriticalCondensation_cp(T,T_w,Ref,G,D,D_l,p,q_flux_w):
+        '''return cp value'''
+        return Petterson(T,T_w,Ref,G,D,D_l,p,q_flux_w)[2]
+    def SuperCriticalCondensation_rho(T,T_w,Ref,G,D,D_l,p,q_flux_w):
+        '''return rho value'''
+        return Petterson(T,T_w,Ref,G,D,D_l,p,q_flux_w)[3]
+            
+    if not Tout==Tin:
+        #A proper range is given
+        h = quad(SuperCriticalCondensation_h,Tin,Tout,args=(T_w,Ref,G,D,D_l,p,q_flux_w))[0]/(Tout-Tin)
+        f = quad(SuperCriticalCondensation_f,Tin,Tout,args=(T_w,Ref,G,D,D_l,p,q_flux_w))[0]/(Tout-Tin)
+        cp = quad(SuperCriticalCondensation_cp,Tin,Tout,args=(T_w,Ref,G,D,D_l,p,q_flux_w))[0]/(Tout-Tin)
+        rho = quad(SuperCriticalCondensation_rho,Tin,Tout,args=(T_w,Ref,G,D,D_l,p,q_flux_w))[0]/(Tout-Tin)
+        return (h,f,cp,rho)
+    else:
+        #A single value is given
+        return Petterson(Tout,T_w,Ref,G,D,D_l,p,q_flux_w)
+    
+def Petterson(T,T_w,Ref,G,D,D_l,p,q_flux_w):
+    '''
+    Petterson et al. (2000), Heat transfer and pressure drop for flow supercritical and subcritical CO2 in microchannel tubes
+    All details for this correlation are available in Ding Li Thesis (Appendix B):
+    "INVESTIGATION OF AN EJECTOR-EXPANSION DEVICE IN A TRANSCRITICAL CARBON DIOXIDE CYCLE FOR MILITARY ECU APPLICATIONS" 
+    '''
+    T_Crit = PropsSI('T_critical',Ref) #[K]
+    P_Crit = PropsSI('p_critical',Ref) #[Pa]
+    g = 9.81
+    
+    h_w = PropsSI('H','P',p,'T',T_w,Ref) #[J/kg]
+    mu_w = PropsSI('V','P',p,'T',T_w,Ref) #[Pa-s OR kg/m-s]
+    cp_w = PropsSI('C','P',p,'T',T_w,Ref) #[J/kg-K]
+    k_w = PropsSI('L','P',p,'T',T_w,Ref) #[W/m-K]
+    rho_w = PropsSI('D','P',p,'T',T_w,Ref) #[kg/m^3]
+    Pr_w = cp_w * mu_w / k_w #[-]
+    
+    h = PropsSI('H','P',p,'T',T,Ref) #[J/kg]
+    mu = PropsSI('V','P',p,'T',T,Ref) #[Pa-s OR kg/m-s]
+    cp = PropsSI('C','P',p,'T',T,Ref) #[J/kg-K]
+    k = PropsSI('L','P',p,'T',T,Ref) #[W/m-K]
+    rho = PropsSI('D','P',p,'T',T,Ref) #[kg/m^3]
+    Pr = cp * mu / k #[-]
+    
+    Dh = D['Di']
+    #Area=pi*(Dh**2)/4.0
+    #u=mdot/(Area*rho)
+    Re=G*Dh/mu
+    Re_w=G*Dh/mu_w
+    
+#     beta = PropsSI('isobaric_expansion_coefficient','P',p,'T',T,Ref) #[1/K]
+#     E0 = p*beta/(rho*cp)
+#     E0_max = PropsSI('isobaric_expansion_coefficient','P',p,'T',T,Ref) #[1/K]
+#     if E0 < 0.04: #liquid like
+#         a = 1.16
+#         b = 0.91
+#     elif E0 > E0_max: #gas like
+#         a = 1.19
+#         b = 0.17
+#     else: #sudo-like
+#         a = 1.31
+#         b = 0.25
+#         
+#     e_D = 1e-6 #smooth pipe
+#     A = ((-2.457 * log( (7.0 / Re)**(0.9) + 0.27 * e_D)))**16
+#     B = (37530.0 / Re)**16
+#     f_churchill = 8 * ((8/Re)**12.0 + 1 / (A + B)**(1.5))**(1/12)
+#     f = a * f_churchill * (mu_w/mu)**b
+#     
+#     #heat transfer
+#     if E0 < E0_max:
+#         a = 0.56 
+#         b = 0.022
+#         c = 0.01
+#     else:
+#         a = 0.19
+#         b = 0.118
+#         c = 0.011
+#         
+#     D_ref = 9.4/1000
+#     D_star = Dh/D_ref
+#     Nu_modi_churchill = (4.364**(10) + (exp((2200-Re)/365)/4.364**2 +(6.3 + (0.079*(f/8)**0.5*Re*Pr)/(1+Pr**(0.8))**(5/6))**(-2) )**(-5))**(1/10)
+#     Nu = a * Nu_modi_churchill * Re**(b+c/D_star)
+#     h = k*Nu/Dh
+#     return (h,f,cp,rho)
+
+    if G >= 350: #[kg/m^2/s]
+#         #friction factor
+#         if(T > T_Crit or p > P_Crit): #supercritical region
+#             if(Re < 1.0e5):
+#                 f_o = pow((0.79*log(Re) - 1.64), -2.0);
+#             else:
+#                 f_o = 0.02;
+#             a = f_o*pow(mu/mu_w, 0.22);
+#             rho_avg = 0.5*(rho + rho_w);
+#             u = G/rho_avg;
+#             b = (1.0 - rho/rho_w)*g*Dh*pow(rho, 2.0)/pow((u*rho_avg), 2.0); #Note: b = Gr/Re^2
+#             if b<0.0:
+#                 b=0.0
+#             c = 2.15*pow(b, 0.1);
+#             if(b < 5.0e-4):
+#                 f = a;
+#             else:
+#                 f = a*c;
+#         else: #two-phase or else
+#             e_D = 0 #smooth pipe
+#             a = pow(8.0/Re, 12.0);
+#             b = pow((2.457*log(1.0/(pow(7.0/Re, 0.9) + 0.27*(e_D)))), 16.0);
+#             c = pow(3.753e4/Re, 16.0);
+#             f = 2.0*pow((a + pow((b + c), -1.5)), 1.0/12.0);
+#             f *= 4.0;   #need Darcy friction factor
+#           
+#         #Heat transfer coeffeicnt
+#         a = (f/8.0)*(Re - 1000.0)*Pr;
+#         b = 1.0 + 12.7*pow((f/8.0), 0.5)*(pow(Pr, (2.0/3.0)) - 1.0);
+#         c = 1.0 + pow((D_l), (2.0/3.0));
+#         Nu = (a/b)*c;    
+#         h = Nu*k/Dh;
+#         h *= pow((T/T_w), 0.36);
+        e_D = 1e-6 #smooth pipe 
+        f = (-1.8*log10(6.9/Re + (1/3.7*e_D)**1.11))**(-2)/4
+        Nu_m = (f/8)*(Re-1000)*Pr/(1+12.7*sqrt(f/8)*(Pr**(2/3)-1)) *(1+(D_l)**(2/3))
+        Nu = Nu_m * (Pr/Pr_w)**0.11
+        h = Nu*k/Dh;
+        return (h,f,cp,rho)
+     
+    else: # G<350 [kg/m^2/s]
+         
+        M = 0.001 #[kg/J]
+        K = 0.00041 #[kg/J]
+         
+        cp_avg = (h-h_w)/(T-T_w)
+         
+        if cp_avg/cp_w <= 1:
+            n = 0.66 - K*(q_flux_w/G)
+        else: #cp_avg/cp_w <1
+            n = 0.9 - K*(q_flux_w/G)
+         
+        f0 = (0.79*log(Re)-1.64)**(-2)
+         
+        g = 9.81
+        #coefficient of thermal expansion
+        beta = PropsSI('isobaric_expansion_coefficient','P',p,'T',T,Ref) #[1/K]
+        #Grashoff number
+        Gr = g*beta*abs(T_w-T)*Dh**3/(mu/rho)**2
+        if Gr/Re**2 < 5e-4:
+            f = f0 * (mu_w/mu)**0.22
+        elif  Gr/Re**2 >= 5e-4 and Gr/Re**2 < 0.3:
+            f = 2.15 * f0 * (mu_w/mu)**0.22 * (Gr/Re)**0.1
+        else: #use f0 for friction factor
+            f = f0
+             
+        Nu_w_ppk = (f0/8)*Re_w*Pr_w/(1.07+12.7*sqrt(f/8)*(Pr_w**(2/3)-1))
+         
+        Nu = Nu_w_ppk * (1-M*q_flux_w/G) * (cp_avg/cp_w)**n
+         
+        h = k*Nu/Dh #[W/m^2-K]
+     
+        return (h,f,cp,rho)
+   
 if __name__=='__main__':
     print('Hello world')
     print ()

@@ -138,7 +138,7 @@ def FlowPattern():
 
 def PreAcc():
     
-    pre_acc = {'DP_FR':0.0,'P_IN':0.0,'H_OUT':0.0,'G':0.0,'X_IN':0.0}
+    pre_acc = {'DP_FR':0.0,'P_IN':0.0,'H_OUT':0.0,'G':0.0,'X_IN':0.0,'rho_IN':0.0}
 
     return pre_acc
 
@@ -271,7 +271,7 @@ def CGP():
     cond_struc={'Di':0.0,'L':0.0,'xp':0.0,'Df':0.0,'z':0.0,'th':0.0,'vsp':0.0,'Brad':0.0,
                 'NSeg':int(0.0),
                 'Dh':0.0,'Do':0.0,'y':0.0,'Ls':0.0,'N':0.0,'Ax':0.0,'Api':0.0,'Apo':0.0,'Af':0.0,'Aflow':0.0,'Vs':0.0,'Blen':0.0,
-                'Ro':0.0,
+                'Ro':0.0,'R':0.0, #A.B. overall heat resistance
                 'hAirAdj':0.0,'hRefAdj':0.0,'PRefAdj':0.0,
                 'hRefAdj_Sub':0.0,#B.S. parameter for adjusting the heat transfer ratio between the two-phase heat transfer and single-phase heat transfer
                 'Nbranchs':int(0.0),'Nmaintubes':int(0.0),'Nsubtubes':int(0.0),
@@ -315,6 +315,10 @@ def CGP():
                 'count1':0.0,'count2':0.0,#count the state points of two-phase flow end and beginning
                 'H1_residual':0.0, 'H2_residual':0.0,#for consistency of the moving boundary model analysis
                 #------------------------------B.S.
+                'T_w':0.0, #A.B. wall temperature
+                'q_w':0.0, #A.B. heat flux
+                'fi':0.0, #A.B. frcition factor
+                'rho':0.0, #A.B. density to be passed for friction pressure drop
                 #Lumped model included above---------------------------B.S. 
                 'cfma':0.0} # cfm air
 
@@ -362,11 +366,16 @@ def HPtoTXP(HP,Ref):
     TXP={'T':0,'X':0,'P':0};
 
     TXP['P'] = HP['P'];
+    if (Ref=='R744'):
+        TXP['X']=1;
+        TXP['T'] = PropsSI('T','P',HP['P'],'H',HP['H'],Ref)
+        return TXP
+    
     hl = PropsSI('H','P',HP['P'],'Q',0,Ref)
     hv = PropsSI('H','P',HP['P'],'Q',1,Ref)
     Tl = PropsSI('T','P',HP['P'],'Q',0,Ref)
     Tv = PropsSI('T','P',HP['P'],'Q',1,Ref)
-    print
+    
     if (HP['H']>hv):#superheated
         TXP['X']=1;
         TXP['T'] = PropsSI('T','P',HP['P'],'H',HP['H'],Ref)
@@ -616,24 +625,55 @@ def PropertyTXPth(prop,TXP,Ref):
     '''
 
     if (TXP['X']>=1): #Superheated
-        Tsat = PropsSI('T','P',TXP['P'],'Q',1,Ref)
+        try:
+            Tsat = PropsSI('T','P',TXP['P'],'Q',1,Ref)
+        except:
+            if (Ref =='R744'):
+                a = PropsSI(prop,'P',TXP['P'],'T',TXP['T'],Ref)
+                return a
+            else:
+                raise
+        
         if (prop=='T'): #0 is TSAT             
             return Tsat
 
         if (TXP['T']>Tsat): #superheat vapor
             a = PropsSI(prop,'P',TXP['P'],'T',TXP['T'],Ref)
         else: #saturated vapor
-            a = PropsSI(prop,'P',TXP['P'],'Q',1,Ref)
+            try:
+                a = PropsSI(prop,'P',TXP['P'],'Q',1,Ref)
+            except:
+                if (Ref =='R744'):
+                    a = PropsSI(prop,'P',TXP['P'],'T',TXP['T'],Ref)
+                    return a
+                else:
+                    raise
+            
             
     elif (TXP['X']<=0): #Subcooled
-        Tsat = PropsSI('T','P',TXP['P'],'Q',0,Ref)
+        try:
+            Tsat = PropsSI('T','P',TXP['P'],'Q',0,Ref)
+        except:
+            if (Ref =='R744'):
+                a = PropsSI(prop,'P',TXP['P'],'T',TXP['T'],Ref)
+                return a
+            else:
+                raise
+            
         if(prop=='T'): #0 is TSAT
             return Tsat
 
         if (TXP['T']<Tsat): #subcooled liquid
             a = PropsSI(prop,'P',TXP['P'],'T',TXP['T'],Ref)
         else: #saturated liquid
-            a = PropsSI(prop,'P',TXP['P'],'Q',0,Ref)
+            try:
+                a = PropsSI(prop,'P',TXP['P'],'Q',0,Ref)
+            except:
+                if (Ref =='R744'):
+                    a = PropsSI(prop,'P',TXP['P'],'T',TXP['T'],Ref)
+                    return a
+                else:
+                    raise
     
     else: #two-phase
         try:
@@ -663,9 +703,16 @@ def PropertyTXPtr(prop,TXP,Ref):
     ********************************************************************/
     '''
 
-    if (TXP['X']>=1): 
-        Tsat = PropsSI('T','P',TXP['P'],'Q',1,Ref)
-
+    if (TXP['X']>=1):
+        try:
+            Tsat = PropsSI('T','P',TXP['P'],'Q',1,Ref)
+        except:
+            if (Ref=='R744'):
+                a = PropsSI(prop,'P',TXP['P'],'T',TXP['T'],Ref)
+                return a
+            else:
+                raise
+                
         if (TXP['T']>Tsat): #superheat vapor
             a = PropsSI(prop,'P',TXP['P'],'T',TXP['T'],Ref)
         else: #saturated vapor

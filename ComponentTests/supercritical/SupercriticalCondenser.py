@@ -380,8 +380,8 @@ if __name__=='__main__':
     for i in range(36):
         Cond=SampleCondenser(df['Air Inlet Air Temps'][i+1],df['Air Velocity'][i+1],df['Refrigerant Inlet Temp'][i+1],df['Refrigerant Inlet Pressure'][i+1],df['Refrigerant Flow Rate'][i+1])
         #print (df['Refrigerant Flow Rate'][i+1]/1000 * (PropsSI("H", "T", df['Refrigerant Inlet Temp'][i+1]+273.15, "P", df['Refrigerant Inlet Pressure'][i+1]*1000000, "R744") - PropsSI("H", "T", df['Tested Refrigerant Outlet Temp'][i+1]+273.15, "P", df['Refrigerant Inlet Pressure'][i+1]*1000000, "R744")))
-        print (-1*Cond.Q/1000)
-        #print (Cond.Tout_r-273.15)
+        #print (-1*Cond.Q/1000)
+        print (Cond.Tout_r-273.15)
     print(Cond.OutputList())
     
     print('Heat transfer rate in gas cooler is', Cond.Q,'W')

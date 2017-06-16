@@ -4,7 +4,7 @@ from math import log,pi,sqrt,exp,cos,sin,tan,log10
 #from scipy.optimize import brentq,fsolve
 #import numpy as np
 
-#from CoolProp.CoolProp import PropsSI
+from CoolProp.CoolProp import PropsSI
 
 from extra_functions import toTXP, PropertyTXPtr, PropertyTXPth, HPtoTXP, PreAcc
 from VOLUME import VolumeALL
@@ -402,6 +402,48 @@ def GET_PreAcc(DP_ACC, Ref, Params=None):
 
     return ERR_P
 
- 
+
+def GET_PreAcc_GasCooler(DP_ACC, Ref, Params=None):
+    '''
+    /*******************************************************
+    B.S. add for getting the acceleration pressure drop (Pa) for gascooler
+    ********************************************************/
+    '''
+    if (Params==None):
+        Preacc = PreAcc()
+    else:
+        Preacc = Params
+
+    DP_FR=Preacc['DP_FR'];
+    G=Preacc['G'];
+    H_OUT=Preacc['H_OUT'];
+    P_IN=Preacc['P_IN'];
+    rho_IN=Preacc['rho_IN'];
+#     TXP_prop={'T':0,'X':0,'P':0};
+
+#     TXP_prop['P']=P;
+#     TXP_prop['X']=1;
+#     TXP_prop['T']=PropertyTXPth('T',TXP_prop,Ref)
+#     DV=PropertyTXPth('D',TXP_prop, Ref) #[kg/m^3]
+    
+#     TXP_prop['P']=P;
+#     TXP_prop['X']=0;
+#     TXP_prop['T']=PropertyTXPth('T',TXP_prop,Ref)
+#     DL=PropertyTXPth('D',TXP_prop,Ref) #[kg/m^3]
+
+    DP_OLD=DP_ACC;
+    P_OUT=P_IN-DP_FR-DP_ACC;
+
+    HP_OUT={'H':0.0,'P':0.0};
+    HP_OUT['H']=H_OUT;
+    HP_OUT['P']=P_OUT;
+    #TXP_OUT=HPtoTXP(HP_OUT,Ref);
+
+    rho_OUT=PropsSI('D','P',HP_OUT['P'],'H',HP_OUT['H'],Ref)
+    DP_ACC=pow(G,2)*(1/rho_OUT-1/rho_IN);
+    ERR_P=(DP_ACC-DP_OLD);
+
+    return ERR_P
+
 if __name__=='__main__':
     print('Hello world')
