@@ -440,7 +440,7 @@ def GET_PreAcc_GasCooler(DP_ACC, Ref, Params=None):
     #TXP_OUT=HPtoTXP(HP_OUT,Ref);
 
     rho_OUT=PropsSI('D','P',HP_OUT['P'],'H',HP_OUT['H'],Ref)
-    DP_ACC=pow(G,2)*(1/rho_OUT-1/rho_IN);
+    DP_ACC=pow(G,2)*abs(1/rho_OUT-1/rho_IN);
     ERR_P=(DP_ACC-DP_OLD);
 
     return ERR_P
