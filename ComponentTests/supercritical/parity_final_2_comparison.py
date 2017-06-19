@@ -57,7 +57,7 @@ def rmse(predictions, targets):
     Root Mean Square Error
     '''
     n = len(predictions)
-    RMSE = np.linalg.norm(predictions - targets) / np.sqrt(n)
+    RMSE = np.linalg.norm(predictions - targets) / np.sqrt(n) / np.mean(targets) * 100
     return RMSE
 
 def mape(y_pred, y_true):  #maps==mean_absolute_percentage_error
