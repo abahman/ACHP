@@ -2427,7 +2427,7 @@ class ECU_VICompTelloCycleClass():
 #             self.SightGlassFilterDrierMicroMotion.Calculate()
 
             def residual(x_in_PHEHX):
-                #print 'quality at inlet of PHEHX', x_in_PHEHX
+                #print ('quality at inlet of PHEHX', x_in_PHEHX)
                 'function to iterate for hin_c'
 #                 x_in_PHEHX = float(x_in_PHEHX)
 #                 print x_in_PHEHX
@@ -2458,7 +2458,7 @@ class ECU_VICompTelloCycleClass():
                 #resid = self.Compressor.mdot_tot * self.PHEHX.hout_h - self.Compressor.mdot_inj * self.PHEHX.hin_c
                 #resid = self.PHEHX.hout_h - self.PHEHX.hin_c
                 resid = self.Compressor.mdot_tot * self.Condenser.hout_r - self.Compressor.mdot_r * self.PHEHX.hout_h - self.Compressor.mdot_inj * self.PHEHX.hout_c
-                #print resid
+                #print (resid)
                 return resid
 
             #assume a guess value for 
@@ -2472,7 +2472,7 @@ class ECU_VICompTelloCycleClass():
             #x_guess = 0.5
             #x_in_PHEHX_actual= fsolve(residual,x_guess)
             #try:
-            x_in_PHEHX_actual = brentq(residual,0.001,0.999)
+            x_in_PHEHX_actual = brentq(residual,0.0001,0.4,xtol=1e-5,rtol=6e-8,maxiter=40)
             #print 'quality at inlet of PHX',x_in_PHEHX_actual
 #             except:
 #                 print 'pass PHEX'
