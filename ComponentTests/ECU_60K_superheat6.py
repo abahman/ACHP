@@ -144,7 +144,7 @@ def ECUCycle_VICompTello():
     Cycle.Condenser.Fins.Fins.t=in2m(0.0045)           ##measured## #Fin thickness
     Cycle.Condenser.Fins.Fins.k_fin=117                #Fin thermal conductivity for pure Aluminum
         
-    Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(3500)     #Air volume flow rate in m^3/s
+    Cycle.Condenser.Fins.Air.Vdot_ha=cfm2cms(2500)     #Air volume flow rate in m^3/s
     Cycle.Condenser.Fins.Air.Tdb=F2K(75)               #Air inlet temperature, K
     Cycle.Condenser.Fins.Air.p=101325                  #Air pressure in Pa
     Cycle.Condenser.Fins.Air.RH=0.5155                 #Air inlet relative humidity
@@ -183,7 +183,7 @@ def ECUCycle_VICompTello():
     Cycle.Evaporator.Fins.Fins.t=in2m(0.0075)
     Cycle.Evaporator.Fins.Fins.k_fin=237
     
-    Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(2000)          
+    Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(1700)          
     Cycle.Evaporator.Fins.Air.Tdb=F2K(77)
     Cycle.Evaporator.Fins.Air.p=101325                       #Evaporator Air pressure in Pa
     Cycle.Evaporator.Fins.Air.RH=0.2712
@@ -300,8 +300,8 @@ if __name__=='__main__':
     
     cycle=ECUCycle_VICompTello()
     #Write the outputs to file
-    Write2CSV(cycle,open('results/Cycle_60K_superheat_Test6.csv','w'),append=False)
-    #Write2CSV(cycle,open('results/Cycle_60K_superheat_Test6.csv','a'),append=True)
+    #Write2CSV(cycle,open('results/Cycle_60K_superheat_Test6.csv','w'),append=False)
+    Write2CSV(cycle,open('results/Cycle_60K_superheat_Test6.csv','a'),append=True)
     print ('Took '+str(time.time()-start)+' seconds to run Cycle model')
     #append a second run with different temperauture
     ###Outdoor side###

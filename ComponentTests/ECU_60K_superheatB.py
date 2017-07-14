@@ -183,7 +183,7 @@ def ECUCycle_VICompTello():
     Cycle.Evaporator.Fins.Fins.t=in2m(0.0075)
     Cycle.Evaporator.Fins.Fins.k_fin=237
     
-    Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(2000)          
+    Cycle.Evaporator.Fins.Air.Vdot_ha=cfm2cms(1700)          
     Cycle.Evaporator.Fins.Air.Tdb=F2K(80)
     Cycle.Evaporator.Fins.Air.p=101325                       #Evaporator Air pressure in Pa
     Cycle.Evaporator.Fins.Air.RH=0.511
@@ -300,8 +300,8 @@ if __name__=='__main__':
     
     cycle=ECUCycle_VICompTello()
     #Write the outputs to file
-    Write2CSV(cycle,open('results/Cycle_60K_superheat_TestB.csv','w'),append=False)
-    #Write2CSV(cycle,open('results/Cycle_60K_superheat_TestB.csv','a'),append=True)
+    #Write2CSV(cycle,open('results/Cycle_60K_superheat_TestB.csv','w'),append=False)
+    Write2CSV(cycle,open('results/Cycle_60K_superheat_TestB.csv','a'),append=True)
     print ('Took '+str(time.time()-start)+' seconds to run Cycle model')
     #append a second run with different temperauture
     ###Outdoor side###
