@@ -12,7 +12,7 @@ import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 mpl.style.use('classic')
-
+#mpl.style.use('Elsevier.mplstyle')
 #===============================================================================
 # Latex render
 #===============================================================================
