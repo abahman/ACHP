@@ -113,7 +113,7 @@ def ECUCycle_VICompTello():
             'P':P,
             'K':K,
             'Ref':Cycle.Ref, #Refrigerant
-            'fp':0.12, #Fraction of electrical power lost as heat to ambient 
+            'fp':0.1, #Fraction of electrical power lost as heat to ambient 
             'Vdot_ratio': 1, #Displacement Scale factor
             'Verbosity': 0, # How verbose should the debugging be [0-10]
             'Backend':Cycle.Backend
@@ -159,6 +159,9 @@ def ECUCycle_VICompTello():
             'Ref': Cycle.Ref,
             'Backend': Cycle.Backend,
             'Verbosity':0,
+            'h_a_tuning':1,
+            'h_tp_tuning':1,
+            'DP_tuning':1
             }
     Cycle.Condenser.Update(**params)
     
@@ -197,6 +200,9 @@ def ECUCycle_VICompTello():
             'Backend': Cycle.Backend,
             'Verbosity':0,
             'DT_sh':7, #DeltaF2K()
+            'h_a_tuning':1,
+            'h_tp_tuning':1,
+            'DP_tuning':1
             }
     
     Cycle.Evaporator.Update(**params)
@@ -224,6 +230,11 @@ def ECUCycle_VICompTello():
             'InclinationAngle' : 65/180*pi,#[rad]
             'PlateConductivity' : 15.0, #[W/m-K]
             'MoreChannels' : 'Hot', #Which stream gets the extra channel, 'Hot' or 'Cold'
+            
+            'h_tp_cold_tuning':1,
+            'h_tp_hot_tuning':1,
+            'DP_hot_tuning':1,
+            'DP_cold_tuning':1
             }
     Cycle.PHEHX.Update(**params)
         

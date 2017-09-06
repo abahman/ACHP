@@ -2280,6 +2280,8 @@ class ECU_VICompTelloCycleClass():
             Output_List.append(('Details','N/A',self.TestDetails))
         Output_List_default=[                                                   #default output list
             ('Charge','kg',self.Charge),
+            ('Corrected Charge','kg',self.Charge_correct),
+            ('Corrected Charge One Point only','kg',self.Charge_correct_one),
             ('Condensation temp (dew)','K',self.Tdew_cond),
             ('Evaporation temp (dew)','K',self.Tdew_evap),
             ('Injection temp (dew)','K',self.Tdew_inj),
@@ -2290,7 +2292,9 @@ class ECU_VICompTelloCycleClass():
             ('Primary Ref.','-',self.Ref),
             ('COP','-',self.COP),
             ('COSP','-',self.COSP),
-            ('Net Capacity','W',self.Capacity),
+            ('Heating Capacity','W',self.HeatCapacity),
+            ('Cooling Capacity','W',self.CoolCapacity),
+            ('PHEHX Capacity','W',self.PHEHXCapacity),
             ('Net Power','W',self.Power),
             ('Compressor Power','W',self.Power_compressor),
             ('Suction mass Flow Rate','kg/s',self.mdot_r),
@@ -2510,6 +2514,15 @@ class ECU_VICompTelloCycleClass():
             self.Charge=self.Condenser.Charge+self.Evaporator.Charge+self.PHEHX.Charge_c+self.PHEHX.Charge_h#+self.LineSetSupply.Charge+self.LineSetReturn.Charge+self.SightGlassFilterDrierMicroMotion.Charge
             self.EnergyBalance=self.Compressor.CycleEnergyIn+self.Condenser.Q+self.Evaporator.Q-self.PHEHX.Q #negative sign for PHEHX.Q becasue the solver gives positive value, but the energy balance should be negative 
             
+            #correct the charge with Bo Shen's two point regression method
+            C = 3.465320457 #[kg]
+            K = -0.658909575 #[kg] Test1:-0.658909575 ##### TestB:4.171492087
+            L_ref = 0.201982979 #[-]
+            L_liq = self.Condenser.w_subcool
+            self.delta_charge = C + K * (L_liq - L_ref)
+            self.Charge_correct = self.Charge + self.delta_charge
+            self.Charge_correct_one = self.Charge + C
+            
             resid=np.zeros((3))
             resid[0]=self.Compressor.mdot_r*(self.Compressor.hin_r-self.Evaporator.hout_r)
             
@@ -2527,11 +2540,13 @@ class ECU_VICompTelloCycleClass():
             if self.Verbosity>1:
                 print (resid)
             
-            self.Capacity=self.Evaporator.Q
+            self.CoolCapacity=self.Evaporator.Q
+            self.HeatCapacity=self.Condenser.Q
+            self.PHEHXCapacity=self.PHEHX.Q
             self.Power=self.Compressor.W+self.Evaporator.Fins.Air.FanPower+self.Condenser.Fins.Air.FanPower
             self.Power_compressor=self.Compressor.W
             self.COP=self.Evaporator.Q/self.Compressor.W
-            self.COSP=self.Capacity/self.Power
+            self.COSP=self.CoolCapacity/self.Power
             self.SHR=self.Evaporator.SHR
             self.DT_sc=self.Condenser.DT_sc
             self.DT_sh=self.Evaporator.DT_sh_calc
@@ -2752,7 +2767,7 @@ class ECU_VICompTelloCycleClass():
         print ('            Running Preconditioner   ')
         print ('-------------------------------------')
         if PrecondValues is None:
-            self.DT_evap,self.DT_cond,self.Tdew_inj=VICompPreconditioner(self)
+            self.DT_evap,self.DT_cond,Tdew_inj=VICompPreconditioner(self)
         else:
             self.DT_evap=PrecondValues['DT_evap']
             self.DT_cond=PrecondValues['DT_cond']
@@ -2763,47 +2778,62 @@ class ECU_VICompTelloCycleClass():
         print ('             Starting Main Cycle     ')
         print ('-------------------------------------')    
         
-        iter=1
-        max_error_DP=999
-        #Outer loop with a more relaxed convergence criterion
-        while max_error_DP>0.5:
-            iter_inner=1
-            #Inner loop to determine pressure drop for high and low sides
-            while max_error_DP>0.05 and iter_inner<10:
+        result = None
+        while result is None:
+            try:
+                self.Tdew_inj = Tdew_inj
                 
-                #Run to calculate the pressure drop as starting point
-                OBJECTIVE([self.DT_evap,self.DT_cond,self.Tdew_inj])
-                
-                #Calculate the max error
-                max_error_DP=max([abs(self.DP_LowPressure-self.DP_low),abs(self.DP_HighPressure-self.DP_high),abs(self.DP_IntPressure-self.DP_int)])
-                
-                if self.Verbosity>0:
-                    PrintDPs()
-                    print ('Max pressure drop error [inner loop] is',max_error_DP,'Pa')
+                iter=1
+                max_error_DP=999
+                #Outer loop with a more relaxed convergence criterion
+                while max_error_DP>0.5:
+                    iter_inner=1
+                    #Inner loop to determine pressure drop for high and low sides
+                    while max_error_DP>0.05 and iter_inner<10:
                         
-                #Update the pressure drop terms
-                self.DP_low=self.DP_LowPressure
-                self.DP_high=self.DP_HighPressure
-                self.DP_int=self.DP_IntPressure
+                        #Run to calculate the pressure drop as starting point
+                        OBJECTIVE([self.DT_evap,self.DT_cond,self.Tdew_inj])
+                        
+                        #Calculate the max error
+                        max_error_DP=max([abs(self.DP_LowPressure-self.DP_low),abs(self.DP_HighPressure-self.DP_high),abs(self.DP_IntPressure-self.DP_int)])
+                        
+                        if self.Verbosity>0:
+                            PrintDPs()
+                            print ('Max pressure drop error [inner loop] is',max_error_DP,'Pa')
+                                
+                        #Update the pressure drop terms
+                        self.DP_low=self.DP_LowPressure
+                        self.DP_high=self.DP_HighPressure
+                        self.DP_int=self.DP_IntPressure
+                        
+                        iter_inner+=1
+                        
+                    if self.Verbosity > 0:
+                        print ("Done with the inner loop on pressure drop")
+                    
+                    # Use Newton-Raphson solver
+                    (self.DT_evap,self.DT_cond,self.Tdew_inj)=MultiDimNewtRaph(OBJECTIVE,[self.DT_evap,self.DT_cond,self.Tdew_inj],dx=0.1)
+                    #cons = ()
+                    #bnds = ((None,self.Evaporator.Fins.Air.Tdb), (self.Condenser.Fins.Air.Tdb,None), (self.Evaporator.Fins.Air.Tdb,self.Condenser.Fins.Air.Tdb))
+                    #guess = (self.DT_evap,self.DT_cond,self.Tdew_inj)
+                    #res = minimize(OBJECTIVE, guess, method='SLSQP', bounds=bnds, constraints=cons, tol=1e-6)
+                    
+                    #Calculate the error
+                    max_error_DP=max([abs(self.DP_LowPressure-self.DP_low),abs(self.DP_HighPressure-self.DP_high),abs(self.DP_IntPressure-self.DP_int)])
+                    
+                    if self.Verbosity>0:
+                        PrintDPs()    
+                        print ('Max pressure drop error [outer loop] is',max_error_DP,'Pa')
                 
-                iter_inner+=1
-                
-            if self.Verbosity > 0:
-                print ("Done with the inner loop on pressure drop")
+                #while loop is successful
+                result = True
             
-            # Use Newton-Raphson solver
-            (self.DT_evap,self.DT_cond,self.Tdew_inj)=MultiDimNewtRaph(OBJECTIVE,[self.DT_evap,self.DT_cond,self.Tdew_inj],dx=0.1)
-            #cons = ()
-            #bnds = ((None,self.Evaporator.Fins.Air.Tdb), (self.Condenser.Fins.Air.Tdb,None), (self.Evaporator.Fins.Air.Tdb,self.Condenser.Fins.Air.Tdb))
-            #guess = (self.DT_evap,self.DT_cond,self.Tdew_inj)
-            #res = minimize(OBJECTIVE, guess, method='SLSQP', bounds=bnds, constraints=cons, tol=1e-6)
-            
-            #Calculate the error
-            max_error_DP=max([abs(self.DP_LowPressure-self.DP_low),abs(self.DP_HighPressure-self.DP_high),abs(self.DP_IntPressure-self.DP_int)])
-            
-            if self.Verbosity>0:
-                PrintDPs()    
-                print ('Max pressure drop error [outer loop] is',max_error_DP,'Pa')
+            except:
+                print("Preconditioner's initial guess failed. Reduce T_dew_inj by 0.1 [K]. Tdew_inj: "+str(Tdew_inj))
+                Tdew_inj -= 0.1
+                if Tdew_inj <= 273.15:
+                    raise
+                pass 
         
         if self.Verbosity>1:
             print ('Capacity: ', self.Capacity)
@@ -2816,7 +2846,7 @@ class ECU_VICompTelloCycleClass():
             print('UA_a_cond',self.Condenser.UA_a)
         
         print ('-------------------------------------')
-        print ('     Simulation Completed            ')
+        print ('             Simulation Completed    ')
         print ('-------------------------------------')
         
         return

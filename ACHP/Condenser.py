@@ -66,7 +66,7 @@ class CondenserClass():
             ('Wetted Area Fraction Superheat','-',self.w_superheat),
             ('Wetted Area Fraction Two-phase','-',self.w_2phase),
             ('Wetted Area Fraction Subcool','-',self.w_subcool),
-            ('Mean Air HTC','W/m^2-K',self.Fins.h_a),
+            ('Mean Air HTC','W/m^2-K',self.Fins.h_a*self.h_a_tuning),
             ('Surface Effectiveness','-',self.Fins.eta_a),
             ('Air-side area (fin+tubes)','m^2',self.Fins.A_a),
             ('Mass Flow rate of Dry Air','kg/s',self.Fins.mdot_da),
@@ -90,7 +90,10 @@ class CondenserClass():
                ('FinsType',str,None,None),
                ('mdot_r',float,0.00001,20),
                ('Tin_r',float,200,500),
-               ('psat_r',float,0.01,20000000)
+               ('psat_r',float,0.01,20000000),
+               ('h_a_tuning',float,0.0,2.0),
+               ('h_tp_tuning',float,0.0,2.0),
+               ('DP_tuning',float,0.0,2.0),
                ]
             optFields=['Verbosity','Backend']
             ValidateFields(self.__dict__,reqFields,optFields)
@@ -161,6 +164,7 @@ class CondenserClass():
         #Overall calculations
         self.Q=self.Q_superheat+self.Q_2phase+self.Q_subcool
         self.DP_r=self.DP_r_superheat+self.DP_r_2phase+self.DP_r_subcool
+        self.DP_r=self.DP_r*self.DP_tuning #correcting the pressure drop
         self.Charge=self.Charge_2phase+self.Charge_subcool+self.Charge_superheat
         
         if self.existsSubcooled==True:
@@ -184,7 +188,7 @@ class CondenserClass():
         self.Tout_a=self.Tin_a-self.Q/(self.Fins.cp_da*self.Fins.mdot_da)
         self.hmean_r=self.w_2phase*self.h_r_2phase+self.w_superheat*self.h_r_superheat+self.w_subcool*self.h_r_subcool
         self.UA_r=self.hmean_r*self.A_r_wetted
-        self.UA_a=self.Fins.h_a*self.Fins.A_a*self.Fins.eta_a
+        self.UA_a=(self.Fins.h_a*self.h_a_tuning)*self.Fins.A_a*self.Fins.eta_a
         
     def _Superheat_Forward(self):
         # **********************************************************************
@@ -218,7 +222,7 @@ class CondenserClass():
         
         # Cross-flow in the superheated region.  
         # Using effectiveness-Ntu relationships for cross flow with non-zero Cr.
-        UA_overall = 1 / (1 / (self.Fins.eta_a * self.Fins.h_a * self.Fins.A_a) + 1 / (self.h_r_superheat * self.A_r_wetted) )
+        UA_overall = 1 / (1 / (self.Fins.eta_a * self.Fins.h_a * self.Fins.A_a * self.h_a_tuning) + 1 / (self.h_r_superheat * self.A_r_wetted) )
         epsilon_superheat=(Tdew-self.Tin_r)/(self.Tin_a-self.Tin_r)
         Ntu=UA_overall/(self.mdot_da*self.Fins.cp_da)
         if epsilon_superheat>1.0:
@@ -263,8 +267,9 @@ class CondenserClass():
         # integrating the local heat transfer coefficient between 
         # a quality of 1.0 and the outlet quality
         self.h_r_2phase=ShahCondensation_Average(xout_r_2phase,1.0,self.AS,self.G_r,self.ID,self.psat_r,Tbubble,Tdew);
-
-        UA_overall = 1 / (1 / (self.Fins.eta_a * self.Fins.h_a * self.Fins.A_a) + 1 / (self.h_r_2phase * self.A_r_wetted));
+        self.h_r_2phase=self.h_r_2phase*self.h_tp_tuning
+        
+        UA_overall = 1 / (1 / (self.Fins.eta_a * self.Fins.h_a * self.Fins.A_a * self.h_a_tuning) + 1 / (self.h_r_2phase * self.A_r_wetted));
         self.epsilon_2phase=1-exp(-UA_overall/(self.mdot_da*self.Fins.cp_da));
         self.w_2phase=-self.mdot_r*h_fg*(1.0-xout_r_2phase)/(self.mdot_da*self.Fins.cp_da*(self.Tin_a-Tsat_r)*self.epsilon_2phase);
 
@@ -286,7 +291,7 @@ class CondenserClass():
         
         if self.Verbosity>7:
             print('2phase cond resid', self.w_2phase-(1-self.w_superheat))
-            print('h_r_2phase',self.h_r_2phase)
+            print('h_r_2phase',self.h_r_2phase*self.h_tp_tuning)
         
         #Calculate an effective pseudo-subcooling based on the equality
         #     cp*DT_sc=-dx*h_fg
@@ -328,7 +333,7 @@ class CondenserClass():
         cp_r = AS.cpmass() #[J/kg-K]
     
         # Cross-flow in the subcooled region.
-        R_a=1. / (self.Fins.eta_a * self.Fins.h_a * self.Fins.A_a)
+        R_a=1. / (self.Fins.eta_a * self.Fins.h_a * self.Fins.A_a * self.h_a_tuning)
         R_r=1. / (self.h_r_subcool * self.A_r_wetted)
         UA_subcool = self.w_subcool / (R_a + R_r)
         Cmin=min([self.mdot_da*self.Fins.cp_da*self.w_subcool,self.mdot_r*cp_r])
@@ -392,7 +397,10 @@ def SampleCondenser(T=41.37):
         'Fins': Fins,
         'FinsType': 'HerringboneFins',  #Choose fin Type: 'WavyLouveredFins' or 'HerringboneFins'or 'PlainFins'
         'Verbosity':0,
-        'Backend':'HEOS' #choose between: 'HEOS','TTSE&HEOS','BICUBIC&HEOS','REFPROP','SRK','PR'
+        'Backend':'HEOS', #choose between: 'HEOS','TTSE&HEOS','BICUBIC&HEOS','REFPROP','SRK','PR'
+        'h_a_tuning':1,
+        'h_tp_tuning':1,
+        'DP_tuning':1
     }
     Cond=CondenserClass(**params)
     Cond.Calculate()

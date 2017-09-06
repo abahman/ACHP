@@ -150,6 +150,7 @@ class VICompressorTelloClass():
         #injection mass flow rate
         mdot_inj = K[0] * mdot_map + K[1] * mdot_map * (self.pinj_r/self.pin_r)
         
+        mdot_inj*=self.Vdot_ratio
         #P1 = self.pin_r
         #P2 = self.pout_r
 

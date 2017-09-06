@@ -419,4 +419,4 @@ def VICompPreconditioner(Cycle,epsilon=0.96):
     DT_cond=x[1]-Cycle.Condenser.Fins.Air.Tdb
     Tdew_inj=x[2]
 
-    return DT_evap-1, DT_cond+5, Tdew_inj+10.5
+    return DT_evap-1, DT_cond+10, Tdew_inj+20

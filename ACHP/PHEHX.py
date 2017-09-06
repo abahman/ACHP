@@ -9,7 +9,7 @@ import pylab
 from convert_units import *
 import matplotlib.pyplot as plt
 
-from .Correlations import ShahEvaporation_Average,PHE_1phase_hdP,Cooper_PoolBoiling,TwoPhaseDensity,TrhoPhase_ph,Phase_ph,LMPressureGradientAvg,KandlikarPHE,Bertsch_MC,AccelPressureDrop,ShahCondensation_Average,LongoCondensation
+from ACHP.Correlations import ShahEvaporation_Average,PHE_1phase_hdP,Cooper_PoolBoiling,TwoPhaseDensity,TrhoPhase_ph,Phase_ph,LMPressureGradientAvg,KandlikarPHE,Bertsch_MC,AccelPressureDrop,ShahCondensation_Average,LongoCondensation
 
 class PHEHXClass():
     """
@@ -300,11 +300,13 @@ class PHEHXClass():
         self.DP_2phase_c=sum(collect(cellList,'Phase_c','TwoPhase','DP_c'))
         self.DP_subcooled_c=sum(collect(cellList,'Phase_c','Subcooled','DP_c'))
         self.DP_c=self.DP_superheated_c+self.DP_2phase_c+self.DP_subcooled_c
+        self.DP_c=self.DP_c*self.DP_cold_tuning #correct the pressure drop on the hot side
         
         self.DP_superheated_h=sum(collect(cellList,'Phase_h','Superheated','DP_h'))
         self.DP_2phase_h=sum(collect(cellList,'Phase_h','TwoPhase','DP_h'))
         self.DP_subcooled_h=sum(collect(cellList,'Phase_h','Subcooled','DP_h'))
         self.DP_h=self.DP_superheated_h+self.DP_2phase_h+self.DP_subcooled_h
+        self.DP_h=self.DP_h*self.DP_hot_tuning #correct the pressure drop on the hot side
         
         self.Charge_superheated_c=sum(collect(cellList,'Phase_c','Superheated','Charge_c'))
         self.Charge_2phase_c=sum(collect(cellList,'Phase_c','TwoPhase','Charge_c'))
@@ -534,7 +536,8 @@ class PHEHXClass():
             q_flux=Q/(w*self.A_c_wetted)
             
             #Heat transfer coefficient from Cooper Pool Boiling
-            h_c_2phase=Cooper_PoolBoiling(pstar,1.0,q_flux,M) #1.5 correction factor comes from Claesson Thesis on plate HX
+            h_c_2phase = Cooper_PoolBoiling(pstar,1.0,q_flux,M) #1.5 correction factor comes from Claesson Thesis on plate HX
+            h_c_2phase = h_c_2phase*self.h_tp_cold_tuning #correct the convection heat transfer of the two-phase of the cold side
             
             G=self.mdot_c/self.A_c_flow
             Dh=self.Dh_c
@@ -598,6 +601,8 @@ class PHEHXClass():
         AS_c = self.AS_c
         
         h_h_2phase=LongoCondensation((Inputs['xout_h']+Inputs['xin_h'])/2,self.mdot_h/self.A_h_flow,self.Dh_h,self.AS_h,self.Tbubble_h,self.Tdew_h);
+        h_h_2phase = h_h_2phase*self.h_tp_hot_tuning #correct the convection heat transfer of the two-phase of the hot side
+        
         h_c,cp_c,PlateOutput_c=self.PlateHTDP(self.AS_c, Inputs['Tmean_c'], Inputs['pin_c'],self.mdot_c/self.NgapsCold)
         #Use cp calculated from delta h/delta T
         cp_c=Inputs['cp_c']
@@ -998,7 +1003,12 @@ def VICompPHEHX_Res():
             'PlateConductivity' : 15.0, #[W/m-K]
             'MoreChannels' : 'Hot', #Which stream gets the extra channel, 'Hot' or 'Cold'
         
-            'Verbosity':0
+            'Verbosity':0,
+            
+            'h_tp_cold_tuning':1,
+            'h_tp_hot_tuning':1,
+            'DP_hot_tuning':1,
+            'DP_cold_tuning':1
         }
     PHE=PHEHXClass(**params)
     

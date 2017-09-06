@@ -8,10 +8,10 @@ import numpy as np
 import CoolProp as CP
 from CoolProp.CoolProp import PropsSI
 
-from .Correlations import f_h_1phase_Tube,ShahEvaporation_Average, LockhartMartinelli,LMPressureGradientAvg,AccelPressureDrop,TwoPhaseDensity
-from .FinCorrelations import WavyLouveredFins,FinInputs,IsFinsClass, HerringboneFins, PlainFins
-from .DryWetSegment import DWSVals, DryWetSegment
-from .ACHPTools import ValidateFields
+from ACHP.Correlations import f_h_1phase_Tube,ShahEvaporation_Average, LockhartMartinelli,LMPressureGradientAvg,AccelPressureDrop,TwoPhaseDensity
+from ACHP.FinCorrelations import WavyLouveredFins,FinInputs,IsFinsClass, HerringboneFins, PlainFins
+from ACHP.DryWetSegment import DWSVals, DryWetSegment
+from ACHP.ACHPTools import ValidateFields
 
 
 class EvaporatorClass():
@@ -79,7 +79,7 @@ class EvaporatorClass():
             ('Mean HTC Two-phase','W/m^2-K',self.h_r_2phase),
             ('Wetted Area Fraction Superheat','-',self.w_superheat),
             ('Wetted Area Fraction Two-phase','-',self.w_2phase),
-            ('Mean Air HTC','W/m^2-K',self.Fins.h_a),
+            ('Mean Air HTC','W/m^2-K',self.Fins.h_a*self.h_a_tuning),
             ('Surface Effectiveness','-',self.Fins.eta_a),
             ('Air-side area (fin+tubes)','m^2',self.Fins.A_a),
             ('Mass Flow rate dry Air','kg/s',self.Fins.mdot_da),
@@ -113,6 +113,9 @@ class EvaporatorClass():
                        ('FinsType',str,None,None),
                        ('hin_r',float,-100000,10000000),
                        ('mdot_r',float,0.000001,10),
+                       ('h_a_tuning',float,0.0,2.0),
+                       ('h_tp_tuning',float,0.0,2.0),
+                       ('DP_tuning',float,0.0,2.0),
                        ]
             optFields=['Verbosity','Backend']
             d=self.__dict__ #Current fields in model
@@ -236,6 +239,7 @@ class EvaporatorClass():
         #Average air outlet temperature (area fraction weighted average) [K]
         self.Tout_a=self.w_superheat*self.Tout_a_superheat+self.w_2phase*self.Tout_a_2phase
         self.DP_r=self.DP_r_superheat+self.DP_r_2phase
+        self.DP_r=self.DP_r*self.DP_tuning #correcting the total pressure drop
         
         #Outlet enthalpy obtained from energy balance
         self.hout_r=self.hin_r+self.Q/self.mdot_r
@@ -259,7 +263,7 @@ class EvaporatorClass():
             self.Tout_r=AS.T() #saturated temperature at outlet quality [K]
         self.hmean_r=self.w_2phase*self.h_r_2phase+self.w_superheat*self.h_r_superheat
         self.UA_r=self.hmean_r*self.A_r_wetted
-        self.UA_a=self.Fins.h_a*self.Fins.A_a*self.Fins.eta_a
+        self.UA_a=(self.Fins.h_a*self.h_a_tuning)*self.Fins.A_a*self.Fins.eta_a
         
         #Build a vector of temperatures at each point where there is a phase transition along the averaged circuit
         if existsSuperheat:
@@ -291,7 +295,7 @@ class EvaporatorClass():
         DWS.A_a=self.Fins.A_a*w_2phase
         DWS.cp_da=self.Fins.cp_da
         DWS.eta_a=self.Fins.eta_a
-        DWS.h_a=self.Fins.h_a  #Heat transfer coefficient, not enthalpy
+        DWS.h_a=self.Fins.h_a*self.h_a_tuning  #Heat transfer coefficient, not enthalpy
         DWS.mdot_da=self.mdot_da*w_2phase
         DWS.pin_a=self.Fins.Air.p
         DWS.Tdew_r=self.Tdew_r
@@ -315,6 +319,7 @@ class EvaporatorClass():
         
         # Average Refrigerant heat transfer coefficient
         DWS.h_r=ShahEvaporation_Average(self.xin_r,self.xout_2phase,self.AS,self.G_r,self.ID,self.psat_r,Q_target/DWS.A_r,self.Tbubble_r,self.Tdew_r)
+        DWS.h_r=DWS.h_r*self.h_tp_tuning #correct refirgerant side convection heat transfer
         
         #Run the DryWetSegment to carry out the heat and mass transfer analysis
         DryWetSegment(DWS)
@@ -347,7 +352,7 @@ class EvaporatorClass():
         DWS.A_a=self.Fins.A_a*w_superheat
         DWS.cp_da=self.Fins.cp_da
         DWS.eta_a=self.Fins.eta_a
-        DWS.h_a=self.Fins.h_a  #Heat transfer coefficient
+        DWS.h_a=self.Fins.h_a*self.h_a_tuning  #Heat transfer coefficient
         DWS.mdot_da=self.mdot_da*w_superheat
         DWS.pin_a=self.Fins.Air.p
         DWS.Fins=self.Fins
@@ -443,7 +448,10 @@ if __name__=='__main__':
             'FinsType': 'WavyLouveredFins',  #Choose fin Type: 'WavyLouveredFins' or 'HerringboneFins'or 'PlainFins'
             'hin_r': PropsSI('H','P',PropsSI('P','T',282,'Q',1.0,'R410A'),'Q',0.15,'R410A'), 
             'Verbosity': 0,
-            'Backend':'HEOS' #choose between: 'HEOS','TTSE&HEOS','BICUBIC&HEOS','REFPROP','SRK','PR'
+            'Backend':'HEOS', #choose between: 'HEOS','TTSE&HEOS','BICUBIC&HEOS','REFPROP','SRK','PR'
+            'h_a_tuning':1,
+            'h_tp_tuning':1,
+            'DP_tuning':1,
         }
         
     Evap=EvaporatorClass(**kwargs) #generate new evaporator instance and update kwargs
