@@ -79,6 +79,7 @@ PHX_capacity_exp = np.array([4.757,4.49,3.975,3.255,2.763,2.391,2.383,2.602]) #[
 
 #Import data from CSV file
 data = csv2rec('results/Cycle_60K_superheat_sub_new_charge.csv',delimiter=',')
+data2 = csv2rec('results/Cycle_60K_superheat_TelloComp.csv',delimiter=',')
 #Arrange data in Numpy array for the 8 different tests
 m_dot = np.array([data[2][21],data[3][21],data[4][21],data[5][21],data[6][21],data[7][21],data[8][21],data[9][21]])
 m_dot_inj = np.array([data[2][22],data[3][22],data[4][22],data[5][22],data[6][22],data[7][22],data[8][22],data[9][22]])
@@ -91,6 +92,19 @@ PHX_capacity = np.array([data[2][18],data[3][18],data[4][18],data[5][18],data[6]
 charge = np.array([data[2][3],data[3][3],data[4][3],data[5][3],data[6][3],data[7][3],data[8][3],data[9][3]])
 charge_corrected = np.array([data[2][4],data[3][4],data[4][4],data[5][4],data[6][4],data[7][4],data[8][4],data[9][4]])
 charge_corrected_one = np.array([data[2][5],data[3][5],data[4][5],data[5][5],data[6][5],data[7][5],data[8][5],data[9][5]])
+
+#Arrange data in Numpy array for the 8 different tests
+m_dot2 = np.array([data2[2][21],data2[3][21],data2[4][21],data2[5][21],data2[6][21],data2[7][21],data2[8][21],data2[9][21]])
+m_dot_inj2 = np.array([data2[2][22],data2[3][22],data2[4][22],data2[5][22],data2[6][22],data2[7][22],data2[8][22],data2[9][22]])
+cooling_capacity2 = np.array([data2[2][17],data2[3][17],data2[4][17],data2[5][17],data2[6][17],data2[7][17],data2[8][17],data2[9][17]])
+total_power2 = np.array([data2[2][19],data2[3][19],data2[4][19],data2[5][19],data2[6][19],data2[7][19],data2[8][19],data2[9][19]])
+compressor_power2 = np.array([data2[2][20],data2[3][20],data2[4][20],data2[5][20],data2[6][20],data2[7][20],data2[8][20],data2[9][20]])
+COPS2 = np.array([data2[2][15],data2[3][15],data2[4][15],data2[5][15],data2[6][15],data2[7][15],data2[8][15],data2[9][15]])
+heating_capacity2 = np.array([data2[2][16],data2[3][16],data2[4][16],data2[5][16],data2[6][16],data2[7][16],data2[8][16],data2[9][16]])
+PHX_capacity2 = np.array([data2[2][18],data2[3][18],data2[4][18],data2[5][18],data2[6][18],data2[7][18],data2[8][18],data2[9][18]])
+charge2 = np.array([data2[2][3],data2[3][3],data2[4][3],data2[5][3],data2[6][3],data2[7][3],data2[8][3],data2[9][3]])
+charge_corrected2 = np.array([data2[2][4],data2[3][4],data2[4][4],data2[5][4],data2[6][4],data2[7][4],data2[8][4],data2[9][4]])
+charge_corrected_one2 = np.array([data2[2][5],data2[3][5],data2[4][5],data2[5][5],data2[6][5],data2[7][5],data2[8][5],data2[9][5]])
 
 #to convert string array to integer array
 m_dot = m_dot.astype(np.float)
@@ -105,6 +119,18 @@ charge = charge.astype(np.float)
 charge_corrected = charge_corrected.astype(np.float)
 charge_corrected_one = charge_corrected_one.astype(np.float)
 
+#to convert string array to integer array
+m_dot2 = m_dot2.astype(np.float)
+m_dot_inj2 = m_dot_inj2.astype(np.float)
+cooling_capacity2 = cooling_capacity2.astype(np.float)
+total_power2 = total_power2.astype(np.float)
+compressor_power2 = compressor_power2.astype(np.float)
+COPS2 = COPS2.astype(np.float)
+heating_capacity2 = abs(heating_capacity2.astype(np.float))
+PHX_capacity2 = PHX_capacity2.astype(np.float)
+charge2 = charge2.astype(np.float)
+charge_corrected2 = charge_corrected2.astype(np.float)
+charge_corrected_one2 = charge_corrected_one2.astype(np.float)
 
 # #plots
 # #Plot mass flow rate comparison
@@ -272,6 +298,7 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         plt.plot(TestNo,m_dot_exp,'-ob',label='Experimental')
         plt.errorbar(TestNo,m_dot_exp, yerr=0.001878)#0.002*m_dot_exp
         plt.plot(TestNo,m_dot,'--sr',label='Model')
+        plt.plot(TestNo,m_dot2,'X-y',label='Optimized')
         plt.text(7,0.02,'MAE = {:0.01f}\%'.format(mape(m_dot,m_dot_exp))+', RMSE = {:0.01f}\%'.format(rmse(m_dot,m_dot_exp)),ha='center',va='center',fontsize = 8)
         plt.ylim(0.0,0.16)
         plt.xlim(0,9)
@@ -287,6 +314,7 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         plt.plot(TestNo,m_dot_inj_exp,'-ob',label='Experimental')
         plt.errorbar(TestNo,m_dot_inj_exp, yerr=0.002902)#0.002*m_dot_inj_exp
         plt.plot(TestNo,m_dot_inj,'--sr',label='Model')
+        plt.plot(TestNo,m_dot_inj2,'X-y',label='Optimized')
         plt.text(7,0.02,'MAE = {:0.01f}\%'.format(mape(m_dot_inj,m_dot_inj_exp))+', RMSE = {:0.01f}\%'.format(rmse(m_dot_inj,m_dot_inj_exp)),ha='center',va='center',fontsize = 8)
         plt.ylim(0.0,0.05)
         plt.xlim(0,9)
@@ -302,6 +330,7 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         plt.plot(TestNo,cooling_capacity_exp,'-ob',label='Experimental')
         plt.errorbar(TestNo,cooling_capacity_exp, yerr=0.1679*cooling_capacity_exp)
         plt.plot(TestNo,cooling_capacity/1000,'--sr',label='Model')
+        plt.plot(TestNo,cooling_capacity2/1000,'X-y',label='Optimized')
         plt.text(7,5,'MAE = {:0.01f}\%'.format(mape(cooling_capacity/1000,cooling_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(cooling_capacity/1000,cooling_capacity_exp)),ha='center',va='center',fontsize = 8)
         plt.ylim(0,30)
         plt.xlim(0,9)
@@ -317,6 +346,7 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         plt.plot(TestNo,total_power_exp,'-ob',label='Experimental')
         plt.errorbar(TestNo,total_power_exp, yerr=0.2)#0.03*total_power_exp
         plt.plot(TestNo,total_power/1000,'--sr',label='Model')
+        plt.plot(TestNo,total_power2/1000,'X-y',label='Optimized')
         plt.text(7,2,'MAE = {:0.01f}\%'.format(mape(total_power/1000,total_power_exp))+', RMSE = {:0.01f}\%'.format(rmse(total_power/1000,total_power_exp)),ha='center',va='center',fontsize = 8)
         plt.ylim(0,12)
         plt.xlim(0,9)
@@ -332,6 +362,7 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         plt.plot(TestNo,compressor_power_exp,'-ob',label='Experimental')
         plt.errorbar(TestNo,compressor_power_exp, yerr=0.1125)
         plt.plot(TestNo,compressor_power/1000,'--sr',label='Model')
+        plt.plot(TestNo,compressor_power2/1000,'X-y',label='Optimized')
         plt.text(7,2,'MAE = {:0.01f}\%'.format(mape(compressor_power/1000,compressor_power_exp))+', RMSE = {:0.01f}\%'.format(rmse(compressor_power/1000,compressor_power_exp)),ha='center',va='center',fontsize = 8)
         plt.ylim(0,10)
         plt.xlim(0,9)
@@ -347,6 +378,7 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         plt.plot(TestNo,COPS_exp,'-ob',label='Experimental')
         plt.errorbar(TestNo,COPS_exp, yerr=0.1704*COPS_exp)
         plt.plot(TestNo,COPS,'--sr',label='Model')
+        plt.plot(TestNo,COPS2,'X-y',label='Optimized')
         plt.text(7,1,'MAE = {:0.01f}\%'.format(mape(COPS,COPS_exp))+', RMSE = {:0.01f}\%'.format(rmse(COPS,COPS_exp)),ha='center',va='center',fontsize = 8)
         plt.ylim(0,5)
         plt.xlim(0,9)
@@ -362,6 +394,7 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         plt.plot(TestNo,heating_capacity_exp,'-ob',label='Experimental')
         plt.errorbar(TestNo,heating_capacity_exp, yerr=0.0228*heating_capacity_exp)
         plt.plot(TestNo,heating_capacity/1000,'--sr',label='Model')
+        plt.plot(TestNo,heating_capacity2/1000,'X-y',label='Optimized')
         plt.text(7,5,'MAE = {:0.01f}\%'.format(mape(heating_capacity/1000,heating_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(heating_capacity/1000,heating_capacity_exp)),ha='center',va='center',fontsize = 8)
         plt.ylim(0,45)
         plt.xlim(0,9)
@@ -377,6 +410,7 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         plt.plot(TestNo,PHX_capacity_exp,'-ob',label='Experimental')
         plt.errorbar(TestNo,PHX_capacity_exp, yerr=0.0933*PHX_capacity_exp)
         plt.plot(TestNo,PHX_capacity/1000,'--sr',label='Model')
+        plt.plot(TestNo,PHX_capacity2/1000,'X-y',label='Optimized')
         plt.text(7,1,'MAE = {:0.01f}\%'.format(mape(PHX_capacity/1000,PHX_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(PHX_capacity/1000,PHX_capacity_exp)),ha='center',va='center',fontsize = 8)
         plt.ylim(0,8)
         plt.xlim(0,9)
@@ -394,6 +428,7 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         plt.plot(TestNo,charge,'--sr',label='Model')
         plt.plot(TestNo,charge_corrected,':^k',label='Model Corrected - two points')
         plt.plot(TestNo,charge_corrected_one,'-.d',label='Model Corrected - one point')
+        plt.plot(TestNo,charge_corrected_one2,'X-y',label='Optimized Corrected - one point')
         plt.text(6,4.8,'Two points: MAE = {:0.01f}\%'.format(mape(charge_corrected,charge_exp))+', RMSE = {:0.01f}\%'.format(rmse(charge_corrected,charge_exp)),ha='center',va='center',fontsize = 8)
         plt.text(6,4.75,'One point: MAE = {:0.01f}\%'.format(mape(charge_corrected_one,charge_exp))+', RMSE = {:0.01f}\%'.format(rmse(charge_corrected_one,charge_exp)),ha='center',va='center',fontsize = 8)
         plt.ylim(4.6,5.6)
@@ -407,5 +442,5 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         frame.set_linewidth(0.5)
         #plt.title('System charge Comparison')
 fig.set_tight_layout(True)
-plt.savefig('results/images/60K_comined_new_sub_new_charge.pdf')
+plt.savefig('results/images/60K_comined_new_Tello.pdf')
 plt.show()

@@ -2515,9 +2515,9 @@ class ECU_VICompTelloCycleClass():
             self.EnergyBalance=self.Compressor.CycleEnergyIn+self.Condenser.Q+self.Evaporator.Q-self.PHEHX.Q #negative sign for PHEHX.Q becasue the solver gives positive value, but the energy balance should be negative 
             
             #correct the charge with Bo Shen's two point regression method
-            C = 3.465320457 #[kg]
-            K = -0.658909575 #[kg] Test1:-0.658909575 ##### TestB:4.171492087
-            L_ref = 0.201982979 #[-]
+            C = 3.466808098 #[kg]
+            K = -0.662828429 #[kg] using Test1 and Test 4
+            L_ref = 0.192739181 #[-]
             L_liq = self.Condenser.w_subcool
             self.delta_charge = C + K * (L_liq - L_ref)
             self.Charge_correct = self.Charge + self.delta_charge
