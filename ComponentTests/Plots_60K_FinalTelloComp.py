@@ -292,14 +292,14 @@ charge_corrected_one2 = charge_corrected_one2.astype(np.float)
  
 #Combine
 fig = plt.figure(1, figsize=(15,10), dpi=100)
-for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compressor', 'COPS','HeatCapacity','PHXCapacity','Charge']):
+for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compressor', 'COPS','HeatCapacity','PHXCapacity']):
     ax = plt.subplot(3, 3, i+1)
     if gtype.startswith('Mass'):
-        plt.plot(TestNo,m_dot_exp,'-ob',label='Experimental')
-        plt.errorbar(TestNo,m_dot_exp, yerr=0.001878)#0.002*m_dot_exp
+        #plt.plot(TestNo,m_dot_exp,'-ob',label='Experimental')
+        #plt.errorbar(TestNo,m_dot_exp, yerr=0.001878)#0.002*m_dot_exp
         plt.plot(TestNo,m_dot,'--sr',label='Model')
         plt.plot(TestNo,m_dot2,'X-y',label='Optimized')
-        plt.text(7,0.02,'MAE = {:0.01f}\%'.format(mape(m_dot,m_dot_exp))+', RMSE = {:0.01f}\%'.format(rmse(m_dot,m_dot_exp)),ha='center',va='center',fontsize = 8)
+        #plt.text(7,0.02,'MAE = {:0.01f}\%'.format(mape(m_dot,m_dot_exp))+', RMSE = {:0.01f}\%'.format(rmse(m_dot,m_dot_exp)),ha='center',va='center',fontsize = 8)
         plt.ylim(0.0,0.16)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -311,11 +311,11 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         frame.set_linewidth(0.5)
         #plt.title('Mass flowrate Comparison')
     if gtype.startswith('Injection_Mass'):
-        plt.plot(TestNo,m_dot_inj_exp,'-ob',label='Experimental')
-        plt.errorbar(TestNo,m_dot_inj_exp, yerr=0.002902)#0.002*m_dot_inj_exp
+        #plt.plot(TestNo,m_dot_inj_exp,'-ob',label='Experimental')
+        #plt.errorbar(TestNo,m_dot_inj_exp, yerr=0.002902)#0.002*m_dot_inj_exp
         plt.plot(TestNo,m_dot_inj,'--sr',label='Model')
         plt.plot(TestNo,m_dot_inj2,'X-y',label='Optimized')
-        plt.text(7,0.02,'MAE = {:0.01f}\%'.format(mape(m_dot_inj,m_dot_inj_exp))+', RMSE = {:0.01f}\%'.format(rmse(m_dot_inj,m_dot_inj_exp)),ha='center',va='center',fontsize = 8)
+        #plt.text(7,0.02,'MAE = {:0.01f}\%'.format(mape(m_dot_inj,m_dot_inj_exp))+', RMSE = {:0.01f}\%'.format(rmse(m_dot_inj,m_dot_inj_exp)),ha='center',va='center',fontsize = 8)
         plt.ylim(0.0,0.05)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -327,11 +327,13 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         frame.set_linewidth(0.5)
         #plt.title('Mass flowrate Comparison')
     if gtype.startswith('Capacity'):
-        plt.plot(TestNo,cooling_capacity_exp,'-ob',label='Experimental')
-        plt.errorbar(TestNo,cooling_capacity_exp, yerr=0.1679*cooling_capacity_exp)
+        #plt.plot(TestNo,cooling_capacity_exp,'-ob',label='Experimental')
+        #plt.errorbar(TestNo,cooling_capacity_exp, yerr=0.1679*cooling_capacity_exp)
         plt.plot(TestNo,cooling_capacity/1000,'--sr',label='Model')
         plt.plot(TestNo,cooling_capacity2/1000,'X-y',label='Optimized')
-        plt.text(7,5,'MAE = {:0.01f}\%'.format(mape(cooling_capacity/1000,cooling_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(cooling_capacity/1000,cooling_capacity_exp)),ha='center',va='center',fontsize = 8)
+        plt.text(5,7.5,'Improvment at Test 4 = {:0.01f}\%'.format((cooling_capacity2[3]-cooling_capacity[3])/cooling_capacity[3] *100),ha='center',va='center',fontsize = 10)
+        plt.text(5,5,'Improvment at Test 1 = {:0.01f}\%'.format((cooling_capacity2[0]-cooling_capacity[0])/cooling_capacity[0] *100),ha='center',va='center',fontsize = 10)
+        #plt.text(7,5,'MAE = {:0.01f}\%'.format(mape(cooling_capacity/1000,cooling_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(cooling_capacity/1000,cooling_capacity_exp)),ha='center',va='center',fontsize = 8)
         plt.ylim(0,30)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -343,11 +345,11 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         frame.set_linewidth(0.5)
         #plt.title('Capacity Comparison')
     if gtype.startswith('Power'):
-        plt.plot(TestNo,total_power_exp,'-ob',label='Experimental')
-        plt.errorbar(TestNo,total_power_exp, yerr=0.2)#0.03*total_power_exp
+        #plt.plot(TestNo,total_power_exp,'-ob',label='Experimental')
+        #plt.errorbar(TestNo,total_power_exp, yerr=0.2)#0.03*total_power_exp
         plt.plot(TestNo,total_power/1000,'--sr',label='Model')
         plt.plot(TestNo,total_power2/1000,'X-y',label='Optimized')
-        plt.text(7,2,'MAE = {:0.01f}\%'.format(mape(total_power/1000,total_power_exp))+', RMSE = {:0.01f}\%'.format(rmse(total_power/1000,total_power_exp)),ha='center',va='center',fontsize = 8)
+        #plt.text(7,2,'MAE = {:0.01f}\%'.format(mape(total_power/1000,total_power_exp))+', RMSE = {:0.01f}\%'.format(rmse(total_power/1000,total_power_exp)),ha='center',va='center',fontsize = 8)
         plt.ylim(0,12)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -359,11 +361,11 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         frame.set_linewidth(0.5)
         #plt.title('Total Power Comparison')
     if gtype.startswith('Compressor'):
-        plt.plot(TestNo,compressor_power_exp,'-ob',label='Experimental')
-        plt.errorbar(TestNo,compressor_power_exp, yerr=0.1125)
+        #plt.plot(TestNo,compressor_power_exp,'-ob',label='Experimental')
+        #plt.errorbar(TestNo,compressor_power_exp, yerr=0.1125)
         plt.plot(TestNo,compressor_power/1000,'--sr',label='Model')
         plt.plot(TestNo,compressor_power2/1000,'X-y',label='Optimized')
-        plt.text(7,2,'MAE = {:0.01f}\%'.format(mape(compressor_power/1000,compressor_power_exp))+', RMSE = {:0.01f}\%'.format(rmse(compressor_power/1000,compressor_power_exp)),ha='center',va='center',fontsize = 8)
+        #plt.text(7,2,'MAE = {:0.01f}\%'.format(mape(compressor_power/1000,compressor_power_exp))+', RMSE = {:0.01f}\%'.format(rmse(compressor_power/1000,compressor_power_exp)),ha='center',va='center',fontsize = 8)
         plt.ylim(0,10)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -375,11 +377,12 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         frame.set_linewidth(0.5)
         #plt.title('Compressor Power Comparison')
     if gtype.startswith('COPS'):
-        plt.plot(TestNo,COPS_exp,'-ob',label='Experimental')
-        plt.errorbar(TestNo,COPS_exp, yerr=0.1704*COPS_exp)
+        #plt.plot(TestNo,COPS_exp,'-ob',label='Experimental')
+        #plt.errorbar(TestNo,COPS_exp, yerr=0.1704*COPS_exp)
         plt.plot(TestNo,COPS,'--sr',label='Model')
         plt.plot(TestNo,COPS2,'X-y',label='Optimized')
-        plt.text(7,1,'MAE = {:0.01f}\%'.format(mape(COPS,COPS_exp))+', RMSE = {:0.01f}\%'.format(rmse(COPS,COPS_exp)),ha='center',va='center',fontsize = 8)
+        plt.text(5,1,'Improvment at Test 1 = {:0.01f}\%'.format((COPS2[0]-COPS[0])/COPS[0] *100),ha='center',va='center',fontsize = 10)
+        #plt.text(7,1,'MAE = {:0.01f}\%'.format(mape(COPS,COPS_exp))+', RMSE = {:0.01f}\%'.format(rmse(COPS,COPS_exp)),ha='center',va='center',fontsize = 8)
         plt.ylim(0,5)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -391,11 +394,11 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         frame.set_linewidth(0.5)
         #plt.title('System COP Comparison')
     if gtype.startswith('HeatCapacity'):
-        plt.plot(TestNo,heating_capacity_exp,'-ob',label='Experimental')
-        plt.errorbar(TestNo,heating_capacity_exp, yerr=0.0228*heating_capacity_exp)
+        #plt.plot(TestNo,heating_capacity_exp,'-ob',label='Experimental')
+        #plt.errorbar(TestNo,heating_capacity_exp, yerr=0.0228*heating_capacity_exp)
         plt.plot(TestNo,heating_capacity/1000,'--sr',label='Model')
         plt.plot(TestNo,heating_capacity2/1000,'X-y',label='Optimized')
-        plt.text(7,5,'MAE = {:0.01f}\%'.format(mape(heating_capacity/1000,heating_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(heating_capacity/1000,heating_capacity_exp)),ha='center',va='center',fontsize = 8)
+        #plt.text(7,5,'MAE = {:0.01f}\%'.format(mape(heating_capacity/1000,heating_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(heating_capacity/1000,heating_capacity_exp)),ha='center',va='center',fontsize = 8)
         plt.ylim(0,45)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -407,11 +410,11 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         frame.set_linewidth(0.5)
         #plt.title('Heating Capacity Comparison')
     if gtype.startswith('PHXCapacity'):
-        plt.plot(TestNo,PHX_capacity_exp,'-ob',label='Experimental')
-        plt.errorbar(TestNo,PHX_capacity_exp, yerr=0.0933*PHX_capacity_exp)
+        #plt.plot(TestNo,PHX_capacity_exp,'-ob',label='Experimental')
+        #plt.errorbar(TestNo,PHX_capacity_exp, yerr=0.0933*PHX_capacity_exp)
         plt.plot(TestNo,PHX_capacity/1000,'--sr',label='Model')
         plt.plot(TestNo,PHX_capacity2/1000,'X-y',label='Optimized')
-        plt.text(7,1,'MAE = {:0.01f}\%'.format(mape(PHX_capacity/1000,PHX_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(PHX_capacity/1000,PHX_capacity_exp)),ha='center',va='center',fontsize = 8)
+        #plt.text(7,1,'MAE = {:0.01f}\%'.format(mape(PHX_capacity/1000,PHX_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(PHX_capacity/1000,PHX_capacity_exp)),ha='center',va='center',fontsize = 8)
         plt.ylim(0,8)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
