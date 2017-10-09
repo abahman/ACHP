@@ -115,6 +115,9 @@ def kPa2psi(kPa):
     return kPa*0.145038
 
 """##### Length ####################################"""
+def m2in(m):
+    "convert meters to inches"
+    return m/0.0254
 def in2m(inch):
     "convert inch to meters"
     return inch*0.0254
