@@ -294,8 +294,98 @@ T_dis2 = T_dis2.astype(np.float) - 273.15 #convert from K to C
 # plt.tight_layout()
 # plt.savefig('results/images/60K_charge_Final.pdf')
 # plt.show()
- 
-#Combine
+
+
+#===============================================================================
+# #Bar plots
+#===============================================================================
+#COPS
+plt.bar(np.arange(1,9,1)-0.1,COPS_exp,width=0.2,color='b',linewidth=0.9,align='center',alpha=0.9,label=r'Experimental',hatch=5*'\\')
+#plt.errorbar(np.arange(1,9,1)-0.2,Baseline,yerr=0.1234*Baseline,capsize=2,elinewidth=0.7,fmt='',linestyle="None",color='k')
+plt.bar(np.arange(1,9,1)+0.1,COPS2,width=0.2,color='y',linewidth=0.9,align='center',alpha=0.9,label=r'Optimized',hatch=2*'//')
+#plt.errorbar(np.arange(1,9,1),Modified,yerr=0.1234*Modified,capsize=2,elinewidth=0.7,fmt='',linestyle="None",color='k')
+#plt.bar(np.arange(1,9,1)+0.2,Interleaved,width=0.2,color='r',linewidth=0.9,align='center',alpha=0.9,label=r'Interleaved')#hatch=4*'x',
+#plt.errorbar(np.arange(1,9,1)+0.2,Interleaved,yerr=0.1234*Interleaved,capsize=2,elinewidth=0.7,fmt='',linestyle="None",color='k')
+plt.text(1,3.65,r'Improvment at Test 4/A = {:0.01f}\%'.format((COPS2[3]-COPS_exp[3])/COPS_exp[3] *100),ha='left',va='center',fontsize = 10)
+plt.text(1,4,r'Improvment at Test 1 = {:0.01f}\%'.format((COPS2[0]-COPS_exp[0])/COPS_exp[0] *100),ha='left',va='center',fontsize = 10)
+plt.ylim(0,5)
+plt.xlim(0,9)
+plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+           [r'', r'1', r'2', r'3',r'4/A', r'5', r'6', r'B', r'C', r''])
+plt.tick_params(
+    axis='x',          # changes apply to the x-axis
+    which='both',      # both major and minor ticks are affected
+    bottom='off',      # ticks along the bottom edge are off
+    top='off',         # ticks along the top edge are off
+    labelbottom='on') # labels along the bottom edge are off
+plt.xlabel(r'Test condition')
+plt.ylabel(r'$\mathrm{COP}_{sys}$')
+leg = plt.legend(loc='best',fancybox=False,numpoints=1)
+frame  = leg.get_frame()  
+frame.set_linewidth(0.5)
+plt.tight_layout() 
+plt.savefig('results/images/COPS_bar.pdf')
+plt.show()
+
+#Capacity
+plt.bar(np.arange(1,9,1)-0.1,cooling_capacity_exp,width=0.2,color='b',linewidth=0.9,align='center',alpha=0.9,label=r'Experimental',hatch=5*'\\')
+#plt.errorbar(np.arange(1,9,1)-0.2,Baseline,yerr=0.1234*Baseline,capsize=2,elinewidth=0.7,fmt='',linestyle="None",color='k')
+plt.bar(np.arange(1,9,1)+0.1,cooling_capacity2/1000,width=0.2,color='y',linewidth=0.9,align='center',alpha=0.9,label=r'Optimized',hatch=2*'//')
+#plt.errorbar(np.arange(1,9,1),Modified,yerr=0.1234*Modified,capsize=2,elinewidth=0.7,fmt='',linestyle="None",color='k')
+#plt.bar(np.arange(1,9,1)+0.2,Interleaved,width=0.2,color='r',linewidth=0.9,align='center',alpha=0.9,label=r'Interleaved')#hatch=4*'x',
+#plt.errorbar(np.arange(1,9,1)+0.2,Interleaved,yerr=0.1234*Interleaved,capsize=2,elinewidth=0.7,fmt='',linestyle="None",color='k')
+plt.text(1,27.5,r'Improvment at Test 4/A = {:0.01f}\%'.format((cooling_capacity2[3]/1000-cooling_capacity_exp[3])/cooling_capacity_exp[3] *100),ha='left',va='center',fontsize = 10)
+plt.text(1,30,r'Improvment at Test 1 = {:0.01f}\%'.format((cooling_capacity2[0]/1000-cooling_capacity_exp[0])/cooling_capacity_exp[0] *100),ha='left',va='center',fontsize = 10)
+plt.ylim(0,35)
+plt.xlim(0,9)
+plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+           [r'', r'1', r'2', r'3',r'4/A', r'5', r'6', r'B', r'C', r''])
+plt.tick_params(
+    axis='x',          # changes apply to the x-axis
+    which='both',      # both major and minor ticks are affected
+    bottom='off',      # ticks along the bottom edge are off
+    top='off',         # ticks along the top edge are off
+    labelbottom='on') # labels along the bottom edge are off
+plt.xlabel(r'Test condition')
+plt.ylabel(r'$\dot Q_{evap}$ $[\mathrm{kW}]$')
+leg = plt.legend(loc='best',fancybox=False,numpoints=1)
+frame  = leg.get_frame()  
+frame.set_linewidth(0.5)
+plt.tight_layout() 
+plt.savefig('results/images/Capacity_bar.pdf')
+plt.show()
+
+#Discharge temperature
+plt.bar(np.arange(1,9,1)-0.1,T_dis_exp,width=0.2,color='b',linewidth=0.9,align='center',alpha=0.9,label=r'Experimental',hatch=5*'\\')
+#plt.errorbar(np.arange(1,9,1)-0.2,Baseline,yerr=0.1234*Baseline,capsize=2,elinewidth=0.7,fmt='',linestyle="None",color='k')
+plt.bar(np.arange(1,9,1)+0.1,T_dis2,width=0.2,color='y',linewidth=0.9,align='center',alpha=0.9,label=r'Optimized',hatch=2*'//')
+#plt.errorbar(np.arange(1,9,1),Modified,yerr=0.1234*Modified,capsize=2,elinewidth=0.7,fmt='',linestyle="None",color='k')
+#plt.bar(np.arange(1,9,1)+0.2,Interleaved,width=0.2,color='r',linewidth=0.9,align='center',alpha=0.9,label=r'Interleaved')#hatch=4*'x',
+#plt.errorbar(np.arange(1,9,1)+0.2,Interleaved,yerr=0.1234*Interleaved,capsize=2,elinewidth=0.7,fmt='',linestyle="None",color='k')
+plt.text(1,120,r'Improvment at Test 4/A = {:0.01f}K'.format(T_dis2[3]-T_dis_exp[3]),ha='left',va='center',fontsize = 10)
+plt.text(1,130,r'Improvment at Test 1 = {:0.01f}K'.format(T_dis2[0]-T_dis_exp[0]),ha='left',va='center',fontsize = 10)
+plt.ylim(0,140)
+plt.xlim(0,9)
+plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+           [r'', r'1', r'2', r'3',r'4/A', r'5', r'6', r'B', r'C', r''])
+plt.tick_params(
+    axis='x',          # changes apply to the x-axis
+    which='both',      # both major and minor ticks are affected
+    bottom='off',      # ticks along the bottom edge are off
+    top='off',         # ticks along the top edge are off
+    labelbottom='on') # labels along the bottom edge are off
+plt.xlabel(r'Test condition')
+plt.ylabel(r'$T_{dis}$ [{\textdegree}C]')
+leg = plt.legend(loc='best',fancybox=False,numpoints=1)
+frame  = leg.get_frame()  
+frame.set_linewidth(0.5)
+plt.tight_layout() 
+plt.savefig('results/images/T_dis_bar.pdf')
+plt.show()
+
+#===============================================================================
+# #Combine
+#===============================================================================
 fig = plt.figure(1, figsize=(15,10), dpi=100)
 for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compressor', 'COPS','HeatCapacity','PHXCapacity','T_dis']):
     ax = plt.subplot(3, 3, i+1)
