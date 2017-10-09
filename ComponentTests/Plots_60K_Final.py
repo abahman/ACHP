@@ -76,6 +76,7 @@ COPS_exp = np.array([1.948,1.997,2.237,2.576,2.581,2.985,2.927,2.732]) #[-]
 charge_exp = np.array([5.01,5.01,5.01,5.01,5.01,5.01,5.01,5.01]) #[kg]
 heating_capacity_exp = np.array([25.08,22.38,22.08,22.5,19.85,20.2,22.12,20.54]) #[kW]
 PHX_capacity_exp = np.array([4.757,4.49,3.975,3.255,2.763,2.391,2.383,2.602]) #[kW]
+T_dis_exp = np.array([105.8,99.55,91.66,83.49,77.62,77.63,75.56,74.65]) #[C]
 
 #Import data from CSV file
 data = csv2rec('results/Cycle_60K_superheat_sub_new_charge.csv',delimiter=',')
@@ -91,6 +92,7 @@ PHX_capacity = np.array([data[2][18],data[3][18],data[4][18],data[5][18],data[6]
 charge = np.array([data[2][3],data[3][3],data[4][3],data[5][3],data[6][3],data[7][3],data[8][3],data[9][3]])
 charge_corrected = np.array([data[2][4],data[3][4],data[4][4],data[5][4],data[6][4],data[7][4],data[8][4],data[9][4]])
 charge_corrected_one = np.array([data[2][5],data[3][5],data[4][5],data[5][5],data[6][5],data[7][5],data[8][5],data[9][5]])
+T_dis = np.array([data[2][57],data[3][57],data[4][57],data[5][57],data[6][57],data[7][57],data[8][57],data[9][57]])
 
 #to convert string array to integer array
 m_dot = m_dot.astype(np.float)
@@ -104,7 +106,7 @@ PHX_capacity = PHX_capacity.astype(np.float)
 charge = charge.astype(np.float)
 charge_corrected = charge_corrected.astype(np.float)
 charge_corrected_one = charge_corrected_one.astype(np.float)
-
+T_dis = T_dis.astype(np.float) - 273.15 #convert from K to C
 
 # #plots
 # #Plot mass flow rate comparison
@@ -261,12 +263,12 @@ leg = plt.legend(loc='best',fancybox=False,numpoints=1)
 frame = leg.get_frame()  
 frame.set_linewidth(0.5)
 plt.tight_layout()
-plt.savefig('results/images/60K_charge_Final.pdf')
+#plt.savefig('results/images/60K_charge_Final.pdf')
 plt.show()
  
 #Combine
 fig = plt.figure(1, figsize=(15,10), dpi=100)
-for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compressor', 'COPS','HeatCapacity','PHXCapacity','Charge']):
+for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'T_dis', 'Compressor', 'COPS','HeatCapacity','PHXCapacity','Charge']):
     ax = plt.subplot(3, 3, i+1)
     if gtype.startswith('Mass'):
         plt.plot(TestNo,m_dot_exp,'-ob',label='Experimental')
@@ -313,6 +315,21 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         frame = leg.get_frame()
         frame.set_linewidth(0.5)
         #plt.title('Capacity Comparison')
+    if gtype.startswith('T_dis'):
+        plt.plot(TestNo,T_dis_exp,'-ob',label='Experimental')
+        plt.errorbar(TestNo,T_dis_exp, yerr=1)
+        plt.plot(TestNo,T_dis,'--sr',label='Model')
+        plt.text(7,60,'MAE = {:0.01f}\%'.format(mape(T_dis,T_dis_exp))+', RMSE = {:0.01f}\%'.format(rmse(T_dis,T_dis_exp)),ha='center',va='center',fontsize = 8)
+        plt.ylim(50,120)
+        plt.xlim(0,9)
+        plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                   [r'', r'1', r'2', r'3',r'4/A', r'5', r'6', r'B', r'C', r''])
+        plt.xlabel(r'Test condition')
+        plt.ylabel(r'$T_{dis}$ [{\textdegree}C]')
+        leg = plt.legend(loc='best',fancybox=False,numpoints=1)
+        frame = leg.get_frame()
+        frame.set_linewidth(0.5)
+        #plt.title('Discharge Temperature Comparison')
     if gtype.startswith('Power'):
         plt.plot(TestNo,total_power_exp,'-ob',label='Experimental')
         plt.errorbar(TestNo,total_power_exp, yerr=0.2)#0.03*total_power_exp
@@ -407,5 +424,5 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         frame.set_linewidth(0.5)
         #plt.title('System charge Comparison')
 fig.set_tight_layout(True)
-plt.savefig('results/images/60K_comined_new_sub_new_charge.pdf')
+plt.savefig('results/images/60K_comined_new_sub_new_chargewT_dis.pdf')
 plt.show()
