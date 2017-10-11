@@ -32,12 +32,12 @@ pgf_with_latex = {                      # setup matplotlib to use latex for outp
 "font.serif": [],                   # blank entries should cause plots to inherit fonts from the document
 "font.sans-serif": [],
 "font.monospace": [],
-"axes.labelsize": 10,               # LaTeX default is 10pt font.
-"font.size": 10,
-"legend.fontsize": 8,               # Make the legend/label fonts a little smaller
+"axes.labelsize": 12,               # LaTeX default is 10pt font.
+"font.size": 12,
+"legend.fontsize": 10,               # Make the legend/label fonts a little smaller
 "legend.labelspacing":0.2,
-"xtick.labelsize": 8,
-"ytick.labelsize": 8,
+"xtick.labelsize": 10,
+"ytick.labelsize": 10,
 "figure.figsize": figsize(0.9),     # default fig size of 0.9 textwidth
 "pgf.preamble": [
 r"\usepackage[utf8x]{inputenc}",    # use utf8 fonts becasue your computer can handle it :)
@@ -142,7 +142,7 @@ T_dis2 = T_dis2.astype(np.float) - 273.15 #convert from K to C
 # plt.plot(TestNo,m_dot_exp,'-ob',label='Experimental')
 # plt.errorbar(TestNo,m_dot_exp, yerr=0.001878)
 # plt.plot(TestNo,m_dot,'--sr',label='Model')
-# plt.text(7,0.02,'MAE = {:0.01f}\%'.format(mape(m_dot,m_dot_exp))+', RMSE = {:0.01f}\%'.format(rmse(m_dot,m_dot_exp)),ha='center',va='center',fontsize = 8)
+# plt.text(7,0.02,'MAE = {:0.01f}\%'.format(mape(m_dot,m_dot_exp))+', RMSE = {:0.01f}\%'.format(rmse(m_dot,m_dot_exp)),ha='left',va='center',fontsize = 10)
 # plt.ylim(0.0,0.16)
 # plt.xlim(0,9)
 # plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -159,7 +159,7 @@ T_dis2 = T_dis2.astype(np.float) - 273.15 #convert from K to C
 # plt.plot(TestNo,m_dot_inj_exp,'-ob',label='Experimental')
 # plt.errorbar(TestNo,m_dot_inj_exp, yerr=0.002902)
 # plt.plot(TestNo,m_dot_inj,'--sr',label='Model')
-# plt.text(7,0.02,'MAE = {:0.01f}\%'.format(mape(m_dot_inj,m_dot_inj_exp))+', RMSE = {:0.01f}\%'.format(rmse(m_dot_inj,m_dot_inj_exp)),ha='center',va='center',fontsize = 8)
+# plt.text(7,0.02,'MAE = {:0.01f}\%'.format(mape(m_dot_inj,m_dot_inj_exp))+', RMSE = {:0.01f}\%'.format(rmse(m_dot_inj,m_dot_inj_exp)),ha='left',va='center',fontsize = 10)
 # plt.ylim(0.0,0.05)
 # plt.xlim(0,9)
 # plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -176,7 +176,7 @@ T_dis2 = T_dis2.astype(np.float) - 273.15 #convert from K to C
 # plt.plot(TestNo,cooling_capacity_exp,'-ob',label=r'Experimental')
 # plt.errorbar(TestNo,cooling_capacity_exp, yerr=0.1679*cooling_capacity_exp)
 # plt.plot(TestNo,cooling_capacity/1000,'--sr',label=r'Model')
-# plt.text(7,5,'MAE = {:0.01f}\%'.format(mape(cooling_capacity/1000,cooling_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(cooling_capacity/1000,cooling_capacity_exp)),ha='center',va='center',fontsize = 8)
+# plt.text(7,5,'MAE = {:0.01f}\%'.format(mape(cooling_capacity/1000,cooling_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(cooling_capacity/1000,cooling_capacity_exp)),ha='left',va='center',fontsize = 10)
 # plt.ylim(0,30)
 # plt.xlim(0,9)
 # plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -193,7 +193,7 @@ T_dis2 = T_dis2.astype(np.float) - 273.15 #convert from K to C
 # plt.plot(TestNo,total_power_exp,'-ob',label='Experimental')
 # plt.errorbar(TestNo,total_power_exp, yerr=0.2)
 # plt.plot(TestNo,total_power/1000,'--sr',label='Model')
-# plt.text(7,2,'MAE = {:0.01f}\%'.format(mape(total_power/1000,total_power_exp))+', RMSE = {:0.01f}\%'.format(rmse(total_power/1000,total_power_exp)),ha='center',va='center',fontsize = 8)
+# plt.text(7,2,'MAE = {:0.01f}\%'.format(mape(total_power/1000,total_power_exp))+', RMSE = {:0.01f}\%'.format(rmse(total_power/1000,total_power_exp)),ha='left',va='center',fontsize = 10)
 # plt.ylim(0,12)
 # plt.xlim(0,9)
 # plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -210,7 +210,7 @@ T_dis2 = T_dis2.astype(np.float) - 273.15 #convert from K to C
 # plt.plot(TestNo,compressor_power_exp,'-ob',label='Experimental')
 # plt.errorbar(TestNo,compressor_power_exp, yerr=0.1125)
 # plt.plot(TestNo,compressor_power/1000,'--sr',label='Model')
-# plt.text(7,2,'MAE = {:0.01f}\%'.format(mape(compressor_power/1000,compressor_power_exp))+', RMSE = {:0.01f}\%'.format(rmse(compressor_power/1000,compressor_power_exp)),ha='center',va='center',fontsize = 8)
+# plt.text(7,2,'MAE = {:0.01f}\%'.format(mape(compressor_power/1000,compressor_power_exp))+', RMSE = {:0.01f}\%'.format(rmse(compressor_power/1000,compressor_power_exp)),ha='left',va='center',fontsize = 10)
 # plt.ylim(0,10)
 # plt.xlim(0,9)
 # plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -227,7 +227,7 @@ T_dis2 = T_dis2.astype(np.float) - 273.15 #convert from K to C
 # plt.plot(TestNo,COPS_exp,'-ob',label='Experimental')
 # plt.errorbar(TestNo,COPS_exp, yerr=0.1704*COPS_exp)
 # plt.plot(TestNo,COPS,'--sr',label='Model')
-# plt.text(7,1,'MAE = {:0.01f}\%'.format(mape(COPS,COPS_exp))+', RMSE = {:0.01f}\%'.format(rmse(COPS,COPS_exp)),ha='center',va='center',fontsize = 8)
+# plt.text(7,1,'MAE = {:0.01f}\%'.format(mape(COPS,COPS_exp))+', RMSE = {:0.01f}\%'.format(rmse(COPS,COPS_exp)),ha='left',va='center',fontsize = 10)
 # plt.ylim(0,5)
 # plt.xlim(0,9)
 # plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -244,7 +244,7 @@ T_dis2 = T_dis2.astype(np.float) - 273.15 #convert from K to C
 # plt.plot(TestNo,heating_capacity_exp,'-ob',label=r'Experimental')
 # plt.errorbar(TestNo,heating_capacity_exp, yerr=0.0228*heating_capacity_exp)
 # plt.plot(TestNo,heating_capacity/1000,'--sr',label=r'Model')
-# plt.text(7,5,'MAE = {:0.01f}\%'.format(mape(heating_capacity/1000,heating_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(heating_capacity/1000,heating_capacity_exp)),ha='center',va='center',fontsize = 8)
+# plt.text(7,5,'MAE = {:0.01f}\%'.format(mape(heating_capacity/1000,heating_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(heating_capacity/1000,heating_capacity_exp)),ha='left',va='center',fontsize = 10)
 # plt.ylim(0,45)
 # plt.xlim(0,9)
 # plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -261,7 +261,7 @@ T_dis2 = T_dis2.astype(np.float) - 273.15 #convert from K to C
 # plt.plot(TestNo,PHX_capacity_exp,'-ob',label=r'Experimental')
 # plt.errorbar(TestNo,PHX_capacity_exp, yerr=0.0933*PHX_capacity_exp)
 # plt.plot(TestNo,PHX_capacity/1000,'--sr',label=r'Model')
-# plt.text(7,1,'MAE = {:0.01f}\%'.format(mape(PHX_capacity/1000,PHX_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(PHX_capacity/1000,PHX_capacity_exp)),ha='center',va='center',fontsize = 8)
+# plt.text(7,1,'MAE = {:0.01f}\%'.format(mape(PHX_capacity/1000,PHX_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(PHX_capacity/1000,PHX_capacity_exp)),ha='left',va='center',fontsize = 10)
 # plt.ylim(0,8)
 # plt.xlim(0,9)
 # plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -280,8 +280,8 @@ T_dis2 = T_dis2.astype(np.float) - 273.15 #convert from K to C
 # plt.plot(TestNo,charge,'--sr',label='Model')
 # plt.plot(TestNo,charge_corrected,':^k',label='Model Corrected - two points')
 # plt.plot(TestNo,charge_corrected_one,'-.d',label='Model Corrected - one point')
-# plt.text(6,4.8,'Two points: MAE = {:0.01f}\%'.format(mape(charge_corrected,charge_exp))+', RMSE = {:0.01f}\%'.format(rmse(charge_corrected,charge_exp)),ha='center',va='center',fontsize = 8)
-# plt.text(6,4.75,'One point: MAE = {:0.01f}\%'.format(mape(charge_corrected_one,charge_exp))+', RMSE = {:0.01f}\%'.format(rmse(charge_corrected_one,charge_exp)),ha='center',va='center',fontsize = 8)
+# plt.text(6,4.8,'Two points: MAE = {:0.01f}\%'.format(mape(charge_corrected,charge_exp))+', RMSE = {:0.01f}\%'.format(rmse(charge_corrected,charge_exp)),ha='left',va='center',fontsize = 10)
+# plt.text(6,4.75,'One point: MAE = {:0.01f}\%'.format(mape(charge_corrected_one,charge_exp))+', RMSE = {:0.01f}\%'.format(rmse(charge_corrected_one,charge_exp)),ha='left',va='center',fontsize = 10)
 # plt.ylim(4.6,5.6)
 # plt.xlim(0,9)
 # plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -304,7 +304,7 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         #plt.errorbar(TestNo,m_dot_exp, yerr=0.001878)#0.002*m_dot_exp
         plt.plot(TestNo,m_dot,'--sr',label='Model')
         plt.plot(TestNo,m_dot2,'X-y',label='Optimized')
-        #plt.text(7,0.02,'MAE = {:0.01f}\%'.format(mape(m_dot,m_dot_exp))+', RMSE = {:0.01f}\%'.format(rmse(m_dot,m_dot_exp)),ha='center',va='center',fontsize = 8)
+        #plt.text(7,0.02,'MAE = {:0.01f}\%'.format(mape(m_dot,m_dot_exp))+', RMSE = {:0.01f}\%'.format(rmse(m_dot,m_dot_exp)),ha='left',va='center',fontsize = 10)
         plt.ylim(0.0,0.16)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -320,7 +320,7 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         #plt.errorbar(TestNo,m_dot_inj_exp, yerr=0.002902)#0.002*m_dot_inj_exp
         plt.plot(TestNo,m_dot_inj,'--sr',label='Model')
         plt.plot(TestNo,m_dot_inj2,'X-y',label='Optimized')
-        #plt.text(7,0.02,'MAE = {:0.01f}\%'.format(mape(m_dot_inj,m_dot_inj_exp))+', RMSE = {:0.01f}\%'.format(rmse(m_dot_inj,m_dot_inj_exp)),ha='center',va='center',fontsize = 8)
+        #plt.text(7,0.02,'MAE = {:0.01f}\%'.format(mape(m_dot_inj,m_dot_inj_exp))+', RMSE = {:0.01f}\%'.format(rmse(m_dot_inj,m_dot_inj_exp)),ha='left',va='center',fontsize = 10)
         plt.ylim(0.0,0.05)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -336,8 +336,8 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         #plt.errorbar(TestNo,cooling_capacity_exp, yerr=0.1679*cooling_capacity_exp)
         plt.plot(TestNo,cooling_capacity/1000,'--sr',label='Model')
         plt.plot(TestNo,cooling_capacity2/1000,'X-y',label='Optimized')
-        plt.text(5,5,'Improvement at Test 1 = {:0.01f}\%'.format((cooling_capacity2[0]-cooling_capacity[0])/cooling_capacity[0] *100),ha='center',va='center',fontsize = 10)
-        #plt.text(7,5,'MAE = {:0.01f}\%'.format(mape(cooling_capacity/1000,cooling_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(cooling_capacity/1000,cooling_capacity_exp)),ha='center',va='center',fontsize = 8)
+        plt.text(4,5,'Improvement at Test 1 = {:0.01f}\%'.format((cooling_capacity2[0]-cooling_capacity[0])/cooling_capacity[0] *100),ha='left',va='center',fontsize = 10)
+        #plt.text(7,5,'MAE = {:0.01f}\%'.format(mape(cooling_capacity/1000,cooling_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(cooling_capacity/1000,cooling_capacity_exp)),ha='left',va='center',fontsize = 10)
         plt.ylim(0,30)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -353,7 +353,7 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         #plt.errorbar(TestNo,total_power_exp, yerr=0.2)#0.03*total_power_exp
         plt.plot(TestNo,total_power/1000,'--sr',label='Model')
         plt.plot(TestNo,total_power2/1000,'X-y',label='Optimized')
-        #plt.text(7,2,'MAE = {:0.01f}\%'.format(mape(total_power/1000,total_power_exp))+', RMSE = {:0.01f}\%'.format(rmse(total_power/1000,total_power_exp)),ha='center',va='center',fontsize = 8)
+        #plt.text(7,2,'MAE = {:0.01f}\%'.format(mape(total_power/1000,total_power_exp))+', RMSE = {:0.01f}\%'.format(rmse(total_power/1000,total_power_exp)),ha='left',va='center',fontsize = 10)
         plt.ylim(0,12)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -369,8 +369,8 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         #plt.errorbar(TestNo,compressor_power_exp, yerr=0.1125)
         plt.plot(TestNo,compressor_power/1000,'--sr',label='Model')
         plt.plot(TestNo,compressor_power2/1000,'X-y',label='Optimized')
-        plt.text(5,2,'Improvement at Test 1 = {:0.01f}\%'.format((compressor_power[0]-compressor_power2[0])/compressor_power[0] *100),ha='center',va='center',fontsize = 10)
-        #plt.text(7,2,'MAE = {:0.01f}\%'.format(mape(compressor_power/1000,compressor_power_exp))+', RMSE = {:0.01f}\%'.format(rmse(compressor_power/1000,compressor_power_exp)),ha='center',va='center',fontsize = 8)
+        plt.text(4,2,'Improvement at Test 1 = {:0.01f}\%'.format((compressor_power[0]-compressor_power2[0])/compressor_power[0] *100),ha='left',va='center',fontsize = 10)
+        #plt.text(7,2,'MAE = {:0.01f}\%'.format(mape(compressor_power/1000,compressor_power_exp))+', RMSE = {:0.01f}\%'.format(rmse(compressor_power/1000,compressor_power_exp)),ha='left',va='center',fontsize = 10)
         plt.ylim(0,10)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -386,8 +386,8 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         #plt.errorbar(TestNo,COPS_exp, yerr=0.1704*COPS_exp)
         plt.plot(TestNo,COPS,'--sr',label='Model')
         plt.plot(TestNo,COPS2,'X-y',label='Optimized')
-        plt.text(5,1,'Improvement at Test 1 = {:0.01f}\%'.format(abs(COPS[0]-COPS2[0])/COPS[0] *100),ha='center',va='center',fontsize = 10)
-        #plt.text(7,1,'MAE = {:0.01f}\%'.format(mape(COPS,COPS_exp))+', RMSE = {:0.01f}\%'.format(rmse(COPS,COPS_exp)),ha='center',va='center',fontsize = 8)
+        plt.text(4,1,'Improvement at Test 1 = {:0.01f}\%'.format(abs(COPS[0]-COPS2[0])/COPS[0] *100),ha='left',va='center',fontsize = 10)
+        #plt.text(7,1,'MAE = {:0.01f}\%'.format(mape(COPS,COPS_exp))+', RMSE = {:0.01f}\%'.format(rmse(COPS,COPS_exp)),ha='left',va='center',fontsize = 10)
         plt.ylim(0,5)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -403,7 +403,7 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         #plt.errorbar(TestNo,heating_capacity_exp, yerr=0.0228*heating_capacity_exp)
         plt.plot(TestNo,heating_capacity/1000,'--sr',label='Model')
         plt.plot(TestNo,heating_capacity2/1000,'X-y',label='Optimized')
-        #plt.text(7,5,'MAE = {:0.01f}\%'.format(mape(heating_capacity/1000,heating_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(heating_capacity/1000,heating_capacity_exp)),ha='center',va='center',fontsize = 8)
+        #plt.text(7,5,'MAE = {:0.01f}\%'.format(mape(heating_capacity/1000,heating_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(heating_capacity/1000,heating_capacity_exp)),ha='left',va='center',fontsize = 10)
         plt.ylim(0,45)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -419,7 +419,7 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         #plt.errorbar(TestNo,PHX_capacity_exp, yerr=0.0933*PHX_capacity_exp)
         plt.plot(TestNo,PHX_capacity/1000,'--sr',label='Model')
         plt.plot(TestNo,PHX_capacity2/1000,'X-y',label='Optimized')
-        #plt.text(7,1,'MAE = {:0.01f}\%'.format(mape(PHX_capacity/1000,PHX_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(PHX_capacity/1000,PHX_capacity_exp)),ha='center',va='center',fontsize = 8)
+        #plt.text(7,1,'MAE = {:0.01f}\%'.format(mape(PHX_capacity/1000,PHX_capacity_exp))+', RMSE = {:0.01f}\%'.format(rmse(PHX_capacity/1000,PHX_capacity_exp)),ha='left',va='center',fontsize = 10)
         plt.ylim(0,8)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -437,8 +437,8 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         plt.plot(TestNo,charge_corrected,':^k',label='Model Corrected - two points')
         plt.plot(TestNo,charge_corrected_one,'-.d',label='Model Corrected - one point')
         plt.plot(TestNo,charge_corrected_one2,'X-y',label='Optimized Corrected - one point')
-        #plt.text(6,4.8,'Two points: MAE = {:0.01f}\%'.format(mape(charge_corrected,charge_exp))+', RMSE = {:0.01f}\%'.format(rmse(charge_corrected,charge_exp)),ha='center',va='center',fontsize = 8)
-        #plt.text(6,4.75,'One point: MAE = {:0.01f}\%'.format(mape(charge_corrected_one,charge_exp))+', RMSE = {:0.01f}\%'.format(rmse(charge_corrected_one,charge_exp)),ha='center',va='center',fontsize = 8)
+        #plt.text(6,4.8,'Two points: MAE = {:0.01f}\%'.format(mape(charge_corrected,charge_exp))+', RMSE = {:0.01f}\%'.format(rmse(charge_corrected,charge_exp)),ha='left',va='center',fontsize = 10)
+        #plt.text(6,4.75,'One point: MAE = {:0.01f}\%'.format(mape(charge_corrected_one,charge_exp))+', RMSE = {:0.01f}\%'.format(rmse(charge_corrected_one,charge_exp)),ha='left',va='center',fontsize = 10)
         plt.ylim(4.6,5.6)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -455,7 +455,7 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         #plt.plot(TestNo,T_dis,'--sr',label='Model')
         plt.plot(TestNo,T_dis,'--sr',label='Model')
         plt.plot(TestNo,T_dis2,'X-y',label='Optimized')
-        #plt.text(7,60,'MAE = {:0.01f}\%'.format(mape(T_dis,T_dis_exp))+', RMSE = {:0.01f}\%'.format(rmse(T_dis,T_dis_exp)),ha='center',va='center',fontsize = 8)
+        #plt.text(7,60,'MAE = {:0.01f}\%'.format(mape(T_dis,T_dis_exp))+', RMSE = {:0.01f}\%'.format(rmse(T_dis,T_dis_exp)),ha='left',va='center',fontsize = 10)
         plt.ylim(50,120)
         plt.xlim(0,9)
         plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
