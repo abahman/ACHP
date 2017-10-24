@@ -34,12 +34,12 @@ pgf_with_latex = {                      # setup matplotlib to use latex for outp
 "font.serif": [],                   # blank entries should cause plots to inherit fonts from the document
 "font.sans-serif": [],
 "font.monospace": [],
-"axes.labelsize": 10,               # LaTeX default is 10pt font.
-"font.size": 10,
-"legend.fontsize": 8,               # Make the legend/label fonts a little smaller
+"axes.labelsize": 12,               # LaTeX default is 10pt font.
+"font.size": 12,
+"legend.fontsize": 10,               # Make the legend/label fonts a little smaller
 "legend.labelspacing":0.2,
-"xtick.labelsize": 8,
-"ytick.labelsize": 8,
+"xtick.labelsize": 10,
+"ytick.labelsize": 10,
 "figure.figsize": figsize(0.9),     # default fig size of 0.9 textwidth
 "pgf.preamble": [
 r"\usepackage[utf8x]{inputenc}",    # use utf8 fonts becasue your computer can handle it :)
@@ -91,7 +91,7 @@ x2 = df['Q_exp'][1:]
 #c2 = df_dar['T_evap[i]'][1:]
 s = 40  # size of points
 
-fig, ax = plt.subplots(figsize=(4.5,4.5))
+fig, ax = plt.subplots(figsize=(5.5,5.5))
 #im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='predicted vs experimental'+' (MAE = {:0.01f}\%'.format(mape(y1,x2))+', RMSE = {:0.01f}\%)'.format(rmse(y1,x2)))
 #im = ax.scatter(x2, x1, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='FIM simulation vs experimental'+' (MAE = {:0.01f}\%'.format(mape(x1,x2))+', RMSE = {:0.01f}\%)'.format(rmse(x1,x2)))
 im = ax.scatter(x2, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='predicted (new) vs experimental'+' (MAE = {:0.01f}\%'.format(mape(y2,x2))+', RMSE = {:0.01f}\%)'.format(rmse(y2,x2)))
@@ -138,7 +138,7 @@ x2 = df['Simulated Refrigerant Outlet Temp'][1:]
 #c2 = df_dar['T_evap[i]'][1:]
 s = 40  # size of points
   
-fig, ax = plt.subplots(figsize=(4.5,4.5))
+fig, ax = plt.subplots(figsize=(5.5,5.5))
 #im = ax.scatter(x1, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='predicted vs experimental'+' (MAE = {:0.01f}\%'.format(mape(y1,x1))+', RMSE = {:0.01f}\%)'.format(rmse(y1,x1)))
 #im = ax.scatter(x1, x2, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='FIM simulation vs experimental'+' (MAE = {:0.01f}\%'.format(mape(x2,x1))+', RMSE = {:0.01f}\%)'.format(rmse(x2,x1)))
 im = ax.scatter(x1, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='predicted (new) vs experimental'+' (MAE = {:0.01f}\%'.format(mape(y2,x1))+', RMSE = {:0.01f}\%)'.format(rmse(y2,x1)))
