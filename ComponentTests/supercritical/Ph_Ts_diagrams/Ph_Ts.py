@@ -13,41 +13,44 @@ import CoolProp
 from CoolProp.Plots import PropertyPlot
 import matplotlib as mpl
 mpl.style.use('classic')
+mpl.style.use('Elsevier.mplstyle')
+mpl.rcParams['mathtext.fontset'] = 'custom'
 
 #===============================================================================
 # Latex render
 #===============================================================================
-#mpl.use('pgf')
-
-def figsize(scale):
-    fig_width_pt = 469.755                          # Get this from LaTeX using \the\textwidth
-    inches_per_pt = 1.0/72.27                       # Convert pt to inch
-    golden_mean = (np.sqrt(5.0)-1.0)/2.0            # Aesthetic ratio (you could change this)
-    fig_width = fig_width_pt*inches_per_pt*scale    # width in inches
-    fig_height = fig_width*golden_mean              # height in inches
-    fig_size = [fig_width,fig_height]
-    return fig_size
-
-pgf_with_latex = {                      # setup matplotlib to use latex for output
-"pgf.texsystem": "pdflatex",        # change this if using xetex or lautex
-"text.usetex": True,                # use LaTeX to write all text
-"font.family": "serif",
-"font.serif": [],                   # blank entries should cause plots to inherit fonts from the document
-"font.sans-serif": [],
-"font.monospace": [],
-"axes.labelsize": 12,               # LaTeX default is 10pt font.
-"font.size": 12,
-"legend.fontsize": 10,               # Make the legend/label fonts a little smaller
-"legend.labelspacing":0.2,
-"xtick.labelsize": 10,
-"ytick.labelsize": 10,
-"figure.figsize": figsize(0.9),     # default fig size of 0.9 textwidth
-"pgf.preamble": [
-r"\usepackage[utf8x]{inputenc}",    # use utf8 fonts becasue your computer can handle it :)
-r"\usepackage[T1]{fontenc}",        # plots will be generated using this preamble
-        ]
-    }
-mpl.rcParams.update(pgf_with_latex)
+# #mpl.use('pgf')
+#  
+# def figsize(scale):
+#     fig_width_pt = 469.755                          # Get this from LaTeX using \the\textwidth
+#     inches_per_pt = 1.0/72.27                       # Convert pt to inch
+#     golden_mean = (np.sqrt(5.0)-1.0)/2.0            # Aesthetic ratio (you could change this)
+#     fig_width = fig_width_pt*inches_per_pt*scale    # width in inches
+#     fig_height = fig_width*golden_mean              # height in inches
+#     fig_size = [fig_width,fig_height]
+#     return fig_size
+#  
+# pgf_with_latex = {                      # setup matplotlib to use latex for output
+# "pgf.texsystem": "pdflatex",        # change this if using xetex or lautex
+# "text.usetex": True,                # use LaTeX to write all text
+# "font.family": "serif",
+# "mathtext.fontset" : "custom",
+# "font.serif": [],                   # blank entries should cause plots to inherit fonts from the document
+# "font.sans-serif": [],
+# "font.monospace": [],
+# "axes.labelsize": 10,               # LaTeX default is 10pt font.
+# "font.size": 10,
+# "legend.fontsize": 8,               # Make the legend/label fonts a little smaller
+# "legend.labelspacing":0.2,
+# "xtick.labelsize": 8,
+# "ytick.labelsize": 8,
+# "figure.figsize": figsize(0.9),     # default fig size of 0.9 textwidth
+# "pgf.preamble": [
+# r"\usepackage[utf8x]{inputenc}",    # use utf8 fonts becasue your computer can handle it :)
+# r"\usepackage[T1]{fontenc}",        # plots will be generated using this preamble
+#         ]
+#     }
+# mpl.rcParams.update(pgf_with_latex)
 #===============================================================================
 # END of Latex render
 #===============================================================================
@@ -102,51 +105,51 @@ mpl.rcParams.update(pgf_with_latex)
                
 ref_fluid = 'HEOS::R744'
 #Plot P-h diagram 
-# ph_plot_R744 = PropertyPlot(ref_fluid, 'Ph',unit_system='KSI')
-# ph_plot_R744._set_axis_limits([50000.0, 900000.0, 50000.0, 200000000.0]) #the axis limit are changed so that the CoolProp plot function can extrapolate the lines to supercritical region
-# ph_plot_R744.calc_isolines(CoolProp.iT, iso_range=[30.978+273.15],num=1)
-# ph_plot_R744.props[CoolProp.iT]['color'] = 'black'
-# ph_plot_R744.props[CoolProp.iT]['lw'] = '0.5'
-# ph_plot_R744.draw()
-# ph_plot_R744.isolines.clear()
-# ph_plot_R744.calc_isolines(CoolProp.iQ, iso_range=[0,1],num=2)
-# ph_plot_R744.title('P-h R744')
-# ph_plot_R744.xlabel(r'$h$ [{kJ} {kg$^{-1}$}]')
-# ph_plot_R744.ylabel(r'$P$ [kPa]')
-# ph_plot_R744.axis.set_yscale('log')
-# #ph_plot_R407C.grid()
-# plt.axhline(y=73.773*100, color='k', linestyle='-',linewidth=0.5) #73.773*100 is the critical pressure in kPa
-# plt.plot(332.25,73.773*100,'.r',linewidth=1.5,label='Critical point') #332.25 is the critical enthalpy in kJ/kg
-# #plt.plot(M_h,M_P,'r--',linewidth=1.5, label='Modified')
-# #plt.plot(I_h,I_P,'g:',linewidth=1.5,label='Interleaved')
-# #plt.plot(hx8,Px8,color="grey",linewidth=0.25)
-# #plt.text(364, 600, 'x=0.8',color="grey",fontsize=5,rotation=70)
-# #plt.plot(hx6,Px6,color="grey",linewidth=0.25)
-# #plt.text(322, 600, 'x=0.6',color="grey",fontsize=5,rotation=67)
-# #plt.plot(hx4,Px4,color="grey",linewidth=0.25)
-# #plt.text(279, 600, 'x=0.4',color="grey",fontsize=5,rotation=64)
-# #plt.plot(hx2,Px2,color="grey",linewidth=0.25)
-# plt.title('')
-# plt.xlim(0,600)
-# plt.xticks([0,100,200,300,400,500,600],
-#            [r'0',r'100',r'200',r'300',r'400',r'500',r'600'])
-# plt.ylim(500,100000)
-# plt.yticks([500,1000,10000,100000],
-#            [r'$500$',r'$1000$',r'$10000$',r'$100000$'])
-# plt.text(550,80000,'R-744',ha='center',va='top')
-# plt.text(450,30000,'Supercritical',ha='center',va='top')
-# plt.text(470,1200,'Vapor',ha='center',va='top')
-# plt.text(540,4000,'Supercritical\n vapor',ha='center',va='top')
-# plt.text(130,30000,'Supercritical liquid',ha='center',va='top')
-# plt.text(80,3000,'Liquid',ha='center',va='top')
-# plt.text(300,2000,'Two phase',ha='center',va='top')
-# leg=plt.legend(loc='upper left',fancybox=False,numpoints=1)
-# frame=leg.get_frame()  
-# frame.set_linewidth(0.5)
-# plt.tight_layout() 
-# ph_plot_R744.savefig('p-h.pdf')    
-# ph_plot_R744.show()
-# plt.close()
+ph_plot_R744 = PropertyPlot(ref_fluid, 'Ph',unit_system='KSI')
+ph_plot_R744._set_axis_limits([50000.0, 900000.0, 50000.0, 200000000.0]) #the axis limit are changed so that the CoolProp plot function can extrapolate the lines to supercritical region
+ph_plot_R744.calc_isolines(CoolProp.iT, iso_range=[30.978+273.15],num=1)
+ph_plot_R744.props[CoolProp.iT]['color'] = 'black'
+ph_plot_R744.props[CoolProp.iT]['lw'] = '0.5'
+ph_plot_R744.draw()
+ph_plot_R744.isolines.clear()
+ph_plot_R744.calc_isolines(CoolProp.iQ, iso_range=[0,1],num=2)
+ph_plot_R744.title('P-h R744')
+ph_plot_R744.xlabel(r'$h$ [kJ kg$^{-1}$]')
+ph_plot_R744.ylabel(r'$P$ [kPa]')
+ph_plot_R744.axis.set_yscale('log')
+#ph_plot_R407C.grid()
+plt.axhline(y=73.773*100, color='k', linestyle='-',linewidth=0.5) #73.773*100 is the critical pressure in kPa
+plt.plot(332.25,73.773*100,'.r',linewidth=1.5,label='Critical point') #332.25 is the critical enthalpy in kJ/kg
+#plt.plot(M_h,M_P,'r--',linewidth=1.5, label='Modified')
+#plt.plot(I_h,I_P,'g:',linewidth=1.5,label='Interleaved')
+#plt.plot(hx8,Px8,color="grey",linewidth=0.25)
+#plt.text(364, 600, 'x=0.8',color="grey",fontsize=5,rotation=70)
+#plt.plot(hx6,Px6,color="grey",linewidth=0.25)
+#plt.text(322, 600, 'x=0.6',color="grey",fontsize=5,rotation=67)
+#plt.plot(hx4,Px4,color="grey",linewidth=0.25)
+#plt.text(279, 600, 'x=0.4',color="grey",fontsize=5,rotation=64)
+#plt.plot(hx2,Px2,color="grey",linewidth=0.25)
+plt.title('')
+plt.xlim(0,600)
+plt.xticks([0,100,200,300,400,500,600],
+           [r'0',r'100',r'200',r'300',r'400',r'500',r'600'])
+plt.ylim(500,100000)
+plt.yticks([500,1000,10000,100000],
+           [r'$500$',r'$1000$',r'$10000$',r'$100000$'])
+plt.text(550,80000,'R-744',ha='center',va='top')
+plt.text(450,30000,'Supercritical',ha='center',va='top')
+plt.text(470,1200,'Vapor',ha='center',va='top')
+plt.text(540,4000,'Supercritical\n vapor',ha='center',va='top')
+plt.text(130,30000,'Supercritical liquid',ha='center',va='top')
+plt.text(80,3000,'Liquid',ha='center',va='top')
+plt.text(300,2000,'Two phase',ha='center',va='top')
+leg=plt.legend(loc='upper left',fancybox=False,numpoints=1)
+frame=leg.get_frame()  
+frame.set_linewidth(0.5)
+plt.tight_layout() 
+ph_plot_R744.savefig('p-h.pdf')    
+ph_plot_R744.show()
+plt.close()
 
 #Plot T-s diagram
 ts_plot_R744 = PropertyPlot(ref_fluid, 'Ts',unit_system='EUR') #'EUR' is bar, kJ, C; 'KSI' is kPa, kJ, K; 'SI' is Pa, J, K
@@ -157,8 +160,8 @@ ts_plot_R744.draw()
 ts_plot_R744.isolines.clear()
 ts_plot_R744.calc_isolines(CoolProp.iQ, iso_range=[0,1],num=2)
 ts_plot_R744.title('T-s R744')
-ts_plot_R744.xlabel(r'$s$ [{kJ} {kg$^{-1}$ K$^{-1}$}]')
-ts_plot_R744.ylabel(r'$T$ [{\textdegree}C]')
+ts_plot_R744.xlabel(r'$s$ [kJ kg$^{-1}$ K$^{-1}$]')
+ts_plot_R744.ylabel(r'$T$ [$\degree$C]')
 #ts_plot_R407C.grid()
 plt.plot(1.4336,30.978,'.r',linewidth=1.5,label='Critical point')
 plt.axhline(y=30.978, color='k', linestyle='-',linewidth=0.5) #30.978 is the critical temperature in C
