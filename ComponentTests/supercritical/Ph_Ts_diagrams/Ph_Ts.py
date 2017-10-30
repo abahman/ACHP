@@ -110,6 +110,9 @@ Pcrit = PropsSI("Pcrit",ref_fluid) #[Pa]
 hcrit = PropsSI("H","P",Pcrit,"T",Tcrit,ref_fluid) #[J/kg]
 scrit = PropsSI("S","P",Pcrit,"T",Tcrit,ref_fluid) #[J/kg-K]
 
+Ptriple = PropsSI("PTRIPLE",ref_fluid) #[Pa]
+Ttriple = PropsSI("TTRIPLE",ref_fluid) #[K]
+
 #Plot P-h diagram 
 ph_plot_R744 = PropertyPlot(ref_fluid, 'Ph',unit_system='KSI')
 ph_plot_R744._set_axis_limits([50000.0, 900000.0, 50000.0, 200000000.0]) #the axis limit are changed so that the CoolProp plot function can extrapolate the lines to supercritical region
@@ -121,7 +124,7 @@ ph_plot_R744.isolines.clear()
 ph_plot_R744._set_axis_limits([50000.0, 900000.0, 50000.0, 200000000.0])
 ph_plot_R744.calc_isolines(CoolProp.iQ, iso_range=[0,1],num=2,points=500)
 ph_plot_R744.title('P-h R744')
-ph_plot_R744.xlabel(r'$h$ [kJ kg$^{-1}$]')
+ph_plot_R744.xlabel(r'$h$ [kJ/kg]')
 ph_plot_R744.ylabel(r'$P$ [kPa]')
 ph_plot_R744.axis.set_yscale('log')
 #ph_plot_R407C.grid()
@@ -140,9 +143,9 @@ plt.title('')
 plt.xlim(0,600)
 plt.xticks([0,100,200,300,400,500,600],
            [r'0',r'100',r'200',r'300',r'400',r'500',r'600'])
-plt.ylim(513,100000)
-plt.yticks([513,1000,10000,100000],
-           [r'500',r'1000',r'10000',r'100000'])
+plt.ylim(600,100000)
+plt.yticks([600,1000,10000,100000],
+           [r'600',r'1000',r'10000',r'100000'])
 plt.text(550,80000,'R-744',ha='center',va='top')
 plt.text(450,30000,'Supercritical',ha='center',va='top')
 plt.text(470,1200,'Vapor',ha='center',va='top')
@@ -167,7 +170,7 @@ ts_plot_R744.draw()
 ts_plot_R744.isolines.clear()
 ts_plot_R744.calc_isolines(CoolProp.iQ, iso_range=[0,1],num=2,points=500)
 ts_plot_R744.title('T-s R744')
-ts_plot_R744.xlabel(r'$s$ [kJ kg$^{-1}$ K$^{-1}$]')
+ts_plot_R744.xlabel(r'$s$ [kJ/kg-K]')
 ts_plot_R744.ylabel(r'$T$ [$\degree$C]')
 #ts_plot_R407C.grid()
 plt.plot(scrit/1000,Tcrit-273.15,'.r',markersize=10,label='Critical point')
