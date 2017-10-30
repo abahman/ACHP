@@ -37,12 +37,12 @@ mpl.rcParams['mathtext.fontset'] = 'custom'
 # "font.serif": [],                   # blank entries should cause plots to inherit fonts from the document
 # "font.sans-serif": [],
 # "font.monospace": [],
-# "axes.labelsize": 12,               # LaTeX default is 10pt font.
-# "font.size": 12,
-# "legend.fontsize": 10,               # Make the legend/label fonts a little smaller
+# "axes.labelsize": 10,               # LaTeX default is 10pt font.
+# "font.size": 10,
+# "legend.fontsize": 8,               # Make the legend/label fonts a little smaller
 # "legend.labelspacing":0.2,
-# "xtick.labelsize": 10,
-# "ytick.labelsize": 10,
+# "xtick.labelsize": 8,
+# "ytick.labelsize": 8,
 # "figure.figsize": figsize(0.9),     # default fig size of 0.9 textwidth
 # "pgf.preamble": [
 # r"\usepackage[utf8x]{inputenc}",    # use utf8 fonts becasue your computer can handle it :)
@@ -88,16 +88,16 @@ def mape(y_pred, y_true):  #maps==mean_absolute_percentage_error
 df = pd.read_excel('Table.xlsx',header=0) #file name
 #assign axes
 y1 = df['Q'][1:]
-y2 = df['Q_new_FV'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[0]
+#y2 = df['Q_new_FV'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[0]
 x1 = df['Q_siml'][1:]
 x2 = df['Q_exp'][1:]
 #c2 = df_dar['T_evap[i]'][1:]
 s = 40  # size of points
 
-fig, ax = plt.subplots(figsize=(5.5,5.5))
-#im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='predicted vs experimental'+' (MAE = {:0.01f}\%'.format(mape(y1,x2))+', RMSE = {:0.01f}\%)'.format(rmse(y1,x2)))
-#im = ax.scatter(x2, x1, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='FIM simulation vs experimental'+' (MAE = {:0.01f}\%'.format(mape(x1,x2))+', RMSE = {:0.01f}\%)'.format(rmse(x1,x2)))
-im = ax.scatter(x2, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='predicted (new) vs experimental'+' (MAE = {:0.01f}\%'.format(mape(y2,x2))+', RMSE = {:0.01f}\%)'.format(rmse(y2,x2)))
+fig, ax = plt.subplots(figsize=(5,5))
+im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='predicted vs experimental'+' (MAE = {:0.01f}%'.format(mape(y1,x2))+', RMSE = {:0.01f}%)'.format(rmse(y1,x2)))
+#im = ax.scatter(x2, x1, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='FIM simulation vs experimental'+' (MAE = {:0.01f}%'.format(mape(x1,x2))+', RMSE = {:0.01f}%)'.format(rmse(x1,x2)))
+#im = ax.scatter(x2, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='predicted (new) vs experimental'+' (MAE = {:0.01f}%'.format(mape(y2,x2))+', RMSE = {:0.01f}%)'.format(rmse(y2,x2)))
 # Add a colorbar
 #cbar = plt.colorbar(im, ax=ax)
 # set the color limits
@@ -114,17 +114,17 @@ low_txt = (ax_min+ax_max) / 1.7 #location of lower error text on plot -- adjust 
 ax.plot(np.r_[0,ax_max],np.r_[0,ax_max],'k-',lw=1)
 ax.plot(np.r_[0,ax_max],np.r_[0,ax_max*(1-w)],'k-.',lw=1)
 ax.plot(np.r_[0,ax_max],np.r_[0,ax_max*(1+w)],'k-.',lw=1)
-ax.text(low_txt-0.002,low_txt*(1-w),'$-${:0.0f}\%'.format(w*100),ha='left',va='top')
-ax.text(upp_txt-0.002,upp_txt*(1+w),'+{:0.0f}\%'.format(w*100),ha='right',va='bottom')
-leg=ax.legend(loc='upper left',scatterpoints=1)
+ax.text(low_txt-0.002,low_txt*(1-w),'$-${:0.0f}$\%$'.format(w*100),ha='left',va='top')
+ax.text(upp_txt-0.002,upp_txt*(1+w),'+{:0.0f}$\%$'.format(w*100),ha='right',va='bottom')
+leg=ax.legend(loc='upper left',scatterpoints=1,scatteryoffsets=[0.5])
 frame  = leg.get_frame()  
-frame.set_linewidth(0.5)
+frame.set_linewidth(1.0)
 ax.set_xlim((ax_min,ax_max))
 ax.set_ylim((ax_min,ax_max))
 plt.ylabel(r'$\dot Q_{pred}$ [kW]')
 plt.xlabel(r'$\dot Q_{exp}$ [kW]')
 plt.tight_layout()       
-plt.savefig('parity_heating_load_ACFV.pdf')
+plt.savefig('parity_heating_load_MB.pdf')
 plt.show()
 plt.close()
      
@@ -135,16 +135,16 @@ plt.close()
 df = pd.read_excel('Table.xlsx',header=0) #file name
 #assign axes
 y1 = df['Ref out temp'][1:]
-y2 = df['Q_new_FV'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[1]
+#y2 = df['Q_new_FV'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[1]
 x1 = df['Tested Refrigerant Outlet Temp'][1:]
 x2 = df['Simulated Refrigerant Outlet Temp'][1:]
 #c2 = df_dar['T_evap[i]'][1:]
 s = 40  # size of points
   
-fig, ax = plt.subplots(figsize=(5.5,5.5))
-#im = ax.scatter(x1, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='predicted vs experimental'+' (MAE = {:0.01f}\%'.format(mape(y1,x1))+', RMSE = {:0.01f}\%)'.format(rmse(y1,x1)))
-#im = ax.scatter(x1, x2, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='FIM simulation vs experimental'+' (MAE = {:0.01f}\%'.format(mape(x2,x1))+', RMSE = {:0.01f}\%)'.format(rmse(x2,x1)))
-im = ax.scatter(x1, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='predicted (new) vs experimental'+' (MAE = {:0.01f}\%'.format(mape(y2,x1))+', RMSE = {:0.01f}\%)'.format(rmse(y2,x1)))
+fig, ax = plt.subplots(figsize=(5,5))
+im = ax.scatter(x1, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='predicted vs experimental'+' (MAE = {:0.01f}%'.format(mape(y1,x1))+', RMSE = {:0.01f}%)'.format(rmse(y1,x1)))
+#im = ax.scatter(x1, x2, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='FIM simulation vs experimental'+' (MAE = {:0.01f}%'.format(mape(x2,x1))+', RMSE = {:0.01f}%)'.format(rmse(x2,x1)))
+#im = ax.scatter(x1, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='predicted (new) vs experimental'+' (MAE = {:0.01f}%'.format(mape(y2,x1))+', RMSE = {:0.01f}%)'.format(rmse(y2,x1)))
 # Add a colorbar
 #cbar = plt.colorbar(im, ax=ax)
 # set the color limits
@@ -163,15 +163,14 @@ ax.plot(np.r_[0,ax_max],np.r_[-w,ax_max-w],'k--',lw=1)
 ax.plot(np.r_[0,ax_max],np.r_[w,ax_max+w],'k--',lw=1)
 ax.text(low_txt-0.002,low_txt-w,'$-${:0.0f}K'.format(w),ha='left',va='top')
 ax.text(upp_txt-0.002,upp_txt+w,'+{:0.0f}K'.format(w),ha='right',va='bottom')
-leg=ax.legend(loc='upper left',scatterpoints=1)
+leg=ax.legend(loc='upper left',scatterpoints=1,scatteryoffsets=[0.5])
 frame  = leg.get_frame()  
-frame.set_linewidth(0.5)
+frame.set_linewidth(1.0)
 ax.set_xlim((ax_min,ax_max))
 ax.set_ylim((ax_min,ax_max))
-plt.ylabel(r'$T_{r,pred}$ [{\textdegree}C]')
-plt.xlabel(r'$T_{r,exp}$ [{\textdegree}C]')
+plt.ylabel(r'$T_{r,pred}$ [$\degree$C]') #r'$T_{r,pred}$ [{\textdegree}C]'
+plt.xlabel(r'$T_{r,exp}$ [$\degree$C]')
 plt.tight_layout()       
-plt.savefig('parity_refrigerant_temp_ACFV.pdf')
+plt.savefig('parity_refrigerant_temp_MB.pdf')
 plt.show()
 plt.close()
-

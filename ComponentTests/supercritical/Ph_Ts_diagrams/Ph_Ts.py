@@ -11,6 +11,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import CoolProp
 from CoolProp.Plots import PropertyPlot
+from CoolProp.CoolProp import PropsSI
 import matplotlib as mpl
 mpl.style.use('classic')
 mpl.style.use('Elsevier.mplstyle')
@@ -104,22 +105,28 @@ mpl.rcParams['mathtext.fontset'] = 'custom'
 # sx1 = np.array(df[:]["s"])
                
 ref_fluid = 'HEOS::R744'
+Tcrit = PropsSI("Tcrit",ref_fluid) #[K]
+Pcrit = PropsSI("Pcrit",ref_fluid) #[Pa]
+hcrit = PropsSI("H","P",Pcrit,"T",Tcrit,ref_fluid) #[J/kg]
+scrit = PropsSI("S","P",Pcrit,"T",Tcrit,ref_fluid) #[J/kg-K]
+
 #Plot P-h diagram 
 ph_plot_R744 = PropertyPlot(ref_fluid, 'Ph',unit_system='KSI')
 ph_plot_R744._set_axis_limits([50000.0, 900000.0, 50000.0, 200000000.0]) #the axis limit are changed so that the CoolProp plot function can extrapolate the lines to supercritical region
-ph_plot_R744.calc_isolines(CoolProp.iT, iso_range=[30.978+273.15],num=1)
+ph_plot_R744.calc_isolines(CoolProp.iT, iso_range=[Tcrit],num=1,points=500)
 ph_plot_R744.props[CoolProp.iT]['color'] = 'black'
-ph_plot_R744.props[CoolProp.iT]['lw'] = '0.5'
+ph_plot_R744.props[CoolProp.iT]['lw'] = '1.0'
 ph_plot_R744.draw()
 ph_plot_R744.isolines.clear()
-ph_plot_R744.calc_isolines(CoolProp.iQ, iso_range=[0,1],num=2)
+ph_plot_R744._set_axis_limits([50000.0, 900000.0, 50000.0, 200000000.0])
+ph_plot_R744.calc_isolines(CoolProp.iQ, iso_range=[0,1],num=2,points=500)
 ph_plot_R744.title('P-h R744')
 ph_plot_R744.xlabel(r'$h$ [kJ kg$^{-1}$]')
 ph_plot_R744.ylabel(r'$P$ [kPa]')
 ph_plot_R744.axis.set_yscale('log')
 #ph_plot_R407C.grid()
-plt.axhline(y=73.773*100, color='k', linestyle='-',linewidth=0.5) #73.773*100 is the critical pressure in kPa
-plt.plot(332.25,73.773*100,'.r',linewidth=1.5,label='Critical point') #332.25 is the critical enthalpy in kJ/kg
+plt.axhline(y=Pcrit/1000, color='k', linestyle='-',linewidth=1.0)
+plt.plot(hcrit/1000,Pcrit/1000,'.r',markersize=10,label='Critical point')
 #plt.plot(M_h,M_P,'r--',linewidth=1.5, label='Modified')
 #plt.plot(I_h,I_P,'g:',linewidth=1.5,label='Interleaved')
 #plt.plot(hx8,Px8,color="grey",linewidth=0.25)
@@ -133,9 +140,9 @@ plt.title('')
 plt.xlim(0,600)
 plt.xticks([0,100,200,300,400,500,600],
            [r'0',r'100',r'200',r'300',r'400',r'500',r'600'])
-plt.ylim(500,100000)
-plt.yticks([500,1000,10000,100000],
-           [r'$500$',r'$1000$',r'$10000$',r'$100000$'])
+plt.ylim(513,100000)
+plt.yticks([513,1000,10000,100000],
+           [r'500',r'1000',r'10000',r'100000'])
 plt.text(550,80000,'R-744',ha='center',va='top')
 plt.text(450,30000,'Supercritical',ha='center',va='top')
 plt.text(470,1200,'Vapor',ha='center',va='top')
@@ -145,7 +152,7 @@ plt.text(80,3000,'Liquid',ha='center',va='top')
 plt.text(300,2000,'Two phase',ha='center',va='top')
 leg=plt.legend(loc='upper left',fancybox=False,numpoints=1)
 frame=leg.get_frame()  
-frame.set_linewidth(0.5)
+frame.set_linewidth(1.0)
 plt.tight_layout() 
 ph_plot_R744.savefig('p-h.pdf')    
 ph_plot_R744.show()
@@ -153,18 +160,18 @@ plt.close()
 
 #Plot T-s diagram
 ts_plot_R744 = PropertyPlot(ref_fluid, 'Ts',unit_system='EUR') #'EUR' is bar, kJ, C; 'KSI' is kPa, kJ, K; 'SI' is Pa, J, K
-ts_plot_R744.calc_isolines(CoolProp.iP, iso_range=[73773/1000], num=1)
+ts_plot_R744.calc_isolines(CoolProp.iP, iso_range=[74773/1000], num=1,points=500)
 ts_plot_R744.props[CoolProp.iP]['color'] = 'black'
-ts_plot_R744.props[CoolProp.iP]['lw'] = '0.5'
+ts_plot_R744.props[CoolProp.iP]['lw'] = '1.0'
 ts_plot_R744.draw()
 ts_plot_R744.isolines.clear()
-ts_plot_R744.calc_isolines(CoolProp.iQ, iso_range=[0,1],num=2)
+ts_plot_R744.calc_isolines(CoolProp.iQ, iso_range=[0,1],num=2,points=500)
 ts_plot_R744.title('T-s R744')
 ts_plot_R744.xlabel(r'$s$ [kJ kg$^{-1}$ K$^{-1}$]')
 ts_plot_R744.ylabel(r'$T$ [$\degree$C]')
 #ts_plot_R407C.grid()
-plt.plot(1.4336,30.978,'.r',linewidth=1.5,label='Critical point')
-plt.axhline(y=30.978, color='k', linestyle='-',linewidth=0.5) #30.978 is the critical temperature in C
+plt.plot(scrit/1000,Tcrit-273.15,'.r',markersize=10,label='Critical point')
+plt.axhline(y=Tcrit-273.15, color='k', linestyle='-',linewidth=1.0)
 #plt.plot(M_s,M_T,'r--',linewidth=1.5, label='Modified')
 #plt.plot(I_s,I_T,'g:',linewidth=1.5,label='Interleaved')
 #plt.plot(sx0,Tx0,color="k",linewidth=0.6)
@@ -177,9 +184,11 @@ plt.axhline(y=30.978, color='k', linestyle='-',linewidth=0.5) #30.978 is the cri
 #plt.text(1.26, -5, 'x=0.4',color="grey",fontsize=5,rotation=48)
 #plt.plot(sx2,Tx2,color="grey",linewidth=0.25)
 plt.title('')
-plt.ylim([-40,100])
+plt.ylim([-50,100])
+plt.yticks([-50,-25,0,25,50,75,100],
+           [r'-50',r'-25',r'0',r'25',r'50',r'75',r'100',r'125'])
 plt.xlim([0.5,2.5])
-plt.text(2.35,95,'R-744',ha='center',va='top')
+plt.text(2.35,120,'R-744',ha='center',va='top')
 plt.text(1.2,70,'Supercritical',ha='center',va='top')
 plt.text(2.2,10,'Vapor',ha='center',va='top')
 plt.text(2.2,65,'Supercritical\n vapor',ha='center',va='top')
@@ -189,7 +198,7 @@ plt.plot([0.9, 1], [-10, -20],'k',linewidth=0.2)
 plt.text(1.5,0,'Two phase',ha='center',va='top')
 leg=plt.legend(loc='upper left',fancybox=False, numpoints=1)
 frame=leg.get_frame()  
-frame.set_linewidth(0.5)
+frame.set_linewidth(1.0)
 plt.tight_layout() 
 ts_plot_R744.savefig('T-s.pdf')    
 ts_plot_R744.show()
