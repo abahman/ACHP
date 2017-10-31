@@ -94,9 +94,9 @@ x2 = df['Q_exp'][1:]
 #c2 = df_dar['T_evap[i]'][1:]
 s = 40  # size of points
 
-fig, ax = plt.subplots(figsize=(5,5))
-im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='predicted vs experimental'+' (MAE = {:0.01f}%'.format(mape(y1,x2))+', RMSE = {:0.01f}%)'.format(rmse(y1,x2)))
-#im = ax.scatter(x2, x1, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='FIM simulation vs experimental'+' (MAE = {:0.01f}%'.format(mape(x1,x2))+', RMSE = {:0.01f}%)'.format(rmse(x1,x2)))
+fig, ax = plt.subplots(figsize=(4,4))
+im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Moving-Boundary model\n'+'MAE = {:0.01f}%'.format(mape(y1,x2))+', RMSE = {:0.01f}%'.format(rmse(y1,x2)))
+#im = ax.scatter(x2, x1, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='Ge and Copper (2009) model\n'+'MAE = {:0.01f}%'.format(mape(x1,x2))+', RMSE = {:0.01f}%'.format(rmse(x1,x2)))
 #im = ax.scatter(x2, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='predicted (new) vs experimental'+' (MAE = {:0.01f}%'.format(mape(y2,x2))+', RMSE = {:0.01f}%)'.format(rmse(y2,x2)))
 # Add a colorbar
 #cbar = plt.colorbar(im, ax=ax)
@@ -141,9 +141,9 @@ x2 = df['Simulated Refrigerant Outlet Temp'][1:]
 #c2 = df_dar['T_evap[i]'][1:]
 s = 40  # size of points
   
-fig, ax = plt.subplots(figsize=(5,5))
-im = ax.scatter(x1, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='predicted vs experimental'+' (MAE = {:0.01f}%'.format(mape(y1,x1))+', RMSE = {:0.01f}%)'.format(rmse(y1,x1)))
-#im = ax.scatter(x1, x2, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='FIM simulation vs experimental'+' (MAE = {:0.01f}%'.format(mape(x2,x1))+', RMSE = {:0.01f}%)'.format(rmse(x2,x1)))
+fig, ax = plt.subplots(figsize=(4,4))
+im = ax.scatter(x1, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Moving-Boundary model\n'+'MAE = {:0.01f}%'.format(mape(y1,x1))+', RMSE = {:0.01f}%'.format(rmse(y1,x1)))
+#im = ax.scatter(x1, x2, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='Ge and Copper (2009) model\n'+'MAE = {:0.01f}%'.format(mape(x2,x1))+', RMSE = {:0.01f}%'.format(rmse(x2,x1)))
 #im = ax.scatter(x1, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='predicted (new) vs experimental'+' (MAE = {:0.01f}%'.format(mape(y2,x1))+', RMSE = {:0.01f}%)'.format(rmse(y2,x1)))
 # Add a colorbar
 #cbar = plt.colorbar(im, ax=ax)

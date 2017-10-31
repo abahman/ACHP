@@ -126,13 +126,6 @@ class CondenserClass():
         self.Pcr=AS.p_critical() #[Pa]
         self.Tcr=AS.T_critical() #[K]
         
-        #critical enthalpy at defined pressure
-        AS.update(CP.PT_INPUTS, self.psat_r, self.Tcr)
-        self.hcr = AS.hmass() #[J/kg]
-        self.scr = AS.smass() #[J/kg]
-        
-        #triple temperature
-        self.Ttriple = AS.Ttriple()
         
         self.Fins.Air.RHmean=self.Fins.Air.RH
         
@@ -168,7 +161,7 @@ class CondenserClass():
                 hout = AS.hmass()
                 Q_target=self.mdot_r*(hout-self.hin_r)
                 self._Supercritical_Forward(self.w_supercritical)
-                return self.Q_supercritical-Q_target
+                return Q_target-self.Q_supercritical
             brentq(OBJECTIVE,self.Tin_r,self.Tcr)
             #Zero out all the supercritical_liquid parameters
             self.Q_subcool=0.0
@@ -181,17 +174,9 @@ class CondenserClass():
             self.fdry_subcool=0.0    
         else:
             #By definition then we have a supercritical_liquid portion, solve for it
-            self.existsSubcooled=True 
+            self.existsSubcooled=True
             self.w_supercritical=brentq(self._Supercritical_Forward,0.00000000001,0.9999999999)
-            def OBJECTIVE(Tout_r_sc):
-                self.Tout_r_sc=Tout_r_sc
-                AS.update(CP.PT_INPUTS, self.psat_r, self.Tout_r_sc)
-                hout = AS.hmass()
-                Q_target=self.mdot_r*(hout-self.hcr)
-                self._Subcool_Forward(1-self.w_supercritical)
-                return self.Q_subcool-Q_target
-            brentq(OBJECTIVE,self.Tcr,self.Ttriple)
-            
+            self._Subcool_Forward(1-self.w_supercritical)
             
         #Overall calculations
         self.Q=self.Q_supercritical+self.Q_subcool
@@ -290,7 +275,7 @@ class CondenserClass():
         AS = self.AS
         
         DWS=DWSVals() #DryWetSegment structure
-        
+    
         # Store temporary values to be passed to DryWetSegment
         DWS.A_a=self.Fins.A_a*w_subcool
         DWS.cp_da=self.Fins.cp_da
@@ -308,38 +293,30 @@ class CondenserClass():
         DWS.Tin_r=self.Tcr
         DWS.A_r=self.A_r_wetted*w_subcool
         
+        AS.update(CP.PT_INPUTS, self.psat_r, self.Tcr-1)
+        DWS.cp_r=AS.cpmass() #[J/kg-K] 
+        
         DWS.pin_r=self.psat_r
         DWS.mdot_r=self.mdot_r
         DWS.IsTwoPhase=False
         
-        AS.update(CP.PT_INPUTS, self.psat_r, self.Tout_r_sc)
-        hout = AS.hmass() #[J/kg]
-        #Target heat transfer to go from inlet temperature to iterative outlet temperature
-        Q_target=self.mdot_r*(hout-self.hcr)
-        
-        if Q_target>0:
-            raise ValueError('Q_target in Gas cooler must be negative')
-        
+    
         # Friction factor and HTC in the refrigerant portions.
         # Average fluid temps are used for the calculation of properties 
         # Average temp of refrigerant is average of sat. temp and outlet temp
         # Secondary fluid is air over the fins
-        DWS.h_r, self.f_r_subcool, DWS.cp_r, rho_subcool = Petterson_supercritical_average(self.Tout_r_sc, self.Tcr, self.T_w, self.AS, self.G_r, self.ID, 0, self.ID/self.Lcircuit, self.mdot_r / self.Ncircuits, self.psat_r, -Q_target/DWS.A_r);
+        self.f_r_subcool, self.h_r_subcool, self.Re_r_subcool=f_h_1phase_Tube(
+          self.mdot_r / self.Ncircuits, self.ID, self.Tcr-1.0, self.psat_r, self.AS,
+          "Single")
+        
+        # Average Refrigerant heat transfer coefficient
+        DWS.h_r=self.h_r_subcool
         
         #Run DryWetSegment
         DryWetSegment(DWS)
         
-        # Positive Q is heat input to the refrigerant, negative Q is heat output from refrigerant. 
-        # Heat is removed here from the refrigerant since it is condensing
-        self.T_w = DWS.Twall_s #inner surface wall temperature (refrigerant)
-        self.Q_subcool=DWS.Q
-        self.h_r_subcool=DWS.h_r
-        self.fdry_subcool=DWS.f_dry
-        self.Tout_a_subcool=DWS.Tout_a
-        self.Tout_r=DWS.Tout_r
-        
-        #AS.update(CP.PT_INPUTS, self.psat_r, (self.Tcr + DWS.Tout_r) / 2)
-        #rho_subcool=AS.rhomass() #[kg/m^3]
+        AS.update(CP.PT_INPUTS, self.psat_r, (self.Tcr + DWS.Tout_r) / 2)
+        rho_subcool=AS.rhomass() #[kg/m^3]
         self.Charge_subcool = self.w_subcool * self.V_r * rho_subcool
     
         #Pressure drop calculations for subcooled refrigerant
@@ -348,7 +325,12 @@ class CondenserClass():
         dpdz_r=-self.f_r_subcool*v_r*self.G_r**2/(2*self.ID)  #Pressure gradient
         self.DP_r_subcool=dpdz_r*self.Lcircuit*self.w_subcool
         
-        return Q_target-DWS.Q
+        # Positive Q is heat input to the refrigerant, negative Q is heat output from refrigerant. 
+        # Heat is removed here from the refrigerant since it is condensing
+        self.Q_subcool=DWS.Q
+        self.fdry_subcool=DWS.f_dry
+        self.Tout_a_subcool=DWS.Tout_a
+        self.Tout_r=DWS.Tout_r
 
         
 def SampleCondenser(Ta,v,Tr,p,m):
@@ -398,13 +380,9 @@ if __name__=='__main__':
     for i in range(1):
         Cond=SampleCondenser(df['Air Inlet Air Temps'][i+1],df['Air Velocity'][i+1],df['Refrigerant Inlet Temp'][i+1],df['Refrigerant Inlet Pressure'][i+1],df['Refrigerant Flow Rate'][i+1])
         #print (df['Refrigerant Flow Rate'][i+1]/1000 * (PropsSI("H", "T", df['Refrigerant Inlet Temp'][i+1]+273.15, "P", df['Refrigerant Inlet Pressure'][i+1]*1000000, "R744") - PropsSI("H", "T", df['Tested Refrigerant Outlet Temp'][i+1]+273.15, "P", df['Refrigerant Inlet Pressure'][i+1]*1000000, "R744")))
+        print (-1*Cond.Q/1000,Cond.Tout_r-273.15)
         #print (-1*Cond.Q/1000)
-        print (str(Cond.Tin_r-273.15)+str(',')+str(Cond.Tcr-273.15)+str(',')+str(Cond.Tout_r-273.15))
-        print (str(Cond.psat_r/1000)+str(',')+str(Cond.psat_r/1000)+str(',')+str(Cond.psat_r/1000))
-        print (str(Cond.hin_r/1000)+str(',')+str(Cond.hcr/1000)+str(',')+str(Cond.hout_r/1000))
-        print (str(Cond.sin_r/1000)+str(',')+str(Cond.scr/1000)+str(',')+str(Cond.sout_r/1000))
-        print (str(Cond.Tin_a-273.15)+str(',')+str(Cond.Tout_a-273.15))
-        print (str(Cond.sout_r/1000)+str(',')+str(Cond.sin_r/1000))
+        #print (Cond.Tin_r-273.15,Cond.Tout_r-273.15)
     #print(Cond.OutputList())
     
     print('Heat transfer rate in gas cooler is', Cond.Q,'W')
