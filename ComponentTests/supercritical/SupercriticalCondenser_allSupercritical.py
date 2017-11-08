@@ -125,7 +125,7 @@ class CondenserClass():
         # Define critical pressure and temperature
         self.Pcr=AS.p_critical() #[Pa]
         self.Tcr=AS.T_critical() #[K]
-        
+        print(self.Tcr-273.15)
         #critical enthalpy at defined pressure
         AS.update(CP.PT_INPUTS, self.psat_r, self.Tcr)
         self.hcr = AS.hmass() #[J/kg]
