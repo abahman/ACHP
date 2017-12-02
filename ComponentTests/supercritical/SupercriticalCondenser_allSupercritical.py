@@ -394,6 +394,8 @@ if __name__=='__main__':
     #This runs if you run this file directly
     import pandas as pd
     from CoolProp.CoolProp import PropsSI
+    from time import time
+    t1=time()
     df = pd.read_excel('Table.xlsx',sheetname='Sheet2')
     for i in range(1):
         Cond=SampleCondenser(df['Air Inlet Air Temps'][i+1],df['Air Velocity'][i+1],df['Refrigerant Inlet Temp'][i+1],df['Refrigerant Inlet Pressure'][i+1],df['Refrigerant Flow Rate'][i+1])
@@ -406,7 +408,7 @@ if __name__=='__main__':
         print (str(Cond.Tin_a-273.15)+str(',')+str(Cond.Tout_a-273.15))
         print (str(Cond.sout_r/1000)+str(',')+str(Cond.sin_r/1000))
     #print(Cond.OutputList())
-    
+    print ('Took '+str(time()-t1)+' seconds to run Cycle model')
     print('Heat transfer rate in gas cooler is', Cond.Q,'W')
     print('Heat transfer rate in gas cooler (supercritical section) is',Cond.Q_supercritical,'W')
     print('Heat transfer rate in gas cooler (supercritical_liquid section) is',Cond.Q_subcool,'W')
