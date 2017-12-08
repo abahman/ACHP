@@ -6,7 +6,7 @@ from math import pi,exp,log,sqrt,tan,cos,sin
 from scipy.optimize import brentq,fsolve
 import numpy as np
 import pylab
-from convert_units import *
+from ACHP.convert_units import *
 import matplotlib.pyplot as plt
 
 from ACHP.Correlations import ShahEvaporation_Average,PHE_1phase_hdP,Cooper_PoolBoiling,TwoPhaseDensity,TrhoPhase_ph,Phase_ph,LMPressureGradientAvg,KandlikarPHE,Bertsch_MC,AccelPressureDrop,ShahCondensation_Average,LongoCondensation
