@@ -73,6 +73,7 @@ class CondenserClass():
             ('Mass Flow rate of Dry Air','kg/s',self.Fins.mdot_da),
             ('Mass Flow rate of Humid Air','kg/s',self.Fins.mdot_ha),
             ('Pressure Drop Air-side','Pa',self.Fins.dP_a),
+            ('Approach temperature degree','K',self.DT_app),
         ]
         
 
@@ -125,7 +126,7 @@ class CondenserClass():
         # Define critical pressure and temperature
         self.Pcr=AS.p_critical() #[Pa]
         self.Tcr=AS.T_critical() #[K]
-        print(self.Tcr-273.15)
+        
         #critical enthalpy at defined pressure
         AS.update(CP.PT_INPUTS, self.psat_r, self.Tcr)
         self.hcr = AS.hmass() #[J/kg]
@@ -207,7 +208,10 @@ class CondenserClass():
         AS.update(CP.HmassP_INPUTS, self.hout_r, self.psat_r)
         self.Tout_r = AS.T() #[K]
         self.sout_r = AS.smass() #[J/kg-K]
-
+        
+        #Approach temperature
+        self.DT_app = self.Tout_r - self.Tin_a
+        
         self.hmean_r=self.w_supercritical*self.h_r_supercritical+self.w_subcool*self.h_r_subcool
         self.UA_r=self.hmean_r*self.A_r_wetted
         self.UA_a=self.Fins.h_a*self.Fins.A_a*self.Fins.eta_a
@@ -393,26 +397,32 @@ def SampleCondenser(Ta,v,Tr,p,m):
 if __name__=='__main__':
     #This runs if you run this file directly
     import pandas as pd
-    from CoolProp.CoolProp import PropsSI
+    #from Refpropp_mix_SI import PropsSI
     from time import time
     t1=time()
-    df = pd.read_excel('Table.xlsx',sheetname='Sheet2')
-    for i in range(1):
-        Cond=SampleCondenser(df['Air Inlet Air Temps'][i+1],df['Air Velocity'][i+1],df['Refrigerant Inlet Temp'][i+1],df['Refrigerant Inlet Pressure'][i+1],df['Refrigerant Flow Rate'][i+1])
-        #print (df['Refrigerant Flow Rate'][i+1]/1000 * (PropsSI("H", "T", df['Refrigerant Inlet Temp'][i+1]+273.15, "P", df['Refrigerant Inlet Pressure'][i+1]*1000000, "R744") - PropsSI("H", "T", df['Tested Refrigerant Outlet Temp'][i+1]+273.15, "P", df['Refrigerant Inlet Pressure'][i+1]*1000000, "R744")))
+    df = pd.read_excel('Table.xlsx',sheetname='Sheet1')
+    for i in range(36):
+        Cond=SampleCondenser(df['Air Inlet Air Temps'][i+1],df['Air Velocity'][i+1],df['Ref Inlet Temp'][i+1],df['Ref Inlet Pressure'][i+1],df['Ref Flow Rate'][i+1])
+        #print (df['Ref Flow Rate'][i+1]/1000 * (PropsSI("H", "T", df['Ref Inlet Temp'][i+1]+273.15, "P", df['Ref Inlet Pressure'][i+1]*1000000, "R744") - PropsSI("H", "T", df['Tested Ref Outlet Temp'][i+1]+273.15, "P", df['Ref Inlet Pressure'][i+1]*1000000, "R744")))
         #print (-1*Cond.Q/1000)
-        print (str(Cond.Tin_r-273.15)+str(',')+str(Cond.Tcr-273.15)+str(',')+str(Cond.Tout_r-273.15))
-        print (str(Cond.psat_r/1000)+str(',')+str(Cond.psat_r/1000)+str(',')+str(Cond.psat_r/1000))
-        print (str(Cond.hin_r/1000)+str(',')+str(Cond.hcr/1000)+str(',')+str(Cond.hout_r/1000))
-        print (str(Cond.sin_r/1000)+str(',')+str(Cond.scr/1000)+str(',')+str(Cond.sout_r/1000))
-        print (str(Cond.Tin_a-273.15)+str(',')+str(Cond.Tout_a-273.15))
-        print (str(Cond.sout_r/1000)+str(',')+str(Cond.sin_r/1000))
+        #h1 = PropsSI("H", "T", df['Ref Inlet Temp'][i+1]+273.15, "P", df['Ref Inlet Pressure'][i+1]*1000000, "HEOS::R744")
+        #deltah=df['Ref enthalpy difference'][i+1]*1000
+        #h2 = h1 - deltah #[J/kg]
+        #p2 = PropsSI("P", "T", df['Tested Ref Outlet Temp'][i+1]+273.15, "H", h2, "HEOS::R744")
+        #deltaP = (df['Ref Inlet Pressure'][i+1]*1000000 - p2)/1000 #[kPa]
+        print(-Cond.DP_r/1000)
+        #print (str(Cond.Tin_r-273.15)+str(',')+str(Cond.Tcr-273.15)+str(',')+str(Cond.Tout_r-273.15))
+        #print (str(Cond.psat_r/1000)+str(',')+str(Cond.psat_r/1000)+str(',')+str(Cond.psat_r/1000))
+        #print (str(Cond.hin_r/1000)+str(',')+str(Cond.hcr/1000)+str(',')+str(Cond.hout_r/1000))
+        #print (str(Cond.sin_r/1000)+str(',')+str(Cond.scr/1000)+str(',')+str(Cond.sout_r/1000))
+        #print (str(Cond.Tin_a-273.15)+str(',')+str(Cond.Tout_a-273.15))
+        #print (str(Cond.sout_r/1000)+str(',')+str(Cond.sin_r/1000))
     #print(Cond.OutputList())
     print ('Took '+str(time()-t1)+' seconds to run Cycle model')
-    print('Heat transfer rate in gas cooler is', Cond.Q,'W')
-    print('Heat transfer rate in gas cooler (supercritical section) is',Cond.Q_supercritical,'W')
-    print('Heat transfer rate in gas cooler (supercritical_liquid section) is',Cond.Q_subcool,'W')
-    print('Fraction of circuit length in supercritical section is',Cond.w_supercritical)
-    print('Fraction of circuit length in supercritical_liquid section is',Cond.w_subcool)
-    print('Refrigerant outlet temperature is',Cond.Tout_r-273.15, 'C')
-    print('Air outlet temperature is',Cond.Tout_a-273.15, 'C')
+    #print('Heat transfer rate in gas cooler is', Cond.Q,'W')
+    #print('Heat transfer rate in gas cooler (supercritical section) is',Cond.Q_supercritical,'W')
+    #print('Heat transfer rate in gas cooler (supercritical_liquid section) is',Cond.Q_subcool,'W')
+    #print('Fraction of circuit length in supercritical section is',Cond.w_supercritical)
+    #print('Fraction of circuit length in supercritical_liquid section is',Cond.w_subcool)
+    #print('Refrigerant outlet temperature is',Cond.Tout_r-273.15, 'C')
+    #print('Air outlet temperature is',Cond.Tout_a-273.15, 'C')
