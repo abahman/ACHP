@@ -10,41 +10,43 @@ import matplotlib.pyplot as plt
 from matplotlib.mlab import csv2rec
 import matplotlib as mpl
 mpl.style.use('classic')
-
+mpl.style.use('Elsevier.mplstyle')
+mpl.rcParams['mathtext.fontset'] = 'custom'
+mpl.rcParams['figure.figsize'] = [6,4]
 #===============================================================================
 # Latex render
 #===============================================================================
 #mpl.use('pgf')
 
-def figsize(scale):
-    fig_width_pt = 469.755                          # Get this from LaTeX using \the\textwidth
-    inches_per_pt = 1.0/72.27                       # Convert pt to inch
-    golden_mean = (np.sqrt(5.0)-1.0)/2.0            # Aesthetic ratio (you could change this)
-    fig_width = fig_width_pt*inches_per_pt*scale    # width in inches
-    fig_height = fig_width*golden_mean              # height in inches
-    fig_size = [fig_width,fig_height]
-    return fig_size
-
-pgf_with_latex = {                      # setup matplotlib to use latex for output
-"pgf.texsystem": "pdflatex",        # change this if using xetex or lautex
-"text.usetex": True,                # use LaTeX to write all text
-"font.family": "serif",
-"font.serif": [],                   # blank entries should cause plots to inherit fonts from the document
-"font.sans-serif": [],
-"font.monospace": [],
-"axes.labelsize": 12,               # LaTeX default is 10pt font.
-"font.size": 12,
-"legend.fontsize": 10,               # Make the legend/label fonts a little smaller
-"legend.labelspacing":0.2,
-"xtick.labelsize": 10,
-"ytick.labelsize": 10,
-"figure.figsize": figsize(0.9),     # default fig size of 0.9 textwidth
-"pgf.preamble": [
-r"\usepackage[utf8x]{inputenc}",    # use utf8 fonts becasue your computer can handle it :)
-r"\usepackage[T1]{fontenc}",        # plots will be generated using this preamble
-        ]
-    }
-mpl.rcParams.update(pgf_with_latex)
+# def figsize(scale):
+#     fig_width_pt = 469.755                          # Get this from LaTeX using \the\textwidth
+#     inches_per_pt = 1.0/72.27                       # Convert pt to inch
+#     golden_mean = (np.sqrt(5.0)-1.0)/2.0            # Aesthetic ratio (you could change this)
+#     fig_width = fig_width_pt*inches_per_pt*scale    # width in inches
+#     fig_height = fig_width*golden_mean              # height in inches
+#     fig_size = [fig_width,fig_height]
+#     return fig_size
+# 
+# pgf_with_latex = {                      # setup matplotlib to use latex for output
+# "pgf.texsystem": "pdflatex",        # change this if using xetex or lautex
+# "text.usetex": True,                # use LaTeX to write all text
+# "font.family": "serif",
+# "font.serif": [],                   # blank entries should cause plots to inherit fonts from the document
+# "font.sans-serif": [],
+# "font.monospace": [],
+# "axes.labelsize": 12,               # LaTeX default is 10pt font.
+# "font.size": 12,
+# "legend.fontsize": 10,               # Make the legend/label fonts a little smaller
+# "legend.labelspacing":0.2,
+# "xtick.labelsize": 10,
+# "ytick.labelsize": 10,
+# "figure.figsize": figsize(0.9),     # default fig size of 0.9 textwidth
+# "pgf.preamble": [
+# r"\usepackage[utf8x]{inputenc}",    # use utf8 fonts becasue your computer can handle it :)
+# r"\usepackage[T1]{fontenc}",        # plots will be generated using this preamble
+#         ]
+#     }
+# mpl.rcParams.update(pgf_with_latex)
 #===============================================================================
 # END of Latex render
 #===============================================================================
@@ -306,8 +308,8 @@ plt.bar(np.arange(1,9,1)+0.1,COPS2,width=0.2,color='y',linewidth=0.9,align='cent
 #plt.errorbar(np.arange(1,9,1),Modified,yerr=0.1234*Modified,capsize=2,elinewidth=0.7,fmt='',linestyle="None",color='k')
 #plt.bar(np.arange(1,9,1)+0.2,Interleaved,width=0.2,color='r',linewidth=0.9,align='center',alpha=0.9,label=r'Interleaved')#hatch=4*'x',
 #plt.errorbar(np.arange(1,9,1)+0.2,Interleaved,yerr=0.1234*Interleaved,capsize=2,elinewidth=0.7,fmt='',linestyle="None",color='k')
-plt.text(1,3.65,r'Improvment at Test 4/A = {:0.01f}\%'.format((COPS2[3]-COPS_exp[3])/COPS_exp[3] *100),ha='left',va='center',fontsize = 10)
-plt.text(1,4,r'Improvment at Test 1 = {:0.01f}\%'.format((COPS2[0]-COPS_exp[0])/COPS_exp[0] *100),ha='left',va='center',fontsize = 10)
+# plt.text(1,3.65,r'Improvment at Test 4/A = {:0.01f}\%'.format((COPS2[3]-COPS_exp[3])/COPS_exp[3] *100),ha='left',va='center',fontsize = 10)
+# plt.text(1,4,r'Improvment at Test 1 = {:0.01f}\%'.format((COPS2[0]-COPS_exp[0])/COPS_exp[0] *100),ha='left',va='center',fontsize = 10)
 plt.ylim(0,5)
 plt.xlim(0,9)
 plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -334,8 +336,8 @@ plt.bar(np.arange(1,9,1)+0.1,cooling_capacity2/1000,width=0.2,color='y',linewidt
 #plt.errorbar(np.arange(1,9,1),Modified,yerr=0.1234*Modified,capsize=2,elinewidth=0.7,fmt='',linestyle="None",color='k')
 #plt.bar(np.arange(1,9,1)+0.2,Interleaved,width=0.2,color='r',linewidth=0.9,align='center',alpha=0.9,label=r'Interleaved')#hatch=4*'x',
 #plt.errorbar(np.arange(1,9,1)+0.2,Interleaved,yerr=0.1234*Interleaved,capsize=2,elinewidth=0.7,fmt='',linestyle="None",color='k')
-plt.text(1,27.5,r'Improvment at Test 4/A = {:0.01f}\%'.format((cooling_capacity2[3]/1000-cooling_capacity_exp[3])/cooling_capacity_exp[3] *100),ha='left',va='center',fontsize = 10)
-plt.text(1,30,r'Improvment at Test 1 = {:0.01f}\%'.format((cooling_capacity2[0]/1000-cooling_capacity_exp[0])/cooling_capacity_exp[0] *100),ha='left',va='center',fontsize = 10)
+# plt.text(1,27.5,r'Improvment at Test 4/A = {:0.01f}\%'.format((cooling_capacity2[3]/1000-cooling_capacity_exp[3])/cooling_capacity_exp[3] *100),ha='left',va='center',fontsize = 10)
+# plt.text(1,30,r'Improvment at Test 1 = {:0.01f}\%'.format((cooling_capacity2[0]/1000-cooling_capacity_exp[0])/cooling_capacity_exp[0] *100),ha='left',va='center',fontsize = 10)
 plt.ylim(0,35)
 plt.xlim(0,9)
 plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -347,7 +349,7 @@ plt.tick_params(
     top='off',         # ticks along the top edge are off
     labelbottom='on') # labels along the bottom edge are off
 plt.xlabel(r'Test condition')
-plt.ylabel(r'$\dot Q_{evap}$ $[\mathrm{kW}]$')
+plt.ylabel(r'$\dot Q_{evap}$ [kW]')#$[\mathrm{kW}]$
 leg = plt.legend(loc='best',fancybox=False,numpoints=1)
 frame  = leg.get_frame()  
 frame.set_linewidth(0.5)
@@ -362,8 +364,8 @@ plt.bar(np.arange(1,9,1)+0.1,T_dis2,width=0.2,color='y',linewidth=0.9,align='cen
 #plt.errorbar(np.arange(1,9,1),Modified,yerr=0.1234*Modified,capsize=2,elinewidth=0.7,fmt='',linestyle="None",color='k')
 #plt.bar(np.arange(1,9,1)+0.2,Interleaved,width=0.2,color='r',linewidth=0.9,align='center',alpha=0.9,label=r'Interleaved')#hatch=4*'x',
 #plt.errorbar(np.arange(1,9,1)+0.2,Interleaved,yerr=0.1234*Interleaved,capsize=2,elinewidth=0.7,fmt='',linestyle="None",color='k')
-plt.text(1,120,r'Improvment at Test 4/A = {:0.01f}K'.format(T_dis2[3]-T_dis_exp[3]),ha='left',va='center',fontsize = 10)
-plt.text(1,130,r'Improvment at Test 1 = {:0.01f}K'.format(T_dis2[0]-T_dis_exp[0]),ha='left',va='center',fontsize = 10)
+# plt.text(1,120,r'Improvment at Test 4/A = {:0.01f}K'.format(T_dis2[3]-T_dis_exp[3]),ha='left',va='center',fontsize = 10)
+# plt.text(1,130,r'Improvment at Test 1 = {:0.01f}K'.format(T_dis2[0]-T_dis_exp[0]),ha='left',va='center',fontsize = 10)
 plt.ylim(0,140)
 plt.xlim(0,9)
 plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -375,7 +377,7 @@ plt.tick_params(
     top='off',         # ticks along the top edge are off
     labelbottom='on') # labels along the bottom edge are off
 plt.xlabel(r'Test condition')
-plt.ylabel(r'$T_{dis}$ [{\textdegree}C]')
+plt.ylabel(r'$T_{dis}$ [$\degree$C]')#{\textdegree}C
 leg = plt.legend(loc='best',fancybox=False,numpoints=1)
 frame  = leg.get_frame()  
 frame.set_linewidth(0.5)
