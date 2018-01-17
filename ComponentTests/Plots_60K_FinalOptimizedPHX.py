@@ -34,12 +34,12 @@ mpl.rcParams['figure.figsize'] = [6,4]
 # "font.serif": [],                   # blank entries should cause plots to inherit fonts from the document
 # "font.sans-serif": [],
 # "font.monospace": [],
-# "axes.labelsize": 12,               # LaTeX default is 10pt font.
-# "font.size": 12,
-# "legend.fontsize": 10,               # Make the legend/label fonts a little smaller
+# "axes.labelsize": 10,               # LaTeX default is 10pt font.
+# "font.size": 10,
+# "legend.fontsize": 8,               # Make the legend/label fonts a little smaller
 # "legend.labelspacing":0.2,
-# "xtick.labelsize": 10,
-# "ytick.labelsize": 10,
+# "xtick.labelsize": 8,
+# "ytick.labelsize": 8,
 # "figure.figsize": figsize(0.9),     # default fig size of 0.9 textwidth
 # "pgf.preamble": [
 # r"\usepackage[utf8x]{inputenc}",    # use utf8 fonts becasue your computer can handle it :)
