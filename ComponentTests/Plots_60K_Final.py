@@ -64,22 +64,36 @@ def mape(y_pred, y_true):  #maps==mean_absolute_percentage_error
     MAPE = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
     return MAPE
 
-#Experimental Results
+#Experimental Results (saturated)
 TestNo = np.arange(1,9,1)
-m_dot_exp = np.array([0.1049,0.08967,0.08974,0.09389,0.08051,0.08206,0.09311,0.08494]) #[kg/s]
-m_dot_tot_exp = np.array([0.1314,0.1134,0.1104,0.1106,0.09419,0.09385,0.1051,0.09789]) #[kg/s]
+m_dot_exp = np.array([104.5,89.57,89.56,93.34,80.26,80.67,93.48,83.15])/1000 #[kg/s]
+m_dot_tot_exp = np.array([137.3,117.4,113.0,112.2,95.23,93.36,107.4,97.05])/1000 #[kg/s]
 m_dot_inj_exp = m_dot_tot_exp - m_dot_exp #[kg/s]
-cooling_capacity_exp = np.array([17.72,16.06,16.5,17.51,15.69,16.09,17.92,16.48]) #[kW]
-total_power_exp = np.array([9.097,8.042,7.374,6.795,6.076,5.391,6.125,6.033]) #[kW]
-compressor_power_exp = np.array([7.353,6.286,5.544,4.969,4.205,4.16,4.274,4.129]) #[kW]
-COPS_exp = np.array([1.948,1.997,2.237,2.576,2.581,2.985,2.927,2.732]) #[-]
+cooling_capacity_exp = np.array([17.57,15.96,16.38,17.38,15.63,15.96,17.84,16.27]) #[kW]
+total_power_exp = np.array([9.253,8.121,7.398,6.762,6.104,5.374,6.159,5.997]) #[kW]
+compressor_power_exp = np.array([7.517,6.316,5.583,4.958,4.208,4.136,4.291,4.108]) #[kW]
+COPS_exp = np.array([1.899,1.965,2.214,2.57,2.56,2.97,2.897,2.714]) #[-]
 charge_exp = np.array([5.01,5.01,5.01,5.01,5.01,5.01,5.01,5.01]) #[kg]
-heating_capacity_exp = np.array([25.08,22.38,22.08,22.5,19.85,20.2,22.12,20.54]) #[kW]
-PHX_capacity_exp = np.array([4.757,4.49,3.975,3.255,2.763,2.391,2.383,2.602]) #[kW]
-T_dis_exp = np.array([105.8,99.55,91.66,83.49,77.62,77.63,75.56,74.65]) #[C]
+heating_capacity_exp = np.array([25.09,22.33,22.02,22.39,19.82,20.05,22.09,20.34]) #[kW]
+PHX_capacity_exp = np.array([5.189,4.6,3.978,3.197,2.677,2.306,2.396,2.446]) #[kW]
+T_dis_exp = np.array([102.8,96.28,89.69,81.99,76.73,78.03,73.75,75.28]) #[C]
+
+#Experimental Results (superheated)
+# TestNo = np.arange(1,9,1)
+# m_dot_exp = np.array([0.1049,0.08967,0.08974,0.09389,0.08051,0.08206,0.09311,0.08494]) #[kg/s]
+# m_dot_tot_exp = np.array([0.1314,0.1134,0.1104,0.1106,0.09419,0.09385,0.1051,0.09789]) #[kg/s]
+# m_dot_inj_exp = m_dot_tot_exp - m_dot_exp #[kg/s]
+# cooling_capacity_exp = np.array([17.72,16.06,16.5,17.51,15.69,16.09,17.92,16.48]) #[kW]
+# total_power_exp = np.array([9.097,8.042,7.374,6.795,6.076,5.391,6.125,6.033]) #[kW]
+# compressor_power_exp = np.array([7.353,6.286,5.544,4.969,4.205,4.16,4.274,4.129]) #[kW]
+# COPS_exp = np.array([1.948,1.997,2.237,2.576,2.581,2.985,2.927,2.732]) #[-]
+# charge_exp = np.array([5.01,5.01,5.01,5.01,5.01,5.01,5.01,5.01]) #[kg]
+# heating_capacity_exp = np.array([25.08,22.38,22.08,22.5,19.85,20.2,22.12,20.54]) #[kW]
+# PHX_capacity_exp = np.array([4.757,4.49,3.975,3.255,2.763,2.391,2.383,2.602]) #[kW]
+# T_dis_exp = np.array([105.8,99.55,91.66,83.49,77.62,77.63,75.56,74.65]) #[C]
 
 #Import data from CSV file
-data = csv2rec('results/Cycle_60K_superheat_sub_new_charge.csv',delimiter=',')
+data = csv2rec('results/Cycle_60K_saturated.csv',delimiter=',')
 #Arrange data in Numpy array for the 8 different tests
 m_dot = np.array([data[2][21],data[3][21],data[4][21],data[5][21],data[6][21],data[7][21],data[8][21],data[9][21]])
 m_dot_inj = np.array([data[2][22],data[3][22],data[4][22],data[5][22],data[6][22],data[7][22],data[8][22],data[9][22]])
@@ -246,29 +260,29 @@ T_dis = T_dis.astype(np.float) - 273.15 #convert from K to C
 # plt.savefig('results/images/60K_PHXcapacity.pdf')
 # plt.show()
 #Plot charge comparison
-plt.plot(TestNo,charge_exp,'-ob',label='Experimental')
-plt.errorbar(TestNo,charge_exp, yerr=0.11)
-plt.plot(TestNo,charge,'--sr',label='Model')
-plt.plot(TestNo,charge_corrected,':^k',label='Model Corrected - two points')
-plt.plot(TestNo,charge_corrected_one,'-.d',label='Model Corrected - one point')
-plt.text(4,4.8,'Two points: MAE = {:0.01f}\%'.format(mape(charge_corrected,charge_exp))+', RMSE = {:0.01f}\%'.format(rmse(charge_corrected,charge_exp)),ha='left',va='center',fontsize = 10)
-plt.text(4,4.75,'One point: MAE = {:0.01f}\%'.format(mape(charge_corrected_one,charge_exp))+', RMSE = {:0.01f}\%'.format(rmse(charge_corrected_one,charge_exp)),ha='left',va='center',fontsize = 10)
-plt.ylim(4.6,5.6)
-plt.xlim(0,9)
-plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-           [r'', r'1', r'2', r'3',r'4/A', r'5', r'6', r'B', r'C', r''])
-plt.xlabel(r'Test condition')
-plt.ylabel(r'$\mathrm{Charge}$ $[\mathrm{kg}]$')
-leg = plt.legend(loc='best',fancybox=False,numpoints=1)
-frame = leg.get_frame()
-frame.set_linewidth(0.5)
-plt.tight_layout()
-plt.savefig('results/images/60K_charge_Final.pdf')
-plt.show()
+# plt.plot(TestNo,charge_exp,'-ob',label='Experimental')
+# plt.errorbar(TestNo,charge_exp, yerr=0.11)
+# plt.plot(TestNo,charge,'--sr',label='Model')
+# plt.plot(TestNo,charge_corrected,':^k',label='Model Corrected - two points')
+# plt.plot(TestNo,charge_corrected_one,'-.d',label='Model Corrected - one point')
+# plt.text(4,4.8,'Two points: MAE = {:0.01f}\%'.format(mape(charge_corrected,charge_exp))+', RMSE = {:0.01f}\%'.format(rmse(charge_corrected,charge_exp)),ha='left',va='center',fontsize = 10)
+# plt.text(4,4.75,'One point: MAE = {:0.01f}\%'.format(mape(charge_corrected_one,charge_exp))+', RMSE = {:0.01f}\%'.format(rmse(charge_corrected_one,charge_exp)),ha='left',va='center',fontsize = 10)
+# plt.ylim(4.6,5.6)
+# plt.xlim(0,9)
+# plt.xticks([0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+#            [r'', r'1', r'2', r'3',r'4/A', r'5', r'6', r'B', r'C', r''])
+# plt.xlabel(r'Test condition')
+# plt.ylabel(r'$\mathrm{Charge}$ $[\mathrm{kg}]$')
+# leg = plt.legend(loc='best',fancybox=False,numpoints=1)
+# frame = leg.get_frame()
+# frame.set_linewidth(0.5)
+# plt.tight_layout()
+# plt.savefig('results/images/60K_charge_Final.pdf')
+# plt.show()
  
 #Combine
 fig = plt.figure(1, figsize=(15,10))
-for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compressor', 'COPS','HeatCapacity','PHXCapacity','Charge']):
+for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compressor', 'COPS','HeatCapacity','PHXCapacity','T_dis']):
     ax = plt.subplot(3, 3, i+1)
     if gtype.startswith('Mass'):
         plt.plot(TestNo,m_dot_exp,'-ob',label='Experimental')
@@ -424,5 +438,5 @@ for i, gtype in enumerate(['Mass', 'Injection_Mass', 'Capacity', 'Power', 'Compr
         frame.set_linewidth(0.5)
         #plt.title('System charge Comparison')
 fig.set_tight_layout(True)
-plt.savefig('results/images/60K_comined_new_sub_new_charge.pdf')
+plt.savefig('results/images/60K_comined_saturated.pdf')
 plt.show()

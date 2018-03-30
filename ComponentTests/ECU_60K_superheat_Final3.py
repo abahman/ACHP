@@ -223,7 +223,7 @@ def ECUCycle_VICompTello_Test1(x):
             'Ref_h':Cycle.Ref,
             'Backend_h': Cycle.Backend,
             'Verbosity':0,
-            'DT_sh_target':7, #it is approximatley 7C
+            'DT_sh_target':0.2, #it is approximatley 7C
             
             #Geometric parameters
             'Bp' : in2m(2.875),
@@ -472,7 +472,7 @@ def ECUCycle_VICompTello_Test2(x):
             'Ref_h':Cycle.Ref,
             'Backend_h': Cycle.Backend,
             'Verbosity':0,
-            'DT_sh_target':7, #it is approximatley 7C
+            'DT_sh_target':0.2, #it is approximatley 7C
             
             #Geometric parameters
             'Bp' : in2m(2.875),
@@ -721,7 +721,7 @@ def ECUCycle_VICompTello_Test3(x):
             'Ref_h':Cycle.Ref,
             'Backend_h': Cycle.Backend,
             'Verbosity':0,
-            'DT_sh_target':7, #it is approximatley 7C
+            'DT_sh_target':0.2, #it is approximatley 7C
             
             #Geometric parameters
             'Bp' : in2m(2.875),
@@ -970,7 +970,7 @@ def ECUCycle_VICompTello_Test4(x):
             'Ref_h':Cycle.Ref,
             'Backend_h': Cycle.Backend,
             'Verbosity':0,
-            'DT_sh_target':7, #it is approximatley 7C
+            'DT_sh_target':0.2, #it is approximatley 7C
             
             #Geometric parameters
             'Bp' : in2m(2.875),
@@ -1219,7 +1219,7 @@ def ECUCycle_VICompTello_Test5(x):
             'Ref_h':Cycle.Ref,
             'Backend_h': Cycle.Backend,
             'Verbosity':0,
-            'DT_sh_target':7, #it is approximatley 7C
+            'DT_sh_target':0.2, #it is approximatley 7C
             
             #Geometric parameters
             'Bp' : in2m(2.875),
@@ -1468,7 +1468,7 @@ def ECUCycle_VICompTello_Test6(x):
             'Ref_h':Cycle.Ref,
             'Backend_h': Cycle.Backend,
             'Verbosity':0,
-            'DT_sh_target':7, #it is approximatley 7C
+            'DT_sh_target':0.2, #it is approximatley 7C
             
             #Geometric parameters
             'Bp' : in2m(2.875),
@@ -1717,7 +1717,7 @@ def ECUCycle_VICompTello_TestB(x):
             'Ref_h':Cycle.Ref,
             'Backend_h': Cycle.Backend,
             'Verbosity':0,
-            'DT_sh_target':7, #it is approximatley 7C
+            'DT_sh_target':0.2, #it is approximatley 7C
             
             #Geometric parameters
             'Bp' : in2m(2.875),
@@ -1966,7 +1966,7 @@ def ECUCycle_VICompTello_TestC(x):
             'Ref_h':Cycle.Ref,
             'Backend_h': Cycle.Backend,
             'Verbosity':0,
-            'DT_sh_target':7, #it is approximatley 7C
+            'DT_sh_target':0.2, #it is approximatley 7C
             
             #Geometric parameters
             'Bp' : in2m(2.875),
@@ -2057,7 +2057,7 @@ def objective(x):
     global Nfeval
     print('Iter: '+ str(Nfeval)+', Guess: '+str(x))
     
-    file_name = 'results/Cycle_60K_superheat_sub_new_charge.csv'
+    file_name = 'results/Cycle_60K_saturated.csv'
     
     #####Test1#####
     print ('-------------------------------------')
@@ -2225,8 +2225,8 @@ def optimize():
 if __name__=='__main__':
     import time
     start = time.time()
-    print(objective([None,None,0.71,0.71,0.71,1.5,0.654,0.645,1.5,1.,0.61,1.26]))
-    #print(objective([None,None,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]))
+    #print(objective([None,None,0.71,0.71,0.71,1.5,0.654,0.645,1.5,1.,0.61,1.26]))
+    print(objective([None,None,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]))
     #print(optimize())
     print('Took '+str(time.time()-start)+' seconds to run Cycle model tuning')
 
