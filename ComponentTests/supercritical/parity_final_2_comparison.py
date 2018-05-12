@@ -88,16 +88,16 @@ def mape(y_pred, y_true):  #maps==mean_absolute_percentage_error
 df = pd.read_excel('Table.xlsx',header=0) #file name
 #assign axes
 y1 = df['Q'][1:]
-#y2 = df['Q_new_FV'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[0]
+y2 = df['Q_new_FV'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[0]
 x1 = df['Q_siml'][1:]
 x2 = df['Q_exp'][1:]
 #c2 = df_dar['T_evap[i]'][1:]
 s = 40  # size of points
 
 fig, ax = plt.subplots(figsize=(4,4))
-im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Moving-Boundary model\n'+'MAE = {:0.01f}%'.format(mape(y1,x2))+', RMSE = {:0.01f}%'.format(rmse(y1,x2)))
+#im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Moving-Boundary model\n'+'MAE = {:0.01f}%'.format(mape(y1,x2))+', RMSE = {:0.01f}%'.format(rmse(y1,x2)))
 #im = ax.scatter(x2, x1, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='Ge and Cropper (2009) model\n'+'MAE = {:0.01f}%'.format(mape(x1,x2))+', RMSE = {:0.01f}%'.format(rmse(x1,x2)))
-#im = ax.scatter(x2, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='predicted (new) vs experimental'+' (MAE = {:0.01f}%'.format(mape(y2,x2))+', RMSE = {:0.01f}%)'.format(rmse(y2,x2)))
+im = ax.scatter(x2, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='Discretized model\n'+'MAE = {:0.01f}%'.format(mape(y2,x2))+', RMSE = {:0.01f}%'.format(rmse(y2,x2)))
 # Add a colorbar
 #cbar = plt.colorbar(im, ax=ax)
 # set the color limits
@@ -124,8 +124,8 @@ ax.set_ylim((ax_min,ax_max))
 plt.ylabel(r'$\dot Q_{pred}$ [kW]')
 plt.xlabel(r'$\dot Q_{exp}$ [kW]')
 plt.tight_layout()       
-#plt.savefig('parity_heating_load_MB.pdf')
-#plt.show()
+plt.savefig('parity_heating_load_ACFV4.pdf')
+plt.show()
 plt.close()
      
 #########################
@@ -135,16 +135,16 @@ plt.close()
 df = pd.read_excel('Table.xlsx',header=0) #file name
 #assign axes
 y1 = df['Ref out temp'][1:]
-#y2 = df['Q_new_FV'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[1]
+y2 = df['Q_new_FV'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[1]
 x1 = df['Tested Ref Outlet Temp'][1:]
 x2 = df['Simulated Ref Outlet Temp'][1:]
 #c2 = df_dar['T_evap[i]'][1:]
 s = 40  # size of points
   
 fig, ax = plt.subplots(figsize=(4,4))
-im = ax.scatter(x1, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Moving-Boundary model\n'+'MAE = {:0.01f}%'.format(mape(y1,x1))+', RMSE = {:0.01f}%'.format(rmse(y1,x1)))
+#im = ax.scatter(x1, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Moving-Boundary model\n'+'MAE = {:0.01f}%'.format(mape(y1,x1))+', RMSE = {:0.01f}%'.format(rmse(y1,x1)))
 #im = ax.scatter(x1, x2, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='Ge and Cropper (2009) model\n'+'MAE = {:0.01f}%'.format(mape(x2,x1))+', RMSE = {:0.01f}%'.format(rmse(x2,x1)))
-#im = ax.scatter(x1, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='predicted (new) vs experimental'+' (MAE = {:0.01f}%'.format(mape(y2,x1))+', RMSE = {:0.01f}%)'.format(rmse(y2,x1)))
+im = ax.scatter(x1, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='Discretized model\n'+'MAE = {:0.01f}%'.format(mape(y2,x1))+', RMSE = {:0.01f}%'.format(rmse(y2,x1)))
 # Add a colorbar
 #cbar = plt.colorbar(im, ax=ax)
 # set the color limits
@@ -171,7 +171,7 @@ ax.set_ylim((ax_min,ax_max))
 plt.ylabel(r'$T_{r,pred}$ [$\degree$C]') #r'$T_{r,pred}$ [{\textdegree}C]'
 plt.xlabel(r'$T_{r,exp}$ [$\degree$C]')
 plt.tight_layout()       
-#plt.savefig('parity_refrigerant_temp_MB.pdf')
+#plt.savefig('parity_refrigerant_temp_ACFV4.pdf')
 #plt.show()
 plt.close()
 
@@ -219,8 +219,8 @@ ax.set_ylim((ax_min,ax_max))
 plt.ylabel(r'$\Delta T_{pred}$ [$\degree$C]')
 plt.xlabel(r'$\Delta T_{exp}$ [$\degree$C]')
 plt.tight_layout()       
-#plt.savefig('parity_approach_MB.pdf')
-#plt.show()
+plt.savefig('parity_approach_MB.pdf')
+plt.show()
 plt.close()
 
 #########################
@@ -266,6 +266,6 @@ ax.set_ylim((ax_min,ax_max))
 plt.ylabel(r'$\Delta P_{pred}$ [kPa]')
 plt.xlabel(r'$\Delta P_{exp}$ [kPa]')
 plt.tight_layout()       
-plt.savefig('parity_pressure_MB.pdf')
-plt.show()
+#plt.savefig('parity_pressure_MB.pdf')
+#plt.show()
 plt.close()
