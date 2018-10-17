@@ -400,17 +400,17 @@ if __name__=='__main__':
     #from Refpropp_mix_SI import PropsSI
     from time import time
     t1=time()
-    df = pd.read_excel('Table.xlsx',sheetname='Sheet1')
-    for i in range(36):
+    df = pd.read_excel('Table.xlsx',sheet_name='Sheet1')
+    for i in range(1):
         Cond=SampleCondenser(df['Air Inlet Air Temps'][i+1],df['Air Velocity'][i+1],df['Ref Inlet Temp'][i+1],df['Ref Inlet Pressure'][i+1],df['Ref Flow Rate'][i+1])
         #print (df['Ref Flow Rate'][i+1]/1000 * (PropsSI("H", "T", df['Ref Inlet Temp'][i+1]+273.15, "P", df['Ref Inlet Pressure'][i+1]*1000000, "R744") - PropsSI("H", "T", df['Tested Ref Outlet Temp'][i+1]+273.15, "P", df['Ref Inlet Pressure'][i+1]*1000000, "R744")))
-        #print (-1*Cond.Q/1000)
+        print (-1*Cond.Q/1000)
         #h1 = PropsSI("H", "T", df['Ref Inlet Temp'][i+1]+273.15, "P", df['Ref Inlet Pressure'][i+1]*1000000, "HEOS::R744")
         #deltah=df['Ref enthalpy difference'][i+1]*1000
         #h2 = h1 - deltah #[J/kg]
         #p2 = PropsSI("P", "T", df['Tested Ref Outlet Temp'][i+1]+273.15, "H", h2, "HEOS::R744")
         #deltaP = (df['Ref Inlet Pressure'][i+1]*1000000 - p2)/1000 #[kPa]
-        print(-Cond.DP_r/1000)
+        #print(-Cond.DP_r/1000)
         #print (str(Cond.Tin_r-273.15)+str(',')+str(Cond.Tcr-273.15)+str(',')+str(Cond.Tout_r-273.15))
         #print (str(Cond.psat_r/1000)+str(',')+str(Cond.psat_r/1000)+str(',')+str(Cond.psat_r/1000))
         #print (str(Cond.hin_r/1000)+str(',')+str(Cond.hcr/1000)+str(',')+str(Cond.hout_r/1000))
