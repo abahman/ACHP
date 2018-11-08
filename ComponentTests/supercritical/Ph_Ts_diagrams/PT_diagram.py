@@ -70,10 +70,10 @@ plt.axhline(pc/1000, dashes = [2, 2])
 
 # Labels
 plt.text(450-273.15, 1e8/1000, 'supercritical',ha= 'center')
-plt.text(400-273.15, 2e6/1000, 'supercritical vapor', rotation = 0)
-plt.text(275-273.15, 1e8/1000, 'supercritical liquid', rotation = 90, ha = 'center')
-plt.text(235-273.15, 4.5e6/1000, 'liquid', rotation = 45)
-plt.text(260-273.15, 1.5e6/1000, 'vapor', rotation = 45)
+plt.text(375-273.15, 2e6/1000, 'supercritical vapor', rotation = 0)
+plt.text(275-273.15, 1.5e8/1000, 'supercritical liquid', rotation = 90, ha = 'center')
+plt.text(230-273.15, 4.5e6/1000, 'liquid', rotation = 45)
+plt.text(255-273.15, 1.5e6/1000, 'vapor', rotation = 45)
 
 plt.ylim(ptriple/1000,1e6)
 plt.gca().set_yscale('log')

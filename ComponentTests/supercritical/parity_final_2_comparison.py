@@ -92,18 +92,19 @@ y2 = df['Q_new_FV'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[0]
 x1 = df['Q_siml'][1:]
 x2 = df['Q_exp'][1:]
 
-y3 = df['Zhao_pred'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[0].dropna()
-x3 = df['Zhao_exp'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[0].dropna()
-y4 = df['BeaverHrnjak_pred'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[0].dropna()
-x4 = df['BeaverHrnjak_exp'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[0].dropna()
+# y3 = df['Zhao_pred'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[0].dropna()
+# x3 = df['Zhao_exp'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[0].dropna()
+# y4 = df['BeaverHrnjak_pred'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[0].dropna()
+# x4 = df['BeaverHrnjak_exp'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[0].dropna()
 #c2 = df_dar['T_evap[i]'][1:]
 s = 40  # size of points
 
 fig, ax = plt.subplots(figsize=(4,4))
-im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Ge and Cropper (2009)\n'+'MAE = {:0.01f}%'.format(mape(y1,x2))+', RMSE = {:0.01f}%'.format(rmse(y1,x2)))
-im = ax.scatter(x3, y3, c='b', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Zhao et al. (2001)\n'+'MAE = {:0.01f}%'.format(mape(y3,x3))+', RMSE = {:0.01f}%'.format(rmse(y3,x3)))
-im = ax.scatter(x4, y4, c='g', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Beaver et al. (1999)\n'+'MAE = {:0.01f}%'.format(mape(y4,x4))+', RMSE = {:0.01f}%'.format(rmse(y4,x4)))
-#im = ax.scatter(x2, x1, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='Ge and Cropper (2009) model\n'+'MAE = {:0.01f}%'.format(mape(x1,x2))+', RMSE = {:0.01f}%'.format(rmse(x1,x2)))
+im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Moving-Boundary model\n'+'MAE = {:0.01f}%'.format(mape(y1,x2))+', RMSE = {:0.01f}%'.format(rmse(y1,x2)))
+# im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Ge and Cropper (2009)\n'+'MAE = {:0.01f}%'.format(mape(y1,x2))+', RMSE = {:0.01f}%'.format(rmse(y1,x2)))
+# im = ax.scatter(x3, y3, c='b', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Zhao et al. (2001)\n'+'MAE = {:0.01f}%'.format(mape(y3,x3))+', RMSE = {:0.01f}%'.format(rmse(y3,x3)))
+# im = ax.scatter(x4, y4, c='g', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Beaver et al. (1999)\n'+'MAE = {:0.01f}%'.format(mape(y4,x4))+', RMSE = {:0.01f}%'.format(rmse(y4,x4)))
+# im = ax.scatter(x2, x1, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='Ge and Cropper (2009) model\n'+'MAE = {:0.01f}%'.format(mape(x1,x2))+', RMSE = {:0.01f}%'.format(rmse(x1,x2)))
 #im = ax.scatter(x2, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='Discretized model\n'+'MAE = {:0.01f}%'.format(mape(y2,x2))+', RMSE = {:0.01f}%'.format(rmse(y2,x2)))
 # Add a colorbar
 #cbar = plt.colorbar(im, ax=ax)
@@ -114,8 +115,8 @@ im = ax.scatter(x4, y4, c='g', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1
   
 #error axes
 w=0.1 #Error
-ax_min = 2
-ax_max = 18 #x and y-axes max scale tick
+ax_min = 4
+ax_max = 20 #x and y-axes max scale tick
 upp_txt = (ax_min+ax_max) / 2 #location of upper error text on plot -- adjust the number to adjust the location
 low_txt = (ax_min+ax_max) / 1.6 #location of lower error text on plot -- adjust the number to adjust the location
 ax.plot(np.r_[0,ax_max],np.r_[0,ax_max],'k-',lw=1)
@@ -146,18 +147,19 @@ y1 = df['Ref out temp'][1:]
 x1 = df['Tested Ref Outlet Temp'][1:]
 x2 = df['Simulated Ref Outlet Temp'][1:]
 
-y3 = df['Zhao_pred'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[1].dropna()
-x3 = df['Zhao_exp'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[1].dropna()
-y4 = df['BeaverHrnjak_pred'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[1].dropna()
-x4 = df['BeaverHrnjak_exp'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[1].dropna()
+# y3 = df['Zhao_pred'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[1].dropna()
+# x3 = df['Zhao_exp'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[1].dropna()
+# y4 = df['BeaverHrnjak_pred'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[1].dropna()
+# x4 = df['BeaverHrnjak_exp'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[1].dropna()
 #c2 = df_dar['T_evap[i]'][1:]
 s = 40  # size of points
   
 fig, ax = plt.subplots(figsize=(4,4))
-im = ax.scatter(x1, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Ge and Cropper (2009)\n'+'MAE = {:0.01f}%'.format(mape(y1,x1))+', RMSE = {:0.01f}%'.format(rmse(y1,x1)))
-im = ax.scatter(x3, y3, c='b', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Zhao et al. (2001)\n'+'MAE = {:0.01f}%'.format(mape(y3,x3))+', RMSE = {:0.01f}%'.format(rmse(y3,x3)))
-im = ax.scatter(x4, y4, c='g', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Beaver et al. (1999)\n'+'MAE = {:0.01f}%'.format(mape(y4,x4))+', RMSE = {:0.01f}%'.format(rmse(y4,x4)))
-#im = ax.scatter(x1, x2, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='Ge and Cropper (2009) model\n'+'MAE = {:0.01f}%'.format(mape(x2,x1))+', RMSE = {:0.01f}%'.format(rmse(x2,x1)))
+im = ax.scatter(x1, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Moving-Boundary model\n'+'MAE = {:0.01f}%'.format(mape(y1,x1))+', RMSE = {:0.01f}%'.format(rmse(y1,x1)))
+# im = ax.scatter(x1, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Ge and Cropper (2009)\n'+'MAE = {:0.01f}%'.format(mape(y1,x1))+', RMSE = {:0.01f}%'.format(rmse(y1,x1)))
+# im = ax.scatter(x3, y3, c='b', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Zhao et al. (2001)\n'+'MAE = {:0.01f}%'.format(mape(y3,x3))+', RMSE = {:0.01f}%'.format(rmse(y3,x3)))
+# im = ax.scatter(x4, y4, c='g', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Beaver et al. (1999)\n'+'MAE = {:0.01f}%'.format(mape(y4,x4))+', RMSE = {:0.01f}%'.format(rmse(y4,x4)))
+# im = ax.scatter(x1, x2, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='Ge and Cropper (2009) model\n'+'MAE = {:0.01f}%'.format(mape(x2,x1))+', RMSE = {:0.01f}%'.format(rmse(x2,x1)))
 #im = ax.scatter(x1, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='Discretized model\n'+'MAE = {:0.01f}%'.format(mape(y2,x1))+', RMSE = {:0.01f}%'.format(rmse(y2,x1)))
 # Add a colorbar
 #cbar = plt.colorbar(im, ax=ax)
@@ -168,8 +170,8 @@ im = ax.scatter(x4, y4, c='g', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1
   
 #error axes
 w=3 #Error
-ax_min = 15
-ax_max = 55 #x and y-axes max scale tick
+ax_min = 20
+ax_max = 60 #x and y-axes max scale tick
 upp_txt = (ax_min+ax_max) / 2.1 #location of upper error text on plot -- adjust the number to adjust the location
 low_txt = (ax_min+ax_max) / 1.9 #location of lower error text on plot -- adjust the number to adjust the location
 ax.plot(np.r_[0,ax_max],np.r_[0,ax_max],'k-',lw=1)
