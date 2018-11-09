@@ -100,12 +100,12 @@ x2 = df['Q_exp'][1:]
 s = 40  # size of points
 
 fig, ax = plt.subplots(figsize=(4,4))
-im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Moving-Boundary model\n'+'MAE = {:0.01f}%'.format(mape(y1,x2))+', RMSE = {:0.01f}%'.format(rmse(y1,x2)))
+# im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Moving-Boundary model\n'+'MAE = {:0.01f}%'.format(mape(y1,x2))+', RMSE = {:0.01f}%'.format(rmse(y1,x2)))
 # im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Ge and Cropper (2009)\n'+'MAE = {:0.01f}%'.format(mape(y1,x2))+', RMSE = {:0.01f}%'.format(rmse(y1,x2)))
 # im = ax.scatter(x3, y3, c='b', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Zhao et al. (2001)\n'+'MAE = {:0.01f}%'.format(mape(y3,x3))+', RMSE = {:0.01f}%'.format(rmse(y3,x3)))
 # im = ax.scatter(x4, y4, c='g', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Beaver et al. (1999)\n'+'MAE = {:0.01f}%'.format(mape(y4,x4))+', RMSE = {:0.01f}%'.format(rmse(y4,x4)))
-# im = ax.scatter(x2, x1, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='Ge and Cropper (2009) model\n'+'MAE = {:0.01f}%'.format(mape(x1,x2))+', RMSE = {:0.01f}%'.format(rmse(x1,x2)))
-#im = ax.scatter(x2, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='Discretized model\n'+'MAE = {:0.01f}%'.format(mape(y2,x2))+', RMSE = {:0.01f}%'.format(rmse(y2,x2)))
+im = ax.scatter(x2, x1, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='Discretized model\n'+'MAE = {:0.01f}%'.format(mape(x1,x2))+', RMSE = {:0.01f}%'.format(rmse(x1,x2)))
+#im = ax.scatter(x2, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='FV model\n'+'MAE = {:0.01f}%'.format(mape(y2,x2))+', RMSE = {:0.01f}%'.format(rmse(y2,x2)))
 # Add a colorbar
 #cbar = plt.colorbar(im, ax=ax)
 # set the color limits
@@ -132,7 +132,7 @@ ax.set_ylim((ax_min,ax_max))
 plt.ylabel(r'$\dot Q_{pred}$ [kW]')
 plt.xlabel(r'$\dot Q_{exp}$ [kW]')
 plt.tight_layout()       
-plt.savefig('parity_heating_load_MB.pdf')
+plt.savefig('parity_heating_load_FV.pdf')
 plt.show()
 plt.close()
      
@@ -155,12 +155,12 @@ x2 = df['Simulated Ref Outlet Temp'][1:]
 s = 40  # size of points
   
 fig, ax = plt.subplots(figsize=(4,4))
-im = ax.scatter(x1, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Moving-Boundary model\n'+'MAE = {:0.01f}%'.format(mape(y1,x1))+', RMSE = {:0.01f}%'.format(rmse(y1,x1)))
+# im = ax.scatter(x1, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Moving-Boundary model\n'+'MAE = {:0.01f}%'.format(mape(y1,x1))+', RMSE = {:0.01f}%'.format(rmse(y1,x1)))
 # im = ax.scatter(x1, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Ge and Cropper (2009)\n'+'MAE = {:0.01f}%'.format(mape(y1,x1))+', RMSE = {:0.01f}%'.format(rmse(y1,x1)))
 # im = ax.scatter(x3, y3, c='b', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Zhao et al. (2001)\n'+'MAE = {:0.01f}%'.format(mape(y3,x3))+', RMSE = {:0.01f}%'.format(rmse(y3,x3)))
 # im = ax.scatter(x4, y4, c='g', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Beaver et al. (1999)\n'+'MAE = {:0.01f}%'.format(mape(y4,x4))+', RMSE = {:0.01f}%'.format(rmse(y4,x4)))
-# im = ax.scatter(x1, x2, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='Ge and Cropper (2009) model\n'+'MAE = {:0.01f}%'.format(mape(x2,x1))+', RMSE = {:0.01f}%'.format(rmse(x2,x1)))
-#im = ax.scatter(x1, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='Discretized model\n'+'MAE = {:0.01f}%'.format(mape(y2,x1))+', RMSE = {:0.01f}%'.format(rmse(y2,x1)))
+im = ax.scatter(x1, x2, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='Discretized model\n'+'MAE = {:0.01f}%'.format(mape(x2,x1))+', RMSE = {:0.01f}%'.format(rmse(x2,x1)))
+#im = ax.scatter(x1, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='FV model\n'+'MAE = {:0.01f}%'.format(mape(y2,x1))+', RMSE = {:0.01f}%'.format(rmse(y2,x1)))
 # Add a colorbar
 #cbar = plt.colorbar(im, ax=ax)
 # set the color limits
@@ -187,7 +187,7 @@ ax.set_ylim((ax_min,ax_max))
 plt.ylabel(r'$T_{r,pred}$ [$\degree$C]') #r'$T_{r,pred}$ [{\textdegree}C]'
 plt.xlabel(r'$T_{r,exp}$ [$\degree$C]')
 plt.tight_layout()       
-plt.savefig('parity_refrigerant_temp_MB.pdf')
+plt.savefig('parity_refrigerant_temp_FV.pdf')
 plt.show()
 plt.close()
 
