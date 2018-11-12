@@ -115,8 +115,8 @@ im = ax.scatter(x4, y4, c='g', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1
   
 #error axes
 w=0.1 #Error
-ax_min = 4
-ax_max = 20 #x and y-axes max scale tick
+ax_min = 2
+ax_max = 18 #x and y-axes max scale tick
 upp_txt = (ax_min+ax_max) / 2.2 #location of upper error text on plot -- adjust the number to adjust the location
 low_txt = (ax_min+ax_max) / 2.0 #location of lower error text on plot -- adjust the number to adjust the location
 ax.plot(np.r_[0,ax_max],np.r_[0,ax_max],'k-',lw=1)
@@ -170,8 +170,8 @@ im = ax.scatter(x4, y4, c='g', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1
   
 #error axes
 w=3 #Error
-ax_min = 20
-ax_max = 60 #x and y-axes max scale tick
+ax_min = 15
+ax_max = 55 #x and y-axes max scale tick
 upp_txt = (ax_min+ax_max) / 2.1 #location of upper error text on plot -- adjust the number to adjust the location
 low_txt = (ax_min+ax_max) / 1.9 #location of lower error text on plot -- adjust the number to adjust the location
 ax.plot(np.r_[0,ax_max],np.r_[0,ax_max],'k-',lw=1)
