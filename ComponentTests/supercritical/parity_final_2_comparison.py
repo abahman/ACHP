@@ -131,9 +131,9 @@ ax.set_xlim((ax_min,ax_max))
 ax.set_ylim((ax_min,ax_max))
 plt.ylabel(r'$\dot Q_{pred}$ [kW]')
 plt.xlabel(r'$\dot Q_{exp}$ [kW]')
-plt.tight_layout()       
-plt.savefig('parity_heating_load_MB_combined.pdf')
-plt.show()
+plt.tight_layout(pad=0.2)       
+# plt.savefig('parity_heating_load_MB_combined.pdf')
+# plt.show()
 plt.close()
      
 #########################
@@ -186,9 +186,9 @@ ax.set_xlim((ax_min,ax_max))
 ax.set_ylim((ax_min,ax_max))
 plt.ylabel(r'$T_{r,pred}$ [$\degree$C]') #r'$T_{r,pred}$ [{\textdegree}C]'
 plt.xlabel(r'$T_{r,exp}$ [$\degree$C]')
-plt.tight_layout()       
-plt.savefig('parity_refrigerant_temp_MB_combined.pdf')
-plt.show()
+plt.tight_layout(pad=0.2)       
+# plt.savefig('parity_refrigerant_temp_MB_combined.pdf')
+# plt.show()
 plt.close()
 
 
@@ -199,16 +199,15 @@ plt.close()
 df = pd.read_excel('Table.xlsx',header=0) #file name
 #assign axes
 y1 = df['pred T_approach'][1:]
-#y2 = df['Q_new_FV'][1:].str[0:-1].str.split(' ', expand=True).astype(float)[0]
-#x1 = df['Q_siml'][1:]
+y2 = df['Simulated Approach Temp'][1:]
 x2 = df['Approach Temp'][1:]
 #c2 = df_dar['T_evap[i]'][1:]
 s = 40  # size of points
 
 fig, ax = plt.subplots(figsize=(4,4))
-im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Moving-Boundary model\n'+'MAE = {:0.01f}%'.format(mape(y1,x2))+', RMSE = {:0.01f}%'.format(rmse(y1,x2)))
-#im = ax.scatter(x2, x1, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='Ge and Cropper (2009) model\n'+'MAE = {:0.01f}%'.format(mape(x1,x2))+', RMSE = {:0.01f}%'.format(rmse(x1,x2)))
-#im = ax.scatter(x2, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='predicted (new) vs experimental'+' (MAE = {:0.01f}%'.format(mape(y2,x2))+', RMSE = {:0.01f}%)'.format(rmse(y2,x2)))
+im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Moving-Boundary model\n'+'MAE = {:0.01f}%'.format(mape(y1,x2))+', RMSD = {:0.01f}%'.format(rmse(y1,x2)))
+im = ax.scatter(x2, y2, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='Ge and Cropper (2009) model\n'+'MAE = {:0.01f}%'.format(mape(y2,x2))+', RMSD = {:0.01f}%'.format(rmse(y2,x2)))
+#im = ax.scatter(x2, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='predicted (new) vs experimental'+' (MAE = {:0.01f}%'.format(mape(y2,x2))+', RMSD = {:0.01f}%)'.format(rmse(y2,x2)))
 # Add a colorbar
 #cbar = plt.colorbar(im, ax=ax)
 # set the color limits
@@ -217,16 +216,16 @@ im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1
 #ax.text(0.8,0.95,'Markersize (speed) {:0.0f} Hz'.format(s),ha='center',va='center',transform = ax.transAxes,fontsize = 8)
   
 #error axes
-w=0.2 #Error
+w=3 #Error
 ax_min = 0
 ax_max = 25 #x and y-axes max scale tick
-upp_txt = (ax_min+ax_max) / 2.3 #location of upper error text on plot -- adjust the number to adjust the location
-low_txt = (ax_min+ax_max) / 1.7 #location of lower error text on plot -- adjust the number to adjust the location
+upp_txt = (ax_min+ax_max) / 2.1 #location of upper error text on plot -- adjust the number to adjust the location
+low_txt = (ax_min+ax_max) / 1.9 #location of lower error text on plot -- adjust the number to adjust the location
 ax.plot(np.r_[0,ax_max],np.r_[0,ax_max],'k-',lw=1)
-ax.plot(np.r_[0,ax_max],np.r_[0,ax_max*(1-w)],'k-.',lw=1)
-ax.plot(np.r_[0,ax_max],np.r_[0,ax_max*(1+w)],'k-.',lw=1)
-ax.text(low_txt-0.002,low_txt*(1-w),'$-${:0.0f}$\%$'.format(w*100),ha='left',va='top')
-ax.text(upp_txt-0.002,upp_txt*(1+w),'+{:0.0f}$\%$'.format(w*100),ha='right',va='bottom')
+ax.plot(np.r_[0,ax_max],np.r_[-w,ax_max-w],'k--',lw=1)
+ax.plot(np.r_[0,ax_max],np.r_[w,ax_max+w],'k--',lw=1)
+ax.text(low_txt-0.002,low_txt-w,'$-${:0.0f}K'.format(w),ha='left',va='top')
+ax.text(upp_txt-0.002,upp_txt+w,'+{:0.0f}K'.format(w),ha='right',va='bottom')
 leg=ax.legend(loc='upper left',scatterpoints=1,scatteryoffsets=[0.5])
 frame  = leg.get_frame()  
 frame.set_linewidth(1.0)
@@ -234,9 +233,9 @@ ax.set_xlim((ax_min,ax_max))
 ax.set_ylim((ax_min,ax_max))
 plt.ylabel(r'$\Delta T_{pred}$ [$\degree$C]')
 plt.xlabel(r'$\Delta T_{exp}$ [$\degree$C]')
-plt.tight_layout()       
-#plt.savefig('parity_approach_MB.pdf')
-#plt.show()
+plt.tight_layout(pad=0.2)       
+plt.savefig('parity_approach_MB.pdf')
+plt.show()
 plt.close()
 
 #########################
@@ -253,9 +252,9 @@ x2 = df['Tested pressure drop'][1:]
 s = 40  # size of points
 
 fig, ax = plt.subplots(figsize=(4,4))
-im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Moving-Boundary model\n'+'MAE = {:0.01f}%'.format(mape(y1,x2))+', RMSE = {:0.01f}%'.format(rmse(y1,x2)))
-#im = ax.scatter(x2, x1, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='Ge and Cropper (2009) model\n'+'MAE = {:0.01f}%'.format(mape(x1,x2))+', RMSE = {:0.01f}%'.format(rmse(x1,x2)))
-#im = ax.scatter(x2, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='predicted (new) vs experimental'+' (MAE = {:0.01f}%'.format(mape(y2,x2))+', RMSE = {:0.01f}%)'.format(rmse(y2,x2)))
+im = ax.scatter(x2, y1, c='r', s=s, cmap=plt.cm.jet, marker='s',lw=0.2, alpha =1.0,label='Moving-Boundary model\n'+'MAE = {:0.01f}%'.format(mape(y1,x2))+', RMSD = {:0.01f}%'.format(rmse(y1,x2)))
+#im = ax.scatter(x2, x1, c='k', s=s, cmap=plt.cm.jet, marker='o',lw=0.2, alpha =1.0,label='Ge and Cropper (2009) model\n'+'MAE = {:0.01f}%'.format(mape(x1,x2))+', RMSD = {:0.01f}%'.format(rmse(x1,x2)))
+#im = ax.scatter(x2, y2, c='b', s=s, cmap=plt.cm.jet, marker='^',lw=0.2, alpha =1.0,label='predicted (new) vs experimental'+' (MAE = {:0.01f}%'.format(mape(y2,x2))+', RMSD = {:0.01f}%)'.format(rmse(y2,x2)))
 # Add a colorbar
 #cbar = plt.colorbar(im, ax=ax)
 # set the color limits
@@ -281,7 +280,7 @@ ax.set_xlim((ax_min,ax_max))
 ax.set_ylim((ax_min,ax_max))
 plt.ylabel(r'$\Delta P_{pred}$ [kPa]')
 plt.xlabel(r'$\Delta P_{exp}$ [kPa]')
-plt.tight_layout()       
+plt.tight_layout(pad=0.2)       
 #plt.savefig('parity_pressure_MB.pdf')
 #plt.show()
 plt.close()

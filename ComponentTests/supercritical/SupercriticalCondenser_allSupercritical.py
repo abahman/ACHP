@@ -365,13 +365,14 @@ def SampleCondenser(Ta,v,Tr,p,m):
     Fins.Tubes.ID=7.5/1000
     Fins.Tubes.Pl=12.5/1000                #distance between center of tubes in flow direction                                                
     Fins.Tubes.Pt=24.211/1000                #distance between center of tubes orthogonal to flow direction
+    Fins.Tubes.kw=237                  #wall thermal conductivity (i.e pipe material)
     
     Fins.Fins.FPI=1/(1.5/1000/0.0254)   #Number of fins per inch
     Fins.Fins.Pd=0.001                  #2* amplitude of wavy fin
     Fins.Fins.xf=0.001                  #1/2 period of fin
     Fins.Fins.t=0.13/1000                #Thickness of fin material
     Fins.Fins.k_fin=237                 #Thermal conductivity of fin material
-    
+
     Fins.Air.Vdot_ha=v*0.281                #rated volumetric flowrate (m^3/s)
     Fins.Air.Tmean=Ta+273.15   
     Fins.Air.Tdb=Ta+273.15            #Dry Bulb Temperature

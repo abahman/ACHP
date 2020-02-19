@@ -652,7 +652,7 @@ class GasCoolerClass():
         
         # Target heat transfer to go from inlet temperature to iterative outlet temperature
         Q_target=self.mdot_r*(hout-self.hin_r)
-        
+        print(-Q_target/DWS.A_r)
         if Q_target>0:
             raise ValueError('Q_target in Gas cooler must be negative')
         
