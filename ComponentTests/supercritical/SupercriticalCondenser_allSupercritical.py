@@ -117,6 +117,9 @@ class CondenserClass():
         self.V_r = pi * self.ID**2 / 4.0 * self.Lcircuit * self.Ncircuits
         self.A_r_wetted = pi * self.ID * self.Ncircuits * self.Lcircuit
         self.G_r = self.mdot_r/(self.Ncircuits*pi*self.ID**2/4.0) 
+        
+        # Thermal resistance at the wall
+        self.Rw = log(self.OD/self.ID)/(2*pi*self.kw*self.Lcircuit*self.Ncircuits)
          
         # Define known parameters
         AS.update(CP.PT_INPUTS, self.psat_r, self.Tin_r)

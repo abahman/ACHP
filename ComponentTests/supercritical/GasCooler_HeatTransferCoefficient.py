@@ -128,15 +128,16 @@ y1 = SC_1
 y2 = SC_2
 y3 = SC_3
 y4 = SC_4
-plt.plot(x1,y1,':r',markersize=5,markeredgewidth=0.1,alpha=0.9,label=r'$\dot m_{r} = 0.02$ kg s$^{-1}$')
-plt.plot(x1,y2,'-.b',markersize=5,markeredgewidth=0.1,alpha=0.9,label=r'$\dot m_{r} = 0.05$ kg s$^{-1}$')
-plt.plot(x1,y3,'--g',markersize=5,markeredgewidth=0.1,alpha=0.9,label=r'$\dot m_{r} = 0.1$ kg s$^{-1}$')
+
 plt.plot(x1,y4,'-k',markersize=5,markeredgewidth=0.1,alpha=0.9,label=r'$\dot m_{r} = 0.2$ kg s$^{-1}$')
+plt.plot(x1,y3,'--g',markersize=5,markeredgewidth=0.1,alpha=0.9,label=r'$\dot m_{r} = 0.1$ kg s$^{-1}$')
+plt.plot(x1,y2,'-.b',markersize=5,markeredgewidth=0.1,alpha=0.9,label=r'$\dot m_{r} = 0.05$ kg s$^{-1}$')
+plt.plot(x1,y1,':r',markersize=5,markeredgewidth=0.1,alpha=0.9,label=r'$\dot m_{r} = 0.02$ kg s$^{-1}$')
 
 # plt.ylim(0,400)
 # plt.xlim(25,120)
 plt.xlabel(r'$T_{r}$ [$\degree$C]')
-plt.ylabel(r'$\alpha_{avg}$ [W m$^{-2}$ K$^{-1}$]')
+plt.ylabel(r'$\alpha_{r,avg}$ [W m$^{-2}$ K$^{-1}$]')
 leg = plt.legend(loc='best',fancybox=False,numpoints=1)
 frame  = leg.get_frame()  
 frame.set_linewidth(1.0)

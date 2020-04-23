@@ -23,6 +23,7 @@ ptriple = ref_fluid.keyed_output(CP.iP_triple)
 Tmin = 200
 Tmax = 1000
 pmax = ref_fluid.keyed_output(CP.iP_max)
+print(pmax)
 pt = ref_fluid.keyed_output(CP.iP_triple)
 Tt = ref_fluid.keyed_output(CP.iT_triple)
 fillcolor = 'g'
@@ -50,7 +51,8 @@ for T in np.linspace(max(TT), 350):
  
 PPnew = [p/1000 for p in PP]
 TTnew = [t-273.15 for t in TT]
-plt.plot(TTnew,PPnew,'darkblue',**melt_args)
+print(PPnew[-51]*1000)
+plt.plot(TTnew[:-51],PPnew[:-51],'darkblue',**melt_args)
 
 # ----------------
 # Saturation curve

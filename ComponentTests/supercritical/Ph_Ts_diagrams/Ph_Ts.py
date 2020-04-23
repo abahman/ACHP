@@ -96,6 +96,7 @@ ph_plot_R744._set_axis_limits([50000.0, 900000.0, 50000.0, 200000000.0]) #the ax
 ph_plot_R744.calc_isolines(CP.iT, iso_range=[Tcrit],num=1,points=500)
 ph_plot_R744.props[CP.iT]['color'] = 'black'
 ph_plot_R744.props[CP.iT]['lw'] = '1.0'
+ph_plot_R744.props[CP.iT]['ls'] = '-.'
 ph_plot_R744.draw()
 ph_plot_R744.isolines.clear()
 ph_plot_R744._set_axis_limits([50000.0, 900000.0, 50000.0, 200000000.0])
@@ -108,7 +109,7 @@ ph_plot_R744.xlabel(r'$h$ [kJ kg$^{-1}$]')
 ph_plot_R744.ylabel(r'$P$ [kPa]')
 ph_plot_R744.axis.set_yscale('log')
 #ph_plot_R407C.grid()
-plt.axhline(y=Pcrit/1000, color='k', linestyle='-',linewidth=1.0)
+plt.axhline(y=Pcrit/1000, color='k', linestyle='--',linewidth=1.0)
 plt.plot(hcrit/1000,Pcrit/1000,'^g',markersize=8,label='Critical point')
 
 plt.plot(h,P,'or-',markersize=8,label='Refrigerant side')
@@ -141,22 +142,26 @@ ts_plot_R744 = PropertyPlot(ref_fluid, 'Ts',unit_system='EUR') #'EUR' is bar, kJ
 ts_plot_R744.calc_isolines(CP.iP, iso_range=[74773/1000], num=1,points=500)
 ts_plot_R744.props[CP.iP]['color'] = 'black'
 ts_plot_R744.props[CP.iP]['lw'] = '1.0'
+ts_plot_R744.props[CP.iP]['ls'] = '--'
+# ts_plot_R744.props[CP.iP]['alpha'] = 0.5
 ts_plot_R744.draw()
 ts_plot_R744.isolines.clear()
 ts_plot_R744.calc_isolines(CP.iQ, iso_range=[0,1],num=2,points=500)
 ts_plot_R744.props[CP.iQ]['lw'] = 0.5
+# ts_plot_R744.props[CP.iQ]['ls'] = '--'
 ts_plot_R744.draw()
 ts_plot_R744.isolines.clear()
 ts_plot_R744.title('T-s R744')
 ts_plot_R744.xlabel(r'$s$ [kJ kg$^{-1}$ K$^{-1}$]')
 ts_plot_R744.ylabel(r'$T$ [$\degree$C]')
 #ts_plot_R407C.grid()
-plt.axhline(y=Tcrit-273.15, color='k', linestyle='-',linewidth=1.0)
+plt.axhline(y=Tcrit-273.15, color='k', linestyle='-.',linewidth=1.0)
 plt.plot(scrit/1000,Tcrit-273.15,'^g',markersize=8,label='Critical point')
 
-plt.plot(sair,Tair,'sb-',markersize=8,label='Air side')
+
 plt.plot(SS,TT,'or-',markersize=8,markevery=[0,-1],label='Refrigerant side')
 plt.plot(s,T,'or',markersize=8)
+plt.plot(sair,Tair,'sb-',markersize=8,label='Air side')
 plt.title('')
 plt.ylim([-50,150])
 plt.yticks([-50,-25,0,25,50,75,100,125,150],

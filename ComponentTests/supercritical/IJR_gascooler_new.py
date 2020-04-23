@@ -1,9 +1,19 @@
+"""
+Supplemental source code for paper:
+A. Bahman et al., "A generalized moving-boundary algorithm to predict the heat transfer rate of transcritical CO2 gas coolers", International Journal of Refrigeration, 2020
+
+Heat exchanger (epsilon-NTU) model adapted from:
+Bell, I.H., 2015. Air conditioning and heat pump model (ACHP) source code version 1.5. https://github.com/CenterHighPerformanceBuildingsPurdue/ACHP. (Accessed 30 January 2020).
+"""
+
 from __future__ import division, print_function, absolute_import
-from math import pi, sqrt, exp, log, tanh, cos, log10
-from scipy.optimize import brentq
-from scipy.integrate import quad
+
 import CoolProp as CP
 from CoolProp.CoolProp import HAPropsSI
+
+from scipy.optimize import brentq
+from scipy.integrate import quad
+from math import pi, sqrt, exp, log, tanh, cos, log10
 
 
 class DWSVals():
@@ -652,7 +662,7 @@ class GasCoolerClass():
         
         # Target heat transfer to go from inlet temperature to iterative outlet temperature
         Q_target=self.mdot_r*(hout-self.hin_r)
-        print(-Q_target/DWS.A_r)
+        
         if Q_target>0:
             raise ValueError('Q_target in Gas cooler must be negative')
         
@@ -749,51 +759,76 @@ class GasCoolerClass():
         self.DP_r_subcool=dpdz_r*self.Lcircuit*self.w_subcool
         
         return Q_target-DWS.Q
-     
-def SampleGasCooler():
+
+def SampleCondenser(Ta,v,Tr,p,m):
     Fins=FinInputs()
     Fins.Tubes.NTubes_per_bank=18       #number of tubes per bank or row
     Fins.Tubes.Nbank=3                  #number of banks or rows
     Fins.Tubes.Ncircuits=1              #number of circuits
-    Fins.Tubes.Ltube=0.61               #one tube length
+    Fins.Tubes.Ltube=0.61           #one tube length
     Fins.Tubes.OD=7.9/1000
     Fins.Tubes.ID=7.5/1000
-    Fins.Tubes.Pl=12.5/1000             #distance between center of tubes in flow direction                                                
-    Fins.Tubes.Pt=24.211/1000           #distance between center of tubes orthogonal to flow direction
+    Fins.Tubes.Pl=12.5/1000                #distance between center of tubes in flow direction                                                
+    Fins.Tubes.Pt=24.211/1000                #distance between center of tubes orthogonal to flow direction
+    Fins.Tubes.kw=237                  #wall thermal conductivity (i.e pipe material)
     
-    Fins.Fins.FPI=1/(1.5/1000/0.0254)   #number of fins per inch
+    Fins.Fins.FPI=1/(1.5/1000/0.0254)   #Number of fins per inch
     Fins.Fins.Pd=0.001                  #2* amplitude of wavy fin
     Fins.Fins.xf=0.001                  #1/2 period of fin
-    Fins.Fins.t=0.13/1000               #thickness of fin material
-    Fins.Fins.k_fin=237                 #thermal conductivity of fin material
-    
-    Fins.Air.Vdot_ha=1*0.281            #rated volumetric flowrate (m^3/s)
-    Fins.Air.Tmean=29.4+273.15   
-    Fins.Air.Tdb=29.4+273.15            #dry Bulb Temperature
-    Fins.Air.p=101325                   #air pressure in Pa
-    Fins.Air.RH=0.5                     #relative Humidity
+    Fins.Fins.t=0.13/1000                #Thickness of fin material
+    Fins.Fins.k_fin=237                 #Thermal conductivity of fin material
+
+    Fins.Air.Vdot_ha=v*0.281                #rated volumetric flowrate (m^3/s)
+    Fins.Air.Tmean=Ta+273.15   
+    Fins.Air.Tdb=Ta+273.15            #Dry Bulb Temperature
+    Fins.Air.p=101325                   #Air pressure in Pa
+    Fins.Air.RH=0.5                     #Relative Humidity
     Fins.Air.RHmean=0.5
     Fins.Air.FanPower=160    
     
     params={
         'Ref': 'R744',
-        'mdot_r': 0.038,
-        'Tin_r': 118.1+273.15,
-        'psat_r': 9*1000000,
+        'mdot_r': m,
+        'Tin_r': Tr+273.15,
+        'psat_r': p*1000000,
         'Fins': Fins,
-        'FinsType': 'WavyLouveredFins',
+        'FinsType': 'WavyLouveredFins',  #Choose fin Type: 'WavyLouveredFins' or 'HerringboneFins'or 'PlainFins'
         'Verbosity':0,
-        'Backend':'HEOS'
+        'Backend':'HEOS' #choose between: 'HEOS','TTSE&HEOS','BICUBIC&HEOS','REFPROP','SRK','PR'
     }
-    GasCooler=GasCoolerClass(**params)
-    GasCooler.Calculate()
-    return GasCooler
+    Cond=GasCoolerClass(**params)
+    Cond.Calculate()
+    return Cond
     
 if __name__=='__main__':
-    GasCooler=SampleGasCooler()
-    print ('Refrigerant outlet temperature in gascooler is', GasCooler.Tout_r-273.15,'C')
-    print ('Heat transfer rate in gascooler is', GasCooler.Q,'W')
-    print ('Heat transfer rate in gascooler (supercritical section) is', GasCooler.Q_supercritical,'W')
-    print ('Heat transfer rate in gascooler (supercritical_liquid section) is', GasCooler.Q_subcool,'W')
-    print ('Fraction of circuit length in supercritical section is', GasCooler.w_supercritical)
-    print ('Fraction of circuit length in supercritical_liquid section is', GasCooler.w_subcool)
+    #This runs if you run this file directly
+    import pandas as pd
+    #from Refpropp_mix_SI import PropsSI
+    from time import time
+    t1=time()
+    df = pd.read_excel('Table.xlsx',sheet_name='Sheet1')
+    for i in range(36):
+        Cond=SampleCondenser(df['Air Inlet Air Temps'][i+1],df['Air Velocity'][i+1],df['Ref Inlet Temp'][i+1],df['Ref Inlet Pressure'][i+1],df['Ref Flow Rate'][i+1])
+        #print (df['Ref Flow Rate'][i+1]/1000 * (PropsSI("H", "T", df['Ref Inlet Temp'][i+1]+273.15, "P", df['Ref Inlet Pressure'][i+1]*1000000, "R744") - PropsSI("H", "T", df['Tested Ref Outlet Temp'][i+1]+273.15, "P", df['Ref Inlet Pressure'][i+1]*1000000, "R744")))
+        print (-1*Cond.Q/1000)
+        #h1 = PropsSI("H", "T", df['Ref Inlet Temp'][i+1]+273.15, "P", df['Ref Inlet Pressure'][i+1]*1000000, "HEOS::R744")
+        #deltah=df['Ref enthalpy difference'][i+1]*1000
+        #h2 = h1 - deltah #[J/kg]
+        #p2 = PropsSI("P", "T", df['Tested Ref Outlet Temp'][i+1]+273.15, "H", h2, "HEOS::R744")
+        #deltaP = (df['Ref Inlet Pressure'][i+1]*1000000 - p2)/1000 #[kPa]
+        #print(-Cond.DP_r/1000)
+        #print (str(Cond.Tin_r-273.15)+str(',')+str(Cond.Tcr-273.15)+str(',')+str(Cond.Tout_r-273.15))
+        #print (str(Cond.psat_r/1000)+str(',')+str(Cond.psat_r/1000)+str(',')+str(Cond.psat_r/1000))
+        #print (str(Cond.hin_r/1000)+str(',')+str(Cond.hcr/1000)+str(',')+str(Cond.hout_r/1000))
+        #print (str(Cond.sin_r/1000)+str(',')+str(Cond.scr/1000)+str(',')+str(Cond.sout_r/1000))
+        #print (str(Cond.Tin_a-273.15)+str(',')+str(Cond.Tout_a-273.15))
+        #print (str(Cond.sout_r/1000)+str(',')+str(Cond.sin_r/1000))
+    #print(Cond.OutputList())
+    print ('Took '+str(time()-t1)+' seconds to run Cycle model')
+    #print('Heat transfer rate in gas cooler is', Cond.Q,'W')
+    #print('Heat transfer rate in gas cooler (supercritical section) is',Cond.Q_supercritical,'W')
+    #print('Heat transfer rate in gas cooler (supercritical_liquid section) is',Cond.Q_subcool,'W')
+    #print('Fraction of circuit length in supercritical section is',Cond.w_supercritical)
+    #print('Fraction of circuit length in supercritical_liquid section is',Cond.w_subcool)
+    #print('Refrigerant outlet temperature is',Cond.Tout_r-273.15, 'C')
+    #print('Air outlet temperature is',Cond.Tout_a-273.15, 'C')     
